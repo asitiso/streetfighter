@@ -38,3 +38,17 @@ jobs:
         run: node scripts/verify-stage-flow.mjs
       - name: Verify options
         run: node scripts/verify-options.mjs
+      - name: Verify AI archetypes
+        run: node scripts/verify-ai-archetypes.mjs
+      - name: Verify character fidelity
+        run: node scripts/verify-character-fidelity.mjs
+      - name: Verify super arts
+        run: node scripts/verify-super-arts.mjs
+      - name: Verify techniques
+        run: node scripts/verify-techniques.mjs
+      - name: Verify combat feedback
+        run: node scripts/verify-feedback.mjs
+      - name: Verify resilience
+        run: node scripts/verify-v025-resilience.mjs
+      - name: Verify release candidate
+        run: node scripts/verify-v063-rc38.mjs
