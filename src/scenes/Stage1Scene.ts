@@ -137,7 +137,7 @@ export class Stage1Scene implements Scene {
         this.cameraFocusX = this.world.player.x;
         this.cameraFocusY = this.world.player.y - 105;
         this.cameraFocusZoom = 1.1;
-      } else if (!this.defeatDispatched && (this.input.pressed('start') || this.input.pressed('lp') || this.input.pressed('lk'))) {
+      } else if (!this.defeatDispatched && (this.input.pressed('start') || this.input.pressed('confirm') || this.input.pressed('lp') || this.input.pressed('lk'))) {
         this.defeatDispatched = true;
         this.onDefeat?.();
       }
@@ -2417,7 +2417,7 @@ export class Stage1Scene implements Scene {
     ctx.fillText('K.O.', 640, 350);
     ctx.fillStyle = `rgba(241,189,81,${retryReveal})`;
     ctx.font = '900 16px Arial Black, sans-serif';
-    ctx.fillText(this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / ATTACK TO RETRY', 640, 406);
+    ctx.fillText(this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / ENTER / ATTACK TO RETRY', 640, 406);
     ctx.fillStyle = `rgba(255,255,255,${.62 * retryReveal})`;
     ctx.font = '800 11px Arial, sans-serif';
     ctx.fillText('CHARACTER / SUPER ART / CAMPAIGN PROGRESS KEPT', 640, 430);
@@ -2435,7 +2435,7 @@ export class Stage1Scene implements Scene {
     ctx.fillText('PAUSED', 640, 334);
     ctx.fillStyle = '#f1bd51';
     ctx.font = '900 16px Arial Black, sans-serif';
-    ctx.fillText('START / ENTER / P : CONTINUE', 640, 388);
+    ctx.fillText('START / P : CONTINUE', 640, 388);
     ctx.fillStyle = 'rgba(255,255,255,.68)';
     ctx.font = '800 11px Arial, sans-serif';
     ctx.fillText('SPACE / JUMP : JUMP   •   ↑ ↓ : DEPTH MOVE IN BELT MODE', 640, 416);
