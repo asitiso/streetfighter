@@ -36,7 +36,7 @@ for (const deferred of ['Stage2Scene.js','Stage3Scene.js','Stage4Scene.js','Stag
   if (appShellSlice.includes(url)) { console.error('DEFERRED MODULE CACHED TOO EARLY', url); failed = true; }
 }
 if (failed) process.exit(1);
-const sceneManagerSource = readFileSync(join(dist, 'assets/core/SceneManager.js'), 'utf8');
+const sceneManagerSource = readFileSync(join(root, 'assets/core/SceneManager.js'), 'utf8');
 if (!sceneManagerSource.includes('transitionTail') || !sceneManagerSource.includes('this.current = null')) {
   throw new Error('BUILD VERIFY FAIL: scene transitions are not serialized');
 }
