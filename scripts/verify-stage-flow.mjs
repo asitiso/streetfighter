@@ -5,7 +5,14 @@ import { Stage4Scene } from '../dist/assets/scenes/Stage4Scene.js';
 import { Stage5Scene } from '../dist/assets/scenes/Stage5Scene.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
 
-class StubInput { held() { return false; } pressed() { return false; } released() { return false; } }
+class StubInput {
+  constructor() { this.heldActions = new Set(); this.pressedActions = new Set(); }
+  held(action) { return this.heldActions.has(action); }
+  pressed(action) { return this.pressedActions.has(action); }
+  released() { return false; }
+  press(action) { this.pressedActions.add(action); }
+  clear() { this.pressedActions.clear(); }
+}
 class StubAudio { playStagePulse() {} playHit() {} playParry() {} }
 const fail = (message) => { console.error('STAGE_FLOW_FAIL', message); process.exit(1); };
 
@@ -85,13 +92,41 @@ function clearStage5(scene, tickBase = 4000) {
 const character = getCharacter('RYU');
 
 let defeatCallback = false;
-const defeatScene = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 1, undefined, () => { defeatCallback = true; });
+const defeatInput = new StubInput();
+const defeatScene = new Stage1Scene(defeatInput, new StubAudio(), character, character.superArts[0], 1, undefined, () => { defeatCallback = true; });
 defeatScene.introFrames = 0;
 defeatScene.world.player.hp = 0;
 defeatScene.fixedUpdate(1 / 60, 9000);
 if (defeatScene.phase !== 'defeat') fail(`player KO did not enter defeat phase: ${defeatScene.phase}`);
 for (let i = 0; i < 121; i += 1) defeatScene.fixedUpdate(1 / 60, 9001 + i);
-if (!defeatCallback) fail('player KO did not dispatch retry callback');
+if (defeatCallback) fail('player KO retried without user input');
+defeatInput.press('start');
+defeatScene.fixedUpdate(1 / 60, 9200);
+defeatInput.clear();
+if (!defeatCallback) fail('player KO retry input did not dispatch callback');
+
+const jumpInput = new StubInput();
+const jumpScene = new Stage1Scene(jumpInput, new StubAudio(), character, character.superArts[0], 1);
+jumpScene.introFrames = 0;
+jumpInput.press('jump');
+jumpScene.fixedUpdate(1 / 60, 9300);
+jumpInput.clear();
+if (!jumpScene.world.player.airborne || jumpScene.world.player.jumpHeight < 0) fail('belt-mode dedicated jump input failed');
+
+const pauseInput = new StubInput();
+const pauseScene = new Stage1Scene(pauseInput, new StubAudio(), character, character.superArts[0], 1);
+pauseScene.introFrames = 0;
+pauseInput.press('start');
+pauseScene.fixedUpdate(1 / 60, 9400);
+pauseInput.clear();
+if (!pauseScene.paused) fail('START did not pause stage');
+const pausedTime = pauseScene.stageTime;
+for (let i = 0; i < 10; i += 1) pauseScene.fixedUpdate(1 / 60, 9401 + i);
+if (pauseScene.stageTime !== pausedTime) fail('stage timer advanced while paused');
+pauseInput.press('start');
+pauseScene.fixedUpdate(1 / 60, 9412);
+pauseInput.clear();
+if (pauseScene.paused) fail('START did not resume stage');
 
 let clear1 = false, clear2 = false, clear3 = false, clear4 = false, clear5 = false;
 const stage1 = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 1, () => { clear1 = true; });
@@ -134,4 +169,6 @@ console.log('STAGE_FLOW_VERIFY_PASS', {
   stage5FinalBoss: 'GILL',
   gillPhases: 3,
   playerKoRetry: defeatCallback,
+  beltJump: jumpScene.world.player.airborne,
+  pauseResume: !pauseScene.paused,
 });

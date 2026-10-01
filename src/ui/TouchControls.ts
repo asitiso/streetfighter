@@ -49,6 +49,7 @@ export class TouchControls {
         <button data-action="lp">LP</button><button data-action="mp">MP</button><button data-action="hp">HP</button>
         <button data-action="lk">LK</button><button data-action="mk">MK</button><button data-action="hk">HK</button>
       </div>
+      <button class="jump-button" data-action="jump">JUMP</button>
       <button class="start-button" data-action="start">START</button>`;
 
     for (const node of this.element.querySelectorAll<HTMLButtonElement>('[data-action]')) {
@@ -80,7 +81,7 @@ export class TouchControls {
 
   releaseAll(): void {
     this.drag = null;
-    for (const action of ['left','right','up','down','lp','mp','hp','lk','mk','hk','start'] as Action[]) this.input.setTouch(action, false);
+    for (const action of ['left','right','up','down','jump','lp','mp','hp','lk','mk','hk','start'] as Action[]) this.input.setTouch(action, false);
   }
 
   setVisible(visible: boolean): void {
@@ -121,7 +122,7 @@ export class TouchControls {
     this.commitCallback = onCommit ?? null;
     this.element.classList.toggle('editing', editing);
     if (!editing) this.drag = null;
-    for (const action of ['left','right','up','down','lp','mp','hp','lk','mk','hk','start'] as Action[]) this.input.setTouch(action, false);
+    for (const action of ['left','right','up','down','jump','lp','mp','hp','lk','mk','hk','start'] as Action[]) this.input.setTouch(action, false);
   }
 
   private beginDrag(event: PointerEvent, group: DragGroup): void {

@@ -6,7 +6,7 @@ export interface BufferedInput {
   pressed: Set<Action>;
 }
 
-const WATCHED: Action[] = ['left', 'right', 'up', 'down', 'lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'start'];
+const WATCHED: Action[] = ['left', 'right', 'up', 'down', 'jump', 'lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'start'];
 
 export class InputBuffer {
   private frames: BufferedInput[] = [];

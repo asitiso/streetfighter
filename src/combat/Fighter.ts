@@ -163,7 +163,7 @@ export class Fighter {
     if (!this.airborne && input.pressed('left') && this.buffer.doubleTap('left', 11)) { this.startDash(-1); this.clamp(rules); return; }
     if (!this.airborne && input.pressed('right') && this.buffer.doubleTap('right', 11)) { this.startDash(1); this.clamp(rules); return; }
 
-    if (!rules.depthMovement && !this.airborne && input.pressed('up')) {
+    if (!this.airborne && (input.pressed('jump') || (!rules.depthMovement && input.pressed('up')))) {
       this.airborne = true;
       this.jumpVelocity = this.combatProfile.jumpVelocity;
       this.state = 'jump';

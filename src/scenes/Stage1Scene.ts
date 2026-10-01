@@ -47,6 +47,7 @@ export class Stage1Scene implements Scene {
   private finalKoFrames = 0;
   private defeatFrames = 0;
   private defeatDispatched = false;
+  private paused = false;
   private gillPhase: 1 | 2 | 3 = 1;
   private gillPhaseBanner = 0;
   private bossPatternCooldown = 0;
@@ -129,6 +130,25 @@ export class Stage1Scene implements Scene {
   destroy(): void {}
 
   fixedUpdate(dt: number, tick: number): void {
+    if (this.phase === 'defeat') {
+      if (this.defeatFrames > 0) {
+        this.defeatFrames = Math.max(0, this.defeatFrames - 1);
+        this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 2);
+        this.cameraFocusX = this.world.player.x;
+        this.cameraFocusY = this.world.player.y - 105;
+        this.cameraFocusZoom = 1.1;
+      } else if (!this.defeatDispatched && (this.input.pressed('start') || this.input.pressed('lp') || this.input.pressed('lk'))) {
+        this.defeatDispatched = true;
+        this.onDefeat?.();
+      }
+      return;
+    }
+    if (this.input.pressed('start')) {
+      this.paused = !this.paused;
+      return;
+    }
+    if (this.paused) return;
+
     const visualScale = this.cameraSlowFrames > 0 ? .42 : 1;
     this.time += dt * visualScale;
     this.tickCameraPresentation();
@@ -167,18 +187,6 @@ export class Stage1Scene implements Scene {
       const timing = transitionPolishProfile(this.stageId);
       const dispatchAt = this.stageId === 5 ? timing.finalClearDispatchAt : timing.clearDispatchAt;
       if (!this.clearDispatched && this.phaseFrames <= dispatchAt) { this.clearDispatched = true; this.onClear?.(this.stageResult()); }
-      return;
-    }
-    if (this.phase === 'defeat') {
-      this.defeatFrames = Math.max(0, this.defeatFrames - 1);
-      this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 2);
-      this.cameraFocusX = this.world.player.x;
-      this.cameraFocusY = this.world.player.y - 105;
-      this.cameraFocusZoom = 1.1;
-      if (!this.defeatDispatched && this.defeatFrames <= 0) {
-        this.defeatDispatched = true;
-        this.onDefeat?.();
-      }
       return;
     }
     if (this.phase === 'belt' && this.waveBreakFrames > 0) {
@@ -337,6 +345,7 @@ export class Stage1Scene implements Scene {
     this.drawStageClear(ctx);
     this.drawHelp(ctx);
     this.drawDefeat(ctx);
+    this.drawPause(ctx);
     ctx.restore();
   }
 
@@ -2406,10 +2415,28 @@ export class Stage1Scene implements Scene {
     ctx.fillText('K.O.', 640, 350);
     ctx.fillStyle = `rgba(241,189,81,${retryReveal})`;
     ctx.font = '900 16px Arial Black, sans-serif';
-    ctx.fillText('RETRYING CURRENT STAGE', 640, 406);
+    ctx.fillText(this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / K TO RETRY', 640, 406);
     ctx.fillStyle = `rgba(255,255,255,${.62 * retryReveal})`;
     ctx.font = '800 11px Arial, sans-serif';
     ctx.fillText('CHARACTER / SUPER ART / CAMPAIGN PROGRESS KEPT', 640, 430);
+    ctx.restore();
+  }
+
+  private drawPause(ctx: CanvasRenderingContext2D): void {
+    if (!this.paused || this.phase === 'defeat') return;
+    ctx.save();
+    ctx.fillStyle = 'rgba(3,4,8,.72)';
+    ctx.fillRect(0, 0, 1280, 720);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 82px Impact, Arial Black, sans-serif';
+    ctx.fillText('PAUSED', 640, 334);
+    ctx.fillStyle = '#f1bd51';
+    ctx.font = '900 16px Arial Black, sans-serif';
+    ctx.fillText('START / ENTER / P : CONTINUE', 640, 388);
+    ctx.fillStyle = 'rgba(255,255,255,.68)';
+    ctx.font = '800 11px Arial, sans-serif';
+    ctx.fillText('SPACE / JUMP : JUMP   •   ↑ ↓ : DEPTH MOVE IN BELT MODE', 640, 416);
     ctx.restore();
   }
 
@@ -2701,7 +2728,7 @@ export class Stage1Scene implements Scene {
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(5,7,12,.72)'; ctx.beginPath(); ctx.roundRect(22, 628, 1236, 76, 12); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.74)'; ctx.font = '700 11px Arial, sans-serif';
-    ctx.fillText(this.world.rules.mode === 'duel' ? 'DUEL: ← → WALK   ↑ JUMP   ↓ CROUCH   •   LP MP HP / LK MK HK' : 'BELT: ← → ADVANCE   ↑ ↓ DEPTH   •   LP MP HP / LK MK HK', 38, 650);
+    ctx.fillText(this.world.rules.mode === 'duel' ? 'DUEL: ← → WALK   ↑ / SPACE JUMP   ↓ CROUCH   •   LP MP HP / LK MK HK' : 'BELT: ← → ADVANCE   ↑ ↓ DEPTH   •   SPACE / JUMP BUTTON = JUMP   •   LP MP HP / LK MK HK', 38, 650);
     ctx.fillText('PARRY: TAP FORWARD   •   LOW PARRY: TAP DOWN   •   THROW: LP+LK', 38, 669);
     const techniques = techniqueCatalogFor(this.playerDef.id);
     const command = techniques.command;

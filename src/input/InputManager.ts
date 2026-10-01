@@ -1,4 +1,4 @@
-export type Action = 'left' | 'right' | 'up' | 'down' | 'lp' | 'mp' | 'hp' | 'lk' | 'mk' | 'hk' | 'start';
+export type Action = 'left' | 'right' | 'up' | 'down' | 'jump' | 'lp' | 'mp' | 'hp' | 'lk' | 'mk' | 'hk' | 'start';
 
 type ActionState = {
   held: boolean;
@@ -11,7 +11,7 @@ type ActionState = {
   gamepadHeld: boolean;
 };
 
-const ACTIONS: Action[] = ['left', 'right', 'up', 'down', 'lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'start'];
+const ACTIONS: Action[] = ['left', 'right', 'up', 'down', 'jump', 'lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'start'];
 
 export class InputManager {
   private states = new Map<Action, ActionState>(ACTIONS.map((a) => [a, {
@@ -22,7 +22,7 @@ export class InputManager {
     ['ArrowLeft', 'left'], ['KeyA', 'left'], ['ArrowRight', 'right'], ['KeyD', 'right'],
     ['ArrowUp', 'up'], ['KeyW', 'up'], ['ArrowDown', 'down'], ['KeyS', 'down'],
     ['KeyJ', 'lp'], ['KeyK', 'mp'], ['KeyL', 'hp'], ['KeyU', 'lk'], ['KeyI', 'mk'], ['KeyO', 'hk'],
-    ['Enter', 'start'], ['Space', 'start'],
+    ['Space', 'jump'], ['Enter', 'start'], ['Escape', 'start'], ['KeyP', 'start'],
   ]);
 
   constructor() {
@@ -101,6 +101,7 @@ export class InputManager {
     this.setGamepad('right', axisX > 0.45 || (pad.buttons[15]?.pressed ?? false));
     this.setGamepad('up', axisY < -0.45 || (pad.buttons[12]?.pressed ?? false));
     this.setGamepad('down', axisY > 0.45 || (pad.buttons[13]?.pressed ?? false));
+    this.setGamepad('jump', pad.buttons[8]?.pressed ?? false);
     this.setGamepad('lp', pad.buttons[0]?.pressed ?? false);
     this.setGamepad('mp', pad.buttons[1]?.pressed ?? false);
     this.setGamepad('hp', pad.buttons[3]?.pressed ?? false);
