@@ -85,6 +85,7 @@ export class TouchControls {
   }
 
   setVisible(visible: boolean): void {
+    if (!visible) this.releaseAll();
     this.active = visible;
     this.element.classList.toggle('hidden', !visible);
   }
