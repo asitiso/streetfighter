@@ -137,8 +137,7 @@ export class TouchControls {
     this.previewCallback = onPreview ?? null;
     this.commitCallback = onCommit ?? null;
     this.element.classList.toggle('editing', editing);
-    if (!editing) this.drag = null;
-    for (const action of ['left','right','up','down','jump','lp','mp','hp','lk','mk','hk','start'] as Action[]) this.input.setTouch(action, false);
+    this.releaseAll();
   }
 
   private onDpadPointerDown = (event: PointerEvent): void => {
