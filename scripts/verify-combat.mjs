@@ -70,6 +70,25 @@ const crouchFighter = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
 input.set(['down', 'mk'], ['down', 'mk']); crouchFighter.captureInput(input, 1); crouchFighter.updatePlayer(input, duelRules);
 if (crouchFighter.currentMove?.id !== '2MK') fail(`expected 2MK, got ${crouchFighter.currentMove?.id ?? 'none'}`);
 
+const interrupted = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+const interrupter = new Fighter(getCharacter('KEN'), 'enemy', 460, 500, -1);
+interrupted.startMove(normalFor('hp'));
+interrupted.moveFrame = interrupted.currentMove.startup;
+if (!interrupted.isMoveActive()) fail('interruption fixture never entered active frames');
+interrupted.receiveHit(normalFor('lp'), interrupter, false, true);
+if (interrupted.currentMove !== null || interrupted.isMoveActive() || interrupted.state !== 'hit') fail('hit did not cancel stale active move');
+
+const blocked = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+blocked.startMove(normalFor('hp'));
+blocked.receiveHit(normalFor('lp'), interrupter, true, false);
+if (blocked.currentMove !== null || blocked.state !== 'block') fail('block did not cancel stale current move');
+
+const parried = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+parried.startMove(normalFor('hp'));
+parried.parryWindow = 10;
+parried.receiveHit(normalFor('lp'), interrupter, false, false);
+if (parried.currentMove !== null || parried.state !== 'parry') fail('parry did not cancel stale current move');
+
 console.log('COMBAT_VERIFY_PASS', {
   hitDamage: 1000 - hitWorld.enemy.hp,
   guard: true,
@@ -80,4 +99,7 @@ console.log('COMBAT_VERIFY_PASS', {
   throwEscape: true,
   jump: true,
   crouchNormal: crouchFighter.currentMove.id,
+  interruptedMoveCancelled: interrupted.currentMove === null,
+  blockedMoveCancelled: blocked.currentMove === null,
+  parriedMoveCancelled: parried.currentMove === null,
 });

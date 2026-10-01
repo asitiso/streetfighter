@@ -325,7 +325,7 @@ export class Fighter {
   }
 
   isMoveActive(): boolean {
-    if (!this.currentMove) return false;
+    if (this.state !== 'attack' || !this.currentMove) return false;
     return this.moveFrame >= this.currentMove.startup && this.moveFrame < this.currentMove.startup + this.currentMove.active;
   }
 
@@ -351,6 +351,7 @@ export class Fighter {
       return 'parry';
     }
     if (guarding && move.level !== 'throw' && !move.guardBreak) {
+      this.interruptMove();
       this.state = 'block';
       this.stateFrame = -move.blockStun;
       this.x += attacker.facing * move.pushback * .3;
@@ -358,6 +359,7 @@ export class Fighter {
       return 'block';
     }
 
+    this.interruptMove();
     const juggleScale = this.airborne ? Math.max(.58, 1 - this.juggleHits * .09) : 1;
     const damage = Math.round(move.damage * (counter ? 1.12 : 1) * juggleScale);
     this.hp = Math.max(0, this.hp - damage);
@@ -623,12 +625,24 @@ export class Fighter {
   }
 
   private enterParry(frames: number): void {
+    this.interruptMove();
     this.state = 'parry';
     this.stateFrame = -frames;
     this.hitStop = 2;
     this.parryWindow = 0;
     this.lowParryWindow = 0;
     this.redParryWindow = 0;
+  }
+
+  private interruptMove(): void {
+    this.currentMove = null;
+    this.moveFrame = 0;
+    this.attackConnected = false;
+    this.attackVictims.clear();
+    this.attackVictimFrames.clear();
+    this.attackVictimHits.clear();
+    this.moveEffectTriggered = false;
+    this.moveStartAnnounced = false;
   }
 
   private advanceMove(): void {
