@@ -166,6 +166,10 @@ export class TouchControls {
     this.element.style.setProperty('--stick-y', `${this.settings.stickY}px`);
     this.element.style.setProperty('--buttons-x', `${this.settings.buttonsX}px`);
     this.element.style.setProperty('--buttons-y', `${this.settings.buttonsY}px`);
+    const scaledButtonGroupWidth = 210 * this.settings.buttonScale;
+    const scaledJumpInset = 37 * this.settings.buttonScale;
+    this.element.style.setProperty('--jump-x', `${this.settings.buttonsX + scaledButtonGroupWidth + 10}px`);
+    this.element.style.setProperty('--jump-y', `${this.settings.buttonsY + scaledJumpInset}px`);
   }
 
   private vibrate(ms: number): void {
