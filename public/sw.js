@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'game-cache-v064';
+const CACHE_VERSION = 'game-cache-v065';
 const GAME_CACHE_PREFIX = 'game-cache-v';
 const UPDATE_META_CACHE = 'ssc-update-meta';
 const ROLLBACK_MARKER = '/__ssc_rollback_target__';
@@ -93,10 +93,9 @@ self.addEventListener('fetch', (event) => {
     if (url.origin !== self.location.origin) return fetch(event.request);
 
     const rollback = await rollbackTarget();
-    const pathname = url.pathname;
-    const pinCurrentShell = APP_SHELL.includes(pathname);
-    if (rollback && !pinCurrentShell) {
-      const rollbackHit = await (await caches.open(rollback)).match(event.request);
+    if (rollback) {
+      const rollbackCache = await caches.open(rollback);
+      const rollbackHit = await rollbackCache.match(event.request);
       if (rollbackHit) return rollbackHit;
     }
 
