@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { specialKeyPoseAsset, specialKeyPoseVisible } from '../dist/assets/render/SpecialKeyPoseLibrary.js';
+import { specialKeyPoseAsset, specialKeyPoseOpacity } from '../dist/assets/render/SpecialKeyPoseLibrary.js';
 import { specialMovesFor, superArtMoveFor } from '../dist/assets/combat/MoveLibrary.js';
 
 const ken = specialMovesFor('KEN');
@@ -25,9 +25,12 @@ for (const [character, move, kind] of cases) {
   assert.equal(asset, `/art/special-keyposes/${character.toLowerCase()}/${kind}.webp`, `${move.id} pose`);
   const data = readFileSync(new URL(`../public${asset}`, import.meta.url));
   assert.equal(data.toString('ascii', 0, 4), 'RIFF', `${kind} webp`);
-  assert.equal(specialKeyPoseVisible(move, move.startup - 1), false, `${move.id} startup`);
-  assert.equal(specialKeyPoseVisible(move, move.startup), true, `${move.id} contact`);
-  assert.equal(specialKeyPoseVisible(move, move.startup + move.active + 5), false, `${move.id} recovery`);
+  assert.equal(specialKeyPoseOpacity(move, -1), 0, `${move.id} before startup`);
+  assert.ok(specialKeyPoseOpacity(move, Math.max(0, move.startup - 1)) > 0, `${move.id} charge`);
+  assert.equal(specialKeyPoseOpacity(move, move.startup), 1, `${move.id} contact`);
+  assert.equal(specialKeyPoseOpacity(move, move.startup + move.active - 1), 1, `${move.id} last active`);
+  assert.ok(specialKeyPoseOpacity(move, move.startup + move.active) > 0, `${move.id} recovery blend`);
+  assert.equal(specialKeyPoseOpacity(move, move.startup + move.active + 5), 0, `${move.id} recovery end`);
 }
 assert.equal(specialKeyPoseAsset('RYU', ken.primary), null);
 console.log('SPECIAL_KEYPOSES_PASS', { moves: cases.length });

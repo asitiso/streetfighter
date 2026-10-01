@@ -17,7 +17,7 @@ import { animationTransitionSample } from './AnimationTransitionProfiles.js';
 import { animationSequenceSample } from './AnimationTimingMapper.js';
 import { animationTextureManager } from './AnimationTextureManager.js';
 import { animationFrameProfile } from './AnimationFrameProfiles.js';
-import { specialKeyPoseAsset, specialKeyPoseImage, specialKeyPoseVisible } from './SpecialKeyPoseLibrary.js';
+import { specialKeyPoseAsset, specialKeyPoseImage, specialKeyPoseOpacity } from './SpecialKeyPoseLibrary.js';
 
 
 interface NaturalizedRenderPose {
@@ -370,20 +370,36 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
   return true;
 }
 
-function drawSpecialKeyPoseSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number): boolean {
+function drawSpecialKeyPoseSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
   const move = fighter.currentMove;
-  if (fighter.state !== 'attack' || !move || !characterTextureManager.wantsHd() || !specialKeyPoseVisible(move, fighter.moveFrame)) return false;
+  if (fighter.state !== 'attack' || !move || !characterTextureManager.wantsHd()) return false;
+  const opacity = specialKeyPoseOpacity(move, fighter.moveFrame);
+  if (opacity <= 0) return false;
   const asset = specialKeyPoseAsset(fighter.character.id, move);
-  const image = asset ? specialKeyPoseImage(asset) : null;
+  if (!asset) return false;
+  const image = specialKeyPoseImage(asset);
   if (!image) return false;
 
+  if (opacity < 1) {
+    ctx.save();
+    ctx.globalAlpha *= 1 - opacity;
+    if (!drawAttackAtlasSprite(ctx, fighter, x, y, time)) drawAssetCombatSprite(ctx, fighter, x, y, time);
+    ctx.restore();
+  }
+
+  const activeProgress = Math.max(0, Math.min(1, (fighter.moveFrame - move.startup) / Math.max(1, move.active)));
+  const lift = asset.includes('shoryuken') ? activeProgress * 10 : asset.includes('tatsumaki') || asset.includes('spinning-bird-kick') ? Math.sin(activeProgress * Math.PI) * 5 : 0;
+  const drive = asset.includes('hadoken') || asset.includes('kikoken') ? activeProgress * 4 : asset.includes('super-rush') ? activeProgress * 7 : 0;
+  const rotation = asset.includes('tatsumaki') || asset.includes('spinning-bird-kick') ? Math.sin(activeProgress * Math.PI * 2) * .045 : 0;
   ctx.save();
-  ctx.translate(x, y);
+  ctx.globalAlpha *= opacity;
+  ctx.translate(x + fighter.facing * drive, y - lift);
   ctx.save();
   ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
   drawShadow(ctx);
   ctx.restore();
   ctx.translate(0, -fighter.jumpHeight);
+  ctx.rotate(fighter.facing * rotation);
   ctx.scale(fighter.facing * fighter.character.widthScale * .88, fighter.character.heightScale * .88);
   if (fighter.hitFlash > 0) ctx.filter = 'brightness(2.1) saturate(.5)';
   const smoothing = ctx.imageSmoothingEnabled;
@@ -584,7 +600,7 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
     ctx.translate(-x, -y);
   }
   if (drawHighFrameSequenceSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
-  if (drawSpecialKeyPoseSprite(ctx, fighter, x, y)) { ctx.restore(); return; }
+  if (drawSpecialKeyPoseSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawAttackAtlasSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawAssetCombatSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   const throwPair = throwPairVisual(fighter);
