@@ -5,6 +5,7 @@ class StubInput {
   constructor() { this.keys = new Set(); }
   set(...keys) { this.keys = new Set(keys); }
   pressed(key) { return this.keys.has(key); }
+  touchPressed(key) { return this.keys.has(`touch:${key}`); }
   held() { return false; }
   released() { return false; }
 }
@@ -29,6 +30,9 @@ input.set('down'); title.fixedUpdate(1 / 60);
 for (let i = 0; i < 6; i += 1) { input.set(); title.fixedUpdate(1 / 60); }
 input.set('start'); title.fixedUpdate(1 / 60);
 await Promise.resolve(); await Promise.resolve();
+if (chosen !== '') fail('combat pause input P/START leaked into title confirm');
+input.set('confirm'); title.fixedUpdate(1 / 60);
+await Promise.resolve(); await Promise.resolve();
 if (chosen !== 'continue') fail(`expected continue action, got ${chosen}`);
 
 const stageInput = new StubInput();
@@ -36,10 +40,10 @@ let selectedStage = 0; let backed = false;
 const stageScene = new StageSelectScene(stageInput, audio, 3, (stage) => { selectedStage = stage; }, () => { backed = true; });
 stageInput.set('down'); stageScene.fixedUpdate(1 / 60);
 for (let i = 0; i < 6; i += 1) { stageInput.set(); stageScene.fixedUpdate(1 / 60); }
-stageInput.set('start'); stageScene.fixedUpdate(1 / 60);
+stageInput.set('confirm'); stageScene.fixedUpdate(1 / 60);
 if (selectedStage !== 4) fail(`expected stage 4 selection, got ${selectedStage}`);
 stageInput.set(); stageScene.fixedUpdate(1 / 60);
-stageInput.set('lk'); stageScene.fixedUpdate(1 / 60);
+stageInput.set('back'); stageScene.fixedUpdate(1 / 60);
 if (!backed) fail('stage select back action missing');
 
-console.log('CAMPAIGN_MENU_VERIFY_PASS', { titleAction: chosen, selectedStage, back: backed, menuMoves: audio.moves });
+console.log('CAMPAIGN_MENU_VERIFY_PASS', { titleAction: chosen, pauseInputSeparated: true, selectedStage, back: backed, menuMoves: audio.moves });
