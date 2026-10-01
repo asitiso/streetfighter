@@ -126,7 +126,7 @@ export class Stage1Scene implements Scene {
     this.audio.startStageSoundscape?.(this.stageId);
     this.audio.setStageIntensity?.('belt');
   }
-  exit(): void { this.audio.setBackgrounded?.(false); this.audio.stopSoundscape?.(); }
+  exit(): void { this.audio.setPaused?.(false); this.audio.stopSoundscape?.(); }
   resize(_width: number, _height: number): void {}
   destroy(): void {}
 
@@ -147,7 +147,7 @@ export class Stage1Scene implements Scene {
     const pauseAllowed = this.introFrames <= 0 && (this.phase === 'belt' || this.phase === 'duel' || this.phase === 'final-duel');
     if (pauseAllowed && this.input.pressed('start')) {
       this.paused = !this.paused;
-      this.audio.setBackgrounded?.(this.paused);
+      this.audio.setPaused?.(this.paused);
       return;
     }
     if (this.paused) return;

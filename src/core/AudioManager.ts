@@ -8,6 +8,8 @@ export class AudioManager {
   private musicBase = .82;
   private ambienceBase = .72;
   private enabled = true;
+  private backgrounded = false;
+  private paused = false;
   private ambienceGain: GainNode | null = null;
   private bossLayerGain: GainNode | null = null;
   private bossLayerSource: OscillatorNode | null = null;
@@ -38,6 +40,10 @@ export class AudioManager {
       this.ambienceBus.connect(this.master);
       this.sfxBus.connect(this.master);
       this.master.connect(this.context.destination);
+    }
+    if (this.backgrounded || this.paused) {
+      this.syncSuspension();
+      return;
     }
     if (this.context.state === 'suspended') await this.context.resume();
   }
@@ -118,20 +124,34 @@ export class AudioManager {
   }
 
   setBackgrounded(backgrounded: boolean): void {
-    if (!this.context) return;
-    if (backgrounded) {
-      if (this.context.state === 'running') void this.context.suspend();
-    } else if (this.enabled && this.context.state === 'suspended') {
-      void this.context.resume().catch(() => undefined);
-    }
+    this.backgrounded = backgrounded;
+    this.syncSuspension();
+  }
+
+  setPaused(paused: boolean): void {
+    this.paused = paused;
+    this.syncSuspension();
   }
 
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
     if (this.master) this.master.gain.value = enabled ? 0.78 : 0;
+    if (enabled) this.syncSuspension();
   }
 
-  isRunning(): boolean { return this.enabled && this.context?.state === 'running'; }
+  isRunning(): boolean {
+    return this.enabled && !this.backgrounded && !this.paused && this.context?.state === 'running';
+  }
+
+  private syncSuspension(): void {
+    if (!this.context) return;
+    const shouldSuspend = this.backgrounded || this.paused;
+    if (shouldSuspend) {
+      if (this.context.state === 'running') void this.context.suspend().catch(() => undefined);
+      return;
+    }
+    if (this.enabled && this.context.state === 'suspended') void this.context.resume().catch(() => undefined);
+  }
 
   playUiConfirm(): void { this.chirp(220, 460, .08, .045, 'square'); }
   playMenuMove(): void { this.chirp(330, 410, .045, .018, 'triangle'); }
