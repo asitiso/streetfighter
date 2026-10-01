@@ -112,10 +112,10 @@ export class TouchControls {
       stickScale: this.clamp(settings.stickScale ?? this.settings.stickScale, .7, 1.4),
       buttonScale: this.clamp(settings.buttonScale ?? this.settings.buttonScale, .7, 1.4),
       opacity: this.clamp(settings.opacity ?? this.settings.opacity, .3, 1),
-      stickX: this.clamp(settings.stickX ?? this.settings.stickX, 8, 260),
-      stickY: this.clamp(settings.stickY ?? this.settings.stickY, 8, 180),
-      buttonsX: this.clamp(settings.buttonsX ?? this.settings.buttonsX, 8, 260),
-      buttonsY: this.clamp(settings.buttonsY ?? this.settings.buttonsY, 8, 180),
+      stickX: this.clamp(settings.stickX ?? this.settings.stickX, 8, this.layoutMaxX()),
+      stickY: this.clamp(settings.stickY ?? this.settings.stickY, 8, this.layoutMaxY()),
+      buttonsX: this.clamp(settings.buttonsX ?? this.settings.buttonsX, 8, this.layoutMaxX()),
+      buttonsY: this.clamp(settings.buttonsY ?? this.settings.buttonsY, 8, this.layoutMaxY()),
     };
     this.applySettings();
   }
@@ -194,11 +194,11 @@ export class TouchControls {
     const dx = event.clientX - this.drag.startX;
     const dy = event.clientY - this.drag.startY;
     if (this.drag.group === 'stick') {
-      this.settings.stickX = this.clamp(this.drag.baseX + dx, 8, Math.max(8, window.innerWidth * .38));
-      this.settings.stickY = this.clamp(this.drag.baseY - dy, 8, Math.max(8, window.innerHeight * .3));
+      this.settings.stickX = this.clamp(this.drag.baseX + dx, 8, this.layoutMaxX());
+      this.settings.stickY = this.clamp(this.drag.baseY - dy, 8, this.layoutMaxY());
     } else {
-      this.settings.buttonsX = this.clamp(this.drag.baseX - dx, 8, Math.max(8, window.innerWidth * .38));
-      this.settings.buttonsY = this.clamp(this.drag.baseY - dy, 8, Math.max(8, window.innerHeight * .3));
+      this.settings.buttonsX = this.clamp(this.drag.baseX - dx, 8, this.layoutMaxX());
+      this.settings.buttonsY = this.clamp(this.drag.baseY - dy, 8, this.layoutMaxY());
     }
     this.applySettings();
     this.previewCallback?.(this.getSettings());
@@ -223,6 +223,14 @@ export class TouchControls {
     const scaledJumpInset = 37 * this.settings.buttonScale;
     this.element.style.setProperty('--jump-x', `${this.settings.buttonsX + scaledButtonGroupWidth + 10}px`);
     this.element.style.setProperty('--jump-y', `${this.settings.buttonsY + scaledJumpInset}px`);
+  }
+
+  private layoutMaxX(): number {
+    return typeof window === 'undefined' ? 320 : Math.max(260, window.innerWidth * .38);
+  }
+
+  private layoutMaxY(): number {
+    return typeof window === 'undefined' ? 220 : Math.max(180, window.innerHeight * .3);
   }
 
   private vibrate(ms: number): void {

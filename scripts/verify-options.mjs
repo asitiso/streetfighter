@@ -15,6 +15,7 @@ const checks = [
   [touch.includes('vibrate') && touch.includes('vibrationEnabled'), 'touch haptics toggle'],
   [touch.includes('if (!visible) this.releaseAll()'), 'hidden touch controls release held input'],
   [touch.includes('onDpadPointerMove') && touch.includes('dpadActionAt') && touch.includes('setDpadAction'), 'd-pad slide direction tracking'],
+  [touch.includes('layoutMaxX()') && touch.includes('layoutMaxY()'), 'shared runtime touch-layout bounds'],
   [css.includes('button:nth-of-type(-n+3)'), 'top fight-button row selector'],
   [save.includes('touchStickScale') && save.includes('touchOpacity'), 'save defaults'],
 ];
@@ -22,12 +23,12 @@ for (const [pass, label] of checks) if (!pass) throw new Error(`OPTIONS VERIFY F
 
 const positioned = sanitizeGameSave({
   ...DEFAULT_SAVE,
-  touchStickX: 260,
-  touchStickY: 180,
-  touchButtonsX: 250,
-  touchButtonsY: 170,
+  touchStickX: 420,
+  touchStickY: 240,
+  touchButtonsX: 400,
+  touchButtonsY: 230,
 }).save;
-if (positioned.touchStickX !== 260 || positioned.touchStickY !== 180 || positioned.touchButtonsX !== 250 || positioned.touchButtonsY !== 170) {
+if (positioned.touchStickX !== 420 || positioned.touchStickY !== 240 || positioned.touchButtonsX !== 400 || positioned.touchButtonsY !== 230) {
   throw new Error('OPTIONS VERIFY FAIL: touch positions were clamped during save sanitization');
 }
 
