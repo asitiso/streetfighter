@@ -47,6 +47,7 @@ export class Stage1Scene implements Scene {
   private finalKoFrames = 0;
   private defeatFrames = 0;
   private defeatDispatched = false;
+  private defeatReason: 'ko' | 'double-ko' = 'ko';
   private paused = false;
   private gillPhase: 1 | 2 | 3 = 1;
   private gillPhaseBanner = 0;
@@ -230,13 +231,21 @@ export class Stage1Scene implements Scene {
 
     if (this.world.player.hp <= 0) {
       this.phase = 'defeat';
+      this.defeatReason = this.world.livingEnemies.length === 0 ? 'double-ko' : 'ko';
       this.defeatFrames = 120;
       this.defeatDispatched = false;
       this.world.projectiles.length = 0;
       this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 120);
-      this.cameraFocusX = this.world.player.x;
-      this.cameraFocusY = this.world.player.y - 105;
-      this.cameraFocusZoom = 1.1;
+      if (this.defeatReason === 'double-ko' && this.world.enemies.length > 0) {
+        const enemy = this.world.enemies[0]!;
+        this.cameraFocusX = (this.world.player.x + enemy.x) * .5;
+        this.cameraFocusY = Math.min(this.world.player.y, enemy.y) - 105;
+        this.cameraFocusZoom = 1.06;
+      } else {
+        this.cameraFocusX = this.world.player.x;
+        this.cameraFocusY = this.world.player.y - 105;
+        this.cameraFocusZoom = 1.1;
+      }
       this.cameraSlowFrames = Math.max(this.cameraSlowFrames, 24);
       this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 120);
       return;
@@ -2413,8 +2422,9 @@ export class Stage1Scene implements Scene {
     ctx.lineWidth = 12;
     ctx.fillStyle = `rgba(255,245,235,${reveal})`;
     ctx.font = '900 112px Impact, Arial Black, sans-serif';
-    ctx.strokeText('K.O.', 640, 350);
-    ctx.fillText('K.O.', 640, 350);
+    const defeatTitle = this.defeatReason === 'double-ko' ? 'DOUBLE K.O.' : 'K.O.';
+    ctx.strokeText(defeatTitle, 640, 350);
+    ctx.fillText(defeatTitle, 640, 350);
     ctx.fillStyle = `rgba(241,189,81,${retryReveal})`;
     ctx.font = '900 16px Arial Black, sans-serif';
     ctx.fillText(this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / ENTER / ATTACK TO RETRY', 640, 406);
