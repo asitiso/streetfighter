@@ -74,7 +74,8 @@
     "author:ken:parry-articulated": "python3 scripts/generate-ken-articulated-parry.py",
     "author:ken:defense-core": "npm run author:ken:hit-articulated && npm run author:ken:guard-articulated && npm run author:ken:parry-articulated",
     "author:ken:standing-attacks-articulated": "python3 scripts/generate-ken-articulated-standing-attacks.py",
-    "author:ken:standing-attacks": "npm run author:ken:standing-attacks-articulated"
+    "author:ken:standing-attacks": "npm run author:ken:standing-attacks-articulated",
+    "verify:core": "npm run typecheck && npm run build && node scripts/verify-build.mjs && node scripts/verify-combat.mjs && node scripts/verify-belt-mode.mjs && node scripts/verify-boss-patterns.mjs && node scripts/verify-campaign-menu.mjs && node scripts/verify-stage-flow.mjs && node scripts/verify-options.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"
