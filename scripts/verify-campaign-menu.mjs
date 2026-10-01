@@ -43,11 +43,15 @@ let selectedStage = 0; let backed = false;
 const stageScene = new StageSelectScene(stageInput, audio, 3, (stage) => { selectedStage = stage; }, () => { backed = true; });
 stageInput.set('down'); stageScene.fixedUpdate(1 / 60);
 for (let i = 0; i < 6; i += 1) { stageInput.set(); stageScene.fixedUpdate(1 / 60); }
+stageInput.set('confirm'); stageScene.fixedUpdate(1 / 60);
+if (selectedStage !== 4) fail(`expected stage 4 selection, got ${selectedStage}`);
+
+const lockedStageInput = new StubInput();
 let stageConfirmCount = 0;
 selectedStage = 0;
-const lockedStageScene = new StageSelectScene(stageInput, audio, 3, (stage) => { selectedStage = stage; stageConfirmCount += 1; }, () => { backed = true; });
-stageInput.set('confirm'); lockedStageScene.fixedUpdate(1 / 60);
-stageInput.set('confirm'); lockedStageScene.fixedUpdate(1 / 60);
+const lockedStageScene = new StageSelectScene(lockedStageInput, audio, 3, (stage) => { selectedStage = stage; stageConfirmCount += 1; }, () => { backed = true; });
+lockedStageInput.set('confirm'); lockedStageScene.fixedUpdate(1 / 60);
+lockedStageInput.set('confirm'); lockedStageScene.fixedUpdate(1 / 60);
 if (selectedStage !== 3 || stageConfirmCount !== 1) fail(`stage select double-confirm guard failed: stage=${selectedStage}, count=${stageConfirmCount}`);
 
 const backInput = new StubInput();
