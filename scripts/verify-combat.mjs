@@ -102,15 +102,19 @@ interrupted.receiveHit(normalFor('lp'), interrupter, false, true);
 if (interrupted.currentMove !== null || interrupted.isMoveActive() || interrupted.state !== 'hit') fail('hit did not cancel stale active move');
 
 const blocked = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
-blocked.startMove(normalFor('hp'));
+blocked.currentMove = normalFor('hp');
+blocked.moveFrame = blocked.currentMove.startup;
+blocked.state = 'idle';
 blocked.receiveHit(normalFor('lp'), interrupter, true, false);
-if (blocked.currentMove !== null || blocked.state !== 'block') fail('block did not cancel stale current move');
+if (blocked.currentMove !== null || blocked.state !== 'block') fail('valid guard did not clear stale move state');
 
 const parried = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
-parried.startMove(normalFor('hp'));
+parried.currentMove = normalFor('hp');
+parried.moveFrame = parried.currentMove.startup;
+parried.state = 'idle';
 parried.parryWindow = 10;
 parried.receiveHit(normalFor('lp'), interrupter, false, false);
-if (parried.currentMove !== null || parried.state !== 'parry') fail('parry did not cancel stale current move');
+if (parried.currentMove !== null || parried.state !== 'parry') fail('valid parry did not clear stale move state');
 
 const attackingGuard = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
 attackingGuard.parryWindow = 6;
