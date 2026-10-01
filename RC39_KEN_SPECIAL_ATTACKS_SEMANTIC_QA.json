@@ -6,15 +6,15 @@
   ],
   "cases": [
     {
-      "name": "hadoken-current-staging-rejected",
-      "expected": false,
-      "actual": false,
+      "name": "hadoken-runtime-authored",
+      "expected": true,
+      "actual": true,
       "poseQa": {
-        "affineResidualAverage": 0.001624,
-        "affineResidualMax": 0.002149,
+        "affineResidualAverage": 0.061613,
+        "affineResidualMax": 0.08728,
         "fullPoseAverageThreshold": 0.008,
         "fullPoseMaxThreshold": 0.018,
-        "poseAuthoredPass": false
+        "poseAuthoredPass": true
       },
       "semanticQa": {
         "kind": "hadoken",
@@ -37,43 +37,43 @@
           "residualMaxMax": 0.25,
           "releaseFrameIndex": 5
         },
-        "startEndIoU": 1.0,
-        "releaseIoU": 0.681424,
-        "centroidXRange": 31.153766,
-        "centroidYRange": 6.059495,
-        "reachRange": 24.0,
-        "releaseReachDelta": 14.0,
-        "footCenterRange": 152.149873,
-        "footWidthCv": 0.036954,
-        "areaCv": 0.022964,
-        "residualAverage": 0.001624,
-        "residualMax": 0.002149,
+        "startEndIoU": 0.728609,
+        "releaseIoU": 0.498919,
+        "centroidXRange": 23.345649,
+        "centroidYRange": 41.26728,
+        "reachRange": 52.0,
+        "releaseReachDelta": 26.0,
+        "footCenterRange": 27.491046,
+        "footWidthCv": 0.101848,
+        "areaCv": 0.077056,
+        "residualAverage": 0.061613,
+        "residualMax": 0.08728,
         "checks": {
           "recoveryTowardNeutral": true,
           "releasePoseDistinct": true,
           "bodyDrivePresent": true,
           "verticalRootStable": true,
-          "handExtensionPresent": false,
-          "releaseExtendsPastGather": false,
-          "feetStayPlanted": false,
+          "handExtensionPresent": true,
+          "releaseExtendsPastGather": true,
+          "feetStayPlanted": true,
           "stanceWidthStable": true,
           "bodyVolumeStable": true,
-          "authoredMotionAverage": false,
-          "authoredMotionPeak": false
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
         },
-        "semanticQaPass": false
+        "semanticQaPass": true
       }
     },
     {
-      "name": "shoryuken-current-staging-rejected",
-      "expected": false,
-      "actual": false,
+      "name": "shoryuken-runtime-authored",
+      "expected": true,
+      "actual": true,
       "poseQa": {
-        "affineResidualAverage": 0.001604,
-        "affineResidualMax": 0.002252,
+        "affineResidualAverage": 0.086902,
+        "affineResidualMax": 0.115045,
         "fullPoseAverageThreshold": 0.008,
         "fullPoseMaxThreshold": 0.018,
-        "poseAuthoredPass": false
+        "poseAuthoredPass": true
       },
       "semanticQa": {
         "kind": "shoryuken",
@@ -98,16 +98,16 @@
           "contactFrameIndex": 4,
           "apexFrameIndex": 7
         },
-        "startEndIoU": 1.0,
-        "contactIoU": 0.523122,
-        "apexIoU": 0.633536,
-        "centroidXRange": 31.530247,
-        "centroidYRange": 52.310772,
-        "topRise": 50.0,
-        "areaCv": 0.016391,
-        "footWidthCv": 0.536941,
-        "residualAverage": 0.001604,
-        "residualMax": 0.002252,
+        "startEndIoU": 0.857344,
+        "contactIoU": 0.468057,
+        "apexIoU": 0.411142,
+        "centroidXRange": 18.320857,
+        "centroidYRange": 102.057754,
+        "topRise": 84.0,
+        "areaCv": 0.185539,
+        "footWidthCv": 0.731908,
+        "residualAverage": 0.086902,
+        "residualMax": 0.115045,
         "checks": {
           "recoveryTowardNeutral": true,
           "contactPoseDistinct": true,
@@ -117,10 +117,10 @@
           "risingSilhouettePresent": true,
           "bodyVolumeStable": true,
           "legPhaseChanges": true,
-          "authoredMotionAverage": false,
-          "authoredMotionPeak": false
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
         },
-        "semanticQaPass": false
+        "semanticQaPass": true
       }
     },
     {

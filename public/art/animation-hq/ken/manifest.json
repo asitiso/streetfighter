@@ -10,8 +10,8 @@
   ],
   "sourceSha256": "D3F908AA421AF3E40B8552DF0BB12FA99855BBE5C64F49287C30628CD595932B",
   "frameTotal": 137,
-  "enabledFrameTotal": 85,
-  "fullFrameTotal": 85,
+  "enabledFrameTotal": 109,
+  "fullFrameTotal": 109,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -640,13 +640,68 @@
         4608,
         448
       ],
-      "bytes": 811726,
-      "sha256": "0B0D3E66E2055330E348C5A54BC672D74316A1D7A876F324D03C5AEFB3C5249C",
-      "enabled": false,
+      "bytes": 1120110,
+      "sha256": "B211CF100F0187DA008A21B62661772B913F67F5BDDC47D4BEA5AA242C586B34",
+      "enabled": true,
       "renderMode": "full",
-      "poseAuthored": false,
-      "stagingOnly": true,
-      "stagingMethod": "whole-sprite-affine-reference"
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "stagingMethod": "whole-sprite-affine-reference",
+      "authoredSource": "art-source\\ken\\inbox\\hadoken",
+      "poseQa": {
+        "affineResidualAverage": 0.061613,
+        "affineResidualMax": 0.08728,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "hadoken",
+        "limits": {
+          "startEndIoUMin": 0.48,
+          "releaseIoUMin": 0.22,
+          "releaseIoUMax": 0.92,
+          "centroidXRangeMin": 6.0,
+          "centroidXRangeMax": 68.0,
+          "centroidYRangeMax": 44.0,
+          "reachRangeMin": 34.0,
+          "reachRangeMax": 155.0,
+          "releaseReachDeltaMin": 24.0,
+          "footCenterRangeMax": 62.0,
+          "footWidthCvMax": 0.58,
+          "areaCvMax": 0.22,
+          "residualAverageMin": 0.014,
+          "residualAverageMax": 0.19,
+          "residualMaxMin": 0.03,
+          "residualMaxMax": 0.25,
+          "releaseFrameIndex": 5
+        },
+        "startEndIoU": 0.728609,
+        "releaseIoU": 0.498919,
+        "centroidXRange": 23.345649,
+        "centroidYRange": 41.26728,
+        "reachRange": 52.0,
+        "releaseReachDelta": 26.0,
+        "footCenterRange": 27.491046,
+        "footWidthCv": 0.101848,
+        "areaCv": 0.077056,
+        "residualAverage": 0.061613,
+        "residualMax": 0.08728,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "releasePoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "handExtensionPresent": true,
+          "releaseExtendsPastGather": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
     },
     {
       "id": "shoryuken",
@@ -659,13 +714,68 @@
         4608,
         448
       ],
-      "bytes": 740670,
-      "sha256": "A4C9C2F5CC92EE2A7BDDE2B1CCEAAA87543B5C9E9AA1B958E992A25174587E09",
-      "enabled": false,
+      "bytes": 816002,
+      "sha256": "7CC2557E4D811739F6A705E29917F8A2BF4E092331668E91AF70CB1434E8F347",
+      "enabled": true,
       "renderMode": "full",
-      "poseAuthored": false,
-      "stagingOnly": true,
-      "stagingMethod": "whole-sprite-affine-reference"
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "stagingMethod": "whole-sprite-affine-reference",
+      "authoredSource": "art-source\\ken\\inbox\\shoryuken",
+      "poseQa": {
+        "affineResidualAverage": 0.086902,
+        "affineResidualMax": 0.115045,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "shoryuken",
+        "limits": {
+          "startEndIoUMin": 0.42,
+          "contactIoUMin": 0.18,
+          "contactIoUMax": 0.76,
+          "apexIoUMin": 0.16,
+          "apexIoUMax": 0.7,
+          "centroidXRangeMax": 82.0,
+          "centroidYRangeMin": 28.0,
+          "centroidYRangeMax": 145.0,
+          "topRiseMin": 42.0,
+          "topRiseMax": 165.0,
+          "areaCvMax": 0.24,
+          "footWidthCvMin": 0.06,
+          "footWidthCvMax": 1.4,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.22,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.28,
+          "contactFrameIndex": 4,
+          "apexFrameIndex": 7
+        },
+        "startEndIoU": 0.857344,
+        "contactIoU": 0.468057,
+        "apexIoU": 0.411142,
+        "centroidXRange": 18.320857,
+        "centroidYRange": 102.057754,
+        "topRise": 84.0,
+        "areaCv": 0.185539,
+        "footWidthCv": 0.731908,
+        "residualAverage": 0.086902,
+        "residualMax": 0.115045,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "apexPoseDistinct": true,
+          "horizontalRootControlled": true,
+          "verticalArcPresent": true,
+          "risingSilhouettePresent": true,
+          "bodyVolumeStable": true,
+          "legPhaseChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
     },
     {
       "id": "tatsumaki",
@@ -844,5 +954,5 @@
       }
     }
   ],
-  "stagingFrameTotal": 52
+  "stagingFrameTotal": 28
 }

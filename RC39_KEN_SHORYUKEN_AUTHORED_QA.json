@@ -1,0 +1,277 @@
+{
+  "character": "KEN",
+  "sequence": "shoryuken",
+  "source": "art-source\\ken\\inbox\\shoryuken",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        78,
+        46,
+        503,
+        636
+      ],
+      "sourceBodyHeight": 590,
+      "paste": [
+        74,
+        94
+      ],
+      "scaledSize": [
+        237,
+        329
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        88,
+        112,
+        532,
+        638
+      ],
+      "sourceBodyHeight": 526,
+      "paste": [
+        68,
+        129
+      ],
+      "scaledSize": [
+        248,
+        294
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        99,
+        154,
+        507,
+        593
+      ],
+      "sourceBodyHeight": 439,
+      "paste": [
+        78,
+        178
+      ],
+      "scaledSize": [
+        228,
+        245
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        133,
+        0,
+        469,
+        622
+      ],
+      "sourceBodyHeight": 622,
+      "paste": [
+        98,
+        46
+      ],
+      "scaledSize": [
+        188,
+        347
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        203,
+        15,
+        484,
+        647
+      ],
+      "sourceBodyHeight": 632,
+      "paste": [
+        114,
+        44
+      ],
+      "scaledSize": [
+        157,
+        353
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        164,
+        13,
+        401,
+        620
+      ],
+      "sourceBodyHeight": 607,
+      "paste": [
+        126,
+        50
+      ],
+      "scaledSize": [
+        132,
+        339
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        159,
+        35,
+        421,
+        785
+      ],
+      "sourceBodyHeight": 750,
+      "paste": [
+        119,
+        10
+      ],
+      "scaledSize": [
+        146,
+        419
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        173,
+        6,
+        409,
+        652
+      ],
+      "sourceBodyHeight": 646,
+      "paste": [
+        126,
+        40
+      ],
+      "scaledSize": [
+        132,
+        361
+      ]
+    },
+    {
+      "frame": 9,
+      "sourceBBox": [
+        172,
+        20,
+        500,
+        658
+      ],
+      "sourceBodyHeight": 638,
+      "paste": [
+        100,
+        42
+      ],
+      "scaledSize": [
+        183,
+        356
+      ]
+    },
+    {
+      "frame": 10,
+      "sourceBBox": [
+        123,
+        185,
+        465,
+        664
+      ],
+      "sourceBodyHeight": 479,
+      "paste": [
+        96,
+        156
+      ],
+      "scaledSize": [
+        191,
+        267
+      ]
+    },
+    {
+      "frame": 11,
+      "sourceBBox": [
+        134,
+        150,
+        537,
+        616
+      ],
+      "sourceBodyHeight": 466,
+      "paste": [
+        80,
+        163
+      ],
+      "scaledSize": [
+        225,
+        260
+      ]
+    },
+    {
+      "frame": 12,
+      "sourceBBox": [
+        57,
+        31,
+        460,
+        616
+      ],
+      "sourceBodyHeight": 585,
+      "paste": [
+        80,
+        97
+      ],
+      "scaledSize": [
+        225,
+        326
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.086902,
+    "affineResidualMax": 0.115045,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "shoryuken",
+    "limits": {
+      "startEndIoUMin": 0.42,
+      "contactIoUMin": 0.18,
+      "contactIoUMax": 0.76,
+      "apexIoUMin": 0.16,
+      "apexIoUMax": 0.7,
+      "centroidXRangeMax": 82.0,
+      "centroidYRangeMin": 28.0,
+      "centroidYRangeMax": 145.0,
+      "topRiseMin": 42.0,
+      "topRiseMax": 165.0,
+      "areaCvMax": 0.24,
+      "footWidthCvMin": 0.06,
+      "footWidthCvMax": 1.4,
+      "residualAverageMin": 0.02,
+      "residualAverageMax": 0.22,
+      "residualMaxMin": 0.04,
+      "residualMaxMax": 0.28,
+      "contactFrameIndex": 4,
+      "apexFrameIndex": 7
+    },
+    "startEndIoU": 0.857344,
+    "contactIoU": 0.468057,
+    "apexIoU": 0.411142,
+    "centroidXRange": 18.320857,
+    "centroidYRange": 102.057754,
+    "topRise": 84.0,
+    "areaCv": 0.185539,
+    "footWidthCv": 0.731908,
+    "residualAverage": 0.086902,
+    "residualMax": 0.115045,
+    "checks": {
+      "recoveryTowardNeutral": true,
+      "contactPoseDistinct": true,
+      "apexPoseDistinct": true,
+      "horizontalRootControlled": true,
+      "verticalArcPresent": true,
+      "risingSilhouettePresent": true,
+      "bodyVolumeStable": true,
+      "legPhaseChanges": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}
