@@ -13,7 +13,14 @@ class StubInput {
   press(action) { this.pressedActions.add(action); }
   clear() { this.pressedActions.clear(); }
 }
-class StubAudio { playStagePulse() {} playHit() {} playParry() {} }
+class StubAudio {
+  constructor() { this.paused = false; this.backgrounded = false; }
+  playStagePulse() {}
+  playHit() {}
+  playParry() {}
+  setPaused(value) { this.paused = value; }
+  setBackgrounded(value) { this.backgrounded = value; }
+}
 const fail = (message) => { console.error('STAGE_FLOW_FAIL', message); process.exit(1); };
 
 function clearBeltAreas(scene, tickBase = 1) {
@@ -142,7 +149,8 @@ if (!jumpScene.world.player.airborne) fail('belt-mode dedicated jump input faile
 if (!jumpScene.world.player.currentMove || jumpScene.world.player.currentMove.technique !== 'air') fail('jump + attack did not start an air normal');
 
 const pauseInput = new StubInput();
-const pauseScene = new Stage1Scene(pauseInput, new StubAudio(), character, character.superArts[0], 1);
+const pauseAudio = new StubAudio();
+const pauseScene = new Stage1Scene(pauseInput, pauseAudio, character, character.superArts[0], 1);
 pauseInput.press('start');
 pauseScene.fixedUpdate(1 / 60, 9399);
 pauseInput.clear();
@@ -152,6 +160,7 @@ pauseInput.press('start');
 pauseScene.fixedUpdate(1 / 60, 9400);
 pauseInput.clear();
 if (!pauseScene.paused) fail('START did not pause stage');
+if (!pauseAudio.paused || pauseAudio.backgrounded) fail('stage pause did not use dedicated audio pause state');
 const pausedTime = pauseScene.stageTime;
 for (let i = 0; i < 10; i += 1) pauseScene.fixedUpdate(1 / 60, 9401 + i);
 if (pauseScene.stageTime !== pausedTime) fail('stage timer advanced while paused');
@@ -159,6 +168,7 @@ pauseInput.press('start');
 pauseScene.fixedUpdate(1 / 60, 9412);
 pauseInput.clear();
 if (pauseScene.paused) fail('START did not resume stage');
+if (pauseAudio.paused) fail('stage resume did not release dedicated audio pause state');
 
 let clear1 = false, clear2 = false, clear3 = false, clear4 = false, clear5 = false;
 const stage1 = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 1, () => { clear1 = true; });
@@ -207,4 +217,5 @@ console.log('STAGE_FLOW_VERIFY_PASS', {
   beltJump: jumpScene.world.player.airborne,
   jumpAttack: jumpScene.world.player.currentMove?.technique === 'air',
   pauseResume: !pauseScene.paused,
+  pauseAudioSeparated: !pauseAudio.paused && !pauseAudio.backgrounded,
 });
