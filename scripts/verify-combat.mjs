@@ -79,6 +79,21 @@ wallPairWorld.resolveBodyCollisions();
 if (wallPairWorld.player.x < wallPairWorld.rules.arenaLeft || wallPairWorld.enemy.x < wallPairWorld.rules.arenaLeft) fail('body collision pushed fighter outside left arena wall');
 if (Math.abs(wallPairWorld.enemy.x - wallPairWorld.player.x) < 57.5) fail('wall body collision failed to transfer blocked separation to free fighter');
 
+const freezeWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
+freezeWorld.time = 3;
+freezeWorld.playerComboHits = 2;
+freezeWorld.playerComboDamage = 120;
+freezeWorld.playerComboTimer = 40;
+freezeWorld.enemyComboHits = 1;
+freezeWorld.enemyComboTimer = 30;
+freezeWorld.superFreezeFrames = 2;
+const freezeTime = freezeWorld.time;
+input.set();
+freezeWorld.update(input, 650);
+if (freezeWorld.time !== freezeTime) fail('super freeze advanced combat logical time');
+if (freezeWorld.playerComboTimer !== 40 || freezeWorld.enemyComboTimer !== 30) fail('super freeze consumed combo timers');
+if (freezeWorld.superFreezeFrames !== 1) fail('super freeze did not advance its own countdown');
+
 const tradeWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
 tradeWorld.player.x = 500; tradeWorld.enemy.x = 552; tradeWorld.player.y = 500; tradeWorld.enemy.y = 500;
 tradeWorld.player.startMove(normalFor('hp')); tradeWorld.enemy.startMove(normalFor('hp'));
@@ -207,6 +222,7 @@ console.log('COMBAT_VERIFY_PASS', {
   projectileJumpClear: jumpOverWorld.player.hp === jumpHp,
   verticalMeleeFiltering: verticalWorld.enemy.hp < verticalHp,
   wallSeparationBounded: wallPairWorld.player.x >= wallPairWorld.rules.arenaLeft,
+  superFreezePreservesCombatClock: freezeWorld.time === freezeTime && freezeWorld.playerComboTimer === 40,
   duelStrikeTrade: tradeWorld.player.hp < tradePlayerHp && tradeWorld.enemy.hp < tradeEnemyHp,
   counter: true,
   throwEscape: true,

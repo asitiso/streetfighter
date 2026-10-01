@@ -170,6 +170,19 @@ pauseInput.clear();
 if (pauseScene.paused) fail('START did not resume stage');
 if (pauseAudio.paused) fail('stage resume did not release dedicated audio pause state');
 
+const freezeStageInput = new StubInput();
+const freezeStage = new Stage1Scene(freezeStageInput, new StubAudio(), character, character.superArts[0], 1);
+freezeStage.introFrames = 0;
+freezeStage.stageTime = 50;
+freezeStage.elapsedCombatFrames = 12;
+freezeStage.world.superFreezeFrames = 2;
+const freezeStageTime = freezeStage.stageTime;
+const freezeElapsed = freezeStage.elapsedCombatFrames;
+freezeStage.fixedUpdate(1 / 60, 9420);
+if (freezeStage.stageTime !== freezeStageTime) fail('stage timer advanced during super freeze');
+if (freezeStage.elapsedCombatFrames !== freezeElapsed) fail('combat clear-time counter advanced during super freeze');
+if (freezeStage.world.superFreezeFrames !== 1) fail('stage did not tick super freeze countdown');
+
 let clear1 = false, clear2 = false, clear3 = false, clear4 = false, clear5 = false;
 const stage1 = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 1, () => { clear1 = true; });
 const r1 = testStage(stage1, 'stage1', 1);
@@ -218,4 +231,5 @@ console.log('STAGE_FLOW_VERIFY_PASS', {
   jumpAttack: jumpScene.world.player.currentMove?.technique === 'air',
   pauseResume: !pauseScene.paused,
   pauseAudioSeparated: !pauseAudio.paused && !pauseAudio.backgrounded,
+  superFreezePreservesStageClock: freezeStage.stageTime === freezeStageTime && freezeStage.elapsedCombatFrames === freezeElapsed,
 });

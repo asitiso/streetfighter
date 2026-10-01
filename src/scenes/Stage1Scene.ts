@@ -200,8 +200,9 @@ export class Stage1Scene implements Scene {
     }
 
     const timerActive = this.phase !== 'belt' || this.beltState === 'fight';
-    if (timerActive) this.stageTime = Math.max(0, this.stageTime - dt);
-    if (timerActive && this.stageTime <= 0) {
+    const combatFrozen = this.world.superFreezeFrames > 0;
+    if (timerActive && !combatFrozen) this.stageTime = Math.max(0, this.stageTime - dt);
+    if (timerActive && !combatFrozen && this.stageTime <= 0) {
       this.phase = 'defeat';
       this.defeatReason = 'time-over';
       this.defeatFrames = 90;
@@ -214,7 +215,7 @@ export class Stage1Scene implements Scene {
       this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 90);
       return;
     }
-    this.elapsedCombatFrames += 1;
+    if (!combatFrozen) this.elapsedCombatFrames += 1;
     this.world.update(this.input, tick);
     this.updateCamera();
     if (this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();

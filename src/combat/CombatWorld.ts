@@ -98,14 +98,14 @@ export class CombatWorld {
   }
 
   update(input: InputManager, tick: number): void {
-    this.time += 1 / 60;
-    this.tickComboFeedback();
     if (this.superFreezeFrames > 0) {
       this.player.captureInput(input, tick);
       this.superFreezeFrames -= 1;
       this.ageEvents();
       return;
     }
+    this.time += 1 / 60;
+    this.tickComboFeedback();
     const target = this.closestEnemyToPlayer();
     if (target) this.player.facing = target.x >= this.player.x ? 1 : -1;
     for (const enemy of this.livingEnemies) enemy.facing = this.player.x >= enemy.x ? 1 : -1;
