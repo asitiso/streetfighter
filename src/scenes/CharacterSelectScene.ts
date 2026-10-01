@@ -48,7 +48,7 @@ export class CharacterSelectScene implements Scene {
       this.audio.playMenuMove();
     }
 
-    if (this.input.pressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
+    if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
       const character = CHARACTERS[this.index]!;
       this.audio.playUiConfirm();
       this.confirm(character);

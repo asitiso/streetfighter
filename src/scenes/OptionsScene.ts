@@ -50,7 +50,7 @@ export class OptionsScene implements Scene {
     if (this.lock > 0) this.lock -= 1;
 
     if (this.editingLayout) {
-      if (this.input.pressed('start')) {
+      if (this.input.pressed('confirm') || this.input.touchPressed('start')) {
         this.editingLayout = false;
         this.touch.setEditMode(false);
         this.commitTouch();
@@ -68,8 +68,8 @@ export class OptionsScene implements Scene {
       if (this.input.pressed('right')) this.adjust(1);
     }
 
-    if (this.input.pressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) this.activate();
-    if (this.input.pressed('lk')) this.leave();
+    if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) this.activate();
+    if (this.input.pressed('back') || this.input.pressed('lk')) this.leave();
   }
 
   render({ ctx, width, height }: RenderContext): void {
@@ -177,7 +177,7 @@ export class OptionsScene implements Scene {
     }
 
     ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.56)'; ctx.font = '700 11px Arial, sans-serif';
-    ctx.fillText('↑ ↓ SELECT  •  ← → ADJUST  •  P / START CONFIRM  •  LK BACK', 640, 670);
+    ctx.fillText('↑ ↓ SELECT  •  ← → ADJUST  •  ENTER / START CONFIRM  •  ESC / LK BACK', 640, 670);
   }
 
   private drawEditOverlay(ctx: CanvasRenderingContext2D): void {
@@ -188,7 +188,7 @@ export class OptionsScene implements Scene {
     ctx.fillStyle = '#f4cf6f'; ctx.font = '800 15px Arial Black, sans-serif'; ctx.fillText('DRAG THE D-PAD AND 6-BUTTON GROUPS', 640, 290);
     ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '600 13px Arial, sans-serif';
     ctx.fillText('손에 가장 편한 위치로 직접 옮기세요.', 640, 326);
-    ctx.fillText('완료하려면 START를 누르세요.', 640, 352);
+    ctx.fillText('완료하려면 ENTER 또는 START를 누르세요.', 640, 352);
     ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillText('Layout changes are saved when you release a control group.', 640, 400);
   }
 

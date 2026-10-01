@@ -1,4 +1,4 @@
-export type Action = 'left' | 'right' | 'up' | 'down' | 'jump' | 'lp' | 'mp' | 'hp' | 'lk' | 'mk' | 'hk' | 'start';
+export type Action = 'left' | 'right' | 'up' | 'down' | 'jump' | 'lp' | 'mp' | 'hp' | 'lk' | 'mk' | 'hk' | 'confirm' | 'back' | 'start';
 
 type ActionState = {
   held: boolean;
@@ -11,7 +11,7 @@ type ActionState = {
   gamepadHeld: boolean;
 };
 
-const ACTIONS: Action[] = ['left', 'right', 'up', 'down', 'jump', 'lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'start'];
+const ACTIONS: Action[] = ['left', 'right', 'up', 'down', 'jump', 'lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'confirm', 'back', 'start'];
 
 export class InputManager {
   private states = new Map<Action, ActionState>(ACTIONS.map((a) => [a, {
@@ -22,7 +22,7 @@ export class InputManager {
     ['ArrowLeft', 'left'], ['KeyA', 'left'], ['ArrowRight', 'right'], ['KeyD', 'right'],
     ['ArrowUp', 'up'], ['KeyW', 'up'], ['ArrowDown', 'down'], ['KeyS', 'down'],
     ['KeyJ', 'lp'], ['KeyK', 'mp'], ['KeyL', 'hp'], ['KeyU', 'lk'], ['KeyI', 'mk'], ['KeyO', 'hk'],
-    ['Space', 'jump'], ['Enter', 'start'], ['Escape', 'start'], ['KeyP', 'start'],
+    ['Space', 'jump'], ['Enter', 'confirm'], ['Escape', 'back'], ['Backspace', 'back'], ['KeyP', 'start'], ['Pause', 'start'],
   ]);
 
   constructor() {

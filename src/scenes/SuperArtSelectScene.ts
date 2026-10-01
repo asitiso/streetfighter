@@ -45,11 +45,11 @@ export class SuperArtSelectScene implements Scene {
       }
     }
 
-    if (this.input.pressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
+    if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
       this.audio.playUiConfirm();
       this.confirm(this.character.superArts[this.selected]!);
     }
-    if (this.input.pressed('lk')) this.back();
+    if (this.input.pressed('back') || this.input.pressed('lk')) this.back();
   }
 
   render({ ctx, width, height }: RenderContext): void {
@@ -129,6 +129,6 @@ export class SuperArtSelectScene implements Scene {
 
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.font = '800 13px Arial, sans-serif';
-    ctx.fillText('↑ ↓ SELECT    P / START CONFIRM    LK BACK', 1216, 681);
+    ctx.fillText('↑ ↓ SELECT    ENTER / START CONFIRM    ESC / LK BACK', 1216, 681);
   }
 }

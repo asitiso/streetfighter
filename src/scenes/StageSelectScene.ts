@@ -39,8 +39,8 @@ export class StageSelectScene implements Scene {
     if (this.input.pressed('down') || this.input.pressed('right')) next += 1;
     next = (next + STAGES.length) % STAGES.length;
     if (next !== this.index) { this.index = next; this.lock = 5; this.audio.playMenuMove(); }
-    if (this.input.pressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) { this.audio.playUiConfirm(); this.confirm(STAGES[this.index]!.id); }
-    if (this.input.pressed('lk') || this.input.pressed('hk')) this.back();
+    if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) { this.audio.playUiConfirm(); this.confirm(STAGES[this.index]!.id); }
+    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.pressed('hk')) this.back();
   }
 
   render({ ctx, width, height }: RenderContext): void {
@@ -58,7 +58,7 @@ export class StageSelectScene implements Scene {
     const stage = STAGES[this.index]!; const pulse = .35 + Math.sin(this.time * 3.2) * .08;
     ctx.fillStyle = `${stage.accent}22`; ctx.beginPath(); ctx.arc(1030, 360, 190 + pulse * 20, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = stage.accent; ctx.lineWidth = 9; ctx.beginPath(); ctx.arc(1030, 360, 120, 0, Math.PI * 2); ctx.stroke();
     ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = '900 64px Impact, sans-serif'; ctx.fillText(`STAGE ${stage.id}`, 1030, 352); ctx.fillStyle = stage.accent; ctx.font = '900 16px Arial Black, sans-serif'; ctx.fillText('READY TO REPLAY', 1030, 390);
-    ctx.fillStyle = 'rgba(255,255,255,.62)'; ctx.font = '700 12px Arial, sans-serif'; ctx.fillText('P / START: PLAY   •   K: BACK', 1030, 626);
+    ctx.fillStyle = 'rgba(255,255,255,.62)'; ctx.font = '700 12px Arial, sans-serif'; ctx.fillText('ENTER / START: PLAY   •   ESC / K: BACK', 1030, 626);
     ctx.restore();
   }
 }
