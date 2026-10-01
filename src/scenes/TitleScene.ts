@@ -164,6 +164,6 @@ export class TitleScene implements Scene {
       ctx.textAlign = 'right'; ctx.font = '700 8px Arial, sans-serif'; ctx.fillStyle = option.enabled ? 'rgba(220,226,236,.58)' : 'rgba(255,255,255,.16)'; ctx.fillText(option.detail.slice(0, 42), x + width - 16, y);
     }
     ctx.textAlign = 'center'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillStyle = 'rgba(190,199,216,.66)'; ctx.fillText('↑ ↓ SELECT  •  ENTER / START CONFIRM', 640, 674);
-    ctx.font = '600 10px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = 'rgba(190,199,216,.45)'; ctx.fillText('V0.0.59-RC34 • HQ NEW ORIGINALS + RELEASE SEAL', 640, 697);
+    ctx.font = '600 10px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = 'rgba(190,199,216,.45)'; ctx.fillText('V0.0.63-RC38 • HQ NEW ORIGINALS + RELEASE SEAL', 640, 697);
   }
 }

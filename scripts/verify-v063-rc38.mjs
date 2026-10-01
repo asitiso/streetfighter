@@ -25,7 +25,7 @@ import { getCharacter } from '../dist/assets/game/characters.js';
 import { normalFor, specialMovesFor, superArtMoveFor, throwMoveFor } from '../dist/assets/combat/MoveLibrary.js';
 
 assert.equal(RELEASE_CANDIDATE, '0.0.63-rc.38');
-assert.equal(GAME_CACHE_NAME, 'game-cache-v063');
+assert.equal(GAME_CACHE_NAME, 'game-cache-v064');
 assert.equal(ATTACK_ATLAS_FRAMES, 5);
 assert.ok(ASSET_GROUPS['character-hq'].includes('/art/animation-hq/ryu/manifest.json'));
 assert.ok(ASSET_GROUPS['character-hq'].includes('/art/animation-hq/ryu/idle.webp'));
