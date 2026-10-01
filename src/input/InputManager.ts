@@ -102,12 +102,14 @@ export class InputManager {
     this.setGamepad('up', axisY < -0.45 || (pad.buttons[12]?.pressed ?? false));
     this.setGamepad('down', axisY > 0.45 || (pad.buttons[13]?.pressed ?? false));
     this.setGamepad('jump', pad.buttons[8]?.pressed ?? false);
+    this.setGamepad('back', pad.buttons[8]?.pressed ?? false);
     this.setGamepad('lp', pad.buttons[0]?.pressed ?? false);
     this.setGamepad('mp', pad.buttons[1]?.pressed ?? false);
     this.setGamepad('hp', pad.buttons[3]?.pressed ?? false);
     this.setGamepad('lk', pad.buttons[2]?.pressed ?? false);
     this.setGamepad('mk', pad.buttons[4]?.pressed ?? false);
     this.setGamepad('hk', pad.buttons[5]?.pressed ?? false);
+    this.setGamepad('confirm', pad.buttons[9]?.pressed ?? false);
     this.setGamepad('start', pad.buttons[9]?.pressed ?? false);
   }
 
