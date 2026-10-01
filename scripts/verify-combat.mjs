@@ -79,6 +79,17 @@ wallPairWorld.resolveBodyCollisions();
 if (wallPairWorld.player.x < wallPairWorld.rules.arenaLeft || wallPairWorld.enemy.x < wallPairWorld.rules.arenaLeft) fail('body collision pushed fighter outside left arena wall');
 if (Math.abs(wallPairWorld.enemy.x - wallPairWorld.player.x) < 57.5) fail('wall body collision failed to transfer blocked separation to free fighter');
 
+const tradeWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
+tradeWorld.player.x = 500; tradeWorld.enemy.x = 552; tradeWorld.player.y = 500; tradeWorld.enemy.y = 500;
+tradeWorld.player.startMove(normalFor('hp')); tradeWorld.enemy.startMove(normalFor('hp'));
+tradeWorld.player.moveFrame = tradeWorld.player.currentMove.startup - 1;
+tradeWorld.enemy.moveFrame = tradeWorld.enemy.currentMove.startup - 1;
+const tradePlayerHp = tradeWorld.player.hp;
+const tradeEnemyHp = tradeWorld.enemy.hp;
+input.set();
+tradeWorld.update(input, 700);
+if (tradeWorld.player.hp >= tradePlayerHp || tradeWorld.enemy.hp >= tradeEnemyHp) fail('same-frame duel strikes did not trade damage');
+
 const counterWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
 counterWorld.player.x = 500; counterWorld.enemy.x = 558; counterWorld.player.y = 500; counterWorld.enemy.y = 500;
 counterWorld.enemy.startMove(normalFor('hp')); counterWorld.player.startMove(normalFor('lp')); counterWorld.enemy.aiCooldown = 997; counterWorld.enemy.aiProfile.guardChance = 0; input.set();
@@ -196,6 +207,7 @@ console.log('COMBAT_VERIFY_PASS', {
   projectileJumpClear: jumpOverWorld.player.hp === jumpHp,
   verticalMeleeFiltering: verticalWorld.enemy.hp < verticalHp,
   wallSeparationBounded: wallPairWorld.player.x >= wallPairWorld.rules.arenaLeft,
+  duelStrikeTrade: tradeWorld.player.hp < tradePlayerHp && tradeWorld.enemy.hp < tradeEnemyHp,
   counter: true,
   throwEscape: true,
   jump: true,

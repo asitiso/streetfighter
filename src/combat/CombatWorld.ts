@@ -28,6 +28,16 @@ export interface BeltEnemySpawn {
   archetype?: EnemyArchetypeId;
 }
 
+interface DuelTradeIntent {
+  attacker: Fighter;
+  defender: Fighter;
+  move: MoveData;
+  hitMove: MoveData;
+  hitNumber: number;
+  impactX: number;
+  impactY: number;
+}
+
 export class CombatWorld {
   readonly player: Fighter;
   readonly enemies: Fighter[] = [];
@@ -117,7 +127,14 @@ export class CombatWorld {
     this.spawnProjectileIfNeeded(this.player);
     for (const enemy of this.livingEnemies) this.spawnProjectileIfNeeded(enemy);
 
+    const duelEnemy = this.rules.mode === 'duel' ? (this.livingEnemies[0] ?? null) : null;
+    const playerTradeIntent = duelEnemy ? this.captureDuelTradeIntent(this.player, duelEnemy) : null;
+    const enemyTradeIntent = playerTradeIntent && duelEnemy ? this.captureDuelTradeIntent(duelEnemy, this.player) : null;
+
     for (const enemy of this.livingEnemies) this.resolveAttack(this.player, enemy, input);
+    if (enemyTradeIntent && enemyTradeIntent.attacker.currentMove === null && enemyTradeIntent.attacker.state !== 'attack') {
+      this.resolveDuelTradeIntent(enemyTradeIntent);
+    }
     for (const enemy of this.livingEnemies) this.resolveAttack(enemy, this.player, input);
     this.resolveEnvironmentAttack(this.player);
     for (const enemy of this.livingEnemies) this.resolveEnvironmentAttack(enemy);
@@ -245,6 +262,80 @@ export class CombatWorld {
       const offset = index - (actual - 1) * .5;
       this.spawnScriptedProjectile(fighter, move, offset * verticalSpread, offset * .2, speedScale, index + 1, actual);
     }
+  }
+
+  private captureDuelTradeIntent(attacker: Fighter, defender: Fighter): DuelTradeIntent | null {
+    const move = attacker.currentMove;
+    if (!move || move.kind === 'projectile' || move.kind === 'throw' || move.level === 'throw' || !!move.install || !attacker.isMoveActive() || attacker.hasHitTarget(defender) || attacker.hp <= 0 || defender.hp <= 0) return null;
+
+    const dx = (defender.x - attacker.x) * attacker.facing;
+    const dy = Math.abs(defender.y - attacker.y);
+    const withinX = dx >= -move.hitbox.back && dx <= move.hitbox.forward * attacker.character.reach;
+    const withinY = dy <= Math.max(this.rules.laneTolerance, move.hitbox.lane);
+    const verticalDelta = Math.abs(attacker.jumpHeight - defender.jumpHeight);
+    const verticalTolerance = move.launch
+      ? Math.max(135, move.hitbox.height + 36)
+      : move.technique === 'air'
+        ? (move.damage >= 70 ? 96 : 82)
+        : move.level === 'low'
+          ? 34
+          : Math.max(62, move.hitbox.height * .72);
+    if (!withinX || !withinY || verticalDelta > verticalTolerance) return null;
+    if (move.juggleLimit !== undefined && defender.airborne && defender.juggleHits >= move.juggleLimit) return null;
+
+    const hitNumber = attacker.hitNumberFor(defender);
+    const hitMove = move.multiHit ? {
+      ...move,
+      damage: Math.max(1, Math.round(move.damage * move.multiHit.perHitScale)),
+      hitStop: hitNumber >= move.multiHit.hits ? move.hitStop : Math.min(5, move.hitStop),
+      hitStun: hitNumber >= move.multiHit.hits ? move.hitStun : Math.max(8, Math.round(move.hitStun * .55)),
+      pushback: hitNumber >= move.multiHit.hits ? move.pushback : Math.min(10, move.pushback * .14),
+      knockdown: hitNumber >= move.multiHit.hits ? move.knockdown : false,
+      launch: hitNumber >= move.multiHit.hits ? move.launch : undefined,
+    } : move;
+
+    return {
+      attacker,
+      defender,
+      move,
+      hitMove,
+      hitNumber,
+      impactX: (attacker.x + defender.x) * .5,
+      impactY: Math.min(attacker.y, defender.y) - 92,
+    };
+  }
+
+  private resolveDuelTradeIntent(intent: DuelTradeIntent): void {
+    const { attacker, defender, move, hitMove, hitNumber, impactX, impactY } = intent;
+    const hpBefore = defender.hp;
+    const outcome = defender.receiveHit(hitMove, attacker, false, false);
+    attacker.markHitTarget(defender);
+
+    if (outcome === 'hit') {
+      defender.syncVisualHitSequence(hitNumber, move.multiHit?.hits ?? 1);
+      attacker.addAttackReward(hitMove);
+      this.registerComboHit(attacker, hpBefore - defender.hp);
+      if (hitMove.superCost) defender.syncSuperVictimHit(hitNumber, move.multiHit?.hits ?? 1);
+    }
+
+    const type = outcome === 'hit' ? this.impactType(move) : outcome;
+    this.events.push({
+      type,
+      x: impactX,
+      y: impactY,
+      power: hitMove.damage,
+      ttl: type.includes('parry') ? 24 : 16,
+      label: move.multiHit ? `${move.label} ${hitNumber}/${move.multiHit.hits}` : move.technique ? move.label : undefined,
+      color: hitMove.color,
+      hitIndex: hitNumber,
+      hitTotal: move.multiHit?.hits ?? 1,
+      attackerSide: attacker.side,
+      moveId: move.id,
+    });
+    if (outcome === 'hit' && defender.airborne) this.events.push({ type: 'juggle', x: impactX, y: impactY - Math.min(60, defender.jumpHeight * .35), power: defender.juggleHits, ttl: 20, label: `${defender.juggleHits} JUGGLE` });
+    if (outcome === 'hit' && move.superCost) this.events.push({ type: 'super-impact', x: impactX, y: impactY, power: hitMove.damage, ttl: 34, label: move.label, color: hitMove.color, style: move.superPresentation?.motif, accent: move.superPresentation?.accent, hitIndex: hitNumber, hitTotal: move.multiHit?.hits ?? 1, attackerSide: attacker.side, moveId: move.id });
+    if (outcome === 'hit') this.resolveWallImpact(defender, hitMove);
+    if (defender.hp <= 0) this.events.push({ type: 'ko', x: defender.x, y: defender.y - 130, power: 999, ttl: 90 });
   }
 
   private resolveAttack(attacker: Fighter, defender: Fighter, input: InputManager): void {
