@@ -218,8 +218,8 @@ export class Stage1Scene implements Scene {
     if (!combatFrozen) this.elapsedCombatFrames += 1;
     this.world.update(this.input, tick);
     this.updateCamera();
-    if (this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();
-    if (this.phase === 'final-duel') { this.updateGillPhase(); this.updateGillPattern(); }
+    if (!combatFrozen && this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();
+    if (!combatFrozen && this.phase === 'final-duel') { this.updateGillPhase(); this.updateGillPattern(); }
     if (this.bossPatternFlash > 0) this.bossPatternFlash -= 1;
     if (this.gillPhaseBanner > 0) this.gillPhaseBanner -= 1;
     for (const event of this.world.events) {

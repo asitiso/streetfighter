@@ -183,6 +183,15 @@ if (freezeStage.stageTime !== freezeStageTime) fail('stage timer advanced during
 if (freezeStage.elapsedCombatFrames !== freezeElapsed) fail('combat clear-time counter advanced during super freeze');
 if (freezeStage.world.superFreezeFrames !== 1) fail('stage did not tick super freeze countdown');
 
+const frozenBossStage = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 5);
+frozenBossStage.introFrames = 0;
+frozenBossStage.phase = 'duel';
+frozenBossStage.world.superFreezeFrames = 2;
+let frozenBossPatternCalls = 0;
+frozenBossStage.updateUrienPattern = () => { frozenBossPatternCalls += 1; };
+frozenBossStage.fixedUpdate(1 / 60, 9421);
+if (frozenBossPatternCalls !== 0) fail('boss pattern script advanced during super freeze');
+
 let clear1 = false, clear2 = false, clear3 = false, clear4 = false, clear5 = false;
 const stage1 = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 1, () => { clear1 = true; });
 const r1 = testStage(stage1, 'stage1', 1);
@@ -232,4 +241,5 @@ console.log('STAGE_FLOW_VERIFY_PASS', {
   pauseResume: !pauseScene.paused,
   pauseAudioSeparated: !pauseAudio.paused && !pauseAudio.backgrounded,
   superFreezePreservesStageClock: freezeStage.stageTime === freezeStageTime && freezeStage.elapsedCombatFrames === freezeElapsed,
+  superFreezeBlocksBossScripts: frozenBossPatternCalls === 0,
 });
