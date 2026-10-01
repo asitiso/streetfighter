@@ -6,7 +6,7 @@ const app = readFileSync(join(root, 'assets/core/GameApp.js'), 'utf8');
 const options = readFileSync(join(root, 'assets/scenes/OptionsScene.js'), 'utf8');
 const touch = readFileSync(join(root, 'assets/ui/TouchControls.js'), 'utf8');
 const save = readFileSync(join(root, 'assets/save/SaveManager.js'), 'utf8');
-const css = readFileSync(join(root, 'styles.css'), 'utf8');
+const css = readFileSync(join(root, 'assets/styles.css'), 'utf8');
 const checks = [
   [app.includes("id: 'options'"), 'title OPTIONS entry'],
   [options.includes('EDIT TOUCH LAYOUT'), 'layout edit overlay'],
