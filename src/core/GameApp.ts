@@ -122,10 +122,10 @@ export class GameApp {
     const stage = Math.max(1, Math.min(5, this.save?.currentStage ?? 1));
     const campaignComplete = !!this.save?.stageSelectUnlocked && (this.save?.completedStages.includes(5) ?? false);
     const options: TitleMenuOption[] = [
-      { id: 'new-game', label: 'NEW GAME', detail: 'CHARACTER SELECT → STAGE 1', enabled: true, action: () => { void this.showCharacterSelect(); } },
-      { id: 'continue', label: 'CONTINUE', detail: this.save?.hasCampaignStarted ? `STAGE ${stage} • ${this.save.selectedCharacter}` : campaignComplete ? 'CAMPAIGN COMPLETE • USE STAGE SELECT' : 'NO CAMPAIGN SAVE', enabled: !!this.save?.hasCampaignStarted, action: () => { void this.continueCampaign(); } },
+      { id: 'new-game', label: 'NEW GAME', detail: 'CHARACTER SELECT → STAGE 1', enabled: true, action: () => { this.recovery.consumeRecovery(); void this.showCharacterSelect(); } },
+      { id: 'continue', label: 'CONTINUE', detail: this.save?.hasCampaignStarted ? `STAGE ${stage} • ${this.save.selectedCharacter}` : campaignComplete ? 'CAMPAIGN COMPLETE • USE STAGE SELECT' : 'NO CAMPAIGN SAVE', enabled: !!this.save?.hasCampaignStarted, action: () => { this.recovery.consumeRecovery(); void this.continueCampaign(); } },
       { id: 'recover-session', label: 'RECOVER SESSION', detail: interrupted.label, enabled: interrupted.available, action: () => { void this.recoverInterruptedSession(); } },
-      { id: 'stage-select', label: 'STAGE SELECT', detail: this.save?.stageSelectUnlocked ? 'STAGES 1–5 UNLOCKED' : 'CLEAR THE CAMPAIGN TO UNLOCK', enabled: !!this.save?.stageSelectUnlocked, action: () => { void this.showStageSelect(); } },
+      { id: 'stage-select', label: 'STAGE SELECT', detail: this.save?.stageSelectUnlocked ? 'STAGES 1–5 UNLOCKED' : 'CLEAR THE CAMPAIGN TO UNLOCK', enabled: !!this.save?.stageSelectUnlocked, action: () => { this.recovery.consumeRecovery(); void this.showStageSelect(); } },
       { id: 'battle-record', label: 'BATTLE RECORD', detail: this.save?.stageResults.length ? `${this.save.stageResults.length}/5 STAGES RECORDED` : 'NO STAGE RECORDS', enabled: !!this.save?.stageResults.length, action: () => { void this.showResults(); } },
       { id: 'save-tools', label: 'SAVE TOOLS', detail: 'EXPORT / IMPORT PORTABLE BACKUP', enabled: true, action: () => { void this.showSaveTools(); } },
       { id: 'install', label: 'INSTALL APP', detail: this.install.state() === 'standalone' ? 'RUNNING STANDALONE' : this.install.state() === 'available' ? 'ONE-TAP INSTALL READY' : 'HOME SCREEN GUIDE', enabled: true, action: () => { void this.showInstall(); } },
