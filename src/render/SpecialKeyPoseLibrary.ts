@@ -28,9 +28,16 @@ export function specialKeyPoseAsset(characterId: string, move: MoveData): string
   return kind ? KEN_SPECIALS[kind] ?? null : null;
 }
 
-// Contact art supplements the procedural animation; it does not mark a 12F strip as authored.
-export function specialKeyPoseVisible(move: MoveData, moveFrame: number): boolean {
-  return moveFrame >= move.startup && moveFrame < move.startup + move.active + Math.min(4, move.recovery);
+// Blend the contact art into the existing attack motion without claiming an authored strip.
+export function specialKeyPoseOpacity(move: MoveData, moveFrame: number): number {
+  const lead = Math.min(3, move.startup);
+  if (moveFrame < move.startup - lead) return 0;
+  if (moveFrame < move.startup) return (moveFrame - (move.startup - lead) + 1) / (lead + 1);
+  const recoveryStart = move.startup + move.active;
+  if (moveFrame < recoveryStart) return 1;
+  const trail = Math.min(5, move.recovery);
+  if (moveFrame >= recoveryStart + trail) return 0;
+  return (trail - (moveFrame - recoveryStart)) / (trail + 1);
 }
 
 export function preloadSpecialKeyPoses(characterId: string): void {
