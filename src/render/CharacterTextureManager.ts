@@ -1,6 +1,7 @@
 import { runtimeQuality } from '../core/RuntimeQuality.js';
 import { APPROVED_HQ_CHARACTER_IDS, hqMasterApproved } from './HqCharacterMasterRegistry.js';
 import { animationTextureManager } from './AnimationTextureManager.js';
+import { preloadSpecialKeyPoses, releaseSpecialKeyPoses } from './SpecialKeyPoseLibrary.js';
 import {
   artImage,
   attackAtlasHdKey,
@@ -97,7 +98,10 @@ class CharacterTextureManager {
   }
 
   preloadCharacter(characterId: string): void {
-    if (this.wantsHd()) animationTextureManager.preloadCharacter(characterId, 'movement');
+    if (this.wantsHd()) {
+      animationTextureManager.preloadCharacter(characterId, 'movement');
+      preloadSpecialKeyPoses(characterId);
+    }
     const liteCombat = combatSpriteKey(characterId);
     const liteAttack = attackAtlasKey(characterId);
     const keys: ArtAssetKey[] = [];
@@ -196,6 +200,7 @@ class CharacterTextureManager {
       if (combat) unloadArtAsset(combat);
       if (attack) unloadArtAsset(attack);
       animationTextureManager.releaseCharacter(id);
+      releaseSpecialKeyPoses(id);
     }
   }
 }
