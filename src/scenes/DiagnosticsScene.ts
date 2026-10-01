@@ -46,7 +46,7 @@ export class DiagnosticsScene implements Scene {
     if (this.input.pressed('mk') && this.page === 0) { this.context.clearErrors(); this.message = 'CURRENT RC CRASH LOG CLEARED'; this.audio.playUiConfirm(); }
     if (this.input.pressed('lp') && this.page === 5) { const result = this.context.approveRelease(); this.message = result.message; this.audio.playUiConfirm(); }
     if (this.input.pressed('mk') && this.page === 5) { this.context.revokeApproval(); this.message = 'RELEASE APPROVAL REVOKED'; this.audio.playUiConfirm(); }
-    if (this.input.pressed('lk') || this.input.pressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
+    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.touchPressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
   }
 
   render({ ctx, width, height }: RenderContext): void {

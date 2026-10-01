@@ -27,7 +27,7 @@ export class PwaUpdateScene implements Scene {
     if (this.input.pressed('lp')) { this.audio.playUiConfirm(); void this.check(); }
     if (this.input.pressed('mp')) { this.audio.playUiConfirm(); void this.apply(); }
     if (this.input.pressed('hp')) { this.audio.playUiConfirm(); void this.rollback(); }
-    if (this.input.pressed('lk') || this.input.pressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
+    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.touchPressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
   }
 
   private async refresh(): Promise<void> { this.status = await this.updates.status(); this.message = this.status.lastAction; }

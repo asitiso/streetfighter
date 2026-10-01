@@ -17,8 +17,8 @@ export class InstallScene implements Scene {
   resize(): void {}
   destroy(): void {}
   fixedUpdate(): void {
-    if (this.input.pressed('lk')) { this.onBack(); return; }
-    if ((this.input.pressed('lp') || this.input.pressed('start')) && !this.busy && this.install.state() === 'available') {
+    if (this.input.pressed('back') || this.input.pressed('lk')) { this.onBack(); return; }
+    if ((this.input.pressed('lp') || this.input.pressed('confirm') || this.input.touchPressed('start')) && !this.busy && this.install.state() === 'available') {
       this.busy = true;
       void this.install.prompt().then((result) => { this.message = result === 'accepted' ? 'INSTALL ACCEPTED' : result === 'dismissed' ? 'INSTALL DISMISSED' : 'USE BROWSER INSTALL MENU'; this.busy = false; });
     }

@@ -35,7 +35,7 @@ export class SaveToolsScene implements Scene {
     if (this.busy) return;
     if (this.input.pressed('lp')) { this.audio.playUiConfirm(); void this.exportFile(); }
     if (this.input.pressed('mp')) { this.audio.playUiConfirm(); this.openImportPicker(); }
-    if (this.input.pressed('lk') || this.input.pressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
+    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.touchPressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
   }
 
   private async exportFile(): Promise<void> {

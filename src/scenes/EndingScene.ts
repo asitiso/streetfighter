@@ -42,7 +42,7 @@ export class EndingScene implements Scene {
   fixedUpdate(dt: number): void {
     this.time += dt;
     this.hero.stateFrame += 1;
-    if (this.time > 6.8 && (this.input.pressed('start') || this.input.pressed('lp'))) this.onFinish();
+    if (this.time > 6.8 && (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp'))) this.onFinish();
   }
 
   render({ ctx, width, height }: RenderContext, alpha: number): void {

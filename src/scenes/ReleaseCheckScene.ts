@@ -66,7 +66,7 @@ export class ReleaseCheckScene implements Scene {
     if (this.input.pressed('lp') && !this.offlineBusy) { this.audio.playUiConfirm(); void this.prepareOffline(); }
     if (this.input.pressed('mp') && !this.offlineBusy) { this.audio.playUiConfirm(); void this.refreshOffline(); void this.refreshIntegrity(); }
     if (this.input.pressed('hp') && !this.offlineBusy) { this.audio.playUiConfirm(); this.exportReport(); }
-    if (this.input.pressed('lk') || this.input.pressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
+    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.touchPressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
   }
 
   private async refreshOffline(): Promise<void> {

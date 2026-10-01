@@ -31,7 +31,7 @@ export class ResultsScene implements Scene {
       this.lock = 7;
       this.audio.playMenuMove();
     }
-    if (this.input.pressed('start') || this.input.pressed('lp') || this.input.pressed('lk')) {
+    if (this.input.pressed('confirm') || this.input.pressed('back') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('lk')) {
       this.audio.playUiConfirm();
       this.onBack();
     }

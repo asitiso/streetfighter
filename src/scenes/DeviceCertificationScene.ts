@@ -72,7 +72,7 @@ export class DeviceCertificationScene implements Scene {
         this.lock = 6;
         return;
       }
-      if (this.input.pressed('start')) {
+      if (this.input.pressed('back') || this.input.touchPressed('start')) {
         this.touchAuditRunning = false;
         this.touchAudit.clear();
         this.message = 'TOUCH AUDIT CANCELLED';
@@ -82,7 +82,7 @@ export class DeviceCertificationScene implements Scene {
     }
 
     if (this.latency.running) {
-      if (this.input.pressed('start') || this.input.pressed('lk')) { this.latency.stop(); this.context.setTouchVisible(true); this.audio.playUiConfirm(); }
+      if (this.input.pressed('back') || this.input.touchPressed('start') || this.input.pressed('lk')) { this.latency.stop(); this.context.setTouchVisible(true); this.audio.playUiConfirm(); }
       return;
     }
     if (this.lock > 0) return;
@@ -103,7 +103,7 @@ export class DeviceCertificationScene implements Scene {
     }
     if (this.input.pressed('lp') && this.index === DEVICE_CERT_TESTS.length + 1) { this.context.exportFinalProof(); this.message = 'FINAL PROOF EXPORTED'; this.audio.playUiConfirm(); this.lock = 5; }
     if (this.input.pressed('mk')) { this.record = this.context.reset(); this.latencyPreview = null; this.touchAudit.clear(); this.message = 'CERTIFICATION RESET'; this.audio.playUiConfirm(); }
-    if (this.input.pressed('start') || this.input.pressed('lk')) { this.audio.playUiConfirm(); this.onBack(); }
+    if (this.input.pressed('back') || this.input.touchPressed('start') || this.input.pressed('lk')) { this.audio.playUiConfirm(); this.onBack(); }
   }
 
 
