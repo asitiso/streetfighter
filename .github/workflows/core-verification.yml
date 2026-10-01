@@ -18,5 +18,23 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run verify:core
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+      - name: Verify build shell
+        run: node scripts/verify-build.mjs
+      - name: Verify combat
+        run: node scripts/verify-combat.mjs
+      - name: Verify belt mode
+        run: node scripts/verify-belt-mode.mjs
+      - name: Verify boss patterns
+        run: node scripts/verify-boss-patterns.mjs
+      - name: Verify campaign menu
+        run: node scripts/verify-campaign-menu.mjs
+      - name: Verify stage flow
+        run: node scripts/verify-stage-flow.mjs
+      - name: Verify options
+        run: node scripts/verify-options.mjs
