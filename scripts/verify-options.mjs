@@ -13,7 +13,7 @@ const checks = [
   [options.includes('touchStickScale') && options.includes('touchButtonsX'), 'options persistence'],
   [touch.includes('setEditMode') && touch.includes('beginDrag'), 'drag layout editor'],
   [touch.includes('vibrate') && touch.includes('vibrationEnabled'), 'touch haptics toggle'],
-  [touch.includes('if (!visible) this.releaseAll()'), 'hidden touch controls release held input'],
+  [/if\s*\(!visible\)\s*this\.releaseAll\(\)/.test(touch), 'hidden touch controls release held input'],
   [touch.includes('onDpadPointerMove') && touch.includes('dpadActionAt') && touch.includes('setDpadAction'), 'd-pad slide direction tracking'],
   [touch.includes('layoutMaxX()') && touch.includes('layoutMaxY()'), 'shared runtime touch-layout bounds'],
   [css.includes('button:nth-of-type(-n+3)'), 'top fight-button row selector'],
