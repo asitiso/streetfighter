@@ -10,6 +10,7 @@ export class CharacterSelectScene implements Scene {
   private index = 0;
   private time = 0;
   private lock = 0;
+  private transitioning = false;
 
   constructor(
     private readonly input: InputManager,
@@ -32,6 +33,7 @@ export class CharacterSelectScene implements Scene {
 
   fixedUpdate(dt: number): void {
     this.time += dt;
+    if (this.transitioning) return;
     if (this.lock > 0) this.lock -= 1;
     if (this.lock > 0) return;
 
@@ -50,6 +52,7 @@ export class CharacterSelectScene implements Scene {
 
     if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
       const character = CHARACTERS[this.index]!;
+      this.transitioning = true;
       this.audio.playUiConfirm();
       this.confirm(character);
     }
@@ -242,6 +245,6 @@ export class CharacterSelectScene implements Scene {
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(255,255,255,.72)';
     ctx.font = '800 13px Arial, sans-serif';
-    ctx.fillText('← ↑ ↓ → SELECT    P / START CONFIRM', 1218, 690);
+    ctx.fillText('← ↑ ↓ → SELECT    ENTER / START CONFIRM', 1218, 690);
   }
 }

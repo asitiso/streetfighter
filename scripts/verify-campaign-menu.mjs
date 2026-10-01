@@ -43,10 +43,16 @@ let selectedStage = 0; let backed = false;
 const stageScene = new StageSelectScene(stageInput, audio, 3, (stage) => { selectedStage = stage; }, () => { backed = true; });
 stageInput.set('down'); stageScene.fixedUpdate(1 / 60);
 for (let i = 0; i < 6; i += 1) { stageInput.set(); stageScene.fixedUpdate(1 / 60); }
-stageInput.set('confirm'); stageScene.fixedUpdate(1 / 60);
-if (selectedStage !== 4) fail(`expected stage 4 selection, got ${selectedStage}`);
-stageInput.set(); stageScene.fixedUpdate(1 / 60);
-stageInput.set('back'); stageScene.fixedUpdate(1 / 60);
+let stageConfirmCount = 0;
+selectedStage = 0;
+const lockedStageScene = new StageSelectScene(stageInput, audio, 3, (stage) => { selectedStage = stage; stageConfirmCount += 1; }, () => { backed = true; });
+stageInput.set('confirm'); lockedStageScene.fixedUpdate(1 / 60);
+stageInput.set('confirm'); lockedStageScene.fixedUpdate(1 / 60);
+if (selectedStage !== 3 || stageConfirmCount !== 1) fail(`stage select double-confirm guard failed: stage=${selectedStage}, count=${stageConfirmCount}`);
+
+const backInput = new StubInput();
+const backScene = new StageSelectScene(backInput, audio, 3, () => {}, () => { backed = true; });
+backInput.set('back'); backScene.fixedUpdate(1 / 60);
 if (!backed) fail('stage select back action missing');
 
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
@@ -55,4 +61,4 @@ if (!appSource.includes('startStageNumber(stage, character, art, false, true)'))
 if (!appSource.includes('replay ? this.showStageSelect()')) fail('replay clear does not return to stage select');
 if (!appSource.includes('if (!replay)')) fail('replay mode still mutates campaign progression');
 
-console.log('CAMPAIGN_MENU_VERIFY_PASS', { titleAction: chosen, pauseInputSeparated: true, selectedStage, back: backed, isolatedReplay: true, menuMoves: audio.moves });
+console.log('CAMPAIGN_MENU_VERIFY_PASS', { titleAction: chosen, pauseInputSeparated: true, selectedStage, stageConfirmCount, back: backed, isolatedReplay: true, menuMoves: audio.moves });

@@ -14,6 +14,7 @@ export class StageSelectScene implements Scene {
   private index = 0;
   private time = 0;
   private lock = 0;
+  private transitioning = false;
 
   constructor(
     private readonly input: InputManager,
@@ -32,6 +33,7 @@ export class StageSelectScene implements Scene {
 
   fixedUpdate(dt: number): void {
     this.time += dt;
+    if (this.transitioning) return;
     if (this.lock > 0) this.lock -= 1;
     if (this.lock > 0) return;
     let next = this.index;
@@ -39,8 +41,16 @@ export class StageSelectScene implements Scene {
     if (this.input.pressed('down') || this.input.pressed('right')) next += 1;
     next = (next + STAGES.length) % STAGES.length;
     if (next !== this.index) { this.index = next; this.lock = 5; this.audio.playMenuMove(); }
-    if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) { this.audio.playUiConfirm(); this.confirm(STAGES[this.index]!.id); }
-    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.pressed('hk')) this.back();
+    if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
+      this.transitioning = true;
+      this.audio.playUiConfirm();
+      this.confirm(STAGES[this.index]!.id);
+      return;
+    }
+    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.pressed('hk')) {
+      this.transitioning = true;
+      this.back();
+    }
   }
 
   render({ ctx, width, height }: RenderContext): void {

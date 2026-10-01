@@ -10,6 +10,7 @@ export class SuperArtSelectScene implements Scene {
   private selected = 0;
   private time = 0;
   private lock = 0;
+  private transitioning = false;
 
   constructor(
     private readonly input: InputManager,
@@ -34,6 +35,7 @@ export class SuperArtSelectScene implements Scene {
 
   fixedUpdate(dt: number): void {
     this.time += dt;
+    if (this.transitioning) return;
     if (this.lock > 0) this.lock -= 1;
     if (this.lock === 0) {
       const old = this.selected;
@@ -46,10 +48,15 @@ export class SuperArtSelectScene implements Scene {
     }
 
     if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
+      this.transitioning = true;
       this.audio.playUiConfirm();
       this.confirm(this.character.superArts[this.selected]!);
+      return;
     }
-    if (this.input.pressed('back') || this.input.pressed('lk')) this.back();
+    if (this.input.pressed('back') || this.input.pressed('lk')) {
+      this.transitioning = true;
+      this.back();
+    }
   }
 
   render({ ctx, width, height }: RenderContext): void {
