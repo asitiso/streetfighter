@@ -139,6 +139,36 @@ const hitThrow = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
 hitThrow.state = 'hit';
 if (hitThrow.canBeThrown()) fail('hit-stun fighter incorrectly throwable');
 
+const hitStopAir = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+hitStopAir.airborne = true;
+hitStopAir.state = 'jump';
+hitStopAir.jumpHeight = 80;
+hitStopAir.jumpVelocity = 5;
+hitStopAir.hitStop = 2;
+input.set();
+hitStopAir.updatePlayer(input, duelRules);
+if (hitStopAir.jumpHeight !== 80 || hitStopAir.jumpVelocity !== 5 || hitStopAir.hitStop !== 1) fail('hit stop advanced airborne physics');
+
+const parryBuffer = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+parryBuffer.startMove(normalFor('lp'));
+parryBuffer.moveFrame = parryBuffer.currentMove.startup + parryBuffer.currentMove.active + parryBuffer.currentMove.recovery - 1;
+input.set(['right'], ['right']);
+parryBuffer.updatePlayer(input, duelRules);
+if (parryBuffer.parryWindow !== 0 || parryBuffer.redParryWindow !== 0) fail('attack buffered a parry window into recovery');
+
+const dashInterrupted = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+dashInterrupted.dashFrames = 6;
+dashInterrupted.state = 'walk';
+dashInterrupted.receiveHit(normalFor('lp'), interrupter, false, false);
+if (dashInterrupted.dashFrames !== 0) fail('hit did not cancel residual dash frames');
+
+const throwProtected = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+throwProtected.beginThrowSync('victim', interrupter.uid, -1, 12);
+if (throwProtected.canBeThrown()) fail('throw-synced victim remained throwable');
+throwProtected.throwSyncFrames = 0;
+throwProtected.throwEscapeFrames = 8;
+if (throwProtected.canBeThrown()) fail('throw escape recovery remained throwable');
+
 const landingAttack = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
 landingAttack.airborne = true;
 landingAttack.jumpHeight = .2;
@@ -168,4 +198,8 @@ console.log('COMBAT_VERIFY_PASS', {
   airGuardDisabled: !airGuard.canDefend(),
   airborneThrowDisabled: !airGuard.canBeThrown(),
   knockdownThrowDisabled: !downedThrow.canBeThrown(),
+  hitStopFreezesAir: hitStopAir.jumpHeight === 80,
+  attackParryBufferBlocked: parryBuffer.parryWindow === 0,
+  dashCancelledOnHit: dashInterrupted.dashFrames === 0,
+  throwSyncProtected: !throwProtected.canBeThrown(),
 });

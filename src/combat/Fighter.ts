@@ -116,16 +116,16 @@ export class Fighter {
   updatePlayer(input: InputManager, rules: ModeRules): void {
     this.previousX = this.x;
     this.previousY = this.y;
-    this.updateAir();
     if (this.hitStop > 0) { this.hitStop -= 1; return; }
+    this.updateAir();
     this.tickWindows();
 
     const forwardAction = this.facing === 1 ? 'right' : 'left';
-    if (input.pressed(forwardAction)) {
+    if (input.pressed(forwardAction) && this.canDefend()) {
       if (this.state === 'block') this.redParryWindow = 3;
       else this.parryWindow = 6;
     }
-    if (input.pressed('down') && !this.airborne) this.lowParryWindow = 6;
+    if (input.pressed('down') && this.canDefend()) this.lowParryWindow = 6;
 
     if (this.state === 'hit' || this.state === 'block' || this.state === 'parry' || this.state === 'knockdown' || this.state === 'victory' || this.state === 'ko') {
       this.advanceLockedState();
@@ -202,8 +202,8 @@ export class Fighter {
   updateAiDirected(target: Fighter, rules: ModeRules, directive: EnemyDirective): void {
     this.previousX = this.x;
     this.previousY = this.y;
-    this.updateAir();
     if (this.hitStop > 0) { this.hitStop -= 1; return; }
+    this.updateAir();
     this.tickWindows();
     if (this.aiCooldown > 0) this.aiCooldown -= 1;
     if (this.state === 'hit' || this.state === 'block' || this.state === 'parry' || this.state === 'knockdown' || this.state === 'victory' || this.state === 'ko') {
@@ -338,7 +338,7 @@ export class Fighter {
   }
 
   canBeThrown(): boolean {
-    if (this.airborne || this.hp <= 0) return false;
+    if (this.airborne || this.hp <= 0 || this.throwSyncFrames > 0 || this.throwEscapeFrames > 0) return false;
     return this.state !== 'hit' && this.state !== 'knockdown' && this.state !== 'parry' && this.state !== 'ko' && this.state !== 'victory';
   }
 
@@ -657,6 +657,7 @@ export class Fighter {
   private interruptMove(): void {
     this.currentMove = null;
     this.moveFrame = 0;
+    this.dashFrames = 0;
     this.attackConnected = false;
     this.attackVictims.clear();
     this.attackVictimFrames.clear();
