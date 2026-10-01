@@ -37,6 +37,7 @@ function clearBeltAreas(scene, tickBase = 1) {
   if (scene.phase !== 'transition') fail(`expected transition, got ${scene.phase}`);
   for (let t = 0; t < 320 && scene.phase === 'transition'; t += 1) scene.fixedUpdate(1 / 60, tick++);
   if (scene.phase !== 'duel' || scene.world.rules.mode !== 'duel') fail('duel not activated');
+  if (scene.stageTime < 98.9) fail(`duel timer did not reset: ${scene.stageTime}`);
   const boss = scene.world.enemy.character.name;
   scene.world.enemy.hp = 0;
   scene.fixedUpdate(1 / 60, tick++);
@@ -104,6 +105,31 @@ defeatInput.press('start');
 defeatScene.fixedUpdate(1 / 60, 9200);
 defeatInput.clear();
 if (!defeatCallback) fail('player KO retry input did not dispatch callback');
+
+const doubleKoInput = new StubInput();
+const doubleKoScene = new Stage1Scene(doubleKoInput, new StubAudio(), character, character.superArts[0], 1);
+doubleKoScene.introFrames = 0;
+doubleKoScene.world.player.hp = 0;
+for (const enemy of doubleKoScene.world.enemies) enemy.hp = 0;
+doubleKoScene.fixedUpdate(1 / 60, 9250);
+if (doubleKoScene.phase !== 'defeat' || doubleKoScene.defeatReason !== 'double-ko') fail('double KO did not enter explicit retry state');
+
+const timeoutInput = new StubInput();
+const timeoutScene = new Stage1Scene(timeoutInput, new StubAudio(), character, character.superArts[0], 1);
+timeoutScene.introFrames = 0;
+timeoutScene.stageTime = .001;
+timeoutScene.fixedUpdate(1 / 60, 9260);
+if (timeoutScene.phase !== 'defeat' || timeoutScene.defeatReason !== 'time-over') fail('time over did not enter retry state');
+
+const travelTimerInput = new StubInput();
+const travelTimerScene = new Stage1Scene(travelTimerInput, new StubAudio(), character, character.superArts[0], 1);
+travelTimerScene.introFrames = 0;
+travelTimerScene.beltState = 'travel';
+travelTimerScene.world.enemies.length = 0;
+travelTimerScene.world.player.x = 100;
+travelTimerScene.stageTime = 50;
+travelTimerScene.fixedUpdate(1 / 60, 9270);
+if (travelTimerScene.stageTime !== 50) fail('belt travel incorrectly consumed combat timer');
 
 const jumpInput = new StubInput();
 const jumpScene = new Stage1Scene(jumpInput, new StubAudio(), character, character.superArts[0], 1);
@@ -175,6 +201,9 @@ console.log('STAGE_FLOW_VERIFY_PASS', {
   stage5FinalBoss: 'GILL',
   gillPhases: 3,
   playerKoRetry: defeatCallback,
+  doubleKo: doubleKoScene.defeatReason,
+  timeOver: timeoutScene.defeatReason,
+  travelTimerPaused: travelTimerScene.stageTime === 50,
   beltJump: jumpScene.world.player.airborne,
   jumpAttack: jumpScene.world.player.currentMove?.technique === 'air',
   pauseResume: !pauseScene.paused,
