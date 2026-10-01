@@ -1,0 +1,108 @@
+{
+  "candidate": "0.0.27-rc.2",
+  "automatedFixture": true,
+  "note": "Automated fixture only; real-device acceptance must be rerun on target phones.",
+  "status": "pass",
+  "passed": 16,
+  "checks": 0,
+  "blocked": 0,
+  "total": 16,
+  "items": [
+    {
+      "id": "save-health",
+      "label": "SAVE HEALTH",
+      "status": "pass",
+      "detail": "PRIMARY CLEAN"
+    },
+    {
+      "id": "save-portable",
+      "label": "SAVE EXPORT / IMPORT",
+      "status": "pass",
+      "detail": "CHECKSUM PACKAGE READY"
+    },
+    {
+      "id": "update-safety",
+      "label": "CACHE → SAVE ISOLATION",
+      "status": "pass",
+      "detail": "3 STALE GAME CACHE(S) SAFE TO REMOVE"
+    },
+    {
+      "id": "offline-campaign",
+      "label": "OFFLINE CAMPAIGN",
+      "status": "pass",
+      "detail": "7/7 CACHED"
+    },
+    {
+      "id": "offline-1-2",
+      "label": "STAGE 1 → 2",
+      "status": "pass",
+      "detail": "READY"
+    },
+    {
+      "id": "offline-2-3",
+      "label": "STAGE 2 → 3",
+      "status": "pass",
+      "detail": "READY"
+    },
+    {
+      "id": "offline-3-4",
+      "label": "STAGE 3 → 4",
+      "status": "pass",
+      "detail": "READY"
+    },
+    {
+      "id": "offline-4-5",
+      "label": "STAGE 4 → 5",
+      "status": "pass",
+      "detail": "READY"
+    },
+    {
+      "id": "offline-5-ending",
+      "label": "STAGE 5 → ENDING",
+      "status": "pass",
+      "detail": "READY"
+    },
+    {
+      "id": "load-recovery",
+      "label": "LOAD FAILURE RECOVERY",
+      "status": "pass",
+      "detail": "RETRY / BACK READY"
+    },
+    {
+      "id": "service-worker",
+      "label": "SERVICE WORKER",
+      "status": "pass",
+      "detail": "CONTROLLING PAGE"
+    },
+    {
+      "id": "standalone",
+      "label": "PWA STANDALONE",
+      "status": "pass",
+      "detail": "STANDALONE"
+    },
+    {
+      "id": "landscape",
+      "label": "LANDSCAPE",
+      "status": "pass",
+      "detail": "PASS"
+    },
+    {
+      "id": "frame-stability",
+      "label": "FRAME STABILITY",
+      "status": "pass",
+      "detail": "60.0 AVG / 58.0 LOW"
+    },
+    {
+      "id": "memory-trend",
+      "label": "MEMORY TREND",
+      "status": "pass",
+      "detail": "+4.0 MB/MIN"
+    },
+    {
+      "id": "release-gate",
+      "label": "AUTOMATED RELEASE GATE",
+      "status": "pass",
+      "detail": "READY"
+    }
+  ]
+}

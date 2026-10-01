@@ -1,0 +1,55 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "character": "RYU",
+  "method": "alpha-mask affine alignment residual",
+  "purpose": "reject whole-sprite transform-only attack strips from full-contact HQ animation",
+  "records": [
+    {
+      "sequence": "stand-light",
+      "frames": 7,
+      "missing": false,
+      "affineResidualAverage": 0.00153,
+      "affineResidualMax": 0.002388,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": false,
+      "requiredRuntimeMode": "bridge"
+    },
+    {
+      "sequence": "stand-heavy",
+      "frames": 10,
+      "missing": false,
+      "affineResidualAverage": 0.001499,
+      "affineResidualMax": 0.00233,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": false,
+      "requiredRuntimeMode": "bridge"
+    },
+    {
+      "sequence": "hadoken",
+      "frames": 12,
+      "missing": false,
+      "affineResidualAverage": 0.001819,
+      "affineResidualMax": 0.002286,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": false,
+      "requiredRuntimeMode": "bridge"
+    },
+    {
+      "sequence": "shoryuken",
+      "frames": 12,
+      "missing": false,
+      "affineResidualAverage": 0.001675,
+      "affineResidualMax": 0.002362,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": false,
+      "requiredRuntimeMode": "bridge"
+    }
+  ],
+  "allFullPosePass": false,
+  "bridgeRequiredCount": 4,
+  "missingCount": 0
+}

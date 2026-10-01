@@ -1,0 +1,24 @@
+{
+  "candidate": "0.0.45-rc.20",
+  "cache": "game-cache-v045",
+  "manifestFiles": 130,
+  "manifestRoot": "CA71D234B2036D51152C98F686A2811BDF38634904D944193C28BD48C12219F7",
+  "playableCombatSprites": 8,
+  "spriteDrivenStates": [
+    "idle",
+    "walk",
+    "crouch",
+    "jump",
+    "parry",
+    "block",
+    "hit",
+    "knockdown",
+    "ko",
+    "victory"
+  ],
+  "articulatedAttackFallback": true,
+  "spritePayloadApproxKb": 48,
+  "stageAudioStillDeferred": true,
+  "finalProofSealPreserved": true,
+  "verdict": "PLAYABLE_COMBAT_SPRITE_HYBRID_PASS"
+}

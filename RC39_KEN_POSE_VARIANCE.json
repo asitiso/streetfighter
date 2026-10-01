@@ -1,0 +1,176 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "character": "KEN",
+  "method": "alpha-mask affine alignment residual",
+  "purpose": "reject whole-sprite transform-only Ken strips from authored HQ runtime animation",
+  "records": [
+    {
+      "sequence": "idle",
+      "frames": 6,
+      "missing": false,
+      "affineResidualAverage": 0.010095,
+      "affineResidualMax": 0.013061,
+      "fullPoseAverageThreshold": 0.003,
+      "fullPoseMaxThreshold": 0.006,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "walk",
+      "frames": 12,
+      "missing": false,
+      "affineResidualAverage": 0.055605,
+      "affineResidualMax": 0.086796,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "walk-back",
+      "frames": 10,
+      "missing": false,
+      "affineResidualAverage": 0.039826,
+      "affineResidualMax": 0.060584,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "dash",
+      "frames": 7,
+      "missing": false,
+      "affineResidualAverage": 0.040075,
+      "affineResidualMax": 0.076672,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "jump",
+      "frames": 8,
+      "missing": false,
+      "affineResidualAverage": 0.047137,
+      "affineResidualMax": 0.061149,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "landing",
+      "frames": 6,
+      "missing": false,
+      "affineResidualAverage": 0.041413,
+      "affineResidualMax": 0.051009,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "hit",
+      "frames": 8,
+      "missing": false,
+      "affineResidualAverage": 0.046188,
+      "affineResidualMax": 0.086152,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "guard",
+      "frames": 5,
+      "missing": false,
+      "affineResidualAverage": 0.030994,
+      "affineResidualMax": 0.051929,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "parry",
+      "frames": 6,
+      "missing": false,
+      "affineResidualAverage": 0.023846,
+      "affineResidualMax": 0.040504,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "stand-light",
+      "frames": 7,
+      "missing": false,
+      "affineResidualAverage": 0.023286,
+      "affineResidualMax": 0.03718,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "stand-heavy",
+      "frames": 10,
+      "missing": false,
+      "affineResidualAverage": 0.028558,
+      "affineResidualMax": 0.046564,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
+    },
+    {
+      "sequence": "hadoken",
+      "frames": 12,
+      "missing": false,
+      "affineResidualAverage": 0.001624,
+      "affineResidualMax": 0.002149,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": false,
+      "requiredRuntimeMode": "bridge"
+    },
+    {
+      "sequence": "shoryuken",
+      "frames": 12,
+      "missing": false,
+      "affineResidualAverage": 0.001604,
+      "affineResidualMax": 0.002252,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": false,
+      "requiredRuntimeMode": "bridge"
+    },
+    {
+      "sequence": "tatsumaki",
+      "frames": 12,
+      "missing": false,
+      "affineResidualAverage": 0.001773,
+      "affineResidualMax": 0.002313,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": false,
+      "requiredRuntimeMode": "bridge"
+    },
+    {
+      "sequence": "super-rush",
+      "frames": 16,
+      "missing": false,
+      "affineResidualAverage": 0.001669,
+      "affineResidualMax": 0.002114,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": false,
+      "requiredRuntimeMode": "bridge"
+    }
+  ],
+  "allFullPosePass": false,
+  "bridgeRequiredCount": 4,
+  "missingCount": 0
+}

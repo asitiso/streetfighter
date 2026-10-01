@@ -1,0 +1,328 @@
+{
+  "version": "hybrid-scale2x-premul-v1",
+  "scale": 2,
+  "playableCharacters": 8,
+  "records": [
+    {
+      "character": "RYU",
+      "kind": "combat",
+      "source": "public/art/combat-sprites/ryu.webp",
+      "output": "public/art/combat-sprites-hd/ryu.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "outputSize": [
+        384,
+        448
+      ],
+      "bytes": 28414,
+      "sourceSha256": "E95747062F8FDF5CFE046E3E053E63D07F508465567DB3B77A94DBE1ABD9FE69",
+      "outputSha256": "1E365748282A6D814CC0788E1883D4DF2CBA91DCC670CA66DD6802CD22071403",
+      "edgeScore": 42.745,
+      "alphaCoverage": 0.413586,
+      "softAlphaCoverage": 0.127151
+    },
+    {
+      "character": "RYU",
+      "kind": "attack",
+      "source": "public/art/attack-atlases/ryu.webp",
+      "output": "public/art/attack-atlases-hd/ryu.webp",
+      "sourceSize": [
+        960,
+        896
+      ],
+      "outputSize": [
+        1920,
+        1792
+      ],
+      "bytes": 820388,
+      "sourceSha256": "740E42480D6FB5BB850D974F3232E0F2DC86389B51F6229F99BA17ECECE2F9BE",
+      "outputSha256": "608C6B3D633B4AA24377DAF82FC89AE7321253EB21EE308127F76938158C0DA4",
+      "edgeScore": 100.882,
+      "alphaCoverage": 0.464252,
+      "softAlphaCoverage": 0.175787
+    },
+    {
+      "character": "KEN",
+      "kind": "combat",
+      "source": "public/art/combat-sprites/ken.webp",
+      "output": "public/art/combat-sprites-hd/ken.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "outputSize": [
+        384,
+        448
+      ],
+      "bytes": 27610,
+      "sourceSha256": "1F10E68061760A6E33976CD8E3268EF7F66A9F70842288CC154ADB634555AA91",
+      "outputSha256": "A54263EE2B4302955CBE2D0A9DB8103C235978F90517F09BF651E0E5BCD13653",
+      "edgeScore": 40.457,
+      "alphaCoverage": 0.38601,
+      "softAlphaCoverage": 0.121931
+    },
+    {
+      "character": "KEN",
+      "kind": "attack",
+      "source": "public/art/attack-atlases/ken.webp",
+      "output": "public/art/attack-atlases-hd/ken.webp",
+      "sourceSize": [
+        960,
+        896
+      ],
+      "outputSize": [
+        1920,
+        1792
+      ],
+      "bytes": 791680,
+      "sourceSha256": "A7558FE007B01002B57223C62AEDBCA1CBC69797EC8D3FFF756948E0723497B7",
+      "outputSha256": "4C2327535DDD59E9859996FA914F07E3868BDFE708E0665C8CB4F2E5CF29293F",
+      "edgeScore": 95.652,
+      "alphaCoverage": 0.440111,
+      "softAlphaCoverage": 0.174106
+    },
+    {
+      "character": "CHUNLI",
+      "kind": "combat",
+      "source": "public/art/combat-sprites/chunli.webp",
+      "output": "public/art/combat-sprites-hd/chunli.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "outputSize": [
+        384,
+        448
+      ],
+      "bytes": 26264,
+      "sourceSha256": "B0EB30B6D34AEDBBCFEC7069FAEDC35232D31F7AE258B533E2B3F6C71F6B9D51",
+      "outputSha256": "21AD8CFD18DCDA7A72DDFDB65200058533C40AE04F6E5D4847F4C336D2AE94B9",
+      "edgeScore": 38.977,
+      "alphaCoverage": 0.426188,
+      "softAlphaCoverage": 0.115426
+    },
+    {
+      "character": "CHUNLI",
+      "kind": "attack",
+      "source": "public/art/attack-atlases/chunli.webp",
+      "output": "public/art/attack-atlases-hd/chunli.webp",
+      "sourceSize": [
+        960,
+        896
+      ],
+      "outputSize": [
+        1920,
+        1792
+      ],
+      "bytes": 805936,
+      "sourceSha256": "469CB8A716E25329B3207321A398DAB2303D4733F789FAAF7A1FC54B657BD051",
+      "outputSha256": "21276DCC10460D17E46D581E498B7EB7FC45CAF16C4832A1A2A30675698EC046",
+      "edgeScore": 89.724,
+      "alphaCoverage": 0.483507,
+      "softAlphaCoverage": 0.170268
+    },
+    {
+      "character": "ALEX",
+      "kind": "combat",
+      "source": "public/art/combat-sprites/alex.webp",
+      "output": "public/art/combat-sprites-hd/alex.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "outputSize": [
+        384,
+        448
+      ],
+      "bytes": 28272,
+      "sourceSha256": "1C30E06F2B96674BF779FBF56D61CBCEB102FCE62C49DF2C77709BF6DADA9FED",
+      "outputSha256": "4A216B6B72ACAA9974BFC728FFD604B7F9C855DB809DF79BCA66A7B9A16B40DB",
+      "edgeScore": 39.756,
+      "alphaCoverage": 0.411819,
+      "softAlphaCoverage": 0.110229
+    },
+    {
+      "character": "ALEX",
+      "kind": "attack",
+      "source": "public/art/attack-atlases/alex.webp",
+      "output": "public/art/attack-atlases-hd/alex.webp",
+      "sourceSize": [
+        960,
+        896
+      ],
+      "outputSize": [
+        1920,
+        1792
+      ],
+      "bytes": 831342,
+      "sourceSha256": "1BA0A1835C0D47C47F813123F628D9BBEF34A874C2E645C6C6584EB1C0AE629E",
+      "outputSha256": "C1EB45B853BBC63F99C41A0B961B45B9681753F1F3B35BFCF07AE468FABD7B14",
+      "edgeScore": 94.137,
+      "alphaCoverage": 0.463449,
+      "softAlphaCoverage": 0.160001
+    },
+    {
+      "character": "DUDLEY",
+      "kind": "combat",
+      "source": "public/art/combat-sprites/dudley.webp",
+      "output": "public/art/combat-sprites-hd/dudley.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "outputSize": [
+        384,
+        448
+      ],
+      "bytes": 28646,
+      "sourceSha256": "1D7F8CA61DB953D77786A6AC128D135586639503817ACE0AACC42D8A96B64488",
+      "outputSha256": "1A4A5AF61C16D72B9C4435C9B0B3CE6226DAF08912DD9024008ECA215CB91FE0",
+      "edgeScore": 37.681,
+      "alphaCoverage": 0.472645,
+      "softAlphaCoverage": 0.141671
+    },
+    {
+      "character": "DUDLEY",
+      "kind": "attack",
+      "source": "public/art/attack-atlases/dudley.webp",
+      "output": "public/art/attack-atlases-hd/dudley.webp",
+      "sourceSize": [
+        960,
+        896
+      ],
+      "outputSize": [
+        1920,
+        1792
+      ],
+      "bytes": 877326,
+      "sourceSha256": "8C90C2AD37F3C1494C2B213335DF6AB1FF5BA11E92961D893058A297B6AB93B8",
+      "outputSha256": "A1B57D7BE20B4897EE2DA20776335281F0AB1FBEC08211BA7F994BF9B473BAE8",
+      "edgeScore": 90.362,
+      "alphaCoverage": 0.525,
+      "softAlphaCoverage": 0.191686
+    },
+    {
+      "character": "MAKOTO",
+      "kind": "combat",
+      "source": "public/art/combat-sprites/makoto.webp",
+      "output": "public/art/combat-sprites-hd/makoto.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "outputSize": [
+        384,
+        448
+      ],
+      "bytes": 25390,
+      "sourceSha256": "9DD125E6D05938AE0349B4ABE40D9E7DFB02C53A0DD3F5BA6306E36BE25A434C",
+      "outputSha256": "74B096D3C5D51434D577019FEFAFC990FE0ECDA3AE14E2FC34619BDA4564D739",
+      "edgeScore": 44.864,
+      "alphaCoverage": 0.346348,
+      "softAlphaCoverage": 0.118344
+    },
+    {
+      "character": "MAKOTO",
+      "kind": "attack",
+      "source": "public/art/attack-atlases/makoto.webp",
+      "output": "public/art/attack-atlases-hd/makoto.webp",
+      "sourceSize": [
+        960,
+        896
+      ],
+      "outputSize": [
+        1920,
+        1792
+      ],
+      "bytes": 745042,
+      "sourceSha256": "CC647F287FE83D2A510C11584FE4501F76717341E7CB166228B6294F58EA1ECE",
+      "outputSha256": "6A43C6657B49C04FE7C03EB3D1EF11BE4C14726B49D6CA25356DE626E15DBCD9",
+      "edgeScore": 100.174,
+      "alphaCoverage": 0.41057,
+      "softAlphaCoverage": 0.180413
+    },
+    {
+      "character": "IBUKI",
+      "kind": "combat",
+      "source": "public/art/combat-sprites/ibuki.webp",
+      "output": "public/art/combat-sprites-hd/ibuki.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "outputSize": [
+        384,
+        448
+      ],
+      "bytes": 28950,
+      "sourceSha256": "2F940D7F91A40A801F68CF05DBEA9C43AD0BBC14C30CB74A82A947B1B2D5CE1A",
+      "outputSha256": "D58CA526A757355A538F88D10BB481E0D49E78C6D546053F13665B02127476B8",
+      "edgeScore": 40.447,
+      "alphaCoverage": 0.349104,
+      "softAlphaCoverage": 0.144915
+    },
+    {
+      "character": "IBUKI",
+      "kind": "attack",
+      "source": "public/art/attack-atlases/ibuki.webp",
+      "output": "public/art/attack-atlases-hd/ibuki.webp",
+      "sourceSize": [
+        960,
+        896
+      ],
+      "outputSize": [
+        1920,
+        1792
+      ],
+      "bytes": 833318,
+      "sourceSha256": "F879CC86AB8FA0FE779BEF23025AD432BC647C969CC45A6D2E5CB3B6C04367D4",
+      "outputSha256": "ABA7D4A53EF254841E2621D2DEBA9FE26035EF0EC3325E5526AAB5B5AD2F4176",
+      "edgeScore": 96.247,
+      "alphaCoverage": 0.409373,
+      "softAlphaCoverage": 0.202228
+    },
+    {
+      "character": "YUN",
+      "kind": "combat",
+      "source": "public/art/combat-sprites/yun.webp",
+      "output": "public/art/combat-sprites-hd/yun.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "outputSize": [
+        384,
+        448
+      ],
+      "bytes": 25852,
+      "sourceSha256": "9754205A63204DE73659980871E6D61F9B1411574DC86D3700027C4D34973292",
+      "outputSha256": "F83A801CA7CBF4C7A9661A2FC30AB5B8EFAC65AE78BD8CFBB2072890E763FC53",
+      "edgeScore": 44.071,
+      "alphaCoverage": 0.400205,
+      "softAlphaCoverage": 0.11631
+    },
+    {
+      "character": "YUN",
+      "kind": "attack",
+      "source": "public/art/attack-atlases/yun.webp",
+      "output": "public/art/attack-atlases-hd/yun.webp",
+      "sourceSize": [
+        960,
+        896
+      ],
+      "outputSize": [
+        1920,
+        1792
+      ],
+      "bytes": 811260,
+      "sourceSha256": "9B587E949ED0877CA46B70B1094EE567E699355CABCFA41DE0F90FBEDCAC1C71",
+      "outputSha256": "AD5D1FA1AF4A2BEA757E1B7FCD5CDF4E425576D7393C11A1007BB73FC1EDBFC5",
+      "edgeScore": 108.418,
+      "alphaCoverage": 0.452853,
+      "softAlphaCoverage": 0.167339
+    }
+  ],
+  "totalBytes": 6735690
+}

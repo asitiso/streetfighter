@@ -1,0 +1,90 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "stageVisualProfiles": [
+    {
+      "stage": 1,
+      "label": "NEW YORK DOWNTOWN",
+      "midDetail": 12,
+      "atmosphere": 18
+    },
+    {
+      "stage": 2,
+      "label": "HONG KONG NIGHT MARKET",
+      "midDetail": 18,
+      "atmosphere": 24
+    },
+    {
+      "stage": 3,
+      "label": "JAPAN KARATE DISTRICT",
+      "midDetail": 13,
+      "atmosphere": 16
+    },
+    {
+      "stage": 4,
+      "label": "LONDON UNDERGROUND",
+      "midDetail": 15,
+      "atmosphere": 30
+    },
+    {
+      "stage": 5,
+      "label": "SECRET SOCIETY",
+      "midDetail": 20,
+      "atmosphere": 26
+    }
+  ],
+  "fxDensity": {
+    "high": 18,
+    "balanced": 13,
+    "low": 8
+  },
+  "audioMixProfiles": [
+    {
+      "stageId": 1,
+      "music": 0.82,
+      "ambience": 0.72,
+      "sfx": 1,
+      "brightness": 0.78,
+      "lowEnd": 0.82
+    },
+    {
+      "stageId": 2,
+      "music": 0.86,
+      "ambience": 0.78,
+      "sfx": 1,
+      "brightness": 1.08,
+      "lowEnd": 0.76
+    },
+    {
+      "stageId": 3,
+      "music": 0.77,
+      "ambience": 0.7,
+      "sfx": 1,
+      "brightness": 0.72,
+      "lowEnd": 0.74
+    },
+    {
+      "stageId": 4,
+      "music": 0.8,
+      "ambience": 0.84,
+      "sfx": 1.02,
+      "brightness": 0.62,
+      "lowEnd": 0.92
+    },
+    {
+      "stageId": 5,
+      "music": 0.88,
+      "ambience": 0.68,
+      "sfx": 1.06,
+      "brightness": 0.9,
+      "lowEnd": 1.08
+    }
+  ],
+  "ducking": {
+    "heavyHit": 0.56,
+    "parry": 0.48,
+    "super": 0.32,
+    "ko": 0.26
+  },
+  "verdict": "FINAL_VISUAL_AUDIO_PASS"
+}

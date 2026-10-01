@@ -1,0 +1,13 @@
+{
+  "candidate": "0.0.43-rc.18",
+  "cache": "game-cache-v043",
+  "manifestFiles": 107,
+  "manifestRoot": "586E42BACF820DFAE60913EBBB6435C151139758DC316794D781185F81DCFCC9",
+  "manifestRecomputed": true,
+  "characterPortraitAssetsBundled": true,
+  "characterSelectPortraitsIntegrated": true,
+  "superArtPortraitsIntegrated": true,
+  "stageIntroPortraitIntegrated": true,
+  "releaseSealStable": true,
+  "verdict": "CHARACTER_ART_RELEASE_SEAL_PASS"
+}

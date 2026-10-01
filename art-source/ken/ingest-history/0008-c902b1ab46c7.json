@@ -1,0 +1,19 @@
+{
+  "character": "KEN",
+  "mode": "dry-run",
+  "records": [
+    {
+      "sequence": "idle",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 6
+    }
+  ],
+  "installed": [],
+  "rejected": [],
+  "pending": [
+    "idle"
+  ],
+  "verification": null,
+  "rolledBack": false
+}

@@ -1,0 +1,12 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "enduranceTelemetry": "BASELINE_60_TO_180S_VS_RECENT_120S",
+  "sustainedPerformance": "good",
+  "stableBaselineFps": 60,
+  "stableRecentFps": 56,
+  "stableDegradationPct": 6.6,
+  "degradedScenario": "poor",
+  "heatPolicy": "CODE_PROVES_RUNTIME_TREND_USER_CONFIRMS_PHYSICAL_HEAT_ONCE",
+  "verdict": "TEN_MINUTE_ENDURANCE_AUDIT_PASS"
+}

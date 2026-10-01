@@ -1,0 +1,137 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "character": "CHUNLI",
+  "pipeline": "rc36-staging-disabled-v2",
+  "source": "approved RC34 HQ original",
+  "sourcePath": "/art/combat-sprites-hq/chunli.webp",
+  "sourceSize": [
+    384,
+    448
+  ],
+  "sourceSha256": "8B71D8CD13E194D9C6CC8B2BA9932BE6A30FC78AC32436C2F7765CCD986EFF65",
+  "frameTotal": 57,
+  "enabledFrameTotal": 0,
+  "fullFrameTotal": 0,
+  "bridgeFrameTotal": 0,
+  "records": [
+    {
+      "id": "idle",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2304,
+        448
+      ],
+      "bytes": 322494,
+      "sha256": "F8E991B3938A7AF78CB83D26D8C788DBFD2972E2057648A221D811689DE9E07C",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "walk",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 695052,
+      "sha256": "7C671322F9978FE34D1E142838F94E58F39F36EDEBA349AA165A368D0DDF84BA",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "walk-back",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "bytes": 519616,
+      "sha256": "19C12BBB5EAC1A99DF544DB698881462C74388BA9A443F0CF56828881A1C6A9C",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "dash",
+      "frames": 7,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2688,
+        448
+      ],
+      "bytes": 427568,
+      "sha256": "803FB3A677AC691BDFBBA56953A41005687169C2CC8D07A3F73BAC19C0B4FA5A",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "jump",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 666666,
+      "sha256": "2ED17A25BD656D98EBF1E75A23A92ACA9407DE32900E6AD70F817A85EB2F2946",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "landing",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2304,
+        448
+      ],
+      "bytes": 479610,
+      "sha256": "D9141CD6B614575D742EBEAED085B5854BE0F2CA3535E06B8D0B4092B8D61756",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "hit",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 613032,
+      "sha256": "9DFC22F5BC16B80B44BA34A6448342B02FAFC1D5A85E7EA8A47CEB764F99C9A1",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    }
+  ]
+}

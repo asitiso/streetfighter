@@ -1,0 +1,151 @@
+{
+  "source": "/mnt/data/a_clean_graphic_sprite_sheet_style_image_a_high_r.png",
+  "output": "/mnt/data/work_rc34/public/art/animation-hq/ryu/idle.webp",
+  "frameCount": 6,
+  "frameSize": [
+    384,
+    448
+  ],
+  "bytes": 535496,
+  "sha256": "614F0F2F4C4854989A87120D3A672E45297D3E550762D19DF0A1E87476259769",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        3,
+        39,
+        253,
+        465
+      ],
+      "paste": [
+        85,
+        58
+      ],
+      "size": [
+        218,
+        372
+      ],
+      "alphaBBox": [
+        85,
+        58,
+        303,
+        430
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        6,
+        50,
+        253,
+        465
+      ],
+      "paste": [
+        84,
+        58
+      ],
+      "size": [
+        221,
+        372
+      ],
+      "alphaBBox": [
+        84,
+        58,
+        305,
+        430
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        9,
+        31,
+        253,
+        465
+      ],
+      "paste": [
+        90,
+        58
+      ],
+      "size": [
+        209,
+        372
+      ],
+      "alphaBBox": [
+        90,
+        58,
+        299,
+        430
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        8,
+        40,
+        253,
+        465
+      ],
+      "paste": [
+        87,
+        58
+      ],
+      "size": [
+        214,
+        372
+      ],
+      "alphaBBox": [
+        87,
+        58,
+        301,
+        430
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        8,
+        53,
+        253,
+        465
+      ],
+      "paste": [
+        84,
+        58
+      ],
+      "size": [
+        221,
+        372
+      ],
+      "alphaBBox": [
+        84,
+        58,
+        305,
+        430
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        5,
+        39,
+        253,
+        465
+      ],
+      "paste": [
+        86,
+        58
+      ],
+      "size": [
+        217,
+        372
+      ],
+      "alphaBBox": [
+        86,
+        58,
+        303,
+        430
+      ]
+    }
+  ]
+}

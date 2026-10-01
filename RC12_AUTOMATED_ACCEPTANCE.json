@@ -1,0 +1,9 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "safeArea": "CANVAS_CONSTRAINED_TO_CSS_ENV_INSETS_AND_AUTO_CERTIFIED",
+  "offlineDynamicImport": "MODULE_WORKER_5_DEFERRED_ROUTES_REQUIRES_OFFLINE_AND_SW_CONTROL",
+  "initialInstallWeight": "STAGE_2_TO_5_AND_ENDING_STILL_DEFERRED",
+  "manualFailurePriority": "PRESERVED_BY_DEVICE_CERT_STORE",
+  "verdict": "SAFE_AREA_OFFLINE_DYNAMIC_IMPORT_AUDIT_PASS"
+}

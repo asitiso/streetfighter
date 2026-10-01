@@ -1,0 +1,73 @@
+{
+  "character": "KEN",
+  "mode": "dry-run",
+  "records": [
+    {
+      "sequence": "dash",
+      "source": "art-source/ken/inbox/dash",
+      "sidecar": null,
+      "expectedFrames": 7,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "dash",
+        "preview": "/mnt/data/ssc_work/RC39_KEN_DASH_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/ssc_work/art-source/ken/authored-candidates/dash.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.040075,
+          "affineResidualMax": 0.076672,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "dash",
+          "limits": {
+            "startEndIoUMin": 0.3,
+            "startEndIoUMax": 0.88,
+            "midpointIoUMin": 0.28,
+            "midpointIoUMax": 0.82,
+            "centroidXRangeMin": 10.0,
+            "centroidXRangeMax": 75.0,
+            "centroidYRangeMin": 10.0,
+            "centroidYRangeMax": 75.0,
+            "centroidStepMax": 58.0,
+            "areaCvMax": 0.18,
+            "residualAverageMin": 0.02,
+            "residualAverageMax": 0.15,
+            "residualMaxMin": 0.04,
+            "residualMaxMax": 0.2
+          },
+          "startEndIoU": 0.75921,
+          "midpointIoU": 0.520401,
+          "centroidXRange": 20.812873,
+          "centroidYRange": 19.720993,
+          "centroidStepMax": 22.919287,
+          "areaCv": 0.08236,
+          "residualAverage": 0.040075,
+          "residualMax": 0.076672,
+          "checks": {
+            "recoveryNotDuplicate": true,
+            "drivePoseDistinct": true,
+            "forwardLeanPresent": true,
+            "verticalDrivePresent": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"dash\",\n  \"preview\": \"/mnt/data/ssc_work/RC39_KEN_DASH_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/ssc_work/art-source/ken/authored-candidates/dash.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.040075,\n    \"affineResidualMax\": 0.076672,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"dash\",\n    \"limits\": {\n      \"startEndIoUMin\": 0.3,\n      \"startEndIoUMax\": 0.88,\n      \"midpointIoUMin\": 0.28,\n      \"midpointIoUMax\": 0.82,\n      \"centroidXRangeMin\": 10.0,\n      \"centroidXRangeMax\": 75.0,\n      \"centroidYRangeMin\": 10.0,\n      \"centroidYRangeMax\": 75.0,\n      \"centroidStepMax\": 58.0,\n      \"areaCvMax\": 0.18,\n      \"residualAverageMin\": 0.02,\n      \"residualAverageMax\": 0.15,\n      \"residualMaxMin\": 0.04,\n      \"residualMaxMax\": 0.2\n    },\n    \"startEndIoU\": 0.75921,\n    \"midpointIoU\": 0.520401,\n    \"centroidXRange\": 20.812873,\n    \"centroidYRange\": 19.720993,\n    \"centroidStepMax\": 22.919287,\n    \"areaCv\": 0.08236,\n    \"residualAverage\": 0.040075,\n    \"residualMax\": 0.076672,\n    \"checks\": {\n      \"recoveryNotDuplicate\": true,\n      \"drivePoseDistinct\": true,\n      \"forwardLeanPresent\": true,\n      \"verticalDrivePresent\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "preview-pass"
+    }
+  ],
+  "installed": [],
+  "rejected": [],
+  "pending": [],
+  "verification": null,
+  "rolledBack": false
+}

@@ -1,0 +1,27 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "automaticEvidence": [
+    {
+      "id": "pwa-install",
+      "status": "pass"
+    },
+    {
+      "id": "offline-launch",
+      "status": "pass"
+    },
+    {
+      "id": "audio-unlock",
+      "status": "pass"
+    },
+    {
+      "id": "ten-minute-play",
+      "status": "check"
+    }
+  ],
+  "touchAudit": "REAL_TOUCH_ONLY_10_CONTROLS",
+  "backgroundResume": "AUTO_PASS_AT_30_SECONDS_WITH_INPUT_RELEASE",
+  "manualFailurePriority": "PRESERVED",
+  "tenMinuteRuntime": "AUTO_CHECK_WITH_MANUAL_HEAT_CONFIRMATION",
+  "verdict": "REAL_DEVICE_CERTIFICATION_ASSIST_PASS"
+}

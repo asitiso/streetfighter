@@ -1,0 +1,59 @@
+{
+  "character": "KEN",
+  "sequence": "stand-heavy",
+  "expectedFrames": 10,
+  "requiredFileNames": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png",
+    "07.png",
+    "08.png",
+    "09.png",
+    "10.png"
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "transparentBackgroundRequired": true,
+  "posePlan": [
+    "neutral",
+    "load",
+    "hip-turn",
+    "drive",
+    "pre-contact",
+    "contact",
+    "follow-through",
+    "recoil",
+    "recovery",
+    "neutral-bridge"
+  ],
+  "semanticQa": {
+    "description": "10F grounded heavy punch with visible load/hip rotation/drive/contact/follow-through and recovery; feet may pivot but the fighter may not slide as one rigid sprite.",
+    "startEndIoUMin": 0.5,
+    "contactIoUMin": 0.22,
+    "contactIoUMax": 0.75,
+    "centroidXRangeMin": 7.0,
+    "centroidXRangeMax": 62.0,
+    "centroidYRangeMin": 0.75,
+    "centroidYRangeMax": 42.0,
+    "reachRangeMin": 38.0,
+    "reachRangeMax": 145.0,
+    "footCenterRangeMax": 58.0,
+    "footWidthCvMax": 0.55,
+    "areaCvMax": 0.2,
+    "poseResidualAverageMin": 0.014,
+    "poseResidualAverageMax": 0.18,
+    "poseResidualMaxMin": 0.03,
+    "poseResidualMaxMax": 0.24,
+    "contactFrameIndex": 5
+  },
+  "inboxDestination": "art-source/ken/inbox/stand-heavy/",
+  "ingestCommand": "npm run ingest:ken -- --only stand-heavy",
+  "rule": "Do not create frames by translating/rotating/scaling one still. Limbs, torso silhouette and cloth/hair follow-through must be genuinely redrawn/authored."
+}

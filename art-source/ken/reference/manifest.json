@@ -1,0 +1,12 @@
+{
+  "file": "art-source/ken/reference/ken_motion_overview_rc39.png",
+  "size": [
+    1536,
+    1024
+  ],
+  "sha256": "7C2559D7BA4712615EBD2F351787713D565D692C03C98000865B55374BF85909",
+  "role": "visual-reference-only",
+  "runtimeEligible": false,
+  "reason": "overview infographic contains small sprites, labels and presentation background; use dedicated per-motion HQ sheets for authored installation",
+  "installer": "scripts/install-authored-ken-sequence.py"
+}

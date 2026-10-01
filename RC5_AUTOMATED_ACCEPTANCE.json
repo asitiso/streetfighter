@@ -1,0 +1,10 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "deviceCertImport": "same-candidate verified",
+  "candidateMismatch": "rejected",
+  "recoveryHistory": "summarized",
+  "diagnostics": "3-page crash/recovery/summary",
+  "titleLayout": "12-item two-column",
+  "releaseSummary": "ready"
+}

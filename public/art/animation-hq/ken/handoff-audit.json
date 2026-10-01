@@ -1,0 +1,674 @@
+{
+  "character": "KEN",
+  "version": 2,
+  "fallbackBridgeRequired": true,
+  "pairAuthoredActive": true,
+  "idleToMasterFirst": {
+    "iou": 0.867731,
+    "centroidDistance": 6.113416,
+    "footCenterDelta": 0.711105,
+    "areaRatio": 0.937046,
+    "limits": {
+      "iouMin": 0.62,
+      "centroidDistanceMax": 18.0,
+      "footCenterDeltaMax": 24.0,
+      "areaRatioMin": 0.78,
+      "areaRatioMax": 1.24
+    },
+    "checks": {
+      "silhouetteContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true,
+      "scaleContinuity": true
+    },
+    "pass": true
+  },
+  "idleToMasterLast": {
+    "iou": 0.868433,
+    "centroidDistance": 5.611038,
+    "footCenterDelta": 0.711105,
+    "areaRatio": 0.940197,
+    "limits": {
+      "iouMin": 0.62,
+      "centroidDistanceMax": 18.0,
+      "footCenterDeltaMax": 24.0,
+      "areaRatioMin": 0.78,
+      "areaRatioMax": 1.24
+    },
+    "checks": {
+      "silhouetteContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true,
+      "scaleContinuity": true
+    },
+    "pass": true
+  },
+  "fallbackBridgePass": true,
+  "idleToWalk": {
+    "iou": 0.936489,
+    "centroidDistance": 1.719907,
+    "footCenterDelta": 0.641024,
+    "areaRatio": 1.028475,
+    "limits": {
+      "iouMin": 0.52,
+      "centroidDistanceMax": 22.0,
+      "footCenterDeltaMax": 28.0,
+      "areaRatioMin": 0.76,
+      "areaRatioMax": 1.28
+    },
+    "checks": {
+      "silhouetteContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true,
+      "scaleContinuity": true
+    },
+    "pass": true
+  },
+  "walkToIdle": {
+    "iou": 0.93951,
+    "centroidDistance": 1.118004,
+    "footCenterDelta": 0.641024,
+    "areaRatio": 0.975582,
+    "limits": {
+      "iouMin": 0.52,
+      "centroidDistanceMax": 22.0,
+      "footCenterDeltaMax": 28.0,
+      "areaRatioMin": 0.76,
+      "areaRatioMax": 1.28
+    },
+    "checks": {
+      "silhouetteContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true,
+      "scaleContinuity": true
+    },
+    "pass": true
+  },
+  "pairPass": true,
+  "locomotion": {
+    "dashActive": true,
+    "jumpActive": true,
+    "landingActive": true,
+    "jumpLandingPairActive": true,
+    "dashFromBase": {
+      "iou": 0.753005,
+      "centroidDistance": 10.054248,
+      "footCenterDelta": 0.230576,
+      "areaRatio": 1.046297,
+      "limits": {
+        "iouMin": 0.3,
+        "iouMax": 0.8,
+        "centroidDistanceMax": 45.0,
+        "areaRatioMin": 0.7,
+        "areaRatioMax": 1.4
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true
+      },
+      "pass": true
+    },
+    "dashToBase": {
+      "iou": 0.807978,
+      "centroidDistance": 5.487043,
+      "footCenterDelta": 0.217339,
+      "areaRatio": 1.052941,
+      "limits": {
+        "iouMin": 0.3,
+        "iouMax": 0.82,
+        "centroidDistanceMax": 48.0,
+        "footCenterDeltaMax": 70.0,
+        "areaRatioMin": 0.65,
+        "areaRatioMax": 1.4
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "jumpFromBase": {
+      "iou": 0.588352,
+      "centroidDistance": 34.361149,
+      "footCenterDelta": 3.241229,
+      "areaRatio": 1.141139,
+      "limits": {
+        "iouMin": 0.4,
+        "iouMax": 0.9,
+        "centroidDistanceMax": 38.0,
+        "footCenterDeltaMax": 65.0,
+        "areaRatioMin": 0.68,
+        "areaRatioMax": 1.45
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "jumpToBase": {
+      "iou": 0.640526,
+      "centroidDistance": 31.392495,
+      "footCenterDelta": 1.394028,
+      "areaRatio": 1.181626,
+      "limits": {
+        "iouMin": 0.4,
+        "iouMax": 0.9,
+        "centroidDistanceMax": 38.0,
+        "footCenterDeltaMax": 65.0,
+        "areaRatioMin": 0.68,
+        "areaRatioMax": 1.45
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "jumpToLanding": {
+      "iou": 0.50197,
+      "centroidDistance": 38.279846,
+      "footCenterDelta": 4.549116,
+      "areaRatio": 1.025928,
+      "limits": {
+        "iouMin": 0.25,
+        "iouMax": 0.78,
+        "footCenterDeltaMax": 65.0,
+        "areaRatioMin": 0.65,
+        "areaRatioMax": 1.4
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "landingToBase": {
+      "iou": 0.764281,
+      "centroidDistance": 11.219237,
+      "footCenterDelta": 0.868418,
+      "areaRatio": 0.880225,
+      "limits": {
+        "iouMin": 0.35,
+        "iouMax": 0.9,
+        "centroidDistanceMax": 48.0,
+        "footCenterDeltaMax": 65.0,
+        "areaRatioMin": 0.65,
+        "areaRatioMax": 1.4
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "dashHandoffPass": true,
+    "jumpHandoffPass": true,
+    "landingHandoffPass": true,
+    "locomotionHandoffPass": true
+  },
+  "reactionAndRetreat": {
+    "walkBackActive": true,
+    "hitActive": true,
+    "walkBackFromBase": {
+      "iou": 0.784167,
+      "centroidDistance": 9.943073,
+      "footCenterDelta": 2.111884,
+      "areaRatio": 1.084412,
+      "limits": {
+        "iouMin": 0.38,
+        "iouMax": 0.93,
+        "centroidDistanceMax": 38.0,
+        "footCenterDeltaMax": 58.0,
+        "areaRatioMin": 0.68,
+        "areaRatioMax": 1.4
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "walkBackToBase": {
+      "iou": 0.784167,
+      "centroidDistance": 9.943073,
+      "footCenterDelta": 2.111884,
+      "areaRatio": 0.922158,
+      "limits": {
+        "iouMin": 0.38,
+        "iouMax": 0.93,
+        "centroidDistanceMax": 38.0,
+        "footCenterDeltaMax": 58.0,
+        "areaRatioMin": 0.68,
+        "areaRatioMax": 1.4
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "hitFromBase": {
+      "iou": 0.861764,
+      "centroidDistance": 6.567588,
+      "footCenterDelta": 0.859375,
+      "areaRatio": 1.070515,
+      "limits": {
+        "iouMin": 0.52,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 30.0,
+        "footCenterDeltaMax": 48.0,
+        "areaRatioMin": 0.7,
+        "areaRatioMax": 1.35
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "hitToBase": {
+      "iou": 0.861764,
+      "centroidDistance": 6.567588,
+      "footCenterDelta": 0.859375,
+      "areaRatio": 0.93413,
+      "limits": {
+        "iouMin": 0.52,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 30.0,
+        "footCenterDeltaMax": 48.0,
+        "areaRatioMin": 0.7,
+        "areaRatioMax": 1.35
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "walkBackHandoffPass": true,
+    "hitHandoffPass": true,
+    "reactionHandoffPass": true
+  },
+  "standingAttacks": {
+    "standLightActive": true,
+    "standHeavyActive": true,
+    "standLightFromBase": {
+      "iou": 0.845977,
+      "centroidDistance": 7.322838,
+      "footCenterDelta": 0.161786,
+      "areaRatio": 1.085713,
+      "limits": {
+        "iouMin": 0.48,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 36.0,
+        "footCenterDeltaMax": 42.0,
+        "areaRatioMin": 0.72,
+        "areaRatioMax": 1.34
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "standLightToBase": {
+      "iou": 0.845977,
+      "centroidDistance": 7.322838,
+      "footCenterDelta": 0.161786,
+      "areaRatio": 0.921054,
+      "limits": {
+        "iouMin": 0.48,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 36.0,
+        "footCenterDeltaMax": 42.0,
+        "areaRatioMin": 0.72,
+        "areaRatioMax": 1.34
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "standHeavyFromBase": {
+      "iou": 0.812927,
+      "centroidDistance": 9.442787,
+      "footCenterDelta": 0.721934,
+      "areaRatio": 1.107845,
+      "limits": {
+        "iouMin": 0.42,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 46.0,
+        "footCenterDeltaMax": 55.0,
+        "areaRatioMin": 0.68,
+        "areaRatioMax": 1.4
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "standHeavyToBase": {
+      "iou": 0.812927,
+      "centroidDistance": 9.442787,
+      "footCenterDelta": 0.721934,
+      "areaRatio": 0.902653,
+      "limits": {
+        "iouMin": 0.42,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 46.0,
+        "footCenterDeltaMax": 55.0,
+        "areaRatioMin": 0.68,
+        "areaRatioMax": 1.4
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "standLightHandoffPass": true,
+    "standHeavyHandoffPass": true,
+    "standingAttackHandoffPass": true
+  },
+  "specialAttacks": {
+    "hadokenActive": false,
+    "shoryukenActive": false,
+    "tatsumakiActive": false,
+    "superRushActive": false,
+    "hadokenFromBase": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.42,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 48.0,
+        "footCenterDeltaMax": 60.0,
+        "areaRatioMin": 0.66,
+        "areaRatioMax": 1.42
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "hadokenToBase": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.42,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 48.0,
+        "footCenterDeltaMax": 60.0,
+        "areaRatioMin": 0.66,
+        "areaRatioMax": 1.42
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "shoryukenFromBase": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.36,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 58.0,
+        "footCenterDeltaMax": 75.0,
+        "areaRatioMin": 0.62,
+        "areaRatioMax": 1.48
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "shoryukenToBase": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.36,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 58.0,
+        "footCenterDeltaMax": 75.0,
+        "areaRatioMin": 0.62,
+        "areaRatioMax": 1.48
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "tatsumakiFromBase": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.28,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 72.0,
+        "footCenterDeltaMax": 92.0,
+        "areaRatioMin": 0.6,
+        "areaRatioMax": 1.52
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "tatsumakiToBase": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.28,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 72.0,
+        "footCenterDeltaMax": 92.0,
+        "areaRatioMin": 0.6,
+        "areaRatioMax": 1.52
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "superRushFromBase": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.34,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 62.0,
+        "footCenterDeltaMax": 82.0,
+        "areaRatioMin": 0.62,
+        "areaRatioMax": 1.48
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "superRushToBase": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.34,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 62.0,
+        "footCenterDeltaMax": 82.0,
+        "areaRatioMin": 0.62,
+        "areaRatioMax": 1.48
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "hadokenHandoffPass": true,
+    "shoryukenHandoffPass": true,
+    "tatsumakiHandoffPass": true,
+    "superRushHandoffPass": true,
+    "specialAttackHandoffPass": true
+  },
+  "defense": {
+    "guardActive": true,
+    "parryActive": true,
+    "guardFromBase": {
+      "iou": 0.853667,
+      "centroidDistance": 6.908258,
+      "footCenterDelta": 0.174313,
+      "areaRatio": 1.078182,
+      "limits": {
+        "iouMin": 0.55,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 28.0,
+        "footCenterDeltaMax": 36.0,
+        "areaRatioMin": 0.76,
+        "areaRatioMax": 1.3
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "guardToBase": {
+      "iou": 0.853667,
+      "centroidDistance": 6.908258,
+      "footCenterDelta": 0.174313,
+      "areaRatio": 0.927487,
+      "limits": {
+        "iouMin": 0.55,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 28.0,
+        "footCenterDeltaMax": 36.0,
+        "areaRatioMin": 0.76,
+        "areaRatioMax": 1.3
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "parryFromBase": {
+      "iou": 0.861764,
+      "centroidDistance": 6.567588,
+      "footCenterDelta": 0.859375,
+      "areaRatio": 1.070515,
+      "limits": {
+        "iouMin": 0.45,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 38.0,
+        "footCenterDeltaMax": 42.0,
+        "areaRatioMin": 0.72,
+        "areaRatioMax": 1.34
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "parryToBase": {
+      "iou": 0.861764,
+      "centroidDistance": 6.567588,
+      "footCenterDelta": 0.859375,
+      "areaRatio": 0.93413,
+      "limits": {
+        "iouMin": 0.45,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 38.0,
+        "footCenterDeltaMax": 42.0,
+        "areaRatioMin": 0.72,
+        "areaRatioMax": 1.34
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "guardHandoffPass": true,
+    "parryHandoffPass": true,
+    "defenseHandoffPass": true
+  },
+  "runtimeHandoffPass": true,
+  "gateMode": "authored-pair+locomotion+reaction+defense+standing-attacks+special-attacks"
+}

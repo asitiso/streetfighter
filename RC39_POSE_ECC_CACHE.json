@@ -1,0 +1,851 @@
+{
+  "version": 1,
+  "algorithm": "alpha-mask-affine-ecc-v1:384x448:motion-affine:iter80:eps1e-5",
+  "entries": {
+    "B2AC47350E7EC280175C3658B81611B564D2AABF40F5095FB340A219BD4AF8AA": {
+      "signature": "637B163A1AF432C46035BF50545E19E205BF300BB3820561CF782F3CD22818C3",
+      "frames": 6,
+      "label": "KEN:idle",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001648,
+        "affineResidualMax": 0.002086,
+        "fullPoseAverageThreshold": 0.003,
+        "fullPoseMaxThreshold": 0.006,
+        "poseAuthoredPass": false
+      }
+    },
+    "A52B705822D0C534114901A02865A17FFB92629A5124F71204508BA8F2E32F34": {
+      "signature": "23D97E2075C25A70975836B9CE689D2D981A9965374C2A3B1233ECB899F504B8",
+      "frames": 12,
+      "label": "KEN:walk",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001491,
+        "affineResidualMax": 0.001672,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "6A390243D12C08D79EF7C9D9CC8116549BA5F4678838C7EAD5D437218E081896": {
+      "signature": "21E688D2C1D473AF8482FF14F6F44C9BFA7DCA8C426468A71F57FFF1DD6894CB",
+      "frames": 10,
+      "label": "KEN:walk-back",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001487,
+        "affineResidualMax": 0.001689,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "7449FAA0CF71841D636B6BFC645D6956C738C84380B8481EB65350EF72663E8C": {
+      "signature": "7245D8B10C346A87BFE6B7F91E153605D71F2A67106FF73473A47E221AEB87C9",
+      "frames": 7,
+      "label": "KEN:dash",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001782,
+        "affineResidualMax": 0.002157,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "36E0B5BD976D0C1424188159465A851476088C1B58AC04906AF19F3D6B6049DC": {
+      "signature": "D67F0823333DE423BDCAED7B5171271A307B96A596F28B97DF1930EE902A15CE",
+      "frames": 8,
+      "label": "KEN:jump",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001695,
+        "affineResidualMax": 0.0021,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "16667053DA8753BB25375EB023E8AD848B219D8FBA220E7DAEF4BEC9C96ECDC7": {
+      "signature": "1084BAB1FE90B15EAD223B7D12E6F53B03A9ABBA29B17ACC325A32F500F16B94",
+      "frames": 6,
+      "label": "KEN:landing",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001708,
+        "affineResidualMax": 0.002185,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "324C70DCBCADAEAFCE741F9C56C255CE09EDD558B594B613531C983CD1197658": {
+      "signature": "B10B6E0D7D51443C8F135E3055C2089F146D170EF06B71C6D6D2615301D25ACB",
+      "frames": 8,
+      "label": "KEN:hit",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001933,
+        "affineResidualMax": 0.002273,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "78659FF8EC4985546F8F9BFB09C778629C5E07548CC00701241964B161C9D3C2": {
+      "signature": "AB464F50455E590607D24928D1536CA33205726D01554559B82E5BA05400A30F",
+      "frames": 5,
+      "label": "KEN:guard",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.0,
+        "affineResidualMax": 0.0,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "51D17A2BF83DB30573618D1F63FBCA80EB518E76E64EA4CCF718181F32EC86D8": {
+      "signature": "C4699DA87D296298C1E83BAD53E2E5E39703AE76C0C2F9CF22A6744244B4835E",
+      "frames": 6,
+      "label": "KEN:parry",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.0,
+        "affineResidualMax": 0.0,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "6A398D08A8CB58B33176E8F7906EA2BC586C31265D455420F99BC8A1DCF5CA5A": {
+      "signature": "81D30871B2CF8EFB006E8631513E217B6C75ED59DD7441FB1D760881E182A6DE",
+      "frames": 7,
+      "label": "KEN:stand-light",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001745,
+        "affineResidualMax": 0.002213,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "6FF17ABC90CF69AA3CFFC299CC48FB3A7F50E9D5428FBA6A1EA7EF2450BD8469": {
+      "signature": "F8318916B569E744AB1105B4686C5B4EE7664C1AF85F5044E15C167A19829966",
+      "frames": 10,
+      "label": "KEN:stand-heavy",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001664,
+        "affineResidualMax": 0.002263,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "EC588F3EC4866A7E2959C29E6D006304DD3A5BF4995D0CE56C9D956745A781DA": {
+      "signature": "E5FD21BCA4584C59DFE410647BF3698BCA1157947C9AB8188C679318F45AF2FF",
+      "frames": 12,
+      "label": "KEN:hadoken",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001624,
+        "affineResidualMax": 0.002149,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "1D92ED5840EAF9AF3744BFAC30E894AE0EFB3E0382B17B74C441EA781064D809": {
+      "signature": "3DA7CE4F3F980C01F5ABFE9A7FDD1F0D1D0E59F32883FB1070F5DF8B7B3F68B7",
+      "frames": 12,
+      "label": "KEN:shoryuken",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001604,
+        "affineResidualMax": 0.002252,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "66748C964E83DC0463735995879DE31E1E4F0973D8046FBC24A2F2E6AAEBDC26": {
+      "signature": "953CF1ED8CDB59DF70F6DDF6C7EB65403A493D175CB5638F4AC360346665DB0C",
+      "frames": 12,
+      "label": "KEN:tatsumaki",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001773,
+        "affineResidualMax": 0.002313,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "552344227E568AFC404DABF0093178241DA6915638834A23823E5D2868A91939": {
+      "signature": "3D2E630CCD002A5CAF1629E6F3910111A814DF51DFD29C5B1BBECBFF942C27CF",
+      "frames": 16,
+      "label": "KEN:super-rush",
+      "provenance": "seed:RC39_KEN_POSE_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.001669,
+        "affineResidualMax": 0.002114,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "5637904BE8E16037B41CD9B9B9A6487A8BF3144878A1142B4D233D54F0E72F49": {
+      "signature": "3FE735C33FC1520F6F89081D1CA2643FB9AC56E1CC43F6F315061CB37DBD4501",
+      "frames": 12,
+      "label": "RYU:walk",
+      "provenance": "seed:RC36_AUTHORED_RYU_WALK_VARIANCE.json",
+      "result": {
+        "affineResidualAverage": 0.07694108039140701,
+        "affineResidualMax": 0.10738454759120941,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "1D37FC4902F84D895ACE488CE6751D2DD6221C0F1842B050832D2BBF49CA7162": {
+      "signature": "1B8987C5496F0E89803EF65A3C25B3D149B8FB3F7F2B71053BB9E9DE63556BAD",
+      "frames": 7,
+      "label": "RYU:dash",
+      "provenance": "seed:RC39_KEN_LOCOMOTION_SEMANTIC_QA.json",
+      "result": {
+        "affineResidualAverage": 0.08838,
+        "affineResidualMax": 0.110924,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "7682DC9F6AD5D453C7A2E809364CCE163FE00C219A24FB2C76DBF2EA2A256B91": {
+      "signature": "14F0300B62D51561969AB13D0B27FB5D66B1E27C4747EBF01C85BB395318022C",
+      "frames": 8,
+      "label": "RYU:jump",
+      "provenance": "seed:RC39_KEN_LOCOMOTION_SEMANTIC_QA.json",
+      "result": {
+        "affineResidualAverage": 0.115125,
+        "affineResidualMax": 0.153581,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "1DB0F747F1F1B58A3FF4B47CD3E1F92B8FC29E19568346A655256A00AD286C87": {
+      "signature": "E180242B70C72CC5866C6AE2E51D1B0030446FED96029F042B06F4510F22D068",
+      "frames": 6,
+      "label": "RYU:landing",
+      "provenance": "seed:RC39_KEN_LOCOMOTION_SEMANTIC_QA.json",
+      "result": {
+        "affineResidualAverage": 0.125324,
+        "affineResidualMax": 0.141437,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "8E0F86F51091C5AF3FC1F1EF5B74FFC91151CBC3115FEE3D77FD6C0B53DDE76F": {
+      "signature": "A5ADEF20851257960E7A5412D46CBEFE55EDB7F16610D8309B6BC1C1AFAA4437",
+      "frames": 6,
+      "label": "idle",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.006367,
+        "affineResidualMax": 0.008768,
+        "fullPoseAverageThreshold": 0.003,
+        "fullPoseMaxThreshold": 0.006,
+        "poseAuthoredPass": true
+      }
+    },
+    "F58EE24B4451CBF38FC26BBD3E6F3DD71E0C2722C31783A2467E206DCF09982A": {
+      "signature": "6F7086EB3401734AEA99023C4C173FEC1CA74F6F53E56B5D142E24294FEC5671",
+      "frames": 6,
+      "label": "idle",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.010095,
+        "affineResidualMax": 0.013061,
+        "fullPoseAverageThreshold": 0.003,
+        "fullPoseMaxThreshold": 0.006,
+        "poseAuthoredPass": true
+      }
+    },
+    "818E06CABAACE5734479D63859930AECB61C8BCEF817ED9D82103B963DA7435D": {
+      "signature": "43A5F22DC314DF7423BC4E7FCC667F0388E44FF188DDBD8433B18144C211DD13",
+      "frames": 6,
+      "label": "idle",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.0,
+        "affineResidualMax": 0.0,
+        "fullPoseAverageThreshold": 0.003,
+        "fullPoseMaxThreshold": 0.006,
+        "poseAuthoredPass": false
+      }
+    },
+    "536C3CBEDB1650CA4C42E7FD43E23DB91C9D7EBAED57BE4DC491C229FE4A10CF": {
+      "signature": "4B8DFF5793675BE6A2C87BBEF1F9F44B02D62743A4DE57DDB6ED6C6B89ED5055",
+      "frames": 12,
+      "label": "walk",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.063602,
+        "affineResidualMax": 0.092717,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "7E2D01F0162423A9296F64AE925CFAD4A21AD85601EF50F33DF545D288969022": {
+      "signature": "3F9B6B7AF344E2F1EEE48A4AECCCA0490AEE16D421B90AB7E14C1104D4A89BE9",
+      "frames": 12,
+      "label": "walk",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.055605,
+        "affineResidualMax": 0.086796,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "6235FF319C69B7BDC3659AC68C4917835243E675EB0CFFE3A2B35D736C4C0C36": {
+      "signature": "431B163E0EDC8F91970045E4CD9B4B203319DE7E38A0080B177B1D10B49FAF05",
+      "frames": 12,
+      "label": "walk",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.0,
+        "affineResidualMax": 0.0,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "F015145332921D88B647FC84EF8A9E5A71B05B7A67A628F1F83E032546E92AB8": {
+      "signature": "B7A005F482F39BADEFCE287F732DB50D3A19A69CF5F91CBE12B35CF08168DAAC",
+      "frames": 10,
+      "label": "walk-back",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.030579,
+        "affineResidualMax": 0.046603,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "9CA637A30776630C9A373E2B1C63E25BFF1E80AD390042A88E104BE7F495351E": {
+      "signature": "E776DAF2015DC980E17D434C61C4A3F3D5BB6CF13247AA7956ABBBC3FADBF22D",
+      "frames": 10,
+      "label": "walk-back",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.028005,
+        "affineResidualMax": 0.042523,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "EAD63193ABECA8056FA146AEAC45120A2203B0994527689C7AF3CF8E3253644C": {
+      "signature": "D61675770206B572BA81E15C994830F364E917E7F42C33A6C79D657E2F54E160",
+      "frames": 10,
+      "label": "walk-back",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.034477,
+        "affineResidualMax": 0.053771,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "400C25F8874FC25082533E0BA92253A184D477AB6011DF5081A1B74EA3698344": {
+      "signature": "01DC421B1951B8193284E79517EBF69218102415C47C73ACAE1CCEE11FCD09C7",
+      "frames": 10,
+      "label": "walk-back",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.037692,
+        "affineResidualMax": 0.057937,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "73BCFFA58DCFEDA44944D0FB05B09D20A1014BB01F95CD373EC21E90EE227A35": {
+      "signature": "76E6430942B20EA0B451DF78685AD855D0457E829B945589406F4AFD11F3E951",
+      "frames": 10,
+      "label": "walk-back",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.039826,
+        "affineResidualMax": 0.060584,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "ACD1E0D97AFAD43467001A602A8DEE919FCB5E371A553E4C24CA499BB2B096C9": {
+      "signature": "3B006FC44A048A92FE74843965CE2AA0DBAB55E228B9E47A79FD6EB0471DD448",
+      "frames": 10,
+      "label": "walk-back",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.0,
+        "affineResidualMax": 0.0,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "FE89C5095DCD6B63BF0D226F3A2A4C6733E6600426263125BF56076F095E0766": {
+      "signature": "91455103D032C45ED0E318A07BD05BB5CD6498F280571FFA6CE0B9AAB9C957D4",
+      "frames": 8,
+      "label": "hit",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.0,
+        "affineResidualMax": 0.0,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "8994278E28DDAB58CBCAF690332AD777807AB18482D16147954BCB21C737A156": {
+      "signature": "3B9D4D6B59F8E9C422FF6A6BE969C5E927C6C43105944A53C4D79DFB76466B62",
+      "frames": 7,
+      "label": "dash",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.055793,
+        "affineResidualMax": 0.130917,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "92A0FD72167B0E0E5AF071468F7A0A18DC5AEFF6866E705E10291475CDABF0FE": {
+      "signature": "CBCCAE455392E8BE45B74AE87FDB7022A659E3D0E260D856090231B2AB9BD65A",
+      "frames": 7,
+      "label": "dash",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.040075,
+        "affineResidualMax": 0.076672,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "B41A11E7360D7DC1C5A77773AEC38F604BF17FFA88879C090E7E079EF02EC2AA": {
+      "signature": "AD7B93DEBFD81335B95DE952FC8CC36CBB7E02F2CDD46F92D521986EC1CBA7FC",
+      "frames": 7,
+      "label": "dash",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.0,
+        "affineResidualMax": 0.0,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "61482B79E3DA1B868624BAA0381C57D37FE18B51FEE521F89ADE4F3014ECBC6D": {
+      "signature": "DD4A1A6BE012C2AED7B2106070233EB25FD6F81A5BA706F4E20CCF245DE783A2",
+      "frames": 8,
+      "label": "jump",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.047137,
+        "affineResidualMax": 0.061149,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "1D27C082791637465FF9DFA818F11F55A986ECF5B784C583DE7147808978CD67": {
+      "signature": "CAF4BA9E44A8D994DD18F7E1E782B7C24F13BCC8FBC838102D6B92FD2A90637D",
+      "frames": 6,
+      "label": "landing",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.044434,
+        "affineResidualMax": 0.056839,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "1129F5D365F3AF3580370A3AB1F2C6E304F99BD08353941278DB3F2867A5207F": {
+      "signature": "A560F129B3BE8304A4458686207D7BCA69D7811015CBD20D5D93CD9616332B96",
+      "frames": 6,
+      "label": "landing",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.041413,
+        "affineResidualMax": 0.051009,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "3B69BD0C53D8C8337ACF0A2602812B3ADD01C85C0F0537B32CAEA997F6C6ED2C": {
+      "signature": "121D5C059EB0851C9C5BFD31BB8A7820229A48EED1E6B4963719F6AD322F67A7",
+      "frames": 8,
+      "label": "hit",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.046188,
+        "affineResidualMax": 0.086152,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "8A03EA6794D7FDB6E0A97DA797E123777348E0EF101A0BA2C305EEC036281D1A": {
+      "signature": "28F9236656F7C888EADFC0CA93E1F8F242A2301649AED5F11738A2F8A2B8BCF7",
+      "frames": 5,
+      "label": "guard",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.030994,
+        "affineResidualMax": 0.051929,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "2211BE1D2166277F0E2A1C39697AB83F0BA64BA18BD60F780027CCA4E1DA8900": {
+      "signature": "0A9EBC3FCC68E49F913C67C4D581F2EC66DDD185D76439CE224151E73A4E7D3C",
+      "frames": 6,
+      "label": "parry",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.023846,
+        "affineResidualMax": 0.040504,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "49C901AF986306DE8A7B662594753AD160F6CDEBC7BADF0F8839D2A402EDE728": {
+      "signature": "F015C2211788FE93DE544C94382C1C719B1B7CF6627873DF9665469E5A86127A",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.018964,
+        "affineResidualMax": 0.028943,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "647B21BB941C25382059D45F4F8B78FFA7BE7261F1E87152998330A2020C4EFE": {
+      "signature": "9549D5F94903D2B79B03CACDF776056A691483E40251D25721D08DB92E8DAE55",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.030581,
+        "affineResidualMax": 0.064089,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "B6397EEB2CA69FBDB6317173E9250A3223AD33D893603023EF1E94969BF2E296": {
+      "signature": "8DE7AD19B5051B66D86A36AEB444C031A0E88A9B5CB4343BD78E1E546A8453E4",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.034786,
+        "affineResidualMax": 0.063758,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "3D78FC248A7ABB245DEDBA5515027F8EC0A555657885DF8197E2D09E0EF83FC2": {
+      "signature": "1964FED8EF9A7AAD85D97ED296BA9ECF30A8EF8FF61CA61D5FB0D066101276A5",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.044803,
+        "affineResidualMax": 0.080068,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "C6CBDE2F1D899D96C9C293FB58A940CC4DAD4C04344576EA41DFBD5C09B33F04": {
+      "signature": "CF588A2EB8EDB0BB6AB5702454DCE2B764FA84BD6E9E634F80C84CE87B77CA89",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.007662,
+        "affineResidualMax": 0.021574,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "18429C51FE5E2585EA5B03AC80E1CC56F2AE365333CBFEA8CBBEA559E5EB48B9": {
+      "signature": "0BE67EBFB98539023A066EBB84246C07FA558EEE5B7BA5C066EA1A17FAC97068",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.017859,
+        "affineResidualMax": 0.043546,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "4C3C9EF4159BEB63AA235C6CAFA1C1A69F04C1FC7D5ED10B0AAE9A419D0AC018": {
+      "signature": "13407A369BD592C9EB411620FB05949CD32FABD1BB8FA09579EF5B2E6D69EC57",
+      "frames": 7,
+      "label": "RYU:stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.00153,
+        "affineResidualMax": 0.002388,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "AC87795160EC2426DF5B7813D8BC116545BA9B47EB474907ACAA018EFB2443FF": {
+      "signature": "15FDE184C0649C56B33D61039D5DED19909DE230B39B821321291F149D5ABEAA",
+      "frames": 10,
+      "label": "RYU:stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.001499,
+        "affineResidualMax": 0.00233,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "AFC63B68715E51578EEC15C528DE9895E177AA63CF7FC0305385C85502F1CA59": {
+      "signature": "D760D5C7F43F4F5B2763EDE7EFF777B67BCC5AA1A03CD8CBCCA16AB52D7A73D0",
+      "frames": 12,
+      "label": "RYU:hadoken",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.001819,
+        "affineResidualMax": 0.002286,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "E3F67BB9A8AA7B1346EE69D9A87F008DD8EAAB1C27CD89DABAF4E967FA60D329": {
+      "signature": "BAE236B0951564B5B3E5E7CC34F8B1FA2BF4C0264BDE253C754875D724F4C0C8",
+      "frames": 12,
+      "label": "RYU:shoryuken",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.001675,
+        "affineResidualMax": 0.002362,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "1DF0DE85AFE981E2C91946334973CA7FF1A9B2C80D4497F0C4FE3A2A76B83718": {
+      "signature": "D35C146647EC8427CB9CC2BC85D4A04EF043DA5F046B5746E273A41B87AF72AE",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.00799,
+        "affineResidualMax": 0.011456,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      }
+    },
+    "FBB3A6607A20BFF8A146D5E01113C9D2A349025E7A9CE2996C28C5DFB690FA71": {
+      "signature": "17BB95C27FAA3E86B70130E33CB3A65B84D1BC5E5FFD395DDCD09294FA03AEB6",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.014724,
+        "affineResidualMax": 0.022945,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "EC3BBC2FB406B2C67A76496DEC4F2CA8D257C021B8E72468517D279E55781AF4": {
+      "signature": "534319D59C678EC5BDBA762C23DE7D987899653A3C2393081833D93A5A063021",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.015275,
+        "affineResidualMax": 0.02423,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "5FA1797224765CFF0D895273B3E14BFA541F337219381638A59A6FD047275074": {
+      "signature": "F402DD10ADA647DE7CF56E69C7E3F25C1D8143ACC7095A9834B6D4D196AE8D0D",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.017706,
+        "affineResidualMax": 0.026893,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "3B651EC67418E7C2AE99AC321C603C78FF691C683023B1F45DD74B0D8263420E": {
+      "signature": "13CC73F4956C6FE992169CCE4720715DFF470AA713CB660047034D538F8362B1",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.021534,
+        "affineResidualMax": 0.034268,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "5903DA3940B2A69F8E768ED3591F9F9628EA6AB12875C265718F87226229978A": {
+      "signature": "82F41DE6179A69EC89D431448B5F1C252F9ECF80F34185362A470D5325D9C1F4",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.021848,
+        "affineResidualMax": 0.035775,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "86A85BF45829E6ED5EFCFF8DA0189E8F29D78E1A0DA2D1A84AA259044A2F78D0": {
+      "signature": "E3975FE0D17F516D51C89F569C7E98F382FD113652A68DEBE9FB511B89109A65",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.02416,
+        "affineResidualMax": 0.041355,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "008D4F1EC948944D05B2CEA37B5A9347302EF639E320D8FC0B3D47EF70C27B75": {
+      "signature": "B2884891254B64E5B82123E6A72185B2CF8AB67C828AC8BEA860DE1CD2499BD7",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.021873,
+        "affineResidualMax": 0.036324,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "8D326974FC9BD7FD1DDF1A4D578098E0C1B6E3CA74D7E2A19938CED3D0506663": {
+      "signature": "7AE6D2589CA6506E39D9249E59348BB5454832F773A2146B276C87C9B341F2D9",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.017178,
+        "affineResidualMax": 0.027111,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "170DBBCDFE8ACFBF1FF1BC41FF2AB948E332CE71CE7CEF9817DA34FBEC08937C": {
+      "signature": "1884B69C8959ED529252E938A30416E74512779EBB12F8906F0B937F4B40002F",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.024049,
+        "affineResidualMax": 0.040052,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "837ED079387A6C02E619E8D637EC7D87D9CF424896A0F1B0E807165F7864C1CE": {
+      "signature": "42F49523F4EFA392CF991723FF3A702369971456304CD634BB58984754A7EE2A",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.02225,
+        "affineResidualMax": 0.036018,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "87337A2811CD6B6EFF28FDDFC11D223D1EFF25034BDA4FCD8B32B44CCC986DD1": {
+      "signature": "B0F61CEDF3BDF8060D168B086BE3059ABE1B02972D2109EC749DDD7DB184AC2F",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.027521,
+        "affineResidualMax": 0.045618,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "EF99ACC785DC1B5CF48250A8F39EC05E0C809EACD32D1DCD9A3ACC94A6962837": {
+      "signature": "70D41A6A7A498E60EC317160F272153DC3B0C93CBD0431BDDAE620E508A49C23",
+      "frames": 7,
+      "label": "stand-light",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.023286,
+        "affineResidualMax": 0.03718,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    "320A3A3B1AD826F3AB2E433DE4B99BCB8B85F7406A243D7E19020B8455EA8673": {
+      "signature": "1CBFC0D28A1DB6900FF9CA647E0583BD02015BBC4FE815C86955B87299B2C8A1",
+      "frames": 10,
+      "label": "stand-heavy",
+      "provenance": "computed",
+      "result": {
+        "affineResidualAverage": 0.028558,
+        "affineResidualMax": 0.046564,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "candidate": "0.0.63-rc.38 + RC39 Ken walk-back/hit authored gates",
+  "character": "KEN",
+  "newAuthoringPackets": {
+    "walk-back": 10,
+    "hit": 8
+  },
+  "semanticVerdict": "KEN_WALKBACK_HIT_SEMANTIC_QA_PASS",
+  "runtimeEnabledFrames": 0,
+  "runtimeTargetFrames": 126,
+  "walkBackPilot": {
+    "poseAuthoredPass": false,
+    "semanticQaPass": false,
+    "failedChecks": [
+      "oppositeContactDifferent",
+      "retreatShapeTravelPresent",
+      "stanceChanges",
+      "authoredMotionAverage",
+      "authoredMotionPeak"
+    ]
+  },
+  "hitPilot": {
+    "poseAuthoredPass": false,
+    "semanticQaPass": false,
+    "failedChecks": [
+      "authoredMotionAverage",
+      "authoredMotionPeak"
+    ]
+  },
+  "authoredFixturePass": {
+    "walk-back": true,
+    "hit": true
+  },
+  "handoff": {
+    "runtimeHandoffPass": true,
+    "reactionHandoffPass": true,
+    "walkBackActive": false,
+    "hitActive": false
+  },
+  "verification": [
+    "TYPECHECK_PASS",
+    "BUILD_PASS",
+    "KEN_AUTHORING_PACKET_PASS",
+    "KEN_WALKBACK_HIT_SEMANTIC_QA_PASS",
+    "KEN_LOCOMOTION_HANDOFF_QA_PASS",
+    "KEN_AUTHORED_PIPELINE_VERIFY_PASS",
+    "ANIMATION_SEQUENCE_VERIFY_PASS",
+    "V063_RC38_PASS"
+  ],
+  "verdict": "KEN_WALKBACK_HIT_AUTHORING_PIPELINE_PASS"
+}

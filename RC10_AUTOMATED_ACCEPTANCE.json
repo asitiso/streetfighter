@@ -1,0 +1,117 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "bossHud": [
+    {
+      "label": "PHASE I",
+      "subtitle": "DIVINE FORM",
+      "accent": "#89ddff"
+    },
+    {
+      "label": "PHASE II",
+      "subtitle": "ELEMENTAL AWAKENING",
+      "accent": "#d39cff"
+    },
+    {
+      "label": "PHASE III",
+      "subtitle": "SERAPHIC ASCENSION",
+      "accent": "#ffd765"
+    }
+  ],
+  "parallaxStages": [
+    {
+      "stage": 1,
+      "far": 0.34,
+      "near": 1.13
+    },
+    {
+      "stage": 2,
+      "far": 0.27,
+      "near": 1.18
+    },
+    {
+      "stage": 3,
+      "far": 0.4,
+      "near": 1.1
+    },
+    {
+      "stage": 4,
+      "far": 0.3,
+      "near": 1.2
+    },
+    {
+      "stage": 5,
+      "far": 0.22,
+      "near": 1.16
+    }
+  ],
+  "fx": {
+    "hit": {
+      "baseTtl": 16,
+      "size": 0.945,
+      "fadePower": 0.88,
+      "afterglow": 0.1
+    },
+    "super": {
+      "baseTtl": 34,
+      "size": 1.6895999999999998,
+      "fadePower": 0.72,
+      "afterglow": 0.34
+    },
+    "redParry": {
+      "baseTtl": 24,
+      "size": 1.24,
+      "fadePower": 0.72,
+      "afterglow": 0.32
+    }
+  },
+  "transitionFrames": [
+    {
+      "introFrames": 108,
+      "duelFrames": 258,
+      "duelPrepareAt": 144,
+      "clearFrames": 222,
+      "clearDispatchAt": 72,
+      "finalClearFrames": 228,
+      "finalClearDispatchAt": 30
+    },
+    {
+      "introFrames": 112,
+      "duelFrames": 264,
+      "duelPrepareAt": 148,
+      "clearFrames": 226,
+      "clearDispatchAt": 74,
+      "finalClearFrames": 228,
+      "finalClearDispatchAt": 30
+    },
+    {
+      "introFrames": 114,
+      "duelFrames": 266,
+      "duelPrepareAt": 150,
+      "clearFrames": 230,
+      "clearDispatchAt": 76,
+      "finalClearFrames": 228,
+      "finalClearDispatchAt": 30
+    },
+    {
+      "introFrames": 116,
+      "duelFrames": 270,
+      "duelPrepareAt": 152,
+      "clearFrames": 234,
+      "clearDispatchAt": 78,
+      "finalClearFrames": 228,
+      "finalClearDispatchAt": 30
+    },
+    {
+      "introFrames": 122,
+      "duelFrames": 282,
+      "duelPrepareAt": 158,
+      "clearFrames": 240,
+      "clearDispatchAt": 82,
+      "finalClearFrames": 228,
+      "finalClearDispatchAt": 36
+    }
+  ],
+  "audioLayering": "BELT_DUEL_FINAL_CROSSFADE_AND_BOSS_HARMONIC_LAYER",
+  "verdict": "BOSS_HUD_PARALLAX_FX_TIMING_AUDIO_LAYERS_PASS"
+}

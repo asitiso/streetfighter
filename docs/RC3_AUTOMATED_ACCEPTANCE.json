@@ -1,0 +1,47 @@
+{
+  "candidate": "0.0.28-rc.3",
+  "generatedFor": "automated RC3 fixture",
+  "notARealDeviceCertification": true,
+  "version": {
+    "package": "0.0.28-rc.3",
+    "gameCache": "game-cache-v028",
+    "saveDatabase": "ssc-save-data-v1"
+  },
+  "deviceCertificationFixture": {
+    "status": "pass",
+    "passed": 9,
+    "total": 9,
+    "touchLatency": {
+      "samples": 8,
+      "averageMs": 15.5,
+      "p95Ms": 18,
+      "status": "pass"
+    }
+  },
+  "acceptanceMatrix": {
+    "status": "pass",
+    "passed": 18,
+    "checks": 0,
+    "blocked": 0,
+    "total": 18
+  },
+  "pwaUpdate": {
+    "currentCache": "game-cache-v028",
+    "expectedPreviousCache": "game-cache-v027",
+    "checkUpdate": true,
+    "applyWaitingUpdate": true,
+    "rollbackMode": true,
+    "restoreCurrent": true,
+    "saveDatabaseUntouched": true,
+    "currentLauncherPinnedDuringRollback": true
+  },
+  "regression": {
+    "fullVerify": "pass",
+    "ryuHeavyDamage": 92,
+    "kenSa1": "3 HIT / 327 DAMAGE",
+    "juggleHits": 2,
+    "stage1To5": "pass",
+    "virtualMarathonMinutes": 50
+  },
+  "realDeviceCertification": "pending"
+}

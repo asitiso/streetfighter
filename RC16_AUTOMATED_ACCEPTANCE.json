@@ -1,0 +1,14 @@
+{
+  "candidate": "0.0.41-rc.16",
+  "cache": "game-cache-v041",
+  "manifestFiles": 88,
+  "manifestRoot": "A11F4C7178B833C55FAB92E0B0365AFCD016BC6382CD8E7FA293CEE1C89D1F05",
+  "manifestRecomputed": true,
+  "recheckTimestampStable": true,
+  "deployMismatchInvalidatesSeal": true,
+  "untestedIntegrityBlocksApproval": true,
+  "failedIntegrityBlocksApproval": true,
+  "matchedDeployCanRemainSealed": true,
+  "finalProofCarriesDeployRoot": true,
+  "verdict": "DEPLOY_SHA256_RELEASE_SEAL_PASS"
+}

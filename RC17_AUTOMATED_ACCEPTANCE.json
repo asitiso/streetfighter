@@ -1,0 +1,17 @@
+{
+  "candidate": "0.0.42-rc.17",
+  "cache": "game-cache-v042",
+  "manifestFiles": 97,
+  "manifestRoot": "DA1B7A1E06F75961314781E20BCE71A0929344F6D331F8E9CDE0B8379E06288B",
+  "manifestRecomputed": true,
+  "recheckTimestampStable": true,
+  "deployMismatchInvalidatesSeal": true,
+  "untestedIntegrityBlocksApproval": true,
+  "failedIntegrityBlocksApproval": true,
+  "matchedDeployCanRemainSealed": true,
+  "finalProofCarriesDeployRoot": true,
+  "frontEndArtIntegrated": true,
+  "stageArtIntegrated": true,
+  "menuAudioIntegrated": true,
+  "verdict": "VISUAL_MASTER_RELEASE_SEAL_PASS"
+}

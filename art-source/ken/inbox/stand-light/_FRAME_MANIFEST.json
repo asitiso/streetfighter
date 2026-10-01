@@ -1,0 +1,52 @@
+{
+  "character": "KEN",
+  "sequence": "stand-light",
+  "expectedFrames": 7,
+  "requiredFileNames": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png",
+    "07.png"
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "transparentBackgroundRequired": true,
+  "posePlan": [
+    "neutral",
+    "anticipation",
+    "startup",
+    "contact",
+    "follow-through",
+    "recovery",
+    "neutral-bridge"
+  ],
+  "semanticQa": {
+    "description": "7F grounded light punch with a real hand/arm extension at contact, planted feet and a fast recovery toward neutral; whole-body translation is rejected.",
+    "startEndIoUMin": 0.58,
+    "contactIoUMin": 0.32,
+    "contactIoUMax": 0.94,
+    "centroidXRangeMin": 4.0,
+    "centroidXRangeMax": 45.0,
+    "centroidYRangeMax": 28.0,
+    "reachRangeMin": 24.0,
+    "reachRangeMax": 105.0,
+    "footCenterRangeMax": 38.0,
+    "footWidthCvMax": 0.32,
+    "areaCvMax": 0.16,
+    "poseResidualAverageMin": 0.01,
+    "poseResidualAverageMax": 0.15,
+    "poseResidualMaxMin": 0.022,
+    "poseResidualMaxMax": 0.2,
+    "contactFrameIndex": 3
+  },
+  "inboxDestination": "art-source/ken/inbox/stand-light/",
+  "ingestCommand": "npm run ingest:ken -- --only stand-light",
+  "rule": "Do not create frames by translating/rotating/scaling one still. Limbs, torso silhouette and cloth/hair follow-through must be genuinely redrawn/authored."
+}

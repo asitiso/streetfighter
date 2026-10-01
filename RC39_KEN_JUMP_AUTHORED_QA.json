@@ -1,0 +1,199 @@
+{
+  "character": "KEN",
+  "sequence": "jump",
+  "source": "/mnt/data/ssc_work/art-source/ken/inbox/jump",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        77,
+        100,
+        306,
+        425
+      ],
+      "sourceBodyHeight": 325,
+      "paste": [
+        72,
+        49
+      ],
+      "scaledSize": [
+        241,
+        342
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        74,
+        112,
+        309,
+        429
+      ],
+      "sourceBodyHeight": 317,
+      "paste": [
+        68,
+        54
+      ],
+      "scaledSize": [
+        247,
+        333
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        72,
+        72,
+        315,
+        407
+      ],
+      "sourceBodyHeight": 335,
+      "paste": [
+        64,
+        44
+      ],
+      "scaledSize": [
+        256,
+        352
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        125,
+        75,
+        295,
+        340
+      ],
+      "sourceBodyHeight": 265,
+      "paste": [
+        102,
+        80
+      ],
+      "scaledSize": [
+        179,
+        279
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        125,
+        83,
+        288,
+        324
+      ],
+      "sourceBodyHeight": 241,
+      "paste": [
+        106,
+        94
+      ],
+      "scaledSize": [
+        171,
+        253
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        118,
+        97,
+        288,
+        364
+      ],
+      "sourceBodyHeight": 267,
+      "paste": [
+        102,
+        80
+      ],
+      "scaledSize": [
+        179,
+        281
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        97,
+        105,
+        288,
+        410
+      ],
+      "sourceBodyHeight": 305,
+      "paste": [
+        92,
+        60
+      ],
+      "scaledSize": [
+        201,
+        321
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        89,
+        133,
+        297,
+        429
+      ],
+      "sourceBodyHeight": 296,
+      "paste": [
+        82,
+        64
+      ],
+      "scaledSize": [
+        219,
+        311
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.047137,
+    "affineResidualMax": 0.061149,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "jump",
+    "limits": {
+      "startEndIoUMin": 0.35,
+      "startEndIoUMax": 0.9,
+      "apexIoUMin": 0.3,
+      "apexIoUMax": 0.72,
+      "centroidXRangeMax": 50.0,
+      "centroidYRangeMin": 45.0,
+      "centroidYRangeMax": 135.0,
+      "centroidStepMax": 92.0,
+      "areaCvMax": 0.18,
+      "footWidthCvMin": 0.15,
+      "footWidthCvMax": 1.2,
+      "residualAverageMin": 0.03,
+      "residualAverageMax": 0.18,
+      "residualMaxMin": 0.05,
+      "residualMaxMax": 0.22
+    },
+    "startEndIoU": 0.685018,
+    "apexIoU": 0.481011,
+    "centroidXRange": 22.724173,
+    "centroidYRange": 47.152537,
+    "centroidStepMax": 47.204835,
+    "areaCv": 0.165903,
+    "footWidthCv": 0.243645,
+    "residualAverage": 0.047137,
+    "residualMax": 0.061149,
+    "checks": {
+      "contactBridgeNotDuplicate": true,
+      "apexPoseDistinct": true,
+      "horizontalShapeStable": true,
+      "verticalPhasePresent": true,
+      "noFrameJump": true,
+      "bodyVolumeStable": true,
+      "aerialLegShapeChanges": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}

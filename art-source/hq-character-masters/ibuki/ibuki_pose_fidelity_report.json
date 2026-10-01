@@ -1,0 +1,50 @@
+{
+  "character": "IBUKI",
+  "reference": {
+    "bbox": [
+      26,
+      40,
+      166,
+      220
+    ],
+    "centerX": 96.0,
+    "centerY": 130.0,
+    "groundY": 220,
+    "width": 140,
+    "height": 180
+  },
+  "candidate": {
+    "bbox": [
+      26,
+      40,
+      166,
+      220
+    ],
+    "centerX": 96.0,
+    "centerY": 130.0,
+    "groundY": 220,
+    "width": 140,
+    "height": 180
+  },
+  "maskIoU": 0.9996,
+  "meanEdgeDistancePx": 0.017,
+  "heightDeltaRatio": 0.0,
+  "widthDeltaRatio": 0.0,
+  "checks": {
+    "ground": true,
+    "center": true,
+    "height": true,
+    "width": true,
+    "maskIoU": true,
+    "edgeDistance": true
+  },
+  "pass": true,
+  "limits": {
+    "groundTolerancePx": 2,
+    "centerTolerancePx": 4,
+    "heightToleranceRatio": 0.05,
+    "widthToleranceRatio": 0.12,
+    "minimumMaskIoU": 0.62,
+    "maximumMeanEdgeDistancePxAt192x224": 5.0
+  }
+}

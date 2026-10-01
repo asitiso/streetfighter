@@ -1,0 +1,128 @@
+{
+  "character": "KEN",
+  "mode": "transactional-batch",
+  "records": [
+    {
+      "sequence": "idle",
+      "source": "art-source/ken/inbox/idle",
+      "sidecar": null,
+      "expectedFrames": 6,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "idle",
+        "preview": "/mnt/data/rc39_v077_work/RC39_KEN_IDLE_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/rc39_v077_work/art-source/ken/authored-candidates/idle.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.010095,
+          "affineResidualMax": 0.013061,
+          "fullPoseAverageThreshold": 0.003,
+          "fullPoseMaxThreshold": 0.006,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "idle",
+          "limits": {
+            "loopIoUMin": 0.72,
+            "centroidXRangeMax": 12.0,
+            "centroidYRangeMax": 10.0,
+            "centroidStepMax": 8.0,
+            "areaCvMax": 0.075,
+            "footCenterRangeMax": 14.0,
+            "footWidthCvMax": 0.12,
+            "residualAverageMax": 0.05,
+            "residualMaxMax": 0.085
+          },
+          "loopIoU": 0.98541,
+          "centroidXRange": 3.493781,
+          "centroidYRange": 7.000322,
+          "centroidStepMax": 5.097937,
+          "areaCv": 0.021079,
+          "footCenterRange": 0.323331,
+          "footWidthCv": 0.001663,
+          "residualAverage": 0.010095,
+          "residualMax": 0.013061,
+          "checks": {
+            "loopClosure": true,
+            "rootXStable": true,
+            "rootYStable": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "feetPlanted": true,
+            "stanceWidthStable": true,
+            "motionRestrainedAverage": true,
+            "motionRestrainedPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"idle\",\n  \"preview\": \"/mnt/data/rc39_v077_work/RC39_KEN_IDLE_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/rc39_v077_work/art-source/ken/authored-candidates/idle.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.010095,\n    \"affineResidualMax\": 0.013061,\n    \"fullPoseAverageThreshold\": 0.003,\n    \"fullPoseMaxThreshold\": 0.006,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"idle\",\n    \"limits\": {\n      \"loopIoUMin\": 0.72,\n      \"centroidXRangeMax\": 12.0,\n      \"centroidYRangeMax\": 10.0,\n      \"centroidStepMax\": 8.0,\n      \"areaCvMax\": 0.075,\n      \"footCenterRangeMax\": 14.0,\n      \"footWidthCvMax\": 0.12,\n      \"residualAverageMax\": 0.05,\n      \"residualMaxMax\": 0.085\n    },\n    \"loopIoU\": 0.98541,\n    \"centroidXRange\": 3.493781,\n    \"centroidYRange\": 7.000322,\n    \"centroidStepMax\": 5.097937,\n    \"areaCv\": 0.021079,\n    \"footCenterRange\": 0.323331,\n    \"footWidthCv\": 0.001663,\n    \"residualAverage\": 0.010095,\n    \"residualMax\": 0.013061,\n    \"checks\": {\n      \"loopClosure\": true,\n      \"rootXStable\": true,\n      \"rootYStable\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"feetPlanted\": true,\n      \"stanceWidthStable\": true,\n      \"motionRestrainedAverage\": true,\n      \"motionRestrainedPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "rolled-back",
+      "installReturnCode": 0,
+      "installOutputTail": "{\n  \"installed\": true,\n  \"rolledBack\": false,\n  \"character\": \"KEN\",\n  \"sequence\": \"idle\",\n  \"runtime\": \"/mnt/data/rc39_v077_work/public/art/animation-hq/ken/idle.webp\",\n  \"preview\": \"/mnt/data/rc39_v077_work/RC39_KEN_IDLE_AUTHORED_PREVIEW.png\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.010095,\n    \"affineResidualMax\": 0.013061,\n    \"fullPoseAverageThreshold\": 0.003,\n    \"fullPoseMaxThreshold\": 0.006,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"idle\",\n    \"limits\": {\n      \"loopIoUMin\": 0.72,\n      \"centroidXRangeMax\": 12.0,\n      \"centroidYRangeMax\": 10.0,\n      \"centroidStepMax\": 8.0,\n      \"areaCvMax\": 0.075,\n      \"footCenterRangeMax\": 14.0,\n      \"footWidthCvMax\": 0.12,\n      \"residualAverageMax\": 0.05,\n      \"residualMaxMax\": 0.085\n    },\n    \"loopIoU\": 0.98541,\n    \"centroidXRange\": 3.493781,\n    \"centroidYRange\": 7.000322,\n    \"centroidStepMax\": 5.097937,\n    \"areaCv\": 0.021079,\n    \"footCenterRange\": 0.323331,\n    \"footWidthCv\": 0.001663,\n    \"residualAverage\": 0.010095,\n    \"residualMax\": 0.013061,\n    \"checks\": {\n      \"loopClosure\": true,\n      \"rootXStable\": true,\n      \"rootYStable\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"feetPlanted\": true,\n      \"stanceWidthStable\": true,\n      \"motionRestrainedAverage\": true,\n      \"motionRestrainedPeak\": true\n    },\n    \"semanticQaPass\": true\n  },\n  \"verified\": false\n}\n",
+      "install": {
+        "installed": true,
+        "rolledBack": false,
+        "character": "KEN",
+        "sequence": "idle",
+        "runtime": "/mnt/data/rc39_v077_work/public/art/animation-hq/ken/idle.webp",
+        "preview": "/mnt/data/rc39_v077_work/RC39_KEN_IDLE_AUTHORED_PREVIEW.png",
+        "poseQa": {
+          "affineResidualAverage": 0.010095,
+          "affineResidualMax": 0.013061,
+          "fullPoseAverageThreshold": 0.003,
+          "fullPoseMaxThreshold": 0.006,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "idle",
+          "limits": {
+            "loopIoUMin": 0.72,
+            "centroidXRangeMax": 12.0,
+            "centroidYRangeMax": 10.0,
+            "centroidStepMax": 8.0,
+            "areaCvMax": 0.075,
+            "footCenterRangeMax": 14.0,
+            "footWidthCvMax": 0.12,
+            "residualAverageMax": 0.05,
+            "residualMaxMax": 0.085
+          },
+          "loopIoU": 0.98541,
+          "centroidXRange": 3.493781,
+          "centroidYRange": 7.000322,
+          "centroidStepMax": 5.097937,
+          "areaCv": 0.021079,
+          "footCenterRange": 0.323331,
+          "footWidthCv": 0.001663,
+          "residualAverage": 0.010095,
+          "residualMax": 0.013061,
+          "checks": {
+            "loopClosure": true,
+            "rootXStable": true,
+            "rootYStable": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "feetPlanted": true,
+            "stanceWidthStable": true,
+            "motionRestrainedAverage": true,
+            "motionRestrainedPeak": true
+          },
+          "semanticQaPass": true
+        },
+        "verified": false
+      }
+    }
+  ],
+  "installed": [],
+  "rejected": [],
+  "pending": [],
+  "verification": {
+    "command": "npm run verify:ken-pipeline",
+    "returnCode": 1,
+    "tail": "\n> side-scroll-chronicles@0.0.63-rc.38 verify:ken-pipeline\n> python3 -u scripts/verify-ken-pipeline-fast.py\n\nKEN_PIPELINE_STEP_FAIL authoring 0.01s\n\nTraceback (most recent call last):\n  File \"/mnt/data/rc39_v077_work/scripts/verify-ken-pipeline-fast.py\", line 103, in <module>\n    main()\n    ~~~~^^\n  File \"/mnt/data/rc39_v077_work/scripts/verify-ken-pipeline-fast.py\", line 95, in main\n    run_python_step(name, path, args)\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"/mnt/data/rc39_v077_work/scripts/verify-ken-pipeline-fast.py\", line 47, in run_python_step\n    runpy.run_path(str(ROOT / relative_path), run_name='__main__')\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/mnt/data/rc39_v077_work/scripts/verify-ken-authoring-packet.py\", line 30, in <module>\n    assert (inbox/name).exists(), f'missing seeded inbox guide: {kind}/{name}'\n           ~~~~~~~~~~~~~~~~~~~^^\nAssertionError: missing seeded inbox guide: idle/_README.md\n"
+  },
+  "rolledBack": true,
+  "rollbackReason": "batch final verification failed"
+}

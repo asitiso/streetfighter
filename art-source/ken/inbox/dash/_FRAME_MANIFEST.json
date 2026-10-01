@@ -1,0 +1,50 @@
+{
+  "character": "KEN",
+  "sequence": "dash",
+  "expectedFrames": 7,
+  "requiredFileNames": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png",
+    "07.png"
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "transparentBackgroundRequired": true,
+  "posePlan": [
+    "ready",
+    "drive-load",
+    "launch",
+    "max-drive",
+    "passing-drive",
+    "brake",
+    "recovery-bridge"
+  ],
+  "semanticQa": {
+    "description": "7F explosive forward dash with real drive/lean/brake phases; start/end may bridge neutral but must not duplicate it.",
+    "startEndIoUMin": 0.3,
+    "startEndIoUMax": 0.88,
+    "midpointIoUMin": 0.28,
+    "midpointIoUMax": 0.82,
+    "centroidXRangeMin": 10.0,
+    "centroidXRangeMax": 75.0,
+    "centroidYRangeMin": 10.0,
+    "centroidYRangeMax": 75.0,
+    "centroidStepMax": 58.0,
+    "areaCvMax": 0.18,
+    "poseResidualAverageMin": 0.02,
+    "poseResidualAverageMax": 0.15,
+    "poseResidualMaxMin": 0.04,
+    "poseResidualMaxMax": 0.2
+  },
+  "inboxDestination": "art-source/ken/inbox/dash/",
+  "ingestCommand": "npm run ingest:ken -- --only dash",
+  "rule": "Do not create frames by translating/rotating/scaling one still. Limbs, torso silhouette and cloth/hair follow-through must be genuinely redrawn/authored."
+}

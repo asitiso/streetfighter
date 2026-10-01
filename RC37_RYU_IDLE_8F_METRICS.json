@@ -1,0 +1,198 @@
+{
+  "source": "/mnt/data/8\ud504\ub808\uc784_\uaca9\ud22c\uac00_\uc720\ud734_\uc560\ub2c8\uba54\uc774\uc158_\uc2a4\ud504\ub77c\uc774\ud2b8_\uc2dc\ud2b8.png",
+  "output": "/mnt/data/work_rc34/public/art/animation-hq/ryu/idle.webp",
+  "frames": 8,
+  "frameSize": [
+    384,
+    448
+  ],
+  "scale": 0.8585365853658536,
+  "bytes": 674924,
+  "sha256": "BE622D9B6611F977855989CDE19542DEC4CE91980F81536FE36D9D2DEF395FF2",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        59,
+        91,
+        328,
+        497
+      ],
+      "outputBBox": [
+        71,
+        85,
+        302,
+        434
+      ],
+      "paste": [
+        71,
+        85
+      ],
+      "scaledSize": [
+        231,
+        349
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        54,
+        91,
+        323,
+        497
+      ],
+      "outputBBox": [
+        69,
+        85,
+        300,
+        434
+      ],
+      "paste": [
+        69,
+        85
+      ],
+      "scaledSize": [
+        231,
+        349
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        47,
+        92,
+        313,
+        497
+      ],
+      "outputBBox": [
+        68,
+        86,
+        296,
+        434
+      ],
+      "paste": [
+        68,
+        86
+      ],
+      "scaledSize": [
+        228,
+        348
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        49,
+        92,
+        320,
+        497
+      ],
+      "outputBBox": [
+        67,
+        86,
+        300,
+        434
+      ],
+      "paste": [
+        67,
+        86
+      ],
+      "scaledSize": [
+        233,
+        348
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        58,
+        56,
+        329,
+        470
+      ],
+      "outputBBox": [
+        70,
+        56,
+        303,
+        411
+      ],
+      "paste": [
+        70,
+        56
+      ],
+      "scaledSize": [
+        233,
+        355
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        54,
+        52,
+        325,
+        471
+      ],
+      "outputBBox": [
+        69,
+        52,
+        302,
+        412
+      ],
+      "paste": [
+        69,
+        52
+      ],
+      "scaledSize": [
+        233,
+        360
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        47,
+        56,
+        317,
+        472
+      ],
+      "outputBBox": [
+        66,
+        56,
+        298,
+        413
+      ],
+      "paste": [
+        66,
+        56
+      ],
+      "scaledSize": [
+        232,
+        357
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        43,
+        54,
+        312,
+        472
+      ],
+      "outputBBox": [
+        65,
+        54,
+        296,
+        413
+      ],
+      "paste": [
+        65,
+        54
+      ],
+      "scaledSize": [
+        231,
+        359
+      ]
+    }
+  ]
+}

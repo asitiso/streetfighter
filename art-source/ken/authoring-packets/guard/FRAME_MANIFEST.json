@@ -1,0 +1,45 @@
+{
+  "character": "KEN",
+  "sequence": "guard",
+  "expectedFrames": 5,
+  "requiredFileNames": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png"
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "transparentBackgroundRequired": true,
+  "posePlan": [
+    "neutral-guard",
+    "brace",
+    "impact-deflect",
+    "recoil-hold",
+    "neutral-return"
+  ],
+  "semanticQa": {
+    "description": "5F grounded guard with compact brace/impact/recovery; feet stay planted and upper body absorbs the hit without becoming a hit-reaction.",
+    "startEndIoUMin": 0.68,
+    "peakGuardIoUMin": 0.38,
+    "peakGuardIoUMax": 0.88,
+    "centroidXRangeMin": 3.0,
+    "centroidXRangeMax": 45.0,
+    "centroidYRangeMin": 2.0,
+    "centroidYRangeMax": 35.0,
+    "footCenterRangeMax": 32.0,
+    "footWidthCvMax": 0.35,
+    "poseResidualAverageMin": 0.006,
+    "poseResidualAverageMax": 0.11,
+    "poseResidualMaxMin": 0.014,
+    "poseResidualMaxMax": 0.16
+  },
+  "inboxDestination": "art-source/ken/inbox/guard/",
+  "ingestCommand": "npm run ingest:ken -- --only guard",
+  "rule": "Do not create frames by translating/rotating/scaling one still. Limbs, torso silhouette and cloth/hair follow-through must be genuinely redrawn/authored."
+}

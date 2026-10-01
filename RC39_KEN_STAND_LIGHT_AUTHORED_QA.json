@@ -1,0 +1,184 @@
+{
+  "character": "KEN",
+  "sequence": "stand-light",
+  "source": "/mnt/data/ssc_work/art-source/ken/inbox/stand-light",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        80,
+        97,
+        302,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        76,
+        83
+      ],
+      "scaledSize": [
+        231,
+        340
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        80,
+        97,
+        308,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        74,
+        83
+      ],
+      "scaledSize": [
+        237,
+        340
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        80,
+        97,
+        333,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        60,
+        83
+      ],
+      "scaledSize": [
+        263,
+        340
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        80,
+        97,
+        345,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        54,
+        83
+      ],
+      "scaledSize": [
+        276,
+        340
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        80,
+        97,
+        340,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        57,
+        83
+      ],
+      "scaledSize": [
+        270,
+        340
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        80,
+        97,
+        316,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        70,
+        83
+      ],
+      "scaledSize": [
+        245,
+        340
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        80,
+        97,
+        302,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        76,
+        83
+      ],
+      "scaledSize": [
+        231,
+        340
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.023286,
+    "affineResidualMax": 0.03718,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "stand-light",
+    "limits": {
+      "startEndIoUMin": 0.58,
+      "contactIoUMin": 0.32,
+      "contactIoUMax": 0.94,
+      "centroidXRangeMin": 4.0,
+      "centroidXRangeMax": 45.0,
+      "centroidYRangeMax": 28.0,
+      "reachRangeMin": 24.0,
+      "reachRangeMax": 105.0,
+      "footCenterRangeMax": 38.0,
+      "footWidthCvMax": 0.32,
+      "areaCvMax": 0.16,
+      "residualAverageMin": 0.01,
+      "residualAverageMax": 0.15,
+      "residualMaxMin": 0.022,
+      "residualMaxMax": 0.2,
+      "contactFrameIndex": 3
+    },
+    "startEndIoU": 1.0,
+    "contactIoU": 0.634825,
+    "centroidXRange": 12.323887,
+    "centroidYRange": 4.691894,
+    "reachRange": 24.0,
+    "footCenterRange": 21.858163,
+    "footWidthCv": 0.002194,
+    "areaCv": 0.010739,
+    "residualAverage": 0.023286,
+    "residualMax": 0.03718,
+    "checks": {
+      "recoveryTowardNeutral": true,
+      "contactPoseDistinct": true,
+      "bodyDrivePresent": true,
+      "verticalRootStable": true,
+      "attackReachPresent": true,
+      "feetStayPlanted": true,
+      "stanceWidthStable": true,
+      "bodyVolumeStable": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "character": "KEN",
+  "mode": "dry-run",
+  "records": [
+    {
+      "sequence": "idle",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 6
+    },
+    {
+      "sequence": "walk",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 12
+    },
+    {
+      "sequence": "walk-back",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 10
+    },
+    {
+      "sequence": "dash",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 7
+    },
+    {
+      "sequence": "jump",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 8
+    },
+    {
+      "sequence": "landing",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 6
+    },
+    {
+      "sequence": "hit",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 8
+    },
+    {
+      "sequence": "stand-light",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 7
+    },
+    {
+      "sequence": "stand-heavy",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 10
+    },
+    {
+      "sequence": "hadoken",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 12
+    },
+    {
+      "sequence": "shoryuken",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 12
+    },
+    {
+      "sequence": "tatsumaki",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 12
+    },
+    {
+      "sequence": "super-rush",
+      "status": "pending",
+      "reason": "no-source-in-inbox",
+      "expectedFrames": 16
+    }
+  ],
+  "installed": [],
+  "rejected": [],
+  "pending": [
+    "idle",
+    "walk",
+    "walk-back",
+    "dash",
+    "jump",
+    "landing",
+    "hit",
+    "stand-light",
+    "stand-heavy",
+    "hadoken",
+    "shoryuken",
+    "tatsumaki",
+    "super-rush"
+  ],
+  "verification": null,
+  "rolledBack": false
+}

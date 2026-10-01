@@ -1,0 +1,50 @@
+{
+  "character": "KEN",
+  "sequence": "hit",
+  "expectedFrames": 8,
+  "requiredFileNames": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png",
+    "07.png",
+    "08.png"
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "transparentBackgroundRequired": true,
+  "posePlan": [
+    "neutral",
+    "impact-compression",
+    "torso-recoil",
+    "maximum-recoil",
+    "foot-slide",
+    "recovery-start",
+    "weight-recovery",
+    "neutral-return"
+  ],
+  "semanticQa": {
+    "description": "8F grounded hit reaction with visible impact compression, torso recoil, foot slide and recovery back toward neutral.",
+    "startEndIoUMin": 0.62,
+    "peakRecoilIoUMin": 0.22,
+    "peakRecoilIoUMax": 0.78,
+    "centroidXRangeMin": 12.0,
+    "centroidXRangeMax": 95.0,
+    "centroidYRangeMin": 5.0,
+    "centroidYRangeMax": 75.0,
+    "footCenterRangeMin": 12.0,
+    "footCenterRangeMax": 145.0,
+    "footWidthCvMax": 0.8,
+    "poseResidualAverageMin": 0.012,
+    "poseResidualMaxMin": 0.028
+  },
+  "inboxDestination": "art-source/ken/inbox/hit/",
+  "ingestCommand": "npm run ingest:ken -- --only hit",
+  "rule": "Do not create frames by translating/rotating/scaling one still. Limbs, torso silhouette and cloth/hair follow-through must be genuinely redrawn/authored."
+}

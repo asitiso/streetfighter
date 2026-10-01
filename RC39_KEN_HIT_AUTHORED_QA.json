@@ -1,0 +1,202 @@
+{
+  "character": "KEN",
+  "sequence": "hit",
+  "source": "/mnt/data/ssc_work/art-source/ken/inbox/hit",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        80,
+        97,
+        302,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        78,
+        85
+      ],
+      "scaledSize": [
+        229,
+        338
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        78,
+        101,
+        305,
+        425
+      ],
+      "sourceBodyHeight": 324,
+      "paste": [
+        74,
+        88
+      ],
+      "scaledSize": [
+        235,
+        335
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        75,
+        95,
+        308,
+        425
+      ],
+      "sourceBodyHeight": 330,
+      "paste": [
+        72,
+        82
+      ],
+      "scaledSize": [
+        241,
+        341
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        70,
+        94,
+        313,
+        425
+      ],
+      "sourceBodyHeight": 331,
+      "paste": [
+        66,
+        81
+      ],
+      "scaledSize": [
+        251,
+        342
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        68,
+        98,
+        309,
+        425
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        68,
+        85
+      ],
+      "scaledSize": [
+        249,
+        338
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        72,
+        99,
+        307,
+        425
+      ],
+      "sourceBodyHeight": 326,
+      "paste": [
+        70,
+        86
+      ],
+      "scaledSize": [
+        243,
+        337
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        77,
+        98,
+        304,
+        424
+      ],
+      "sourceBodyHeight": 326,
+      "paste": [
+        74,
+        86
+      ],
+      "scaledSize": [
+        235,
+        337
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        80,
+        97,
+        302,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        78,
+        85
+      ],
+      "scaledSize": [
+        229,
+        338
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.046188,
+    "affineResidualMax": 0.086152,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "hit",
+    "limits": {
+      "startEndIoUMin": 0.62,
+      "peakRecoilIoUMin": 0.22,
+      "peakRecoilIoUMax": 0.78,
+      "centroidXRangeMin": 7.0,
+      "centroidXRangeMax": 95.0,
+      "centroidYRangeMin": 3.0,
+      "centroidYRangeMax": 75.0,
+      "centroidStepMax": 65.0,
+      "areaCvMax": 0.2,
+      "footCenterRangeMin": 12.0,
+      "footCenterRangeMax": 145.0,
+      "footWidthCvMax": 0.8,
+      "residualAverageMin": 0.012,
+      "residualAverageMax": 0.17,
+      "residualMaxMin": 0.028,
+      "residualMaxMax": 0.22
+    },
+    "startEndIoU": 1.0,
+    "peakRecoilIoU": 0.408025,
+    "centroidXRange": 27.628337,
+    "centroidYRange": 13.560811,
+    "centroidStepMax": 14.680902,
+    "areaCv": 0.0626,
+    "footCenterRange": 23.969128,
+    "footWidthCv": 0.034048,
+    "residualAverage": 0.046188,
+    "residualMax": 0.086152,
+    "checks": {
+      "recoveryReturnsNearNeutral": true,
+      "peakRecoilDistinct": true,
+      "recoilTravelPresent": true,
+      "compressionPresent": true,
+      "noFrameJump": true,
+      "bodyVolumeStable": true,
+      "footSlideReadable": true,
+      "stanceNotExploded": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}

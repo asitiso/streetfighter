@@ -1,0 +1,21 @@
+{
+  "candidate": "0.0.46-rc.21",
+  "cache": "game-cache-v046",
+  "manifestFiles": 139,
+  "manifestRoot": "1023B9B9C70AC5BF18466F3A3654115FC662756CB00F4B0436AF324719C2DC02",
+  "playableAttackAtlases": 8,
+  "families": [
+    "normal",
+    "special",
+    "super",
+    "throw"
+  ],
+  "framesPerFamily": 5,
+  "totalBakedFrames": 160,
+  "contactFramesArticulated": true,
+  "airAttackArticulated": true,
+  "attackAtlasPayloadKb": 1363,
+  "stageAudioStillDeferred": true,
+  "finalProofSealPreserved": true,
+  "verdict": "ATTACK_SPRITE_STRIP_HYBRID_PASS"
+}

@@ -1,0 +1,59 @@
+{
+  "character": "KEN",
+  "sequence": "walk",
+  "expectedFrames": 12,
+  "requiredFileNames": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png",
+    "07.png",
+    "08.png",
+    "09.png",
+    "10.png",
+    "11.png",
+    "12.png"
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "transparentBackgroundRequired": true,
+  "posePlan": [
+    "contact",
+    "compression",
+    "toe-off",
+    "lift",
+    "passing",
+    "reach",
+    "contact-opposite",
+    "compression",
+    "toe-off",
+    "lift",
+    "passing",
+    "reach"
+  ],
+  "semanticQa": {
+    "description": "12F alternating step cycle with real contact/compression/toe-off/passing phases; no transform-only duplicate half-cycle.",
+    "loopIoUMin": 0.45,
+    "oppositeContactIoUMin": 0.35,
+    "oppositeContactIoUMax": 0.9,
+    "centroidXRangeMin": 8.0,
+    "centroidXRangeMax": 95.0,
+    "centroidYRangeMin": 3.0,
+    "centroidYRangeMax": 60.0,
+    "footCenterRangeMin": 28.0,
+    "footCenterRangeMax": 145.0,
+    "footWidthCvMin": 0.06,
+    "footWidthCvMax": 0.95,
+    "poseResidualAverageMin": 0.008,
+    "poseResidualMaxMin": 0.018
+  },
+  "inboxDestination": "art-source/ken/inbox/walk/",
+  "ingestCommand": "npm run ingest:ken -- --only walk",
+  "rule": "Do not create frames by translating/rotating/scaling one still. Limbs, torso silhouette and cloth/hair follow-through must be genuinely redrawn/authored."
+}

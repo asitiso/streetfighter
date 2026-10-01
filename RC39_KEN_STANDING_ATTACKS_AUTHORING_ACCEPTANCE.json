@@ -1,0 +1,138 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "workBatch": "V073_KEN_STANDING_ATTACKS_QA",
+  "character": "KEN",
+  "pipeline": "rc39-ken-authored-gated-v4",
+  "frameTotal": 137,
+  "enabledFrameTotal": 0,
+  "targetSequences": {
+    "stand-light": {
+      "frames": 7,
+      "enabled": false,
+      "poseAuthored": false
+    },
+    "stand-heavy": {
+      "frames": 10,
+      "enabled": false,
+      "poseAuthored": false
+    }
+  },
+  "semanticVerdict": "KEN_STANDING_ATTACKS_SEMANTIC_QA_PASS",
+  "currentStaging": {
+    "stand-light": {
+      "kind": "stand-light",
+      "limits": {
+        "startEndIoUMin": 0.58,
+        "contactIoUMin": 0.32,
+        "contactIoUMax": 0.94,
+        "centroidXRangeMin": 4.0,
+        "centroidXRangeMax": 45.0,
+        "centroidYRangeMax": 28.0,
+        "reachRangeMin": 24.0,
+        "reachRangeMax": 105.0,
+        "footCenterRangeMax": 38.0,
+        "footWidthCvMax": 0.32,
+        "areaCvMax": 0.16,
+        "residualAverageMin": 0.01,
+        "residualAverageMax": 0.15,
+        "residualMaxMin": 0.022,
+        "residualMaxMax": 0.2,
+        "contactFrameIndex": 3
+      },
+      "startEndIoU": 1.0,
+      "contactIoU": 0.736613,
+      "centroidXRange": 18.156119,
+      "centroidYRange": 2.384874,
+      "reachRange": 14.0,
+      "footCenterRange": 77.489282,
+      "footWidthCv": 0.018509,
+      "areaCv": 0.014093,
+      "residualAverage": 0.001745,
+      "residualMax": 0.002213,
+      "checks": {
+        "recoveryTowardNeutral": true,
+        "contactPoseDistinct": true,
+        "bodyDrivePresent": true,
+        "verticalRootStable": true,
+        "attackReachPresent": false,
+        "feetStayPlanted": false,
+        "stanceWidthStable": true,
+        "bodyVolumeStable": true,
+        "authoredMotionAverage": false,
+        "authoredMotionPeak": false
+      },
+      "semanticQaPass": false
+    },
+    "stand-heavy": {
+      "kind": "stand-heavy",
+      "limits": {
+        "startEndIoUMin": 0.5,
+        "contactIoUMin": 0.22,
+        "contactIoUMax": 0.75,
+        "centroidXRangeMin": 7.0,
+        "centroidXRangeMax": 62.0,
+        "centroidYRangeMin": 0.75,
+        "centroidYRangeMax": 42.0,
+        "reachRangeMin": 38.0,
+        "reachRangeMax": 145.0,
+        "footCenterRangeMax": 58.0,
+        "footWidthCvMax": 0.55,
+        "areaCvMax": 0.2,
+        "residualAverageMin": 0.014,
+        "residualAverageMax": 0.18,
+        "residualMaxMin": 0.03,
+        "residualMaxMax": 0.24,
+        "contactFrameIndex": 5
+      },
+      "startEndIoU": 1.0,
+      "contactIoU": 0.592698,
+      "centroidXRange": 35.43078,
+      "centroidYRange": 6.497273,
+      "reachRange": 26.0,
+      "footCenterRange": 155.140262,
+      "footWidthCv": 0.313394,
+      "areaCv": 0.021445,
+      "residualAverage": 0.001664,
+      "residualMax": 0.002263,
+      "checks": {
+        "recoveryTowardNeutral": true,
+        "contactPoseDistinct": true,
+        "bodyDrivePresent": true,
+        "verticalRootStable": true,
+        "attackReachPresent": false,
+        "feetStayPlanted": false,
+        "stanceWidthStable": true,
+        "bodyVolumeStable": true,
+        "authoredMotionAverage": false,
+        "authoredMotionPeak": false,
+        "bodyTorquePresent": true
+      },
+      "semanticQaPass": false
+    }
+  },
+  "authoredFixtures": {
+    "stand-light": true,
+    "stand-heavy": true
+  },
+  "gates": [
+    "affine pose variance",
+    "contact silhouette",
+    "attack reach",
+    "root/body drive",
+    "planted feet",
+    "stance width",
+    "body volume",
+    "base handoff"
+  ],
+  "regression": [
+    "TYPECHECK_PASS",
+    "BUILD_PASS",
+    "KEN_AUTHORING_PACKET_PASS",
+    "KEN_STANDING_ATTACKS_SEMANTIC_QA_PASS",
+    "KEN_HANDOFF_QA_PASS",
+    "ANIMATION_SEQUENCE_VERIFY_PASS",
+    "KEN_AUTHORED_PIPELINE_VERIFY_PASS",
+    "V063_RC38_PASS"
+  ],
+  "verdict": "KEN_STANDING_ATTACKS_AUTHORED_GATE_PASS"
+}

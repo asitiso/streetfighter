@@ -1,0 +1,50 @@
+{
+  "character": "RYU",
+  "reference": {
+    "bbox": [
+      34,
+      32,
+      158,
+      220
+    ],
+    "centerX": 96.0,
+    "centerY": 126.0,
+    "groundY": 220,
+    "width": 124,
+    "height": 188
+  },
+  "candidate": {
+    "bbox": [
+      34,
+      32,
+      158,
+      220
+    ],
+    "centerX": 96.0,
+    "centerY": 126.0,
+    "groundY": 220,
+    "width": 124,
+    "height": 188
+  },
+  "maskIoU": 0.9992,
+  "meanEdgeDistancePx": 0.022,
+  "heightDeltaRatio": 0.0,
+  "widthDeltaRatio": 0.0,
+  "checks": {
+    "ground": true,
+    "center": true,
+    "height": true,
+    "width": true,
+    "maskIoU": true,
+    "edgeDistance": true
+  },
+  "pass": true,
+  "limits": {
+    "groundTolerancePx": 2,
+    "centerTolerancePx": 4,
+    "heightToleranceRatio": 0.05,
+    "widthToleranceRatio": 0.12,
+    "minimumMaskIoU": 0.62,
+    "maximumMeanEdgeDistancePxAt192x224": 5.0
+  }
+}

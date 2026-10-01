@@ -1,0 +1,144 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "batch": "V075_KEN_TATSUMAKI_SUPER_RUSH_QA",
+  "character": "KEN",
+  "targetFrameTotal": 137,
+  "enabledFrameTotal": 0,
+  "sequences": {
+    "tatsumaki": {
+      "frames": 12,
+      "runtimeEnabled": false,
+      "stagingRejected": {
+        "kind": "tatsumaki",
+        "limits": {
+          "startEndIoUMin": 0.36,
+          "startEndIoUMax": 0.92,
+          "quarterIoUMin": 0.18,
+          "quarterIoUMax": 0.78,
+          "oppositeIoUMin": 0.16,
+          "oppositeIoUMax": 0.74,
+          "centroidXRangeMin": 8.0,
+          "centroidXRangeMax": 100.0,
+          "centroidYRangeMin": 5.0,
+          "centroidYRangeMax": 95.0,
+          "extentWidthRangeMin": 38.0,
+          "extentWidthRangeMax": 190.0,
+          "areaCvMax": 0.24,
+          "residualAverageMin": 0.022,
+          "residualAverageMax": 0.22,
+          "residualMaxMin": 0.045,
+          "residualMaxMax": 0.3,
+          "quarterFrameIndex": 3,
+          "oppositeFrameIndex": 6
+        },
+        "startEndIoU": 1.0,
+        "quarterIoU": 0.770649,
+        "oppositeIoU": 0.749511,
+        "centroidXRange": 32.398507,
+        "centroidYRange": 16.247268,
+        "extentWidthRange": 13.0,
+        "areaCv": 0.012645,
+        "residualAverage": 0.001773,
+        "residualMax": 0.002313,
+        "checks": {
+          "recoveryTowardNeutral": false,
+          "quarterTurnDistinct": true,
+          "oppositeTurnDistinct": false,
+          "spinTravelsHorizontally": true,
+          "spinChangesLevel": true,
+          "kickExtensionChanges": false,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": false,
+          "authoredMotionPeak": false
+        },
+        "semanticQaPass": false
+      }
+    },
+    "super-rush": {
+      "frames": 16,
+      "runtimeEnabled": false,
+      "stagingRejected": {
+        "kind": "super-rush",
+        "limits": {
+          "startEndIoUMin": 0.4,
+          "contactIoUMin": 0.16,
+          "contactIoUMax": 0.84,
+          "contactDiversityIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 110.0,
+          "centroidYRangeMin": 2.0,
+          "centroidYRangeMax": 80.0,
+          "reachRangeMin": 42.0,
+          "reachRangeMax": 190.0,
+          "footCenterRangeMax": 105.0,
+          "areaCvMax": 0.26,
+          "residualAverageMin": 0.024,
+          "residualAverageMax": 0.24,
+          "residualMaxMin": 0.05,
+          "residualMaxMax": 0.32,
+          "contactFrameIndices": [
+            3,
+            5,
+            7,
+            9,
+            11
+          ]
+        },
+        "startEndIoU": 1.0,
+        "contactIoUMinObserved": 0.529813,
+        "contactIoUMaxObserved": 0.717203,
+        "contactDiversityIoUMin": 0.684353,
+        "centroidXRange": 31.491258,
+        "centroidYRange": 7.669507,
+        "reachRange": 29.0,
+        "footCenterRange": 108.392389,
+        "areaCv": 0.02147,
+        "residualAverage": 0.001669,
+        "residualMax": 0.002114,
+        "contactIoUs": [
+          0.555738,
+          0.69307,
+          0.529813,
+          0.559993,
+          0.717203
+        ],
+        "contactPairIoUs": [
+          0.684353,
+          0.697126,
+          0.916293,
+          0.754181
+        ],
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "allContactsDistinctFromBase": true,
+          "contactChainHasVariety": true,
+          "forwardRushPresent": true,
+          "bodyLevelsChange": true,
+          "multiHitReachPresent": false,
+          "groundTravelControlled": false,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": false,
+          "authoredMotionPeak": false
+        },
+        "semanticQaPass": false
+      }
+    }
+  },
+  "authoredFixturesPass": {
+    "tatsumaki": true,
+    "superRush": true,
+    "rigidSuperRejected": true
+  },
+  "handoff": {
+    "tatsumakiHandoffPass": true,
+    "superRushHandoffPass": true,
+    "specialAttackHandoffPass": true
+  },
+  "runtimeAudit": {
+    "pipeline": "rc39-runtime-semantic-audit-v9-pose-report-reuse",
+    "poseReportReused": true,
+    "tatsumakiPromotionPass": false,
+    "superRushPromotionPass": false
+  },
+  "verdict": "KEN_ADVANCED_SPECIALS_AUTHORED_GATE_PASS"
+}

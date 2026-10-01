@@ -1,0 +1,137 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "character": "IBUKI",
+  "pipeline": "rc36-staging-disabled-v2",
+  "source": "approved RC34 HQ original",
+  "sourcePath": "/art/combat-sprites-hq/ibuki.webp",
+  "sourceSize": [
+    384,
+    448
+  ],
+  "sourceSha256": "76BE49783ADBF49DDC537AEB1CF8E4C18436DDB4F5A12E8188FA11DC6012AC36",
+  "frameTotal": 57,
+  "enabledFrameTotal": 0,
+  "fullFrameTotal": 0,
+  "bridgeFrameTotal": 0,
+  "records": [
+    {
+      "id": "idle",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2304,
+        448
+      ],
+      "bytes": 275120,
+      "sha256": "78920256039ED31837F49DC667C9AD4B69D8D3EAC30DBAD7F0125ECBF4610EF9",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "walk",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 599584,
+      "sha256": "C17ABB1992357BDB7A55D2A3659C43218DB8CCDF82C5CB46186932E12DE5DABF",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "walk-back",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "bytes": 448136,
+      "sha256": "7F1454A619AB73DD41454B13E61FD29EB08A5737E8C61FD96D3B3992FBFFD2FD",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "dash",
+      "frames": 7,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2688,
+        448
+      ],
+      "bytes": 371936,
+      "sha256": "EF7625ACCABA86C73791FC015A864C70255F894B91F11C0F8F2F5F68C4173E26",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "jump",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 578016,
+      "sha256": "56C944F80F3D39E16B108C8753172AA53F7612A162567B0331A6C191389D515E",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "landing",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2304,
+        448
+      ],
+      "bytes": 413114,
+      "sha256": "534FE323DD55BAA84C0875B28BC9822513BC08383D0CF4D08FF088F15EA0EE51",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "hit",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 534366,
+      "sha256": "4E02D38AE8279EEF31EE6A11E8537E1598C963EE2E450240C6C070D01FE5E594",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    }
+  ]
+}

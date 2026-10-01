@@ -1,0 +1,74 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "stageProfiles": [
+    {
+      "stage": 1,
+      "code": "NYC-DT",
+      "accent": "#e8b656",
+      "objective": "BREAK THROUGH THE STREET FIGHTERS"
+    },
+    {
+      "stage": 2,
+      "code": "HKG-NM",
+      "accent": "#54d9ff",
+      "objective": "SURVIVE THE MARKET RUSH"
+    },
+    {
+      "stage": 3,
+      "code": "JPN-KD",
+      "accent": "#f2c47e",
+      "objective": "READ THE FIGHT — PARRY, THEN PUNISH"
+    },
+    {
+      "stage": 4,
+      "code": "LDN-FC",
+      "accent": "#a9d9ef",
+      "objective": "WIN THE ELITE RUSH"
+    },
+    {
+      "stage": 5,
+      "code": "SS-05",
+      "accent": "#d7bd68",
+      "objective": "REACH URIEN — THEN GILL"
+    }
+  ],
+  "sparkShapes": [
+    "slash",
+    "burst",
+    "slash",
+    "cross",
+    "shards",
+    "cross",
+    "guard",
+    "ring"
+  ],
+  "loadingCards": [
+    {
+      "kicker": "STAGE 01",
+      "title": "NEW YORK — DOWNTOWN"
+    },
+    {
+      "kicker": "STAGE 02",
+      "title": "HONG KONG — NIGHT MARKET"
+    },
+    {
+      "kicker": "STAGE 03",
+      "title": "JAPAN — KARATE DISTRICT"
+    },
+    {
+      "kicker": "STAGE 04",
+      "title": "LONDON — FIGHT CLUB"
+    },
+    {
+      "kicker": "STAGE 05",
+      "title": "SECRET SOCIETY FACILITY"
+    },
+    {
+      "kicker": "EPILOGUE",
+      "title": "SEALING THE INCIDENT"
+    }
+  ],
+  "bossMix": "FINAL_STAGE_INTENSITY_AND_BOSS_SHIFT",
+  "verdict": "HUD_COLOR_GRADE_FX_BOSS_MIX_PASS"
+}

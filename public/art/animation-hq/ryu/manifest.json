@@ -1,0 +1,205 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "character": "RYU",
+  "pipeline": "rc37-authored-gated-v3",
+  "source": "approved RC34 HQ original",
+  "sourcePath": "/art/combat-sprites-hq/ryu.webp",
+  "sourceSize": [
+    384,
+    448
+  ],
+  "sourceSha256": "5E21EA786BF59F73A684DC416487766F5672134FD75BCB6F8C66CBBA27D6AA23",
+  "frameTotal": 100,
+  "enabledFrameTotal": 41,
+  "fullFrameTotal": 41,
+  "bridgeFrameTotal": 0,
+  "records": [
+    {
+      "id": "idle",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 674924,
+      "sha256": "BE622D9B6611F977855989CDE19542DEC4CE91980F81536FE36D9D2DEF395FF2",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true
+    },
+    {
+      "id": "walk",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 1169692,
+      "sha256": "BF969CB0E90F70B4CAC5034EEBE87918BA3EAD1CCA295F127AC9FF323D64C718",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true
+    },
+    {
+      "id": "walk-back",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "bytes": 531624,
+      "sha256": "1600A115DA360D685625F7B2409B7398296D1821CF334C949731893C6196A043",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "dash",
+      "frames": 7,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2688,
+        448
+      ],
+      "bytes": 747874,
+      "sha256": "02E86421206015C898F7ADF554C08D83C06271FB137CE1F8CF079B1E02A83513",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true
+    },
+    {
+      "id": "jump",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 831110,
+      "sha256": "55895FF9E0BCD59B1FF55CB132BA18DBA27D2E9FBCCD80C26344AC8F8D2EEFDC",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true
+    },
+    {
+      "id": "landing",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2304,
+        448
+      ],
+      "bytes": 586602,
+      "sha256": "44838076F2AB3C781A0B995DB7CBBB427B39C3E26DAA1A773B4B401BF7CFE79B",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true
+    },
+    {
+      "id": "stand-light",
+      "frames": 7,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2688,
+        448
+      ],
+      "bytes": 520866,
+      "sha256": "4610AD3C93122FD3D43AEF7A0E392E18C6250393DB30FEE533A43617E2BB5752",
+      "enabled": false,
+      "renderMode": "bridge",
+      "poseAuthored": false
+    },
+    {
+      "id": "stand-heavy",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "bytes": 717228,
+      "sha256": "FB1EF5AC941E7AC358F5CCC77F790724BB43703439F3898D42F90465FE29872F",
+      "enabled": false,
+      "renderMode": "bridge",
+      "poseAuthored": false
+    },
+    {
+      "id": "hit",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 631730,
+      "sha256": "CE1A40A48F68D7E673F511EF6A05147D6CE422026B8180CCC32E727BDF4FB241",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false
+    },
+    {
+      "id": "hadoken",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 969404,
+      "sha256": "0C99917E3865238EC2EDE9EF03A1915655CEE3E8B4659DA853E2584A01670F03",
+      "enabled": false,
+      "renderMode": "bridge",
+      "poseAuthored": false
+    },
+    {
+      "id": "shoryuken",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 884676,
+      "sha256": "450194B51E7DAFA5468318F800B80B6C62EE46E8343A4FC62C41F80004D44BD1",
+      "enabled": false,
+      "renderMode": "bridge",
+      "poseAuthored": false
+    }
+  ]
+}

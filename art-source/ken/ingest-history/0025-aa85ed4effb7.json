@@ -1,0 +1,80 @@
+{
+  "character": "KEN",
+  "mode": "dry-run",
+  "records": [
+    {
+      "sequence": "walk-back",
+      "source": "art-source/ken/inbox/walk-back",
+      "sidecar": null,
+      "expectedFrames": 10,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "walk-back",
+        "preview": "/mnt/data/ssc_work/RC39_KEN_WALK_BACK_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/ssc_work/art-source/ken/authored-candidates/walk-back.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.039826,
+          "affineResidualMax": 0.060584,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "walk-back",
+          "limits": {
+            "loopIoUMin": 0.42,
+            "oppositeContactIoUMin": 0.35,
+            "oppositeContactIoUMax": 0.9,
+            "centroidXRangeMin": 6.0,
+            "centroidXRangeMax": 90.0,
+            "centroidYRangeMin": 3.0,
+            "centroidYRangeMax": 58.0,
+            "centroidStepMax": 52.0,
+            "areaCvMax": 0.17,
+            "footCenterRangeMin": 24.0,
+            "footCenterRangeMax": 145.0,
+            "footWidthCvMin": 0.05,
+            "footWidthCvMax": 0.95,
+            "residualAverageMin": 0.008,
+            "residualAverageMax": 0.13,
+            "residualMaxMin": 0.018,
+            "residualMaxMax": 0.18
+          },
+          "loopIoU": 1.0,
+          "oppositeContactIoU": 0.759454,
+          "centroidXRange": 33.770024,
+          "centroidYRange": 24.910682,
+          "centroidStepMax": 23.223068,
+          "areaCv": 0.097216,
+          "footCenterRange": 144.49274,
+          "footWidthCv": 0.772077,
+          "residualAverage": 0.039826,
+          "residualMax": 0.060584,
+          "checks": {
+            "loopClosure": true,
+            "oppositeContactDifferent": true,
+            "retreatShapeTravelPresent": true,
+            "verticalCadencePresent": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "footTravelPresent": true,
+            "stanceChanges": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"walk-back\",\n  \"preview\": \"/mnt/data/ssc_work/RC39_KEN_WALK_BACK_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/ssc_work/art-source/ken/authored-candidates/walk-back.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.039826,\n    \"affineResidualMax\": 0.060584,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"walk-back\",\n    \"limits\": {\n      \"loopIoUMin\": 0.42,\n      \"oppositeContactIoUMin\": 0.35,\n      \"oppositeContactIoUMax\": 0.9,\n      \"centroidXRangeMin\": 6.0,\n      \"centroidXRangeMax\": 90.0,\n      \"centroidYRangeMin\": 3.0,\n      \"centroidYRangeMax\": 58.0,\n      \"centroidStepMax\": 52.0,\n      \"areaCvMax\": 0.17,\n      \"footCenterRangeMin\": 24.0,\n      \"footCenterRangeMax\": 145.0,\n      \"footWidthCvMin\": 0.05,\n      \"footWidthCvMax\": 0.95,\n      \"residualAverageMin\": 0.008,\n      \"residualAverageMax\": 0.13,\n      \"residualMaxMin\": 0.018,\n      \"residualMaxMax\": 0.18\n    },\n    \"loopIoU\": 1.0,\n    \"oppositeContactIoU\": 0.759454,\n    \"centroidXRange\": 33.770024,\n    \"centroidYRange\": 24.910682,\n    \"centroidStepMax\": 23.223068,\n    \"areaCv\": 0.097216,\n    \"footCenterRange\": 144.49274,\n    \"footWidthCv\": 0.772077,\n    \"residualAverage\": 0.039826,\n    \"residualMax\": 0.060584,\n    \"checks\": {\n      \"loopClosure\": true,\n      \"oppositeContactDifferent\": true,\n      \"retreatShapeTravelPresent\": true,\n      \"verticalCadencePresent\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"footTravelPresent\": true,\n      \"stanceChanges\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "preview-pass"
+    }
+  ],
+  "installed": [],
+  "rejected": [],
+  "pending": [],
+  "verification": null,
+  "rolledBack": false
+}

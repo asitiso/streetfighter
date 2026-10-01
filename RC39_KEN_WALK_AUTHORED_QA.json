@@ -1,0 +1,275 @@
+{
+  "character": "KEN",
+  "sequence": "walk",
+  "source": "/mnt/data/rc39_v077_work/art-source/ken/inbox/walk",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        80,
+        93,
+        302,
+        425
+      ],
+      "sourceBodyHeight": 332,
+      "paste": [
+        78,
+        80
+      ],
+      "scaledSize": [
+        229,
+        343
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        103,
+        94,
+        294,
+        423
+      ],
+      "sourceBodyHeight": 329,
+      "paste": [
+        94,
+        83
+      ],
+      "scaledSize": [
+        197,
+        340
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        118,
+        95,
+        299,
+        422
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        98,
+        85
+      ],
+      "scaledSize": [
+        187,
+        338
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        119,
+        97,
+        300,
+        422
+      ],
+      "sourceBodyHeight": 325,
+      "paste": [
+        98,
+        87
+      ],
+      "scaledSize": [
+        187,
+        336
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        113,
+        98,
+        297,
+        423
+      ],
+      "sourceBodyHeight": 325,
+      "paste": [
+        97,
+        87
+      ],
+      "scaledSize": [
+        190,
+        336
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        89,
+        98,
+        291,
+        423
+      ],
+      "sourceBodyHeight": 325,
+      "paste": [
+        88,
+        87
+      ],
+      "scaledSize": [
+        209,
+        336
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        90,
+        98,
+        309,
+        425
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        79,
+        85
+      ],
+      "scaledSize": [
+        226,
+        338
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        116,
+        98,
+        315,
+        424
+      ],
+      "sourceBodyHeight": 326,
+      "paste": [
+        89,
+        86
+      ],
+      "scaledSize": [
+        206,
+        337
+      ]
+    },
+    {
+      "frame": 9,
+      "sourceBBox": [
+        122,
+        97,
+        318,
+        424
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        90,
+        85
+      ],
+      "scaledSize": [
+        203,
+        338
+      ]
+    },
+    {
+      "frame": 10,
+      "sourceBBox": [
+        122,
+        95,
+        317,
+        424
+      ],
+      "sourceBodyHeight": 329,
+      "paste": [
+        91,
+        83
+      ],
+      "scaledSize": [
+        202,
+        340
+      ]
+    },
+    {
+      "frame": 11,
+      "sourceBBox": [
+        105,
+        94,
+        313,
+        425
+      ],
+      "sourceBodyHeight": 331,
+      "paste": [
+        84,
+        81
+      ],
+      "scaledSize": [
+        215,
+        342
+      ]
+    },
+    {
+      "frame": 12,
+      "sourceBBox": [
+        80,
+        93,
+        302,
+        425
+      ],
+      "sourceBodyHeight": 332,
+      "paste": [
+        78,
+        80
+      ],
+      "scaledSize": [
+        229,
+        343
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.055605,
+    "affineResidualMax": 0.086796,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "walk",
+    "limits": {
+      "loopIoUMin": 0.45,
+      "oppositeContactIoUMin": 0.35,
+      "oppositeContactIoUMax": 0.9,
+      "centroidXRangeMin": 8.0,
+      "centroidXRangeMax": 95.0,
+      "centroidYRangeMin": 3.0,
+      "centroidYRangeMax": 60.0,
+      "centroidStepMax": 52.0,
+      "areaCvMax": 0.16,
+      "footCenterRangeMin": 28.0,
+      "footCenterRangeMax": 145.0,
+      "footWidthCvMin": 0.06,
+      "footWidthCvMax": 0.95,
+      "residualAverageMin": 0.008,
+      "residualAverageMax": 0.13,
+      "residualMaxMin": 0.018,
+      "residualMaxMax": 0.18
+    },
+    "loopIoU": 1.0,
+    "oppositeContactIoU": 0.79858,
+    "centroidXRange": 34.297193,
+    "centroidYRange": 20.81732,
+    "centroidStepMax": 20.061824,
+    "areaCv": 0.093523,
+    "footCenterRange": 139.958634,
+    "footWidthCv": 0.859947,
+    "residualAverage": 0.055605,
+    "residualMax": 0.086796,
+    "checks": {
+      "loopClosure": true,
+      "oppositeContactDifferent": true,
+      "rootTravelPresent": true,
+      "verticalCadencePresent": true,
+      "noFrameJump": true,
+      "bodyVolumeStable": true,
+      "footTravelPresent": true,
+      "stanceChanges": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}

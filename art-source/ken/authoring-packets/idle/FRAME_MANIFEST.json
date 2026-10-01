@@ -1,0 +1,51 @@
+{
+  "character": "KEN",
+  "sequence": "idle",
+  "expectedFrames": 6,
+  "requiredFileNames": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png"
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "transparentBackgroundRequired": true,
+  "posePlan": [
+    "neutral",
+    "inhale",
+    "chest-rise",
+    "weight-shift",
+    "exhale",
+    "return"
+  ],
+  "semanticQa": {
+    "description": "Restrained breathing/weight-shift loop; no walk-like root drift or foot slide.",
+    "poseResidualAverageMin": 0.003,
+    "poseResidualMaxMin": 0.006,
+    "loopIoUMin": 0.72,
+    "centroidXRangeMax": 12.0,
+    "centroidYRangeMax": 10.0,
+    "centroidStepMax": 8.0,
+    "areaCvMax": 0.075,
+    "footCenterRangeMax": 14.0,
+    "footWidthCvMax": 0.12,
+    "posePlan": [
+      "neutral",
+      "inhale",
+      "chest-rise",
+      "weight-shift",
+      "exhale",
+      "return-to-neutral"
+    ]
+  },
+  "inboxDestination": "art-source/ken/inbox/idle/",
+  "ingestCommand": "npm run ingest:ken -- --only idle",
+  "rule": "Do not create frames by translating/rotating/scaling one still. Limbs, torso silhouette and cloth/hair follow-through must be genuinely redrawn/authored."
+}

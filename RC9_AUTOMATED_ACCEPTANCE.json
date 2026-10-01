@@ -1,0 +1,67 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "hudModes": [
+    "belt",
+    "duel",
+    "boss"
+  ],
+  "stageLighting": [
+    {
+      "stage": 1,
+      "key": "#ffc26d",
+      "rim": "#ff8c55",
+      "shadowOffsetX": 12,
+      "beams": 3
+    },
+    {
+      "stage": 2,
+      "key": "#57dcff",
+      "rim": "#ff4aa6",
+      "shadowOffsetX": -8,
+      "beams": 5
+    },
+    {
+      "stage": 3,
+      "key": "#ffd59a",
+      "rim": "#d95a50",
+      "shadowOffsetX": 9,
+      "beams": 2
+    },
+    {
+      "stage": 4,
+      "key": "#c6e6f5",
+      "rim": "#738fa8",
+      "shadowOffsetX": -14,
+      "beams": 4
+    },
+    {
+      "stage": 5,
+      "key": "#8fe6ff",
+      "rim": "#b27cff",
+      "shadowOffsetX": 0,
+      "beams": 6
+    }
+  ],
+  "projectileTrails": [
+    "wave",
+    "kunai",
+    "cold"
+  ],
+  "loadingRoutes": [
+    "BELT ACTION → ELITE DUEL",
+    "MARKET RUSH → SPEED DUEL",
+    "SPACING → COUNTER DUEL",
+    "ELITE RUSH → FIGHT CLUB DUEL",
+    "BELT → URIEN → GILL FINAL",
+    "FINAL RECORD → CHARACTER EPILOGUE"
+  ],
+  "audioTransitions": [
+    "STAGE_INTRO",
+    "DUEL",
+    "STAGE_CLEAR",
+    "FINAL_KO",
+    "ENDING"
+  ],
+  "verdict": "MODE_HUD_LIGHTING_TRAILS_AUDIO_PASS"
+}

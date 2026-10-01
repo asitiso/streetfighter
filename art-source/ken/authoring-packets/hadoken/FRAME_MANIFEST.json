@@ -1,0 +1,31 @@
+{
+  "character": "KEN",
+  "sequence": "hadoken",
+  "expectedFrames": 12,
+  "requiredFileNames": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png",
+    "07.png",
+    "08.png",
+    "09.png",
+    "10.png",
+    "11.png",
+    "12.png"
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "transparentBackgroundRequired": true,
+  "posePlan": [],
+  "semanticQa": null,
+  "inboxDestination": "art-source/ken/inbox/hadoken/",
+  "ingestCommand": "npm run ingest:ken -- --only hadoken",
+  "rule": "Do not create frames by translating/rotating/scaling one still. Limbs, torso silhouette and cloth/hair follow-through must be genuinely redrawn/authored."
+}

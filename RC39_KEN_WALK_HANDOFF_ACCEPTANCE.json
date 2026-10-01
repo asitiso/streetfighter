@@ -1,0 +1,211 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "batch": "V069_KEN_WALK_HANDOFF_QA",
+  "kenTargetFrames": 126,
+  "kenEnabledFrames": 0,
+  "handoff": {
+    "character": "KEN",
+    "version": 1,
+    "fallbackBridgeRequired": true,
+    "pairAuthoredActive": false,
+    "idleToMasterFirst": {
+      "iou": 1.0,
+      "centroidDistance": 0.0,
+      "footCenterDelta": 0.0,
+      "areaRatio": 1.0,
+      "limits": {
+        "iouMin": 0.62,
+        "centroidDistanceMax": 18.0,
+        "footCenterDeltaMax": 24.0,
+        "areaRatioMin": 0.78,
+        "areaRatioMax": 1.24
+      },
+      "checks": {
+        "silhouetteContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true,
+        "scaleContinuity": true
+      },
+      "pass": true
+    },
+    "idleToMasterLast": {
+      "iou": 0.916092,
+      "centroidDistance": 4.327974,
+      "footCenterDelta": 3.497049,
+      "areaRatio": 1.006242,
+      "limits": {
+        "iouMin": 0.62,
+        "centroidDistanceMax": 18.0,
+        "footCenterDeltaMax": 24.0,
+        "areaRatioMin": 0.78,
+        "areaRatioMax": 1.24
+      },
+      "checks": {
+        "silhouetteContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true,
+        "scaleContinuity": true
+      },
+      "pass": true
+    },
+    "fallbackBridgePass": true,
+    "idleToWalk": {
+      "iou": 0.934655,
+      "centroidDistance": 3.153421,
+      "footCenterDelta": 0.621335,
+      "areaRatio": 1.011176,
+      "limits": {
+        "iouMin": 0.52,
+        "centroidDistanceMax": 22.0,
+        "footCenterDeltaMax": 28.0,
+        "areaRatioMin": 0.76,
+        "areaRatioMax": 1.28
+      },
+      "checks": {
+        "silhouetteContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true,
+        "scaleContinuity": true
+      },
+      "pass": true
+    },
+    "walkToIdle": {
+      "iou": 0.935154,
+      "centroidDistance": 2.246606,
+      "footCenterDelta": 10.930136,
+      "areaRatio": 0.991939,
+      "limits": {
+        "iouMin": 0.52,
+        "centroidDistanceMax": 22.0,
+        "footCenterDeltaMax": 28.0,
+        "areaRatioMin": 0.76,
+        "areaRatioMax": 1.28
+      },
+      "checks": {
+        "silhouetteContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true,
+        "scaleContinuity": true
+      },
+      "pass": true
+    },
+    "pairPass": true,
+    "runtimeHandoffPass": true,
+    "gateMode": "idle-to-base-fallback"
+  },
+  "runtimeSemantic": {
+    "character": "KEN",
+    "pipeline": "rc39-runtime-semantic-audit-v2",
+    "records": [
+      {
+        "sequence": "idle",
+        "enabled": false,
+        "poseAuthored": false,
+        "poseQa": {
+          "affineResidualAverage": 0.001648,
+          "affineResidualMax": 0.002086,
+          "fullPoseAverageThreshold": 0.003,
+          "fullPoseMaxThreshold": 0.006,
+          "poseAuthoredPass": false
+        },
+        "semanticQa": {
+          "kind": "idle",
+          "limits": {
+            "loopIoUMin": 0.72,
+            "centroidXRangeMax": 12.0,
+            "centroidYRangeMax": 10.0,
+            "centroidStepMax": 8.0,
+            "areaCvMax": 0.075,
+            "footCenterRangeMax": 14.0,
+            "footWidthCvMax": 0.12,
+            "residualAverageMax": 0.05,
+            "residualMaxMax": 0.085
+          },
+          "loopIoU": 0.916092,
+          "centroidXRange": 1.225215,
+          "centroidYRange": 7.428765,
+          "centroidStepMax": 4.327974,
+          "areaCv": 0.009499,
+          "footCenterRange": 8.786491,
+          "footWidthCv": 0.002166,
+          "residualAverage": 0.001648,
+          "residualMax": 0.002086,
+          "checks": {
+            "loopClosure": true,
+            "rootXStable": true,
+            "rootYStable": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "feetPlanted": true,
+            "stanceWidthStable": true,
+            "motionRestrainedAverage": true,
+            "motionRestrainedPeak": true
+          },
+          "semanticQaPass": true
+        },
+        "runtimePromotionPass": false
+      },
+      {
+        "sequence": "walk",
+        "enabled": false,
+        "poseAuthored": false,
+        "poseQa": {
+          "affineResidualAverage": 0.001491,
+          "affineResidualMax": 0.001672,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": false
+        },
+        "semanticQa": {
+          "kind": "walk",
+          "limits": {
+            "loopIoUMin": 0.45,
+            "oppositeContactIoUMin": 0.35,
+            "oppositeContactIoUMax": 0.9,
+            "centroidXRangeMin": 8.0,
+            "centroidXRangeMax": 95.0,
+            "centroidYRangeMin": 3.0,
+            "centroidYRangeMax": 60.0,
+            "centroidStepMax": 52.0,
+            "areaCvMax": 0.16,
+            "footCenterRangeMin": 28.0,
+            "footCenterRangeMax": 145.0,
+            "footWidthCvMin": 0.06,
+            "footWidthCvMax": 0.95,
+            "residualAverageMin": 0.008,
+            "residualAverageMax": 0.13,
+            "residualMaxMin": 0.018,
+            "residualMaxMax": 0.18
+          },
+          "loopIoU": 0.923758,
+          "oppositeContactIoU": 1.0,
+          "centroidXRange": 1.786109,
+          "centroidYRange": 5.44172,
+          "centroidStepMax": 3.270554,
+          "areaCv": 0.001726,
+          "footCenterRange": 49.021193,
+          "footWidthCv": 0.003135,
+          "residualAverage": 0.001491,
+          "residualMax": 0.001672,
+          "checks": {
+            "loopClosure": true,
+            "oppositeContactDifferent": false,
+            "rootTravelPresent": false,
+            "verticalCadencePresent": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "footTravelPresent": true,
+            "stanceChanges": false,
+            "authoredMotionAverage": false,
+            "authoredMotionPeak": false
+          },
+          "semanticQaPass": false
+        },
+        "runtimePromotionPass": false
+      }
+    ],
+    "allRuntimePromotionPass": false
+  },
+  "poseRejectedCount": 13,
+  "verdict": "KEN_WALK_HANDOFF_PIPELINE_PASS"
+}

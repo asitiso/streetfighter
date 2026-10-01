@@ -1,0 +1,149 @@
+{
+  "character": "KEN",
+  "mode": "dry-run",
+  "records": [
+    {
+      "sequence": "stand-light",
+      "source": "art-source/ken/inbox/stand-light",
+      "sidecar": null,
+      "expectedFrames": 7,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "stand-light",
+        "preview": "/mnt/data/ssc_work/RC39_KEN_STAND_LIGHT_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/ssc_work/art-source/ken/authored-candidates/stand-light.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.02225,
+          "affineResidualMax": 0.036018,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "stand-light",
+          "limits": {
+            "startEndIoUMin": 0.58,
+            "contactIoUMin": 0.32,
+            "contactIoUMax": 0.94,
+            "centroidXRangeMin": 4.0,
+            "centroidXRangeMax": 45.0,
+            "centroidYRangeMax": 28.0,
+            "reachRangeMin": 24.0,
+            "reachRangeMax": 105.0,
+            "footCenterRangeMax": 38.0,
+            "footWidthCvMax": 0.32,
+            "areaCvMax": 0.16,
+            "residualAverageMin": 0.01,
+            "residualAverageMax": 0.15,
+            "residualMaxMin": 0.022,
+            "residualMaxMax": 0.2,
+            "contactFrameIndex": 3
+          },
+          "startEndIoU": 1.0,
+          "contactIoU": 0.635305,
+          "centroidXRange": 12.246576,
+          "centroidYRange": 4.651204,
+          "reachRange": 24.0,
+          "footCenterRange": 21.858163,
+          "footWidthCv": 0.002194,
+          "areaCv": 0.012206,
+          "residualAverage": 0.02225,
+          "residualMax": 0.036018,
+          "checks": {
+            "recoveryTowardNeutral": true,
+            "contactPoseDistinct": true,
+            "bodyDrivePresent": true,
+            "verticalRootStable": true,
+            "attackReachPresent": true,
+            "feetStayPlanted": true,
+            "stanceWidthStable": true,
+            "bodyVolumeStable": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"stand-light\",\n  \"preview\": \"/mnt/data/ssc_work/RC39_KEN_STAND_LIGHT_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/ssc_work/art-source/ken/authored-candidates/stand-light.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.02225,\n    \"affineResidualMax\": 0.036018,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"stand-light\",\n    \"limits\": {\n      \"startEndIoUMin\": 0.58,\n      \"contactIoUMin\": 0.32,\n      \"contactIoUMax\": 0.94,\n      \"centroidXRangeMin\": 4.0,\n      \"centroidXRangeMax\": 45.0,\n      \"centroidYRangeMax\": 28.0,\n      \"reachRangeMin\": 24.0,\n      \"reachRangeMax\": 105.0,\n      \"footCenterRangeMax\": 38.0,\n      \"footWidthCvMax\": 0.32,\n      \"areaCvMax\": 0.16,\n      \"residualAverageMin\": 0.01,\n      \"residualAverageMax\": 0.15,\n      \"residualMaxMin\": 0.022,\n      \"residualMaxMax\": 0.2,\n      \"contactFrameIndex\": 3\n    },\n    \"startEndIoU\": 1.0,\n    \"contactIoU\": 0.635305,\n    \"centroidXRange\": 12.246576,\n    \"centroidYRange\": 4.651204,\n    \"reachRange\": 24.0,\n    \"footCenterRange\": 21.858163,\n    \"footWidthCv\": 0.002194,\n    \"areaCv\": 0.012206,\n    \"residualAverage\": 0.02225,\n    \"residualMax\": 0.036018,\n    \"checks\": {\n      \"recoveryTowardNeutral\": true,\n      \"contactPoseDistinct\": true,\n      \"bodyDrivePresent\": true,\n      \"verticalRootStable\": true,\n      \"attackReachPresent\": true,\n      \"feetStayPlanted\": true,\n      \"stanceWidthStable\": true,\n      \"bodyVolumeStable\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "preview-pass"
+    },
+    {
+      "sequence": "stand-heavy",
+      "source": "art-source/ken/inbox/stand-heavy",
+      "sidecar": null,
+      "expectedFrames": 10,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "stand-heavy",
+        "preview": "/mnt/data/ssc_work/RC39_KEN_STAND_HEAVY_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/ssc_work/art-source/ken/authored-candidates/stand-heavy.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.027521,
+          "affineResidualMax": 0.045618,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "stand-heavy",
+          "limits": {
+            "startEndIoUMin": 0.5,
+            "contactIoUMin": 0.22,
+            "contactIoUMax": 0.75,
+            "centroidXRangeMin": 7.0,
+            "centroidXRangeMax": 62.0,
+            "centroidYRangeMin": 0.75,
+            "centroidYRangeMax": 42.0,
+            "reachRangeMin": 38.0,
+            "reachRangeMax": 145.0,
+            "footCenterRangeMax": 58.0,
+            "footWidthCvMax": 0.55,
+            "areaCvMax": 0.2,
+            "residualAverageMin": 0.014,
+            "residualAverageMax": 0.18,
+            "residualMaxMin": 0.03,
+            "residualMaxMax": 0.24,
+            "contactFrameIndex": 5
+          },
+          "startEndIoU": 1.0,
+          "contactIoU": 0.481474,
+          "centroidXRange": 19.739786,
+          "centroidYRange": 2.020875,
+          "reachRange": 39.0,
+          "footCenterRange": 37.833698,
+          "footWidthCv": 0.0,
+          "areaCv": 0.014545,
+          "residualAverage": 0.027521,
+          "residualMax": 0.045618,
+          "checks": {
+            "recoveryTowardNeutral": true,
+            "contactPoseDistinct": true,
+            "bodyDrivePresent": true,
+            "verticalRootStable": true,
+            "attackReachPresent": true,
+            "feetStayPlanted": true,
+            "stanceWidthStable": true,
+            "bodyVolumeStable": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true,
+            "bodyTorquePresent": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"stand-heavy\",\n  \"preview\": \"/mnt/data/ssc_work/RC39_KEN_STAND_HEAVY_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/ssc_work/art-source/ken/authored-candidates/stand-heavy.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.027521,\n    \"affineResidualMax\": 0.045618,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"stand-heavy\",\n    \"limits\": {\n      \"startEndIoUMin\": 0.5,\n      \"contactIoUMin\": 0.22,\n      \"contactIoUMax\": 0.75,\n      \"centroidXRangeMin\": 7.0,\n      \"centroidXRangeMax\": 62.0,\n      \"centroidYRangeMin\": 0.75,\n      \"centroidYRangeMax\": 42.0,\n      \"reachRangeMin\": 38.0,\n      \"reachRangeMax\": 145.0,\n      \"footCenterRangeMax\": 58.0,\n      \"footWidthCvMax\": 0.55,\n      \"areaCvMax\": 0.2,\n      \"residualAverageMin\": 0.014,\n      \"residualAverageMax\": 0.18,\n      \"residualMaxMin\": 0.03,\n      \"residualMaxMax\": 0.24,\n      \"contactFrameIndex\": 5\n    },\n    \"startEndIoU\": 1.0,\n    \"contactIoU\": 0.481474,\n    \"centroidXRange\": 19.739786,\n    \"centroidYRange\": 2.020875,\n    \"reachRange\": 39.0,\n    \"footCenterRange\": 37.833698,\n    \"footWidthCv\": 0.0,\n    \"areaCv\": 0.014545,\n    \"residualAverage\": 0.027521,\n    \"residualMax\": 0.045618,\n    \"checks\": {\n      \"recoveryTowardNeutral\": true,\n      \"contactPoseDistinct\": true,\n      \"bodyDrivePresent\": true,\n      \"verticalRootStable\": true,\n      \"attackReachPresent\": true,\n      \"feetStayPlanted\": true,\n      \"stanceWidthStable\": true,\n      \"bodyVolumeStable\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true,\n      \"bodyTorquePresent\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "preview-pass"
+    }
+  ],
+  "installed": [],
+  "rejected": [],
+  "pending": [],
+  "verification": null,
+  "rolledBack": false
+}

@@ -1,0 +1,153 @@
+{
+  "pipeline": "exact-pose-hq-reference-v2",
+  "masterSize": [
+    1024,
+    1280
+  ],
+  "records": [
+    {
+      "character": "RYU",
+      "authoritativeSource": "public/art/combat-sprites/ryu.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "sourceMetrics": {
+        "bbox": [
+          34,
+          32,
+          158,
+          220
+        ],
+        "centerX": 96.0,
+        "centerY": 126.0,
+        "groundY": 220,
+        "width": 124,
+        "height": 188,
+        "coverage": 0.40141369047619047
+      },
+      "masterGuide": "art-source/hq-character-masters/guides/ryu_exactpose_reference.png",
+      "reviewGuide": "art-source/hq-character-masters/guides/ryu_exactpose_review.png",
+      "runtimeContract": {
+        "size": [
+          384,
+          448
+        ],
+        "groundTolerancePx": 2,
+        "centerTolerancePx": 4,
+        "heightToleranceRatio": 0.05,
+        "widthToleranceRatio": 0.12,
+        "minimumMaskIoU": 0.62,
+        "maximumMeanEdgeDistancePxAt192x224": 5.0
+      }
+    },
+    {
+      "character": "CHUNLI",
+      "authoritativeSource": "public/art/combat-sprites/chunli.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "sourceMetrics": {
+        "bbox": [
+          36,
+          32,
+          156,
+          220
+        ],
+        "centerX": 96.0,
+        "centerY": 126.0,
+        "groundY": 220,
+        "width": 120,
+        "height": 188,
+        "coverage": 0.41443452380952384
+      },
+      "masterGuide": "art-source/hq-character-masters/guides/chunli_exactpose_reference.png",
+      "reviewGuide": "art-source/hq-character-masters/guides/chunli_exactpose_review.png",
+      "runtimeContract": {
+        "size": [
+          384,
+          448
+        ],
+        "groundTolerancePx": 2,
+        "centerTolerancePx": 4,
+        "heightToleranceRatio": 0.05,
+        "widthToleranceRatio": 0.12,
+        "minimumMaskIoU": 0.62,
+        "maximumMeanEdgeDistancePxAt192x224": 5.0
+      }
+    },
+    {
+      "character": "KEN",
+      "authoritativeSource": "public/art/combat-sprites/ken.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "sourceMetrics": {
+        "bbox": [
+          34,
+          44,
+          158,
+          220
+        ],
+        "centerX": 96.0,
+        "centerY": 132.0,
+        "groundY": 220,
+        "width": 124,
+        "height": 176,
+        "coverage": 0.37351190476190477
+      },
+      "masterGuide": "art-source/hq-character-masters/guides/ken_exactpose_reference.png",
+      "reviewGuide": "art-source/hq-character-masters/guides/ken_exactpose_review.png",
+      "runtimeContract": {
+        "size": [
+          384,
+          448
+        ],
+        "groundTolerancePx": 2,
+        "centerTolerancePx": 4,
+        "heightToleranceRatio": 0.05,
+        "widthToleranceRatio": 0.12,
+        "minimumMaskIoU": 0.62,
+        "maximumMeanEdgeDistancePxAt192x224": 5.0
+      }
+    },
+    {
+      "character": "IBUKI",
+      "authoritativeSource": "public/art/combat-sprites/ibuki.webp",
+      "sourceSize": [
+        192,
+        224
+      ],
+      "sourceMetrics": {
+        "bbox": [
+          26,
+          40,
+          166,
+          220
+        ],
+        "centerX": 96.0,
+        "centerY": 130.0,
+        "groundY": 220,
+        "width": 140,
+        "height": 180,
+        "coverage": 0.33407738095238093
+      },
+      "masterGuide": "art-source/hq-character-masters/guides/ibuki_exactpose_reference.png",
+      "reviewGuide": "art-source/hq-character-masters/guides/ibuki_exactpose_review.png",
+      "runtimeContract": {
+        "size": [
+          384,
+          448
+        ],
+        "groundTolerancePx": 2,
+        "centerTolerancePx": 4,
+        "heightToleranceRatio": 0.05,
+        "widthToleranceRatio": 0.12,
+        "minimumMaskIoU": 0.62,
+        "maximumMeanEdgeDistancePxAt192x224": 5.0
+      }
+    }
+  ]
+}

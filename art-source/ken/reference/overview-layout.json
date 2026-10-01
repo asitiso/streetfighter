@@ -1,0 +1,28 @@
+{
+  "source": "ken-motion-overview-rc39.png",
+  "purpose": "visual reference only; never promote directly unless source-resolution gate passes",
+  "sourceSize": [1536, 1024],
+  "sequences": {
+    "idle-reference": {
+      "crop": [8, 116, 300, 94],
+      "grid": [8, 1],
+      "frames": 8,
+      "runtimeTarget": "idle",
+      "runtimeTargetFrames": 6
+    },
+    "stand-light-reference": {
+      "crop": [8, 445, 264, 69],
+      "grid": [6, 1],
+      "frames": 6,
+      "runtimeTarget": "stand-light",
+      "runtimeTargetFrames": 7
+    },
+    "shoryuken-reference": {
+      "crop": [8, 718, 354, 105],
+      "grid": [8, 1],
+      "frames": 8,
+      "runtimeTarget": "shoryuken",
+      "runtimeTargetFrames": 12
+    }
+  }
+}

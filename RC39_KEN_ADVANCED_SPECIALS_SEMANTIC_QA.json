@@ -1,0 +1,334 @@
+{
+  "character": "KEN",
+  "sequences": [
+    "tatsumaki",
+    "super-rush"
+  ],
+  "cases": [
+    {
+      "name": "tatsumaki-current-staging-rejected",
+      "expected": false,
+      "actual": false,
+      "poseQa": {
+        "affineResidualAverage": 0.001773,
+        "affineResidualMax": 0.002313,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      },
+      "semanticQa": {
+        "kind": "tatsumaki",
+        "limits": {
+          "startEndIoUMin": 0.36,
+          "startEndIoUMax": 0.92,
+          "quarterIoUMin": 0.18,
+          "quarterIoUMax": 0.78,
+          "oppositeIoUMin": 0.16,
+          "oppositeIoUMax": 0.74,
+          "centroidXRangeMin": 8.0,
+          "centroidXRangeMax": 100.0,
+          "centroidYRangeMin": 5.0,
+          "centroidYRangeMax": 95.0,
+          "extentWidthRangeMin": 38.0,
+          "extentWidthRangeMax": 190.0,
+          "areaCvMax": 0.24,
+          "residualAverageMin": 0.022,
+          "residualAverageMax": 0.22,
+          "residualMaxMin": 0.045,
+          "residualMaxMax": 0.3,
+          "quarterFrameIndex": 3,
+          "oppositeFrameIndex": 6
+        },
+        "startEndIoU": 1.0,
+        "quarterIoU": 0.770649,
+        "oppositeIoU": 0.749511,
+        "centroidXRange": 32.398507,
+        "centroidYRange": 16.247268,
+        "extentWidthRange": 13.0,
+        "areaCv": 0.012645,
+        "residualAverage": 0.001773,
+        "residualMax": 0.002313,
+        "checks": {
+          "recoveryTowardNeutral": false,
+          "quarterTurnDistinct": true,
+          "oppositeTurnDistinct": false,
+          "spinTravelsHorizontally": true,
+          "spinChangesLevel": true,
+          "kickExtensionChanges": false,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": false,
+          "authoredMotionPeak": false
+        },
+        "semanticQaPass": false
+      }
+    },
+    {
+      "name": "super-rush-current-staging-rejected",
+      "expected": false,
+      "actual": false,
+      "poseQa": {
+        "affineResidualAverage": 0.001669,
+        "affineResidualMax": 0.002114,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": false
+      },
+      "semanticQa": {
+        "kind": "super-rush",
+        "limits": {
+          "startEndIoUMin": 0.4,
+          "contactIoUMin": 0.16,
+          "contactIoUMax": 0.84,
+          "contactDiversityIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 110.0,
+          "centroidYRangeMin": 2.0,
+          "centroidYRangeMax": 80.0,
+          "reachRangeMin": 42.0,
+          "reachRangeMax": 190.0,
+          "footCenterRangeMax": 105.0,
+          "areaCvMax": 0.26,
+          "residualAverageMin": 0.024,
+          "residualAverageMax": 0.24,
+          "residualMaxMin": 0.05,
+          "residualMaxMax": 0.32,
+          "contactFrameIndices": [
+            3,
+            5,
+            7,
+            9,
+            11
+          ]
+        },
+        "startEndIoU": 1.0,
+        "contactIoUMinObserved": 0.529813,
+        "contactIoUMaxObserved": 0.717203,
+        "contactDiversityIoUMin": 0.684353,
+        "centroidXRange": 31.491258,
+        "centroidYRange": 7.669507,
+        "reachRange": 29.0,
+        "footCenterRange": 108.392389,
+        "areaCv": 0.02147,
+        "residualAverage": 0.001669,
+        "residualMax": 0.002114,
+        "contactIoUs": [
+          0.555738,
+          0.69307,
+          0.529813,
+          0.559993,
+          0.717203
+        ],
+        "contactPairIoUs": [
+          0.684353,
+          0.697126,
+          0.916293,
+          0.754181
+        ],
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "allContactsDistinctFromBase": true,
+          "contactChainHasVariety": true,
+          "forwardRushPresent": true,
+          "bodyLevelsChange": true,
+          "multiHitReachPresent": false,
+          "groundTravelControlled": false,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": false,
+          "authoredMotionPeak": false
+        },
+        "semanticQaPass": false
+      }
+    },
+    {
+      "name": "tatsumaki-authored-fixture",
+      "expected": true,
+      "actual": true,
+      "semanticQa": {
+        "kind": "tatsumaki",
+        "limits": {
+          "startEndIoUMin": 0.36,
+          "startEndIoUMax": 0.92,
+          "quarterIoUMin": 0.18,
+          "quarterIoUMax": 0.78,
+          "oppositeIoUMin": 0.16,
+          "oppositeIoUMax": 0.74,
+          "centroidXRangeMin": 8.0,
+          "centroidXRangeMax": 100.0,
+          "centroidYRangeMin": 5.0,
+          "centroidYRangeMax": 95.0,
+          "extentWidthRangeMin": 38.0,
+          "extentWidthRangeMax": 190.0,
+          "areaCvMax": 0.24,
+          "residualAverageMin": 0.022,
+          "residualAverageMax": 0.22,
+          "residualMaxMin": 0.045,
+          "residualMaxMax": 0.3,
+          "quarterFrameIndex": 3,
+          "oppositeFrameIndex": 6
+        },
+        "startEndIoU": 0.868533,
+        "quarterIoU": 0.535037,
+        "oppositeIoU": 0.306028,
+        "centroidXRange": 20.525922,
+        "centroidYRange": 23.169611,
+        "extentWidthRange": 96.0,
+        "areaCv": 0.053597,
+        "residualAverage": 0.072,
+        "residualMax": 0.145,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "quarterTurnDistinct": true,
+          "oppositeTurnDistinct": true,
+          "spinTravelsHorizontally": true,
+          "spinChangesLevel": true,
+          "kickExtensionChanges": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "name": "super-rush-authored-fixture",
+      "expected": true,
+      "actual": true,
+      "semanticQa": {
+        "kind": "super-rush",
+        "limits": {
+          "startEndIoUMin": 0.4,
+          "contactIoUMin": 0.16,
+          "contactIoUMax": 0.84,
+          "contactDiversityIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 110.0,
+          "centroidYRangeMin": 2.0,
+          "centroidYRangeMax": 80.0,
+          "reachRangeMin": 42.0,
+          "reachRangeMax": 190.0,
+          "footCenterRangeMax": 105.0,
+          "areaCvMax": 0.26,
+          "residualAverageMin": 0.024,
+          "residualAverageMax": 0.24,
+          "residualMaxMin": 0.05,
+          "residualMaxMax": 0.32,
+          "contactFrameIndices": [
+            3,
+            5,
+            7,
+            9,
+            11
+          ]
+        },
+        "startEndIoU": 0.869488,
+        "contactIoUMinObserved": 0.179593,
+        "contactIoUMaxObserved": 0.593369,
+        "contactDiversityIoUMin": 0.534613,
+        "centroidXRange": 61.392049,
+        "centroidYRange": 16.347137,
+        "reachRange": 125.0,
+        "footCenterRange": 48.0,
+        "areaCv": 0.055974,
+        "residualAverage": 0.083,
+        "residualMax": 0.164,
+        "contactIoUs": [
+          0.593369,
+          0.382237,
+          0.271152,
+          0.241042,
+          0.179593
+        ],
+        "contactPairIoUs": [
+          0.584615,
+          0.534613,
+          0.562182,
+          0.543585
+        ],
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "allContactsDistinctFromBase": true,
+          "contactChainHasVariety": true,
+          "forwardRushPresent": true,
+          "bodyLevelsChange": true,
+          "multiHitReachPresent": true,
+          "groundTravelControlled": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "name": "super-rush-rigid-translation-rejected",
+      "expected": false,
+      "actual": false,
+      "semanticQa": {
+        "kind": "super-rush",
+        "limits": {
+          "startEndIoUMin": 0.4,
+          "contactIoUMin": 0.16,
+          "contactIoUMax": 0.84,
+          "contactDiversityIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 110.0,
+          "centroidYRangeMin": 2.0,
+          "centroidYRangeMax": 80.0,
+          "reachRangeMin": 42.0,
+          "reachRangeMax": 190.0,
+          "footCenterRangeMax": 105.0,
+          "areaCvMax": 0.26,
+          "residualAverageMin": 0.024,
+          "residualAverageMax": 0.24,
+          "residualMaxMin": 0.05,
+          "residualMaxMax": 0.32,
+          "contactFrameIndices": [
+            3,
+            5,
+            7,
+            9,
+            11
+          ]
+        },
+        "startEndIoU": 1.0,
+        "contactIoUMinObserved": 0.184974,
+        "contactIoUMaxObserved": 0.522214,
+        "contactDiversityIoUMin": 0.522214,
+        "centroidXRange": 50.0,
+        "centroidYRange": 0.0,
+        "reachRange": 50.0,
+        "footCenterRange": 50.0,
+        "areaCv": 0.0,
+        "residualAverage": 0.001,
+        "residualMax": 0.002,
+        "contactIoUs": [
+          0.522214,
+          0.318427,
+          0.258039,
+          0.184974,
+          0.276368
+        ],
+        "contactPairIoUs": [
+          0.522214,
+          0.574867,
+          0.631293,
+          0.522214
+        ],
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "allContactsDistinctFromBase": true,
+          "contactChainHasVariety": true,
+          "forwardRushPresent": true,
+          "bodyLevelsChange": false,
+          "multiHitReachPresent": true,
+          "groundTravelControlled": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": false,
+          "authoredMotionPeak": false
+        },
+        "semanticQaPass": false
+      }
+    }
+  ],
+  "verdict": "KEN_ADVANCED_SPECIALS_SEMANTIC_QA_PASS"
+}

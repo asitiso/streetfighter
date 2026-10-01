@@ -1,0 +1,11 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "deviceHistory": "cross-RC archive supported",
+  "rcComparison": "NO CERTIFICATION REGRESSION",
+  "regressionDetection": "verified",
+  "reproPackage": "verified",
+  "finalApproval": "ready-for-approval",
+  "uncertifiedApproval": "requires-device-cert",
+  "regressionApproval": "blocked"
+}

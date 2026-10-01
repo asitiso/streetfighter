@@ -1,0 +1,163 @@
+{
+  "character": "KEN",
+  "sequence": "landing",
+  "source": "/mnt/data/ssc_work/art-source/ken/inbox/landing",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        115,
+        101,
+        290,
+        404
+      ],
+      "sourceBodyHeight": 303,
+      "paste": [
+        100,
+        104
+      ],
+      "scaledSize": [
+        184,
+        319
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        74,
+        114,
+        310,
+        429
+      ],
+      "sourceBodyHeight": 315,
+      "paste": [
+        68,
+        91
+      ],
+      "scaledSize": [
+        249,
+        332
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        70,
+        132,
+        314,
+        431
+      ],
+      "sourceBodyHeight": 299,
+      "paste": [
+        64,
+        108
+      ],
+      "scaledSize": [
+        257,
+        315
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        73,
+        104,
+        311,
+        427
+      ],
+      "sourceBodyHeight": 323,
+      "paste": [
+        66,
+        83
+      ],
+      "scaledSize": [
+        251,
+        340
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        84,
+        102,
+        295,
+        427
+      ],
+      "sourceBodyHeight": 325,
+      "paste": [
+        81,
+        81
+      ],
+      "scaledSize": [
+        222,
+        342
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        78,
+        98,
+        306,
+        425
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        72,
+        79
+      ],
+      "scaledSize": [
+        240,
+        344
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.041413,
+    "affineResidualMax": 0.051009,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "landing",
+    "limits": {
+      "startEndIoUMin": 0.3,
+      "startEndIoUMax": 0.85,
+      "squashIoUMin": 0.2,
+      "squashIoUMax": 0.7,
+      "centroidXRangeMax": 55.0,
+      "centroidYRangeMin": 45.0,
+      "centroidYRangeMax": 135.0,
+      "centroidStepMax": 78.0,
+      "areaCvMax": 0.16,
+      "footWidthCvMin": 0.15,
+      "footWidthCvMax": 0.95,
+      "residualAverageMin": 0.03,
+      "residualAverageMax": 0.18,
+      "residualMaxMin": 0.05,
+      "residualMaxMax": 0.22
+    },
+    "startEndIoU": 0.539792,
+    "squashIoU": 0.394523,
+    "centroidXRange": 17.049541,
+    "centroidYRange": 54.68314,
+    "centroidStepMax": 41.799218,
+    "areaCv": 0.115707,
+    "footWidthCv": 0.152164,
+    "residualAverage": 0.041413,
+    "residualMax": 0.051009,
+    "checks": {
+      "neutralBridgeNotDuplicate": true,
+      "squashPoseDistinct": true,
+      "horizontalRootStable": true,
+      "compressionPresent": true,
+      "noFrameJump": true,
+      "bodyVolumeStable": true,
+      "stanceAbsorbsImpact": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}

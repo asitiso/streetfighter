@@ -1,0 +1,154 @@
+{
+  "character": "KEN",
+  "mode": "transactional-batch",
+  "records": [
+    {
+      "sequence": "walk",
+      "source": "art-source/ken/inbox/walk",
+      "sidecar": null,
+      "expectedFrames": 12,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "walk",
+        "preview": "/mnt/data/rc39_v077_work/RC39_KEN_WALK_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/rc39_v077_work/art-source/ken/authored-candidates/walk.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.055605,
+          "affineResidualMax": 0.086796,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "walk",
+          "limits": {
+            "loopIoUMin": 0.45,
+            "oppositeContactIoUMin": 0.35,
+            "oppositeContactIoUMax": 0.9,
+            "centroidXRangeMin": 8.0,
+            "centroidXRangeMax": 95.0,
+            "centroidYRangeMin": 3.0,
+            "centroidYRangeMax": 60.0,
+            "centroidStepMax": 52.0,
+            "areaCvMax": 0.16,
+            "footCenterRangeMin": 28.0,
+            "footCenterRangeMax": 145.0,
+            "footWidthCvMin": 0.06,
+            "footWidthCvMax": 0.95,
+            "residualAverageMin": 0.008,
+            "residualAverageMax": 0.13,
+            "residualMaxMin": 0.018,
+            "residualMaxMax": 0.18
+          },
+          "loopIoU": 1.0,
+          "oppositeContactIoU": 0.79858,
+          "centroidXRange": 34.297193,
+          "centroidYRange": 20.81732,
+          "centroidStepMax": 20.061824,
+          "areaCv": 0.093523,
+          "footCenterRange": 139.958634,
+          "footWidthCv": 0.859947,
+          "residualAverage": 0.055605,
+          "residualMax": 0.086796,
+          "checks": {
+            "loopClosure": true,
+            "oppositeContactDifferent": true,
+            "rootTravelPresent": true,
+            "verticalCadencePresent": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "footTravelPresent": true,
+            "stanceChanges": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"walk\",\n  \"preview\": \"/mnt/data/rc39_v077_work/RC39_KEN_WALK_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/rc39_v077_work/art-source/ken/authored-candidates/walk.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.055605,\n    \"affineResidualMax\": 0.086796,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"walk\",\n    \"limits\": {\n      \"loopIoUMin\": 0.45,\n      \"oppositeContactIoUMin\": 0.35,\n      \"oppositeContactIoUMax\": 0.9,\n      \"centroidXRangeMin\": 8.0,\n      \"centroidXRangeMax\": 95.0,\n      \"centroidYRangeMin\": 3.0,\n      \"centroidYRangeMax\": 60.0,\n      \"centroidStepMax\": 52.0,\n      \"areaCvMax\": 0.16,\n      \"footCenterRangeMin\": 28.0,\n      \"footCenterRangeMax\": 145.0,\n      \"footWidthCvMin\": 0.06,\n      \"footWidthCvMax\": 0.95,\n      \"residualAverageMin\": 0.008,\n      \"residualAverageMax\": 0.13,\n      \"residualMaxMin\": 0.018,\n      \"residualMaxMax\": 0.18\n    },\n    \"loopIoU\": 1.0,\n    \"oppositeContactIoU\": 0.79858,\n    \"centroidXRange\": 34.297193,\n    \"centroidYRange\": 20.81732,\n    \"centroidStepMax\": 20.061824,\n    \"areaCv\": 0.093523,\n    \"footCenterRange\": 139.958634,\n    \"footWidthCv\": 0.859947,\n    \"residualAverage\": 0.055605,\n    \"residualMax\": 0.086796,\n    \"checks\": {\n      \"loopClosure\": true,\n      \"oppositeContactDifferent\": true,\n      \"rootTravelPresent\": true,\n      \"verticalCadencePresent\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"footTravelPresent\": true,\n      \"stanceChanges\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "installed",
+      "installReturnCode": 0,
+      "installOutputTail": "{\n  \"installed\": true,\n  \"rolledBack\": false,\n  \"character\": \"KEN\",\n  \"sequence\": \"walk\",\n  \"runtime\": \"/mnt/data/rc39_v077_work/public/art/animation-hq/ken/walk.webp\",\n  \"preview\": \"/mnt/data/rc39_v077_work/RC39_KEN_WALK_AUTHORED_PREVIEW.png\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.055605,\n    \"affineResidualMax\": 0.086796,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"walk\",\n    \"limits\": {\n      \"loopIoUMin\": 0.45,\n      \"oppositeContactIoUMin\": 0.35,\n      \"oppositeContactIoUMax\": 0.9,\n      \"centroidXRangeMin\": 8.0,\n      \"centroidXRangeMax\": 95.0,\n      \"centroidYRangeMin\": 3.0,\n      \"centroidYRangeMax\": 60.0,\n      \"centroidStepMax\": 52.0,\n      \"areaCvMax\": 0.16,\n      \"footCenterRangeMin\": 28.0,\n      \"footCenterRangeMax\": 145.0,\n      \"footWidthCvMin\": 0.06,\n      \"footWidthCvMax\": 0.95,\n      \"residualAverageMin\": 0.008,\n      \"residualAverageMax\": 0.13,\n      \"residualMaxMin\": 0.018,\n      \"residualMaxMax\": 0.18\n    },\n    \"loopIoU\": 1.0,\n    \"oppositeContactIoU\": 0.79858,\n    \"centroidXRange\": 34.297193,\n    \"centroidYRange\": 20.81732,\n    \"centroidStepMax\": 20.061824,\n    \"areaCv\": 0.093523,\n    \"footCenterRange\": 139.958634,\n    \"footWidthCv\": 0.859947,\n    \"residualAverage\": 0.055605,\n    \"residualMax\": 0.086796,\n    \"checks\": {\n      \"loopClosure\": true,\n      \"oppositeContactDifferent\": true,\n      \"rootTravelPresent\": true,\n      \"verticalCadencePresent\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"footTravelPresent\": true,\n      \"stanceChanges\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true\n    },\n    \"semanticQaPass\": true\n  },\n  \"verified\": false\n}\n",
+      "install": {
+        "installed": true,
+        "rolledBack": false,
+        "character": "KEN",
+        "sequence": "walk",
+        "runtime": "/mnt/data/rc39_v077_work/public/art/animation-hq/ken/walk.webp",
+        "preview": "/mnt/data/rc39_v077_work/RC39_KEN_WALK_AUTHORED_PREVIEW.png",
+        "poseQa": {
+          "affineResidualAverage": 0.055605,
+          "affineResidualMax": 0.086796,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "walk",
+          "limits": {
+            "loopIoUMin": 0.45,
+            "oppositeContactIoUMin": 0.35,
+            "oppositeContactIoUMax": 0.9,
+            "centroidXRangeMin": 8.0,
+            "centroidXRangeMax": 95.0,
+            "centroidYRangeMin": 3.0,
+            "centroidYRangeMax": 60.0,
+            "centroidStepMax": 52.0,
+            "areaCvMax": 0.16,
+            "footCenterRangeMin": 28.0,
+            "footCenterRangeMax": 145.0,
+            "footWidthCvMin": 0.06,
+            "footWidthCvMax": 0.95,
+            "residualAverageMin": 0.008,
+            "residualAverageMax": 0.13,
+            "residualMaxMin": 0.018,
+            "residualMaxMax": 0.18
+          },
+          "loopIoU": 1.0,
+          "oppositeContactIoU": 0.79858,
+          "centroidXRange": 34.297193,
+          "centroidYRange": 20.81732,
+          "centroidStepMax": 20.061824,
+          "areaCv": 0.093523,
+          "footCenterRange": 139.958634,
+          "footWidthCv": 0.859947,
+          "residualAverage": 0.055605,
+          "residualMax": 0.086796,
+          "checks": {
+            "loopClosure": true,
+            "oppositeContactDifferent": true,
+            "rootTravelPresent": true,
+            "verticalCadencePresent": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "footTravelPresent": true,
+            "stanceChanges": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true
+          },
+          "semanticQaPass": true
+        },
+        "verified": false
+      }
+    }
+  ],
+  "installed": [
+    "walk"
+  ],
+  "rejected": [],
+  "pending": [],
+  "verification": {
+    "command": "npm run verify:ken-pipeline",
+    "returnCode": 0,
+    "tail": "\n> side-scroll-chronicles@0.0.63-rc.38 verify:ken-pipeline\n> python3 -u scripts/verify-ken-pipeline-fast.py\n\nKEN_PIPELINE_STEP_PASS authoring 1.35s :: KEN_AUTHORING_PACKET_PASS {'packets': ['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'guard', 'parry', 'stand-light', 'stand-heavy', 'hadoken', 'shoryuken', 'tatsumaki', 'super-rush']}\nKEN_PIPELINE_STEP_PASS ingest 3.04s :: KEN_INGEST_ORCHESTRATOR_PASS {'dryRunRuntimeUnchanged': True, 'transactionRollbackPresent': True, 'singleFinalVerify': True, 'historyReceipt': 'art-source/ken/ingest-history/0022-43c82bb0ac92.json'}\nKEN_PIPELINE_STEP_PASS source-gates 3.01s :: KEN_SOURCE_GATES_PASS {'lowResRejected': True, 'affinePilotRejected': True, 'runtimeUnchanged': True}\nKEN_PIPELINE_STEP_PASS idle 0.33s :: KEN_IDLE_SEMANTIC_QA_PASS {\"poseThresholds\": [0.003, 0.006], \"loopIoUMin\": 0.72, \"cases\": [\"gentle-authored-loop\", \"transform-like-static\", \"excessive-root-motion\", \"broken-loop-closure\", \"foot-slide\"]}\nKEN_PIPELINE_STEP_PASS walk 0.20s :: KEN_WALK_SEMANTIC_QA_PASS {\"runtimeMode\": \"authored-active\", \"kenOppositeContactIoU\": 0.79858, \"kenFootCenterRange\": 139.958634, \"kenResidualAverage\": 0.055605, \"ryuOppositeContactIoU\": 0.731888}\nKEN_PIPELINE_STEP_PASS locomotion 0.20s :: KEN_LOCOMOTION_SEMANTIC_QA_PASS {\"dash\": {\"ken\": false, \"ryu\": true}, \"jump\": {\"ken\": false, \"ryu\": true}, \"landing\": {\"ken\": false, \"ryu\": true}}\nKEN_PIPELINE_STEP_PASS walkback-hit 0.14s :: KEN_WALKBACK_HIT_SEMANTIC_QA_PASS {\"walk-back\": {\"pilot\": false, \"authoredFixture\": true}, \"hit\": {\"pilot\": false, \"authoredFixture\": true}}\nKEN_PIPELINE_STEP_PASS defense 0.08s :: KEN_DEFENSE_SEMANTIC_QA_PASS {\"guard\": {\"pilot\": false, \"authoredFixture\": true}, \"parry\": {\"pilot\": false, \"authoredFixture\": true}}\nKEN_PIPELINE_STEP_PASS standing-attacks 0.15s :: KEN_STANDING_ATTACKS_SEMANTIC_QA_PASS {'cases': 5}\nKEN_PIPELINE_STEP_PASS special-attacks 0.24s :: KEN_SPECIAL_ATTACKS_SEMANTIC_QA_PASS {'cases': 5}\nKEN_PIPELINE_STEP_PASS advanced-specials 0.26s :: KEN_ADVANCED_SPECIALS_SEMANTIC_QA_PASS {'cases': 5}\nKEN_PIPELINE_STEP_PASS source-audit 0.17s :: }\nKEN_PIPELINE_STEP_PASS pose-variance 0.41s :: }\nKEN_PIPELINE_STEP_PASS runtime-audit 0.55s :: KEN_RUNTIME_SEMANTIC_AUDIT {\"character\": \"KEN\", \"pipeline\": \"rc39-runtime-semantic-audit-v9-pose-report-reuse\", \"poseReportReused\": true, \"records\": [{\"sequence\": \"idle\", \"enabled\": true, \"poseAuthored\": true, \"poseQa\": {\"affineResidualAverage\": 0.010095, \"affineResidualMax\": 0.013061, \"fullPoseAverageThreshold\": 0.003, \"fullPoseMaxThreshold\": 0.006, \"pos...\nKEN_PIPELINE_STEP_PASS handoff 0.43s :: KEN_HANDOFF_QA_PASS {\"gateMode\": \"authored-pair+locomotion+reaction+defense+standing-attacks+special-attacks\", \"fallbackBridgePass\": true, \"pairAuthoredActive\": true, \"pairPass\": true, \"defenseHandoffPass\": true, \"standingAttackHandoffPass\": true, \"specialAttackHandoffPass\": true, \"tatsumakiHandoffPass\": true, \"superRushHandoffPass\": true}\nKEN_PIPELINE_STEP_PASS locomotion-handoff 0.53s :: KEN_LOCOMOTION_HANDOFF_QA_PASS {\"dashActive\": false, \"jumpActive\": false, \"landingActive\": false, \"reactionHandoffPass\": true, \"runtimeHandoffPass\": true}\nKEN_PIPELINE_STEP_PASS build 3.48s :: RELEASE_INTEGRITY 0.0.63-rc.38 226 FILES 7D3A5E1EA7A59EB5\nKEN_PIPELINE_STEP_PASS authored-pipeline 0.09s :: }\nKEN_PIPELINE_FAST_PASS total=14.67s steps=18\n"
+  },
+  "rolledBack": false,
+  "activeSequences": [
+    "idle",
+    "walk"
+  ],
+  "enabledFrameTotal": 18
+}

@@ -1,0 +1,133 @@
+{
+  "character": "KEN",
+  "mode": "transactional-batch",
+  "records": [
+    {
+      "sequence": "idle",
+      "source": "art-source/ken/inbox/idle",
+      "sidecar": null,
+      "expectedFrames": 6,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "idle",
+        "preview": "/mnt/data/rc39_v077_work/RC39_KEN_IDLE_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/rc39_v077_work/art-source/ken/authored-candidates/idle.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.010095,
+          "affineResidualMax": 0.013061,
+          "fullPoseAverageThreshold": 0.003,
+          "fullPoseMaxThreshold": 0.006,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "idle",
+          "limits": {
+            "loopIoUMin": 0.72,
+            "centroidXRangeMax": 12.0,
+            "centroidYRangeMax": 10.0,
+            "centroidStepMax": 8.0,
+            "areaCvMax": 0.075,
+            "footCenterRangeMax": 14.0,
+            "footWidthCvMax": 0.12,
+            "residualAverageMax": 0.05,
+            "residualMaxMax": 0.085
+          },
+          "loopIoU": 0.98541,
+          "centroidXRange": 3.493781,
+          "centroidYRange": 7.000322,
+          "centroidStepMax": 5.097937,
+          "areaCv": 0.021079,
+          "footCenterRange": 0.323331,
+          "footWidthCv": 0.001663,
+          "residualAverage": 0.010095,
+          "residualMax": 0.013061,
+          "checks": {
+            "loopClosure": true,
+            "rootXStable": true,
+            "rootYStable": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "feetPlanted": true,
+            "stanceWidthStable": true,
+            "motionRestrainedAverage": true,
+            "motionRestrainedPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"idle\",\n  \"preview\": \"/mnt/data/rc39_v077_work/RC39_KEN_IDLE_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/rc39_v077_work/art-source/ken/authored-candidates/idle.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.010095,\n    \"affineResidualMax\": 0.013061,\n    \"fullPoseAverageThreshold\": 0.003,\n    \"fullPoseMaxThreshold\": 0.006,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"idle\",\n    \"limits\": {\n      \"loopIoUMin\": 0.72,\n      \"centroidXRangeMax\": 12.0,\n      \"centroidYRangeMax\": 10.0,\n      \"centroidStepMax\": 8.0,\n      \"areaCvMax\": 0.075,\n      \"footCenterRangeMax\": 14.0,\n      \"footWidthCvMax\": 0.12,\n      \"residualAverageMax\": 0.05,\n      \"residualMaxMax\": 0.085\n    },\n    \"loopIoU\": 0.98541,\n    \"centroidXRange\": 3.493781,\n    \"centroidYRange\": 7.000322,\n    \"centroidStepMax\": 5.097937,\n    \"areaCv\": 0.021079,\n    \"footCenterRange\": 0.323331,\n    \"footWidthCv\": 0.001663,\n    \"residualAverage\": 0.010095,\n    \"residualMax\": 0.013061,\n    \"checks\": {\n      \"loopClosure\": true,\n      \"rootXStable\": true,\n      \"rootYStable\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"feetPlanted\": true,\n      \"stanceWidthStable\": true,\n      \"motionRestrainedAverage\": true,\n      \"motionRestrainedPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "installed",
+      "installReturnCode": 0,
+      "installOutputTail": "{\n  \"installed\": true,\n  \"rolledBack\": false,\n  \"character\": \"KEN\",\n  \"sequence\": \"idle\",\n  \"runtime\": \"/mnt/data/rc39_v077_work/public/art/animation-hq/ken/idle.webp\",\n  \"preview\": \"/mnt/data/rc39_v077_work/RC39_KEN_IDLE_AUTHORED_PREVIEW.png\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.010095,\n    \"affineResidualMax\": 0.013061,\n    \"fullPoseAverageThreshold\": 0.003,\n    \"fullPoseMaxThreshold\": 0.006,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"idle\",\n    \"limits\": {\n      \"loopIoUMin\": 0.72,\n      \"centroidXRangeMax\": 12.0,\n      \"centroidYRangeMax\": 10.0,\n      \"centroidStepMax\": 8.0,\n      \"areaCvMax\": 0.075,\n      \"footCenterRangeMax\": 14.0,\n      \"footWidthCvMax\": 0.12,\n      \"residualAverageMax\": 0.05,\n      \"residualMaxMax\": 0.085\n    },\n    \"loopIoU\": 0.98541,\n    \"centroidXRange\": 3.493781,\n    \"centroidYRange\": 7.000322,\n    \"centroidStepMax\": 5.097937,\n    \"areaCv\": 0.021079,\n    \"footCenterRange\": 0.323331,\n    \"footWidthCv\": 0.001663,\n    \"residualAverage\": 0.010095,\n    \"residualMax\": 0.013061,\n    \"checks\": {\n      \"loopClosure\": true,\n      \"rootXStable\": true,\n      \"rootYStable\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"feetPlanted\": true,\n      \"stanceWidthStable\": true,\n      \"motionRestrainedAverage\": true,\n      \"motionRestrainedPeak\": true\n    },\n    \"semanticQaPass\": true\n  },\n  \"verified\": false\n}\n",
+      "install": {
+        "installed": true,
+        "rolledBack": false,
+        "character": "KEN",
+        "sequence": "idle",
+        "runtime": "/mnt/data/rc39_v077_work/public/art/animation-hq/ken/idle.webp",
+        "preview": "/mnt/data/rc39_v077_work/RC39_KEN_IDLE_AUTHORED_PREVIEW.png",
+        "poseQa": {
+          "affineResidualAverage": 0.010095,
+          "affineResidualMax": 0.013061,
+          "fullPoseAverageThreshold": 0.003,
+          "fullPoseMaxThreshold": 0.006,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "idle",
+          "limits": {
+            "loopIoUMin": 0.72,
+            "centroidXRangeMax": 12.0,
+            "centroidYRangeMax": 10.0,
+            "centroidStepMax": 8.0,
+            "areaCvMax": 0.075,
+            "footCenterRangeMax": 14.0,
+            "footWidthCvMax": 0.12,
+            "residualAverageMax": 0.05,
+            "residualMaxMax": 0.085
+          },
+          "loopIoU": 0.98541,
+          "centroidXRange": 3.493781,
+          "centroidYRange": 7.000322,
+          "centroidStepMax": 5.097937,
+          "areaCv": 0.021079,
+          "footCenterRange": 0.323331,
+          "footWidthCv": 0.001663,
+          "residualAverage": 0.010095,
+          "residualMax": 0.013061,
+          "checks": {
+            "loopClosure": true,
+            "rootXStable": true,
+            "rootYStable": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "feetPlanted": true,
+            "stanceWidthStable": true,
+            "motionRestrainedAverage": true,
+            "motionRestrainedPeak": true
+          },
+          "semanticQaPass": true
+        },
+        "verified": false
+      }
+    }
+  ],
+  "installed": [
+    "idle"
+  ],
+  "rejected": [],
+  "pending": [],
+  "verification": {
+    "command": "npm run verify:ken-pipeline",
+    "returnCode": 0,
+    "tail": "\n> side-scroll-chronicles@0.0.63-rc.38 verify:ken-pipeline\n> python3 -u scripts/verify-ken-pipeline-fast.py\n\nKEN_PIPELINE_STEP_PASS authoring 1.45s :: KEN_AUTHORING_PACKET_PASS {'packets': ['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'guard', 'parry', 'stand-light', 'stand-heavy', 'hadoken', 'shoryuken', 'tatsumaki', 'super-rush']}\nKEN_PIPELINE_STEP_PASS ingest 3.06s :: KEN_INGEST_ORCHESTRATOR_PASS {'dryRunRuntimeUnchanged': True, 'transactionRollbackPresent': True, 'singleFinalVerify': True, 'historyReceipt': 'art-source/ken/ingest-history/0018-43c82bb0ac92.json'}\nKEN_PIPELINE_STEP_PASS source-gates 3.11s :: KEN_SOURCE_GATES_PASS {'lowResRejected': True, 'affinePilotRejected': True, 'runtimeUnchanged': True}\nKEN_PIPELINE_STEP_PASS idle 0.41s :: KEN_IDLE_SEMANTIC_QA_PASS {\"poseThresholds\": [0.003, 0.006], \"loopIoUMin\": 0.72, \"cases\": [\"gentle-authored-loop\", \"transform-like-static\", \"excessive-root-motion\", \"broken-loop-closure\", \"foot-slide\"]}\nKEN_PIPELINE_STEP_PASS walk 0.14s :: KEN_WALK_SEMANTIC_QA_PASS {\"kenOppositeContactIoU\": 1.0, \"ryuOppositeContactIoU\": 0.731888, \"ryuFootCenterRange\": 101.031447, \"ryuResidualAverage\": 0.076941}\nKEN_PIPELINE_STEP_PASS locomotion 0.21s :: KEN_LOCOMOTION_SEMANTIC_QA_PASS {\"dash\": {\"ken\": false, \"ryu\": true}, \"jump\": {\"ken\": false, \"ryu\": true}, \"landing\": {\"ken\": false, \"ryu\": true}}\nKEN_PIPELINE_STEP_PASS walkback-hit 0.13s :: KEN_WALKBACK_HIT_SEMANTIC_QA_PASS {\"walk-back\": {\"pilot\": false, \"authoredFixture\": true}, \"hit\": {\"pilot\": false, \"authoredFixture\": true}}\nKEN_PIPELINE_STEP_PASS defense 0.06s :: KEN_DEFENSE_SEMANTIC_QA_PASS {\"guard\": {\"pilot\": false, \"authoredFixture\": true}, \"parry\": {\"pilot\": false, \"authoredFixture\": true}}\nKEN_PIPELINE_STEP_PASS standing-attacks 0.14s :: KEN_STANDING_ATTACKS_SEMANTIC_QA_PASS {'cases': 5}\nKEN_PIPELINE_STEP_PASS special-attacks 0.28s :: KEN_SPECIAL_ATTACKS_SEMANTIC_QA_PASS {'cases': 5}\nKEN_PIPELINE_STEP_PASS advanced-specials 0.30s :: KEN_ADVANCED_SPECIALS_SEMANTIC_QA_PASS {'cases': 5}\nKEN_PIPELINE_STEP_PASS source-audit 0.18s :: }\nKEN_PIPELINE_STEP_PASS pose-variance 0.36s :: }\nKEN_PIPELINE_STEP_PASS runtime-audit 0.60s :: KEN_RUNTIME_SEMANTIC_AUDIT {\"character\": \"KEN\", \"pipeline\": \"rc39-runtime-semantic-audit-v9-pose-report-reuse\", \"poseReportReused\": true, \"records\": [{\"sequence\": \"idle\", \"enabled\": true, \"poseAuthored\": true, \"poseQa\": {\"affineResidualAverage\": 0.010095, \"affineResidualMax\": 0.013061, \"fullPoseAverageThreshold\": 0.003, \"fullPoseMaxThreshold\": 0.006, \"pos...\nKEN_PIPELINE_STEP_PASS handoff 0.37s :: KEN_HANDOFF_QA_PASS {\"gateMode\": \"idle-to-base-fallback+locomotion+reaction+defense+standing-attacks+special-attacks\", \"fallbackBridgePass\": true, \"pairAuthoredActive\": false, \"pairPass\": true, \"defenseHandoffPass\": true, \"standingAttackHandoffPass\": true, \"specialAttackHandoffPass\": true, \"tatsumakiHandoffPass\": true, \"superRushHandoffPass\": true}\nKEN_PIPELINE_STEP_PASS locomotion-handoff 0.53s :: KEN_LOCOMOTION_HANDOFF_QA_PASS {\"dashActive\": false, \"jumpActive\": false, \"landingActive\": false, \"reactionHandoffPass\": true, \"runtimeHandoffPass\": true}\nKEN_PIPELINE_STEP_PASS build 4.25s :: RELEASE_INTEGRITY 0.0.63-rc.38 226 FILES 2BF48DB84F99F504\nKEN_PIPELINE_STEP_PASS authored-pipeline 0.09s :: }\nKEN_PIPELINE_FAST_PASS total=15.69s steps=18\n"
+  },
+  "rolledBack": false,
+  "activeSequences": [
+    "idle"
+  ],
+  "enabledFrameTotal": 6
+}

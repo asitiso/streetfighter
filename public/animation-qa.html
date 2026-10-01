@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Animation QA</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b0f17;color:#ecf2ff}
+    *{box-sizing:border-box} body{margin:0;background:#0b0f17;min-height:100vh} button,select{font:inherit}
+    .app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}.side{border-right:1px solid #25314a;background:#0e1420;padding:16px;overflow:auto}.main{padding:18px;min-width:0}
+    h1{font-size:20px;margin:0 0 6px}.muted{color:#94a4c3;font-size:12px;line-height:1.4}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:14px}
+    select,button{background:#172235;color:#eef5ff;border:1px solid #344663;border-radius:8px;padding:8px 10px}button{cursor:pointer}button:hover{border-color:#6485b5}.seqs{display:grid;gap:6px;margin-top:14px}.seq{width:100%;text-align:left;padding:9px 10px}.seq.active{border-color:#8ec5ff;background:#193453}.seq small{display:block;color:#91a5c8;margin-top:3px}.badge{display:inline-flex;align-items:center;border:1px solid #3d506f;border-radius:999px;padding:3px 7px;font-size:11px;color:#b9c8df}.badge.good{border-color:#2c9863;color:#86e2b5}.badge.warn{border-color:#a5752b;color:#f0c779}.badge.off{border-color:#6d5360;color:#c5a9b5}
+    .stage{border:1px solid #283750;border-radius:12px;background:#0a0e15;overflow:hidden}.triptych{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1px;background:#24324a}.panel{min-width:0;background:#101723;padding:10px}.panel h3{font-size:12px;color:#aab8ce;margin:0 0 8px;font-weight:600}.checker{position:relative;aspect-ratio:384/448;background-color:#202633;background-image:linear-gradient(45deg,#2c3443 25%,transparent 25%),linear-gradient(-45deg,#2c3443 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2c3443 75%),linear-gradient(-45deg,transparent 75%,#2c3443 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}.checker canvas{display:block;width:100%;height:100%;image-rendering:auto}.panel.current{background:#121d2d}.panel.current .checker{outline:1px solid #4d82bb}
+    .controls{padding:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid #283750}.controls .grow{flex:1}.range{min-width:180px;flex:1}.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}.card{border:1px solid #263650;background:#101824;border-radius:10px;padding:10px}.card b{display:block;font-size:12px;color:#91a5c8;margin-bottom:5px}.card strong{font-size:14px}.timeline{display:flex;gap:4px;overflow:auto;padding:10px 0 2px}.tick{min-width:32px;text-align:center;padding:6px 4px;border-radius:6px;border:1px solid #2c3c58;color:#8fa0bc;background:#101825;font-size:11px}.tick.active{background:#23517a;border-color:#73b5e8;color:white}.error{background:#3b1720;color:#ffbccb;padding:12px;border-radius:8px;margin-top:12px;display:none}
+    @media(max-width:900px){.app{grid-template-columns:1fr}.side{border-right:0;border-bottom:1px solid #25314a;max-height:250px}.triptych{grid-template-columns:1fr}.panel:not(.current){display:none}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <h1>ANIMATION QA</h1>
+      <div class="muted">Authored-only frame inspection. Staging art is visible here but never promoted to gameplay automatically.</div>
+      <div class="row" style="margin-top:12px"><select id="character"></select><span id="summary" class="badge"></span></div>
+      <div id="seqs" class="seqs"></div>
+    </aside>
+    <main class="main">
+      <div class="top"><div><h1 id="title">—</h1><div id="subtitle" class="muted">—</div></div><div class="row"><span id="authored" class="badge"></span><span id="enabled" class="badge"></span></div></div>
+      <section class="stage">
+        <div class="triptych">
+          <div class="panel"><h3>PREVIOUS</h3><div class="checker"><canvas id="prev" width="384" height="448"></canvas></div></div>
+          <div class="panel current"><h3>CURRENT</h3><div class="checker"><canvas id="current" width="384" height="448"></canvas></div></div>
+          <div class="panel"><h3>NEXT</h3><div class="checker"><canvas id="next" width="384" height="448"></canvas></div></div>
+        </div>
+        <div class="controls">
+          <button id="first">|◀</button><button id="prevBtn">◀</button><button id="play">PLAY</button><button id="nextBtn">▶</button><button id="last">▶|</button>
+          <input id="scrub" class="range" type="range" min="0" max="0" value="0" step="1" />
+          <span id="frameLabel" class="badge">0 / 0</span>
+          <select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select>
+        </div>
+      </section>
+      <div id="timeline" class="timeline"></div>
+      <div class="info">
+        <div class="card"><b>STATUS</b><strong id="status">—</strong></div>
+        <div class="card"><b>FPS</b><strong id="fps">—</strong></div>
+        <div class="card"><b>FRAME SIZE</b><strong id="size">—</strong></div>
+        <div class="card"><b>SOURCE</b><strong id="source">—</strong></div>
+        <div class="card"><b>RENDER MODE</b><strong id="mode">—</strong></div>
+        <div class="card"><b>PIPELINE</b><strong id="pipeline">—</strong></div>
+        <div class="card"><b>SOURCE AUDIT</b><strong id="sourceAudit">—</strong></div>
+        <div class="card"><b>POSE QA</b><strong id="poseQa">—</strong></div>
+        <div class="card"><b>SEMANTIC QA</b><strong id="semanticQa">—</strong></div>
+        <div class="card"><b>HANDOFF QA</b><strong id="handoffQa">—</strong></div>
+        <div class="card"><b>GATE REASON</b><strong id="gateReason">—</strong></div>
+      </div>
+      <div id="error" class="error"></div>
+    </main>
+  </div>
+  <script type="module" src="/animation-qa.js"></script>
+</body>
+</html>

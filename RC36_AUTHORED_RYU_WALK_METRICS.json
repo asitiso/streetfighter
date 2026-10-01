@@ -1,0 +1,133 @@
+{
+  "source": "/mnt/data/\ub958_\uc2a4\ud0c0\uc77c_\uaca9\ud22c\uac00_\uac77\uae30_\uc0ac\uc774\ud074_\uc2a4\ud504\ub77c\uc774\ud2b8_\uc2dc\ud2b8.png",
+  "output": "/mnt/data/work_rc34/public/art/animation-hq/ryu/walk.webp",
+  "frames": 12,
+  "frameSize": [
+    384,
+    448
+  ],
+  "canvasBaseline": 430,
+  "canvasCenterX": 188,
+  "metrics": [
+    {
+      "frame": 1,
+      "bbox": [
+        53,
+        53,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.275922
+    },
+    {
+      "frame": 2,
+      "bbox": [
+        57,
+        56,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.218414
+    },
+    {
+      "frame": 3,
+      "bbox": [
+        74,
+        58,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.270651
+    },
+    {
+      "frame": 4,
+      "bbox": [
+        124,
+        44,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.261128
+    },
+    {
+      "frame": 5,
+      "bbox": [
+        116,
+        39,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.250128
+    },
+    {
+      "frame": 6,
+      "bbox": [
+        29,
+        39,
+        354,
+        430
+      ],
+      "alphaCoverage": 0.266964
+    },
+    {
+      "frame": 7,
+      "bbox": [
+        27,
+        45,
+        358,
+        430
+      ],
+      "alphaCoverage": 0.28983
+    },
+    {
+      "frame": 8,
+      "bbox": [
+        75,
+        45,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.266942
+    },
+    {
+      "frame": 9,
+      "bbox": [
+        54,
+        55,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.278244
+    },
+    {
+      "frame": 10,
+      "bbox": [
+        94,
+        60,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.249252
+    },
+    {
+      "frame": 11,
+      "bbox": [
+        82,
+        59,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.258549
+    },
+    {
+      "frame": 12,
+      "bbox": [
+        61,
+        55,
+        353,
+        430
+      ],
+      "alphaCoverage": 0.259351
+    }
+  ]
+}

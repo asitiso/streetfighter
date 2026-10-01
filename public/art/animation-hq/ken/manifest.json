@@ -1,0 +1,848 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "character": "KEN",
+  "pipeline": "rc39-ken-authored-gated-v4",
+  "source": "approved RC34 HQ original",
+  "sourcePath": "/art/combat-sprites-hq/ken.webp",
+  "sourceSize": [
+    384,
+    448
+  ],
+  "sourceSha256": "D3F908AA421AF3E40B8552DF0BB12FA99855BBE5C64F49287C30628CD595932B",
+  "frameTotal": 137,
+  "enabledFrameTotal": 85,
+  "fullFrameTotal": 85,
+  "bridgeFrameTotal": 0,
+  "records": [
+    {
+      "id": "idle",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2304,
+        448
+      ],
+      "bytes": 471698,
+      "sha256": "D84ECE0D55C728B7CB5251CA00DF91C95283504DCC93505A40020E3E4680CD6F",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "/mnt/data/rc39_v077_work/art-source/ken/inbox/idle",
+      "poseQa": {
+        "affineResidualAverage": 0.010095,
+        "affineResidualMax": 0.013061,
+        "fullPoseAverageThreshold": 0.003,
+        "fullPoseMaxThreshold": 0.006,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "idle",
+        "limits": {
+          "loopIoUMin": 0.72,
+          "centroidXRangeMax": 12.0,
+          "centroidYRangeMax": 10.0,
+          "centroidStepMax": 8.0,
+          "areaCvMax": 0.075,
+          "footCenterRangeMax": 14.0,
+          "footWidthCvMax": 0.12,
+          "residualAverageMax": 0.05,
+          "residualMaxMax": 0.085
+        },
+        "loopIoU": 0.98541,
+        "centroidXRange": 3.493781,
+        "centroidYRange": 7.000322,
+        "centroidStepMax": 5.097937,
+        "areaCv": 0.021079,
+        "footCenterRange": 0.323331,
+        "footWidthCv": 0.001663,
+        "residualAverage": 0.010095,
+        "residualMax": 0.013061,
+        "checks": {
+          "loopClosure": true,
+          "rootXStable": true,
+          "rootYStable": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "feetPlanted": true,
+          "stanceWidthStable": true,
+          "motionRestrainedAverage": true,
+          "motionRestrainedPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "walk",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 817852,
+      "sha256": "1DD856A80F56D918934ED8CCBA3DB313524CF509230070CA98678B37B1076D86",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "/mnt/data/rc39_v077_work/art-source/ken/inbox/walk",
+      "poseQa": {
+        "affineResidualAverage": 0.055605,
+        "affineResidualMax": 0.086796,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "walk",
+        "limits": {
+          "loopIoUMin": 0.45,
+          "oppositeContactIoUMin": 0.35,
+          "oppositeContactIoUMax": 0.9,
+          "centroidXRangeMin": 8.0,
+          "centroidXRangeMax": 95.0,
+          "centroidYRangeMin": 3.0,
+          "centroidYRangeMax": 60.0,
+          "centroidStepMax": 52.0,
+          "areaCvMax": 0.16,
+          "footCenterRangeMin": 28.0,
+          "footCenterRangeMax": 145.0,
+          "footWidthCvMin": 0.06,
+          "footWidthCvMax": 0.95,
+          "residualAverageMin": 0.008,
+          "residualAverageMax": 0.13,
+          "residualMaxMin": 0.018,
+          "residualMaxMax": 0.18
+        },
+        "loopIoU": 1.0,
+        "oppositeContactIoU": 0.79858,
+        "centroidXRange": 34.297193,
+        "centroidYRange": 20.81732,
+        "centroidStepMax": 20.061824,
+        "areaCv": 0.093523,
+        "footCenterRange": 139.958634,
+        "footWidthCv": 0.859947,
+        "residualAverage": 0.055605,
+        "residualMax": 0.086796,
+        "checks": {
+          "loopClosure": true,
+          "oppositeContactDifferent": true,
+          "rootTravelPresent": true,
+          "verticalCadencePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "footTravelPresent": true,
+          "stanceChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "walk-back",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "bytes": 657808,
+      "sha256": "BFE5B6A23D2433B4F6DB4156BE932C4682E0D62C5C11B421D79B21D1640111EF",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/walk-back",
+      "poseQa": {
+        "affineResidualAverage": 0.039826,
+        "affineResidualMax": 0.060584,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "walk-back",
+        "limits": {
+          "loopIoUMin": 0.42,
+          "oppositeContactIoUMin": 0.35,
+          "oppositeContactIoUMax": 0.9,
+          "centroidXRangeMin": 6.0,
+          "centroidXRangeMax": 90.0,
+          "centroidYRangeMin": 3.0,
+          "centroidYRangeMax": 58.0,
+          "centroidStepMax": 52.0,
+          "areaCvMax": 0.17,
+          "footCenterRangeMin": 24.0,
+          "footCenterRangeMax": 145.0,
+          "footWidthCvMin": 0.05,
+          "footWidthCvMax": 0.95,
+          "residualAverageMin": 0.008,
+          "residualAverageMax": 0.13,
+          "residualMaxMin": 0.018,
+          "residualMaxMax": 0.18
+        },
+        "loopIoU": 1.0,
+        "oppositeContactIoU": 0.759454,
+        "centroidXRange": 33.770024,
+        "centroidYRange": 24.910682,
+        "centroidStepMax": 23.223068,
+        "areaCv": 0.097216,
+        "footCenterRange": 144.49274,
+        "footWidthCv": 0.772077,
+        "residualAverage": 0.039826,
+        "residualMax": 0.060584,
+        "checks": {
+          "loopClosure": true,
+          "oppositeContactDifferent": true,
+          "retreatShapeTravelPresent": true,
+          "verticalCadencePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "footTravelPresent": true,
+          "stanceChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "dash",
+      "frames": 7,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2688,
+        448
+      ],
+      "bytes": 507350,
+      "sha256": "3E78E40CCA516F50F627DB27B0CFA7738020243BCAA099DCDFCB8A59345E179D",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/dash",
+      "poseQa": {
+        "affineResidualAverage": 0.040075,
+        "affineResidualMax": 0.076672,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "dash",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.88,
+          "midpointIoUMin": 0.28,
+          "midpointIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 75.0,
+          "centroidYRangeMin": 10.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 58.0,
+          "areaCvMax": 0.18,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.2
+        },
+        "startEndIoU": 0.75921,
+        "midpointIoU": 0.520401,
+        "centroidXRange": 20.812873,
+        "centroidYRange": 19.720993,
+        "centroidStepMax": 22.919287,
+        "areaCv": 0.08236,
+        "residualAverage": 0.040075,
+        "residualMax": 0.076672,
+        "checks": {
+          "recoveryNotDuplicate": true,
+          "drivePoseDistinct": true,
+          "forwardLeanPresent": true,
+          "verticalDrivePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "jump",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 558506,
+      "sha256": "3709AF1D99C31245322D427FBAAFD74E4D4416F9632780F333CC558BB4AEB05A",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/jump",
+      "poseQa": {
+        "affineResidualAverage": 0.047137,
+        "affineResidualMax": 0.061149,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "jump",
+        "limits": {
+          "startEndIoUMin": 0.35,
+          "startEndIoUMax": 0.9,
+          "apexIoUMin": 0.3,
+          "apexIoUMax": 0.72,
+          "centroidXRangeMax": 50.0,
+          "centroidYRangeMin": 45.0,
+          "centroidYRangeMax": 135.0,
+          "centroidStepMax": 92.0,
+          "areaCvMax": 0.18,
+          "footWidthCvMin": 0.15,
+          "footWidthCvMax": 1.2,
+          "residualAverageMin": 0.03,
+          "residualAverageMax": 0.18,
+          "residualMaxMin": 0.05,
+          "residualMaxMax": 0.22
+        },
+        "startEndIoU": 0.685018,
+        "apexIoU": 0.481011,
+        "centroidXRange": 22.724173,
+        "centroidYRange": 47.152537,
+        "centroidStepMax": 47.204835,
+        "areaCv": 0.165903,
+        "footWidthCv": 0.243645,
+        "residualAverage": 0.047137,
+        "residualMax": 0.061149,
+        "checks": {
+          "contactBridgeNotDuplicate": true,
+          "apexPoseDistinct": true,
+          "horizontalShapeStable": true,
+          "verticalPhasePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "aerialLegShapeChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "landing",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2304,
+        448
+      ],
+      "bytes": 452746,
+      "sha256": "46C2E5738EDE3AC7B32DDA28F51B6BF1F2CD0B17EDC60DF3776458490AC2F3D0",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/landing",
+      "poseQa": {
+        "affineResidualAverage": 0.041413,
+        "affineResidualMax": 0.051009,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "landing",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.85,
+          "squashIoUMin": 0.2,
+          "squashIoUMax": 0.7,
+          "centroidXRangeMax": 55.0,
+          "centroidYRangeMin": 45.0,
+          "centroidYRangeMax": 135.0,
+          "centroidStepMax": 78.0,
+          "areaCvMax": 0.16,
+          "footWidthCvMin": 0.15,
+          "footWidthCvMax": 0.95,
+          "residualAverageMin": 0.03,
+          "residualAverageMax": 0.18,
+          "residualMaxMin": 0.05,
+          "residualMaxMax": 0.22
+        },
+        "startEndIoU": 0.539792,
+        "squashIoU": 0.394523,
+        "centroidXRange": 17.049541,
+        "centroidYRange": 54.68314,
+        "centroidStepMax": 41.799218,
+        "areaCv": 0.115707,
+        "footWidthCv": 0.152164,
+        "residualAverage": 0.041413,
+        "residualMax": 0.051009,
+        "checks": {
+          "neutralBridgeNotDuplicate": true,
+          "squashPoseDistinct": true,
+          "horizontalRootStable": true,
+          "compressionPresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "stanceAbsorbsImpact": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "hit",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "bytes": 539130,
+      "sha256": "4470C86224C50DBBC69667AD264F042F592069AE518D729D5EA1F94F4AEDF5CF",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/hit",
+      "poseQa": {
+        "affineResidualAverage": 0.046188,
+        "affineResidualMax": 0.086152,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "hit",
+        "limits": {
+          "startEndIoUMin": 0.62,
+          "peakRecoilIoUMin": 0.22,
+          "peakRecoilIoUMax": 0.78,
+          "centroidXRangeMin": 7.0,
+          "centroidXRangeMax": 95.0,
+          "centroidYRangeMin": 3.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 65.0,
+          "areaCvMax": 0.2,
+          "footCenterRangeMin": 12.0,
+          "footCenterRangeMax": 145.0,
+          "footWidthCvMax": 0.8,
+          "residualAverageMin": 0.012,
+          "residualAverageMax": 0.17,
+          "residualMaxMin": 0.028,
+          "residualMaxMax": 0.22
+        },
+        "startEndIoU": 1.0,
+        "peakRecoilIoU": 0.408025,
+        "centroidXRange": 27.628337,
+        "centroidYRange": 13.560811,
+        "centroidStepMax": 14.680902,
+        "areaCv": 0.0626,
+        "footCenterRange": 23.969128,
+        "footWidthCv": 0.034048,
+        "residualAverage": 0.046188,
+        "residualMax": 0.086152,
+        "checks": {
+          "recoveryReturnsNearNeutral": true,
+          "peakRecoilDistinct": true,
+          "recoilTravelPresent": true,
+          "compressionPresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "footSlideReadable": true,
+          "stanceNotExploded": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "stand-light",
+      "frames": 7,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2688,
+        448
+      ],
+      "bytes": 493680,
+      "sha256": "75AF5847172E3B4109166B0AFF24321AEEB556FE9C9C9D350CA9DD36B156CB45",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "stagingMethod": "whole-sprite-affine-reference",
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/stand-light",
+      "poseQa": {
+        "affineResidualAverage": 0.023286,
+        "affineResidualMax": 0.03718,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-light",
+        "limits": {
+          "startEndIoUMin": 0.58,
+          "contactIoUMin": 0.32,
+          "contactIoUMax": 0.94,
+          "centroidXRangeMin": 4.0,
+          "centroidXRangeMax": 45.0,
+          "centroidYRangeMax": 28.0,
+          "reachRangeMin": 24.0,
+          "reachRangeMax": 105.0,
+          "footCenterRangeMax": 38.0,
+          "footWidthCvMax": 0.32,
+          "areaCvMax": 0.16,
+          "residualAverageMin": 0.01,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.022,
+          "residualMaxMax": 0.2,
+          "contactFrameIndex": 3
+        },
+        "startEndIoU": 1.0,
+        "contactIoU": 0.634825,
+        "centroidXRange": 12.323887,
+        "centroidYRange": 4.691894,
+        "reachRange": 24.0,
+        "footCenterRange": 21.858163,
+        "footWidthCv": 0.002194,
+        "areaCv": 0.010739,
+        "residualAverage": 0.023286,
+        "residualMax": 0.03718,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "stand-heavy",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "bytes": 753664,
+      "sha256": "BBDBD54BC01464A5E3E1C41311F5E4CA4A9541F77222AC799AD383731613A660",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "stagingMethod": "whole-sprite-affine-reference",
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/stand-heavy",
+      "poseQa": {
+        "affineResidualAverage": 0.028558,
+        "affineResidualMax": 0.046564,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-heavy",
+        "limits": {
+          "startEndIoUMin": 0.5,
+          "contactIoUMin": 0.22,
+          "contactIoUMax": 0.75,
+          "centroidXRangeMin": 7.0,
+          "centroidXRangeMax": 62.0,
+          "centroidYRangeMin": 0.75,
+          "centroidYRangeMax": 42.0,
+          "reachRangeMin": 38.0,
+          "reachRangeMax": 145.0,
+          "footCenterRangeMax": 58.0,
+          "footWidthCvMax": 0.55,
+          "areaCvMax": 0.2,
+          "residualAverageMin": 0.014,
+          "residualAverageMax": 0.18,
+          "residualMaxMin": 0.03,
+          "residualMaxMax": 0.24,
+          "contactFrameIndex": 5
+        },
+        "startEndIoU": 1.0,
+        "contactIoU": 0.478069,
+        "centroidXRange": 19.998017,
+        "centroidYRange": 2.014802,
+        "reachRange": 39.0,
+        "footCenterRange": 37.833698,
+        "footWidthCv": 0.0,
+        "areaCv": 0.013405,
+        "residualAverage": 0.028558,
+        "residualMax": 0.046564,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "bodyTorquePresent": true
+        },
+        "semanticQaPass": true
+      }
+    },
+    {
+      "id": "hadoken",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 811726,
+      "sha256": "0B0D3E66E2055330E348C5A54BC672D74316A1D7A876F324D03C5AEFB3C5249C",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false,
+      "stagingOnly": true,
+      "stagingMethod": "whole-sprite-affine-reference"
+    },
+    {
+      "id": "shoryuken",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 740670,
+      "sha256": "A4C9C2F5CC92EE2A7BDDE2B1CCEAAA87543B5C9E9AA1B958E992A25174587E09",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false,
+      "stagingOnly": true,
+      "stagingMethod": "whole-sprite-affine-reference"
+    },
+    {
+      "id": "tatsumaki",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "bytes": 855520,
+      "sha256": "1F093A10E9AAB3B17AC6D03C026D72991085A40EA0F0BF0A5FCEFA47F2225E05",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false,
+      "stagingOnly": true,
+      "stagingMethod": "whole-sprite-affine-reference"
+    },
+    {
+      "id": "super-rush",
+      "frames": 16,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        6144,
+        448
+      ],
+      "bytes": 770340,
+      "sha256": "5CA1E3CA335619DBDC1889B245E8EC94D7D092DBE8E9C246D6D3300FBF3C5603",
+      "enabled": false,
+      "renderMode": "full",
+      "poseAuthored": false,
+      "stagingOnly": true,
+      "stagingMethod": "whole-sprite-affine-reference"
+    },
+    {
+      "id": "guard",
+      "frames": 5,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        1920,
+        448
+      ],
+      "bytes": 301298,
+      "sha256": "B2F45BA6774B78DB35EE5F849209EDBA7DE1832E53068555EA841B64A1D826D1",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "semanticQa": {
+        "kind": "guard",
+        "limits": {
+          "startEndIoUMin": 0.68,
+          "peakGuardIoUMin": 0.38,
+          "peakGuardIoUMax": 0.88,
+          "centroidXRangeMin": 3.0,
+          "centroidXRangeMax": 45.0,
+          "centroidYRangeMin": 2.0,
+          "centroidYRangeMax": 35.0,
+          "centroidStepMax": 34.0,
+          "areaCvMax": 0.16,
+          "footCenterRangeMax": 32.0,
+          "footWidthCvMax": 0.35,
+          "residualAverageMin": 0.006,
+          "residualAverageMax": 0.11,
+          "residualMaxMin": 0.014,
+          "residualMaxMax": 0.16
+        },
+        "startEndIoU": 1.0,
+        "peakGuardIoU": 0.75559,
+        "centroidXRange": 8.56095,
+        "centroidYRange": 13.205333,
+        "centroidStepMax": 11.052628,
+        "areaCv": 0.055895,
+        "footCenterRange": 1.96577,
+        "footWidthCv": 0.002172,
+        "residualAverage": 0.030994,
+        "residualMax": 0.051929,
+        "checks": {
+          "returnTowardNeutral": true,
+          "peakPoseDifferent": true,
+          "rootMotionPresent": true,
+          "verticalResponsePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/guard",
+      "poseQa": {
+        "affineResidualAverage": 0.030994,
+        "affineResidualMax": 0.051929,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    },
+    {
+      "id": "parry",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2304,
+        448
+      ],
+      "bytes": 404892,
+      "sha256": "FD7FA80F8619CD4C17C7C1A7A0CE0007B479AEDBC82137665DC803D370D688DD",
+      "enabled": true,
+      "renderMode": "full",
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "semanticQa": {
+        "kind": "parry",
+        "limits": {
+          "startEndIoUMin": 0.64,
+          "peakParryIoUMin": 0.3,
+          "peakParryIoUMax": 0.84,
+          "centroidXRangeMin": 4.0,
+          "centroidXRangeMax": 55.0,
+          "centroidYRangeMin": 0.5,
+          "centroidYRangeMax": 42.0,
+          "centroidStepMax": 42.0,
+          "areaCvMax": 0.18,
+          "footCenterRangeMax": 38.0,
+          "footWidthCvMax": 0.45,
+          "residualAverageMin": 0.009,
+          "residualAverageMax": 0.13,
+          "residualMaxMin": 0.02,
+          "residualMaxMax": 0.18
+        },
+        "startEndIoU": 1.0,
+        "peakParryIoU": 0.755313,
+        "centroidXRange": 13.129268,
+        "centroidYRange": 1.777561,
+        "centroidStepMax": 6.922836,
+        "areaCv": 0.01201,
+        "footCenterRange": 3.909358,
+        "footWidthCv": 0.002101,
+        "residualAverage": 0.023846,
+        "residualMax": 0.040504,
+        "checks": {
+          "returnTowardNeutral": true,
+          "peakPoseDifferent": true,
+          "rootMotionPresent": true,
+          "verticalResponsePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "authoredSource": "/mnt/data/ssc_work/art-source/ken/inbox/parry",
+      "poseQa": {
+        "affineResidualAverage": 0.023846,
+        "affineResidualMax": 0.040504,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      }
+    }
+  ],
+  "stagingFrameTotal": 52
+}

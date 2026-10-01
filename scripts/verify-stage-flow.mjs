@@ -1,0 +1,126 @@
+import { Stage1Scene } from '../dist/assets/scenes/Stage1Scene.js';
+import { Stage2Scene } from '../dist/assets/scenes/Stage2Scene.js';
+import { Stage3Scene } from '../dist/assets/scenes/Stage3Scene.js';
+import { Stage4Scene } from '../dist/assets/scenes/Stage4Scene.js';
+import { Stage5Scene } from '../dist/assets/scenes/Stage5Scene.js';
+import { getCharacter } from '../dist/assets/game/characters.js';
+
+class StubInput { held() { return false; } pressed() { return false; } released() { return false; } }
+class StubAudio { playStagePulse() {} playHit() {} playParry() {} }
+const fail = (message) => { console.error('STAGE_FLOW_FAIL', message); process.exit(1); };
+
+function clearBeltAreas(scene, tickBase = 1) {
+  let tick = tickBase;
+  const waveProfiles = [];
+  for (let wave = 0; wave < 3; wave += 1) {
+    waveProfiles.push(scene.world.enemies.map((enemy) => enemy.aiProfile.id));
+    const count = scene.world.enemies.length;
+    for (const enemy of scene.world.enemies) enemy.hp = 0;
+    scene.fixedUpdate(1 / 60, tick++);
+    if (wave < 2) {
+      if (scene.phase !== 'belt' || scene.beltState !== 'travel') fail(`expected travel after wave ${wave + 1}`);
+      scene.world.player.x = scene.areaStarts[wave + 1] + 160;
+      scene.fixedUpdate(1 / 60, tick++);
+      if (scene.world.livingEnemies.length === 0) fail(`next area ${wave + 2} did not spawn`);
+      for (let t = 0; t < 54; t += 1) scene.fixedUpdate(1 / 60, tick++);
+      if (scene.beltState !== 'fight') fail(`area ${wave + 2} fight did not arm`);
+    }
+    if (count <= 0) fail(`wave ${wave + 1} had no enemies`);
+  }
+  if (scene.phase !== 'transition') fail(`expected transition, got ${scene.phase}`);
+  for (let t = 0; t < 320 && scene.phase === 'transition'; t += 1) scene.fixedUpdate(1 / 60, tick++);
+  if (scene.phase !== 'duel' || scene.world.rules.mode !== 'duel') fail('duel not activated');
+  const boss = scene.world.enemy.character.name;
+  scene.world.enemy.hp = 0;
+  scene.fixedUpdate(1 / 60, tick++);
+  if (scene.phase !== 'clear') fail('clear not activated');
+  return { waveProfiles, boss, tick };
+}
+
+function testStage(scene, name, tickBase, expectations = () => {}) {
+  scene.introFrames = 0;
+  const result = clearBeltAreas(scene, tickBase);
+  expectations(result, scene);
+  for (let i = 0; i < 280 && scene.phase === 'clear'; i += 1) scene.fixedUpdate(1 / 60, result.tick + i);
+  return result;
+}
+
+
+function clearStage5(scene, tickBase = 4000) {
+  let tick = tickBase;
+  const waveProfiles = [];
+  for (let wave = 0; wave < 3; wave += 1) {
+    waveProfiles.push(scene.world.enemies.map((enemy) => enemy.aiProfile.id));
+    for (const enemy of scene.world.enemies) enemy.hp = 0;
+    scene.fixedUpdate(1 / 60, tick++);
+    if (wave < 2) {
+      scene.world.player.x = scene.areaStarts[wave + 1] + 160;
+      scene.fixedUpdate(1 / 60, tick++);
+      for (let t = 0; t < 54; t += 1) scene.fixedUpdate(1 / 60, tick++);
+    }
+  }
+  if (scene.phase !== 'transition') fail(`stage5 expected Urien transition, got ${scene.phase}`);
+  for (let t = 0; t < 320 && scene.phase === 'transition'; t += 1) scene.fixedUpdate(1 / 60, tick++);
+  if (scene.phase !== 'duel' || scene.world.enemy.character.name !== 'URIEN') fail('stage5 Urien duel missing');
+  scene.world.enemy.hp = 0;
+  scene.fixedUpdate(1 / 60, tick++);
+  if (scene.phase !== 'final-transition') fail(`stage5 final transition missing: ${scene.phase}`);
+  for (let t = 0; t < 330 && scene.phase === 'final-transition'; t += 1) scene.fixedUpdate(1 / 60, tick++);
+  if (scene.phase !== 'final-duel' || scene.world.enemy.character.name !== 'GILL') fail('stage5 Gill final duel missing');
+  if (scene.world.enemy.maxHp < 1400) fail('Gill final boss HP budget too low');
+  scene.world.enemy.hp = Math.round(scene.world.enemy.maxHp * .64);
+  scene.fixedUpdate(1 / 60, tick++);
+  if (scene.gillPhase !== 2 || scene.world.enemy.aiTempoScale < 1.19 || scene.world.enemy.superGauge < 100) fail('Gill phase 2 transition missing');
+  scene.world.enemy.hp = Math.round(scene.world.enemy.maxHp * .28);
+  scene.fixedUpdate(1 / 60, tick++);
+  if (scene.gillPhase !== 3 || scene.world.enemy.aiTempoScale < 1.3 || scene.world.enemy.aiSuperBias < .4) fail('Gill final segment transition missing');
+  scene.world.enemy.hp = 0;
+  scene.fixedUpdate(1 / 60, tick++);
+  if (scene.phase !== 'final-ko') fail(`stage5 final KO sequence missing: ${scene.phase}`);
+  for (let t = 0; t < 181; t += 1) scene.fixedUpdate(1 / 60, tick++);
+  if (scene.phase !== 'clear') fail(`stage5 clear bridge missing: ${scene.phase}`);
+  return { waveProfiles, tick };
+}
+
+const character = getCharacter('RYU');
+let clear1 = false, clear2 = false, clear3 = false, clear4 = false, clear5 = false;
+const stage1 = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 1, () => { clear1 = true; });
+const r1 = testStage(stage1, 'stage1', 1);
+if (!clear1) fail('stage 1 callback');
+
+const stage2 = new Stage2Scene(new StubInput(), new StubAudio(), character, character.superArts[0], () => { clear2 = true; });
+const r2 = testStage(stage2, 'stage2', 1000, (r) => { if (!r.waveProfiles.flat().includes('agile')) fail('stage2 agile missing'); });
+if (!clear2) fail('stage 2 callback');
+
+const stage3 = new Stage3Scene(new StubInput(), new StubAudio(), character, character.superArts[0], () => { clear3 = true; });
+const r3 = testStage(stage3, 'stage3', 2000, (r) => {
+  if (!r.waveProfiles.flat().includes('technical')) fail('stage3 technical AI missing');
+  if (r.boss !== 'MAKOTO') fail(`stage3 boss expected MAKOTO, got ${r.boss}`);
+});
+if (!clear3) fail('stage 3 callback');
+
+const stage4 = new Stage4Scene(new StubInput(), new StubAudio(), character, character.superArts[0], () => { clear4 = true; });
+const r4 = testStage(stage4, 'stage4', 3000, (r) => {
+  if (!r.waveProfiles.flat().includes('mma')) fail('stage4 MMA AI missing');
+  if (r.boss !== 'DUDLEY') fail(`stage4 boss expected DUDLEY, got ${r.boss}`);
+});
+if (!clear4) fail('stage 4 callback');
+
+
+
+const stage5 = new Stage5Scene(new StubInput(), new StubAudio(), character, character.superArts[0], () => { clear5 = true; });
+stage5.introFrames = 0;
+const r5 = clearStage5(stage5, 4000);
+if (!r5.waveProfiles.flat().includes('technical') || !r5.waveProfiles.flat().includes('mma')) fail('stage5 advanced AI mix missing');
+for (let i = 0; i < 300 && stage5.phase === 'clear'; i += 1) stage5.fixedUpdate(1 / 60, r5.tick + i);
+if (!clear5) fail('stage 5 callback');
+
+console.log('STAGE_FLOW_VERIFY_PASS', {
+  stagesPlayable: 5,
+  callbacks: [clear1, clear2, clear3, clear4, clear5],
+  bosses: [r1.boss, r2.boss, r3.boss, r4.boss],
+  stage3Technical: r3.waveProfiles.flat().filter((x) => x === 'technical').length,
+  stage4Mma: r4.waveProfiles.flat().filter((x) => x === 'mma').length,
+  stage5FinalBoss: 'GILL',
+  gillPhases: 3,
+});

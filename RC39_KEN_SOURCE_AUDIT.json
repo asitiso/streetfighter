@@ -1,0 +1,92 @@
+{
+  "character": "KEN",
+  "source": "art-source/ken/reference/ken-motion-overview-rc39.png",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "gate": {
+    "minimumBodyHeight": 240,
+    "productionRuntimeFrameSize": [
+      384,
+      448
+    ]
+  },
+  "records": [
+    {
+      "sequence": "idle-reference",
+      "runtimeTarget": "idle",
+      "referenceFrames": 8,
+      "runtimeTargetFrames": 6,
+      "crop": [
+        8,
+        116,
+        300,
+        94
+      ],
+      "grid": [
+        8,
+        1
+      ],
+      "nonEmptyFrames": 8,
+      "sourceBodyHeightMin": 81,
+      "sourceBodyHeightMedian": 84.0,
+      "sourceBodyWidthMedian": 37.0,
+      "requiredBodyHeight": 240,
+      "sourceResolutionPass": false,
+      "runtimeFrameCountMatch": false,
+      "verdict": "REFERENCE_ONLY_LOW_RES"
+    },
+    {
+      "sequence": "stand-light-reference",
+      "runtimeTarget": "stand-light",
+      "referenceFrames": 6,
+      "runtimeTargetFrames": 7,
+      "crop": [
+        8,
+        445,
+        264,
+        69
+      ],
+      "grid": [
+        6,
+        1
+      ],
+      "nonEmptyFrames": 6,
+      "sourceBodyHeightMin": 63,
+      "sourceBodyHeightMedian": 63.0,
+      "sourceBodyWidthMedian": 44.0,
+      "requiredBodyHeight": 240,
+      "sourceResolutionPass": false,
+      "runtimeFrameCountMatch": false,
+      "verdict": "REFERENCE_ONLY_LOW_RES"
+    },
+    {
+      "sequence": "shoryuken-reference",
+      "runtimeTarget": "shoryuken",
+      "referenceFrames": 8,
+      "runtimeTargetFrames": 12,
+      "crop": [
+        8,
+        718,
+        354,
+        105
+      ],
+      "grid": [
+        8,
+        1
+      ],
+      "nonEmptyFrames": 8,
+      "sourceBodyHeightMin": 89,
+      "sourceBodyHeightMedian": 98.0,
+      "sourceBodyWidthMedian": 44.0,
+      "requiredBodyHeight": 240,
+      "sourceResolutionPass": false,
+      "runtimeFrameCountMatch": false,
+      "verdict": "REFERENCE_ONLY_LOW_RES"
+    }
+  ],
+  "allSourceResolutionPass": false,
+  "safeToAutoPromote": false,
+  "recommendation": "Use this overview only for pose/style reference. Generate dedicated per-motion HQ sheets with body height >= 240 px before runtime promotion."
+}

@@ -1,0 +1,203 @@
+{
+  "source": "/mnt/data/ghostwriter_images/generated/a_clean_sprite_sheet_style_illustration_on_a_trans_1.png",
+  "output": "/mnt/data/work_rc34/public/art/animation-hq/ryu/dash.webp",
+  "frames": 7,
+  "frameSize": [
+    384,
+    448
+  ],
+  "scale": 0.9384164222873901,
+  "bytes": 747874,
+  "sha256": "02E86421206015C898F7ADF554C08D83C06271FB137CE1F8CF079B1E02A83513",
+  "metrics": [
+    {
+      "frame": 1,
+      "grid": [
+        0,
+        0
+      ],
+      "sourceBBox": [
+        32,
+        119,
+        418,
+        424
+      ],
+      "paste": [
+        9,
+        145
+      ],
+      "scaledSize": [
+        362,
+        286
+      ],
+      "outputBBox": [
+        9,
+        145,
+        371,
+        431
+      ]
+    },
+    {
+      "frame": 2,
+      "grid": [
+        0,
+        1
+      ],
+      "sourceBBox": [
+        2,
+        104,
+        427,
+        423
+      ],
+      "paste": [
+        -12,
+        131
+      ],
+      "scaledSize": [
+        399,
+        299
+      ],
+      "outputBBox": [
+        0,
+        131,
+        384,
+        430
+      ]
+    },
+    {
+      "frame": 3,
+      "grid": [
+        0,
+        2
+      ],
+      "sourceBBox": [
+        3,
+        88,
+        430,
+        429
+      ],
+      "paste": [
+        -13,
+        115
+      ],
+      "scaledSize": [
+        401,
+        320
+      ],
+      "outputBBox": [
+        0,
+        115,
+        384,
+        435
+      ]
+    },
+    {
+      "frame": 4,
+      "grid": [
+        0,
+        3
+      ],
+      "sourceBBox": [
+        2,
+        98,
+        428,
+        424
+      ],
+      "paste": [
+        -13,
+        125
+      ],
+      "scaledSize": [
+        400,
+        306
+      ],
+      "outputBBox": [
+        0,
+        125,
+        384,
+        431
+      ]
+    },
+    {
+      "frame": 5,
+      "grid": [
+        1,
+        0
+      ],
+      "sourceBBox": [
+        19,
+        57,
+        442,
+        403
+      ],
+      "paste": [
+        -7,
+        87
+      ],
+      "scaledSize": [
+        397,
+        325
+      ],
+      "outputBBox": [
+        0,
+        87,
+        384,
+        412
+      ]
+    },
+    {
+      "frame": 6,
+      "grid": [
+        1,
+        1
+      ],
+      "sourceBBox": [
+        62,
+        53,
+        441,
+        399
+      ],
+      "paste": [
+        18,
+        83
+      ],
+      "scaledSize": [
+        356,
+        325
+      ],
+      "outputBBox": [
+        18,
+        83,
+        374,
+        408
+      ]
+    },
+    {
+      "frame": 7,
+      "grid": [
+        1,
+        2
+      ],
+      "sourceBBox": [
+        55,
+        50,
+        401,
+        405
+      ],
+      "paste": [
+        28,
+        81
+      ],
+      "scaledSize": [
+        325,
+        333
+      ],
+      "outputBBox": [
+        28,
+        81,
+        353,
+        414
+      ]
+    }
+  ]
+}

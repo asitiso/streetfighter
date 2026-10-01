@@ -1,0 +1,10 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "requiredDeviceChecks": 10,
+  "guidedNextAction": "FIRST_NON_PASS_DEVICE_CHECK",
+  "productionReview": "FORMAL_REQUIRED_TARGET_DEVICE_VISUAL_AUDIO_REVIEW",
+  "finalProof": "CERT+TELEMETRY+SAFE_AREA+ERRORS+RECOVERY+ENVIRONMENT+APPROVAL",
+  "completeProofWhenAllPass": true,
+  "verdict": "FINAL_CERT_RUN_AND_PROOF_BUNDLE_PASS"
+}

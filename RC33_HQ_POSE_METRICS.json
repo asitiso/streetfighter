@@ -1,0 +1,46 @@
+{
+  "candidate": "0.0.58-rc.33",
+  "verdict": "HQ_CHARACTER_MASTER_PILOT_PASS",
+  "records": [
+    {
+      "character": "RYU",
+      "maskIoU": 0.9992,
+      "meanEdgeDistancePx": 0.022,
+      "groundPass": true,
+      "centerPass": true,
+      "heightPass": true,
+      "widthPass": true,
+      "pass": true
+    },
+    {
+      "character": "CHUNLI",
+      "maskIoU": 0.9998,
+      "meanEdgeDistancePx": 0.009,
+      "groundPass": true,
+      "centerPass": true,
+      "heightPass": true,
+      "widthPass": true,
+      "pass": true
+    },
+    {
+      "character": "KEN",
+      "maskIoU": 0.9993,
+      "meanEdgeDistancePx": 0.022,
+      "groundPass": true,
+      "centerPass": true,
+      "heightPass": true,
+      "widthPass": true,
+      "pass": true
+    },
+    {
+      "character": "IBUKI",
+      "maskIoU": 0.9996,
+      "meanEdgeDistancePx": 0.017,
+      "groundPass": true,
+      "centerPass": true,
+      "heightPass": true,
+      "widthPass": true,
+      "pass": true
+    }
+  ]
+}

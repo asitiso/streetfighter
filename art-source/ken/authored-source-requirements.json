@@ -1,0 +1,436 @@
+{
+  "character": "KEN",
+  "runtimeFrameSize": [
+    384,
+    448
+  ],
+  "minimumSourceBodyHeight": 240,
+  "preferredSourceBodyHeight": 600,
+  "transparentBackgroundPreferred": true,
+  "rule": "Every frame must be a genuinely different authored pose. Translation/rotation/scale-only derivatives are rejected.",
+  "sequences": {
+    "idle": {
+      "frames": 6,
+      "posePlan": [
+        "neutral",
+        "inhale",
+        "chest-rise",
+        "weight-shift",
+        "exhale",
+        "return"
+      ],
+      "semanticQa": {
+        "description": "Restrained breathing/weight-shift loop; no walk-like root drift or foot slide.",
+        "poseResidualAverageMin": 0.003,
+        "poseResidualMaxMin": 0.006,
+        "loopIoUMin": 0.72,
+        "centroidXRangeMax": 12.0,
+        "centroidYRangeMax": 10.0,
+        "centroidStepMax": 8.0,
+        "areaCvMax": 0.075,
+        "footCenterRangeMax": 14.0,
+        "footWidthCvMax": 0.12,
+        "posePlan": [
+          "neutral",
+          "inhale",
+          "chest-rise",
+          "weight-shift",
+          "exhale",
+          "return-to-neutral"
+        ]
+      }
+    },
+    "walk": {
+      "frames": 12,
+      "posePlan": [
+        "contact",
+        "compression",
+        "toe-off",
+        "lift",
+        "passing",
+        "reach",
+        "contact-opposite",
+        "compression",
+        "toe-off",
+        "lift",
+        "passing",
+        "reach"
+      ],
+      "semanticQa": {
+        "description": "12F alternating step cycle with real contact/compression/toe-off/passing phases; no transform-only duplicate half-cycle.",
+        "loopIoUMin": 0.45,
+        "oppositeContactIoUMin": 0.35,
+        "oppositeContactIoUMax": 0.9,
+        "centroidXRangeMin": 8.0,
+        "centroidXRangeMax": 95.0,
+        "centroidYRangeMin": 3.0,
+        "centroidYRangeMax": 60.0,
+        "footCenterRangeMin": 28.0,
+        "footCenterRangeMax": 145.0,
+        "footWidthCvMin": 0.06,
+        "footWidthCvMax": 0.95,
+        "poseResidualAverageMin": 0.008,
+        "poseResidualMaxMin": 0.018
+      }
+    },
+    "walk-back": {
+      "frames": 10,
+      "posePlan": [
+        "rear-contact",
+        "compression",
+        "front-toe-off",
+        "front-lift",
+        "passing",
+        "front-contact",
+        "compression-opposite",
+        "rear-toe-off",
+        "rear-lift",
+        "return-reach"
+      ],
+      "semanticQa": {
+        "description": "10F backward retreat cycle with alternating foot contacts and a restrained defensive upper-body lean; no duplicated half-cycle.",
+        "loopIoUMin": 0.42,
+        "oppositeContactIoUMin": 0.35,
+        "oppositeContactIoUMax": 0.9,
+        "centroidXRangeMin": 6.0,
+        "centroidXRangeMax": 90.0,
+        "centroidYRangeMin": 3.0,
+        "centroidYRangeMax": 58.0,
+        "footCenterRangeMin": 24.0,
+        "footCenterRangeMax": 145.0,
+        "footWidthCvMin": 0.05,
+        "footWidthCvMax": 0.95,
+        "poseResidualAverageMin": 0.008,
+        "poseResidualMaxMin": 0.018
+      }
+    },
+    "dash": {
+      "frames": 7,
+      "posePlan": [
+        "ready",
+        "drive-load",
+        "launch",
+        "max-drive",
+        "passing-drive",
+        "brake",
+        "recovery-bridge"
+      ],
+      "semanticQa": {
+        "description": "7F explosive forward dash with real drive/lean/brake phases; start/end may bridge neutral but must not duplicate it.",
+        "startEndIoUMin": 0.3,
+        "startEndIoUMax": 0.88,
+        "midpointIoUMin": 0.28,
+        "midpointIoUMax": 0.82,
+        "centroidXRangeMin": 10.0,
+        "centroidXRangeMax": 75.0,
+        "centroidYRangeMin": 10.0,
+        "centroidYRangeMax": 75.0,
+        "centroidStepMax": 58.0,
+        "areaCvMax": 0.18,
+        "poseResidualAverageMin": 0.02,
+        "poseResidualAverageMax": 0.15,
+        "poseResidualMaxMin": 0.04,
+        "poseResidualMaxMax": 0.2
+      }
+    },
+    "jump": {
+      "frames": 8,
+      "posePlan": [
+        "anticipation",
+        "compression",
+        "launch",
+        "rise",
+        "apex",
+        "fall",
+        "landing-prepare",
+        "contact-bridge"
+      ],
+      "semanticQa": {
+        "description": "8F jump with anticipation/compression/rise/apex/fall/contact phases; root translation is removed so silhouette phase change must remain visible.",
+        "startEndIoUMin": 0.35,
+        "startEndIoUMax": 0.9,
+        "apexIoUMin": 0.3,
+        "apexIoUMax": 0.72,
+        "centroidXRangeMax": 50.0,
+        "centroidYRangeMin": 45.0,
+        "centroidYRangeMax": 135.0,
+        "centroidStepMax": 92.0,
+        "areaCvMax": 0.18,
+        "footWidthCvMin": 0.15,
+        "footWidthCvMax": 1.2,
+        "poseResidualAverageMin": 0.03,
+        "poseResidualAverageMax": 0.18,
+        "poseResidualMaxMin": 0.05,
+        "poseResidualMaxMax": 0.22
+      }
+    },
+    "landing": {
+      "frames": 6,
+      "posePlan": [
+        "pre-contact",
+        "ground-contact",
+        "maximum-squash",
+        "rebound",
+        "settle",
+        "neutral-bridge"
+      ],
+      "semanticQa": {
+        "description": "6F landing with visible contact/squash/rebound/settle; must not be a neutral sprite vertically scaled and returned.",
+        "startEndIoUMin": 0.3,
+        "startEndIoUMax": 0.85,
+        "squashIoUMin": 0.2,
+        "squashIoUMax": 0.7,
+        "centroidXRangeMax": 55.0,
+        "centroidYRangeMin": 45.0,
+        "centroidYRangeMax": 135.0,
+        "centroidStepMax": 78.0,
+        "areaCvMax": 0.16,
+        "footWidthCvMin": 0.15,
+        "footWidthCvMax": 0.95,
+        "poseResidualAverageMin": 0.03,
+        "poseResidualAverageMax": 0.18,
+        "poseResidualMaxMin": 0.05,
+        "poseResidualMaxMax": 0.22
+      }
+    },
+    "hit": {
+      "frames": 8,
+      "posePlan": [
+        "neutral",
+        "impact-compression",
+        "torso-recoil",
+        "maximum-recoil",
+        "foot-slide",
+        "recovery-start",
+        "weight-recovery",
+        "neutral-return"
+      ],
+      "semanticQa": {
+        "description": "8F grounded hit reaction with visible impact compression, torso recoil, foot slide and recovery back toward neutral.",
+        "startEndIoUMin": 0.62,
+        "peakRecoilIoUMin": 0.22,
+        "peakRecoilIoUMax": 0.78,
+        "centroidXRangeMin": 7.0,
+        "centroidXRangeMax": 95.0,
+        "centroidYRangeMin": 3.0,
+        "centroidYRangeMax": 75.0,
+        "footCenterRangeMin": 12.0,
+        "footCenterRangeMax": 145.0,
+        "footWidthCvMax": 0.8,
+        "poseResidualAverageMin": 0.012,
+        "poseResidualMaxMin": 0.028
+      }
+    },
+    "stand-light": {
+      "frames": 7,
+      "posePlan": [
+        "neutral",
+        "anticipation",
+        "startup",
+        "contact",
+        "follow-through",
+        "recovery",
+        "neutral-bridge"
+      ],
+      "semanticQa": {
+        "description": "7F grounded light punch with a real hand/arm extension at contact, planted feet and a fast recovery toward neutral; whole-body translation is rejected.",
+        "startEndIoUMin": 0.58,
+        "contactIoUMin": 0.32,
+        "contactIoUMax": 0.94,
+        "centroidXRangeMin": 4.0,
+        "centroidXRangeMax": 45.0,
+        "centroidYRangeMax": 28.0,
+        "reachRangeMin": 24.0,
+        "reachRangeMax": 105.0,
+        "footCenterRangeMax": 38.0,
+        "footWidthCvMax": 0.32,
+        "areaCvMax": 0.16,
+        "poseResidualAverageMin": 0.01,
+        "poseResidualAverageMax": 0.15,
+        "poseResidualMaxMin": 0.022,
+        "poseResidualMaxMax": 0.2,
+        "contactFrameIndex": 3
+      }
+    },
+    "stand-heavy": {
+      "frames": 10,
+      "posePlan": [
+        "neutral",
+        "load",
+        "hip-turn",
+        "drive",
+        "pre-contact",
+        "contact",
+        "follow-through",
+        "recoil",
+        "recovery",
+        "neutral-bridge"
+      ],
+      "semanticQa": {
+        "description": "10F grounded heavy punch with visible load/hip rotation/drive/contact/follow-through and recovery; feet may pivot but the fighter may not slide as one rigid sprite.",
+        "startEndIoUMin": 0.5,
+        "contactIoUMin": 0.22,
+        "contactIoUMax": 0.75,
+        "centroidXRangeMin": 7.0,
+        "centroidXRangeMax": 62.0,
+        "centroidYRangeMin": 0.75,
+        "centroidYRangeMax": 42.0,
+        "reachRangeMin": 38.0,
+        "reachRangeMax": 145.0,
+        "footCenterRangeMax": 58.0,
+        "footWidthCvMax": 0.55,
+        "areaCvMax": 0.2,
+        "poseResidualAverageMin": 0.014,
+        "poseResidualAverageMax": 0.18,
+        "poseResidualMaxMin": 0.03,
+        "poseResidualMaxMax": 0.24,
+        "contactFrameIndex": 5
+      }
+    },
+    "hadoken": {
+      "frames": 12
+    },
+    "shoryuken": {
+      "frames": 12
+    },
+    "tatsumaki": {
+      "frames": 12,
+      "posePlan": [
+        "neutral-chamber",
+        "load",
+        "first-kick",
+        "quarter-turn",
+        "cross-body",
+        "second-contact",
+        "opposite-turn",
+        "third-contact",
+        "spin-carry",
+        "brake",
+        "recovery",
+        "neutral-bridge"
+      ],
+      "semanticQa": {
+        "description": "12F Tatsumaki with genuine rotational leg/torso phases, changing kick extension and recovery; rigid whole-sprite rotation/translation is rejected.",
+        "startEndIoUMin": 0.36,
+        "startEndIoUMax": 0.92,
+        "quarterIoUMin": 0.18,
+        "quarterIoUMax": 0.78,
+        "oppositeIoUMin": 0.16,
+        "oppositeIoUMax": 0.74,
+        "centroidXRangeMin": 8.0,
+        "centroidXRangeMax": 100.0,
+        "centroidYRangeMin": 5.0,
+        "centroidYRangeMax": 95.0,
+        "extentWidthRangeMin": 38.0,
+        "extentWidthRangeMax": 190.0,
+        "areaCvMax": 0.24,
+        "poseResidualAverageMin": 0.022,
+        "poseResidualAverageMax": 0.22,
+        "poseResidualMaxMin": 0.045,
+        "poseResidualMaxMax": 0.3,
+        "quarterFrameIndex": 3,
+        "oppositeFrameIndex": 6
+      }
+    },
+    "super-rush": {
+      "frames": 16,
+      "posePlan": [
+        "neutral",
+        "load",
+        "drive",
+        "contact-1",
+        "link-1",
+        "contact-2",
+        "link-2",
+        "contact-3",
+        "link-3",
+        "contact-4",
+        "link-4",
+        "contact-5",
+        "follow-through",
+        "recovery-1",
+        "recovery-2",
+        "neutral-bridge"
+      ],
+      "semanticQa": {
+        "description": "16F grounded multi-hit rush with five genuinely distinct contact silhouettes, controlled forward travel and recovery; translating one strike pose is rejected.",
+        "startEndIoUMin": 0.4,
+        "contactIoUMin": 0.16,
+        "contactIoUMax": 0.84,
+        "contactDiversityIoUMax": 0.82,
+        "centroidXRangeMin": 10.0,
+        "centroidXRangeMax": 110.0,
+        "centroidYRangeMin": 2.0,
+        "centroidYRangeMax": 80.0,
+        "reachRangeMin": 42.0,
+        "reachRangeMax": 190.0,
+        "footCenterRangeMax": 105.0,
+        "areaCvMax": 0.26,
+        "poseResidualAverageMin": 0.024,
+        "poseResidualAverageMax": 0.24,
+        "poseResidualMaxMin": 0.05,
+        "poseResidualMaxMax": 0.32,
+        "contactFrameIndices": [
+          3,
+          5,
+          7,
+          9,
+          11
+        ]
+      }
+    },
+    "guard": {
+      "frames": 5,
+      "posePlan": [
+        "neutral-guard",
+        "brace",
+        "impact-deflect",
+        "recoil-hold",
+        "neutral-return"
+      ],
+      "semanticQa": {
+        "description": "5F grounded guard with compact brace/impact/recovery; feet stay planted and upper body absorbs the hit without becoming a hit-reaction.",
+        "startEndIoUMin": 0.68,
+        "peakGuardIoUMin": 0.38,
+        "peakGuardIoUMax": 0.88,
+        "centroidXRangeMin": 3.0,
+        "centroidXRangeMax": 45.0,
+        "centroidYRangeMin": 2.0,
+        "centroidYRangeMax": 35.0,
+        "footCenterRangeMax": 32.0,
+        "footWidthCvMax": 0.35,
+        "poseResidualAverageMin": 0.006,
+        "poseResidualAverageMax": 0.11,
+        "poseResidualMaxMin": 0.014,
+        "poseResidualMaxMax": 0.16
+      }
+    },
+    "parry": {
+      "frames": 6,
+      "posePlan": [
+        "neutral",
+        "read",
+        "deflect-contact",
+        "extension",
+        "withdraw",
+        "neutral-return"
+      ],
+      "semanticQa": {
+        "description": "6F parry with a fast authored deflect/contact pose and clean return; controlled root movement, planted feet, no attack-sized lunge.",
+        "startEndIoUMin": 0.64,
+        "peakParryIoUMin": 0.3,
+        "peakParryIoUMax": 0.84,
+        "centroidXRangeMin": 4.0,
+        "centroidXRangeMax": 55.0,
+        "centroidYRangeMin": 0.5,
+        "centroidYRangeMax": 42.0,
+        "footCenterRangeMax": 38.0,
+        "footWidthCvMax": 0.45,
+        "poseResidualAverageMin": 0.009,
+        "poseResidualAverageMax": 0.13,
+        "poseResidualMaxMin": 0.02,
+        "poseResidualMaxMax": 0.18
+      }
+    }
+  }
+}

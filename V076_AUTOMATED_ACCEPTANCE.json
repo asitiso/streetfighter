@@ -1,0 +1,20 @@
+{
+  "batch": "V076",
+  "baseArtifact": "side-scroll-chronicles-rc39-ken-tatsumaki-super-rush-qa.zip",
+  "scope": "Ken authored-animation ECC cache and fast QA orchestration",
+  "kenFrameTarget": 137,
+  "kenEnabledAuthoredFrames": 0,
+  "tatsumakiFrames": 12,
+  "superRushFrames": 16,
+  "authoredOnlyGatePreserved": true,
+  "poseEccCacheSeedEntries": 19,
+  "kenPipelineSeconds": 15.75,
+  "checks": {
+    "verifyKenPipeline": "PASS",
+    "verifyAnimationSequences": "PASS",
+    "verifyV063Rc38": "PASS",
+    "releaseIntegrityRoot": "F732681B6CAB639C2AE807DA05B6AE5152E8B2DB357DAE9CB0C46D8F57A4C8E7"
+  },
+  "gameplayTimingChanged": false,
+  "verdict": "KEN_PIPELINE_CACHE_OPTIMIZATION_PASS"
+}

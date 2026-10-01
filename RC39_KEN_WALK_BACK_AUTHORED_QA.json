@@ -1,0 +1,239 @@
+{
+  "character": "KEN",
+  "sequence": "walk-back",
+  "source": "/mnt/data/ssc_work/art-source/ken/inbox/walk-back",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        80,
+        93,
+        302,
+        425
+      ],
+      "sourceBodyHeight": 332,
+      "paste": [
+        78,
+        80
+      ],
+      "scaledSize": [
+        229,
+        343
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        111,
+        94,
+        313,
+        424
+      ],
+      "sourceBodyHeight": 330,
+      "paste": [
+        88,
+        82
+      ],
+      "scaledSize": [
+        208,
+        341
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        109,
+        96,
+        317,
+        424
+      ],
+      "sourceBodyHeight": 328,
+      "paste": [
+        84,
+        84
+      ],
+      "scaledSize": [
+        215,
+        339
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        110,
+        98,
+        316,
+        424
+      ],
+      "sourceBodyHeight": 326,
+      "paste": [
+        86,
+        87
+      ],
+      "scaledSize": [
+        213,
+        336
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        112,
+        98,
+        309,
+        425
+      ],
+      "sourceBodyHeight": 327,
+      "paste": [
+        90,
+        86
+      ],
+      "scaledSize": [
+        203,
+        337
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        73,
+        98,
+        287,
+        423
+      ],
+      "sourceBodyHeight": 325,
+      "paste": [
+        82,
+        88
+      ],
+      "scaledSize": [
+        221,
+        335
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        67,
+        99,
+        261,
+        422
+      ],
+      "sourceBodyHeight": 323,
+      "paste": [
+        92,
+        90
+      ],
+      "scaledSize": [
+        200,
+        333
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        66,
+        96,
+        287,
+        422
+      ],
+      "sourceBodyHeight": 326,
+      "paste": [
+        78,
+        87
+      ],
+      "scaledSize": [
+        228,
+        336
+      ]
+    },
+    {
+      "frame": 9,
+      "sourceBBox": [
+        69,
+        94,
+        287,
+        423
+      ],
+      "sourceBodyHeight": 329,
+      "paste": [
+        80,
+        83
+      ],
+      "scaledSize": [
+        225,
+        340
+      ]
+    },
+    {
+      "frame": 10,
+      "sourceBBox": [
+        80,
+        93,
+        302,
+        425
+      ],
+      "sourceBodyHeight": 332,
+      "paste": [
+        78,
+        80
+      ],
+      "scaledSize": [
+        229,
+        343
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.039826,
+    "affineResidualMax": 0.060584,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "walk-back",
+    "limits": {
+      "loopIoUMin": 0.42,
+      "oppositeContactIoUMin": 0.35,
+      "oppositeContactIoUMax": 0.9,
+      "centroidXRangeMin": 6.0,
+      "centroidXRangeMax": 90.0,
+      "centroidYRangeMin": 3.0,
+      "centroidYRangeMax": 58.0,
+      "centroidStepMax": 52.0,
+      "areaCvMax": 0.17,
+      "footCenterRangeMin": 24.0,
+      "footCenterRangeMax": 145.0,
+      "footWidthCvMin": 0.05,
+      "footWidthCvMax": 0.95,
+      "residualAverageMin": 0.008,
+      "residualAverageMax": 0.13,
+      "residualMaxMin": 0.018,
+      "residualMaxMax": 0.18
+    },
+    "loopIoU": 1.0,
+    "oppositeContactIoU": 0.759454,
+    "centroidXRange": 33.770024,
+    "centroidYRange": 24.910682,
+    "centroidStepMax": 23.223068,
+    "areaCv": 0.097216,
+    "footCenterRange": 144.49274,
+    "footWidthCv": 0.772077,
+    "residualAverage": 0.039826,
+    "residualMax": 0.060584,
+    "checks": {
+      "loopClosure": true,
+      "oppositeContactDifferent": true,
+      "retreatShapeTravelPresent": true,
+      "verticalCadencePresent": true,
+      "noFrameJump": true,
+      "bodyVolumeStable": true,
+      "footTravelPresent": true,
+      "stanceChanges": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}

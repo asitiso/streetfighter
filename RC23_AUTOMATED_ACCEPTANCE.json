@@ -1,0 +1,31 @@
+{
+  "candidate": "0.0.48-rc.23",
+  "cache": "game-cache-v048",
+  "manifestFiles": 141,
+  "manifestRoot": "2C4D14D5C6BC352E4E9AF9A3BE2E0DA658F6023AB596ACDD7A4DF02CAD2F651E",
+  "playableAttackAtlases": 8,
+  "families": [
+    "normal",
+    "special",
+    "super",
+    "throw"
+  ],
+  "framesPerFamily": 5,
+  "totalBakedFrames": 160,
+  "contactFramesArticulated": true,
+  "airAttackArticulated": true,
+  "attackAtlasPayloadKb": 1363,
+  "stageAudioStillDeferred": true,
+  "finalProofSealPreserved": true,
+  "motionProfiles": 10,
+  "phaseAwareAttackFrames": true,
+  "movementAfterimages": true,
+  "groundedFootInteraction": true,
+  "attackMotionArcs": true,
+  "impactFrameOverlay": true,
+  "reflectiveFloorResponse": true,
+  "hudPortraits": true,
+  "signatureMotionProfiles": true,
+  "idleWeightShift": true,
+  "verdict": "SIGNATURE_MOTION_PASS"
+}

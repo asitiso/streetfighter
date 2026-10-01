@@ -1,0 +1,16 @@
+{
+  "candidate": "0.0.44-rc.19",
+  "cache": "game-cache-v044",
+  "manifestFiles": 121,
+  "manifestRoot": "D96A37BEF56825B5431AEEC8D3916E416B05A304DFACE3171508F4055506DA36",
+  "foregroundAssets": 5,
+  "productionMusicAssets": 9,
+  "stageMusicDeferredFromAppShell": true,
+  "bossPortraitCinematics": [
+    "URIEN",
+    "GILL"
+  ],
+  "finalBossMusicCrossfade": true,
+  "finalProofSealPreserved": true,
+  "verdict": "STAGE_FOREGROUND_BOSS_CINEMATIC_PRODUCTION_AUDIO_PASS"
+}

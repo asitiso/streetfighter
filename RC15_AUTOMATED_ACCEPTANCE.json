@@ -1,0 +1,12 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "cache": "game-cache-v063",
+  "fingerprint": "96141406EA417444",
+  "stableFingerprint": true,
+  "staleCertificationDetected": true,
+  "runtimeErrorInvalidatesApproval": true,
+  "sealedProofWhenMatched": true,
+  "staleProofRejected": true,
+  "approvalFlow": "APPROVE_SEAL_AUTO_EXPORT_FINAL_PROOF",
+  "verdict": "EVIDENCE_SEAL_AND_STALE_GUARD_PASS"
+}

@@ -1,0 +1,164 @@
+{
+  "candidate": "0.0.63-rc.38",
+  "pipeline": "hq-new-original-user-approved-v1",
+  "fallbackOrder": [
+    "HQ NEW ORIGINAL",
+    "HD REMASTER",
+    "LITE"
+  ],
+  "approvedCharacters": [
+    "RYU",
+    "CHUNLI",
+    "KEN",
+    "IBUKI"
+  ],
+  "records": [
+    {
+      "character": "RYU",
+      "slug": "ryu",
+      "sourceFile": "art-source/hq-character-masters/new-originals/ryu/ryu_master_new_original_v01.png",
+      "sourceWidth": 1161,
+      "sourceHeight": 1355,
+      "sourceAlphaBbox": [
+        88,
+        49,
+        1149,
+        1308
+      ],
+      "runtimeFile": "/art/combat-sprites-hq/ryu.webp",
+      "runtimeWidth": 384,
+      "runtimeHeight": 448,
+      "runtimeAlphaBbox": [
+        69,
+        65,
+        319,
+        440
+      ],
+      "runtimeSha256": "5E21EA786BF59F73A684DC416487766F5672134FD75BCB6F8C66CBBA27D6AA23",
+      "approvalBasis": "user-approved-new-original",
+      "preservedGroundY": 440,
+      "referenceLiteAlphaBbox": [
+        34,
+        32,
+        158,
+        220
+      ],
+      "width": 384,
+      "height": 448,
+      "sha256": "5E21EA786BF59F73A684DC416487766F5672134FD75BCB6F8C66CBBA27D6AA23",
+      "approved": true
+    },
+    {
+      "character": "CHUNLI",
+      "slug": "chunli",
+      "sourceFile": "art-source/hq-character-masters/new-originals/chunli/chunli_master_new_original_v01.png",
+      "sourceWidth": 1161,
+      "sourceHeight": 1355,
+      "sourceAlphaBbox": [
+        49,
+        49,
+        1133,
+        1331
+      ],
+      "runtimeFile": "/art/combat-sprites-hq/chunli.webp",
+      "runtimeWidth": 384,
+      "runtimeHeight": 448,
+      "runtimeAlphaBbox": [
+        75,
+        64,
+        332,
+        435
+      ],
+      "runtimeSha256": "8B71D8CD13E194D9C6CC8B2BA9932BE6A30FC78AC32436C2F7765CCD986EFF65",
+      "approvalBasis": "user-approved-new-original",
+      "preservedGroundY": 440,
+      "referenceLiteAlphaBbox": [
+        36,
+        32,
+        156,
+        220
+      ],
+      "width": 384,
+      "height": 448,
+      "sha256": "8B71D8CD13E194D9C6CC8B2BA9932BE6A30FC78AC32436C2F7765CCD986EFF65",
+      "approved": true
+    },
+    {
+      "character": "KEN",
+      "slug": "ken",
+      "sourceFile": "art-source/hq-character-masters/new-originals/ken/ken_master_new_original_v01.png",
+      "sourceWidth": 1161,
+      "sourceHeight": 1355,
+      "sourceAlphaBbox": [
+        51,
+        19,
+        1139,
+        1355
+      ],
+      "runtimeFile": "/art/combat-sprites-hq/ken.webp",
+      "runtimeWidth": 384,
+      "runtimeHeight": 448,
+      "runtimeAlphaBbox": [
+        80,
+        97,
+        302,
+        424
+      ],
+      "runtimeSha256": "D3F908AA421AF3E40B8552DF0BB12FA99855BBE5C64F49287C30628CD595932B",
+      "approvalBasis": "user-approved-new-original",
+      "preservedGroundY": 440,
+      "referenceLiteAlphaBbox": [
+        34,
+        44,
+        158,
+        220
+      ],
+      "width": 384,
+      "height": 448,
+      "sha256": "D3F908AA421AF3E40B8552DF0BB12FA99855BBE5C64F49287C30628CD595932B",
+      "approved": true
+    },
+    {
+      "character": "IBUKI",
+      "slug": "ibuki",
+      "sourceFile": "art-source/hq-character-masters/new-originals/ibuki/ibuki_master_new_original_v01.png",
+      "sourceWidth": 1161,
+      "sourceHeight": 1355,
+      "sourceAlphaBbox": [
+        43,
+        0,
+        1141,
+        1355
+      ],
+      "runtimeFile": "/art/combat-sprites-hq/ibuki.webp",
+      "runtimeWidth": 384,
+      "runtimeHeight": 448,
+      "runtimeAlphaBbox": [
+        48,
+        80,
+        328,
+        432
+      ],
+      "runtimeSha256": "76BE49783ADBF49DDC537AEB1CF8E4C18436DDB4F5A12E8188FA11DC6012AC36",
+      "approvalBasis": "user-approved-new-original",
+      "preservedGroundY": 440,
+      "referenceLiteAlphaBbox": [
+        26,
+        40,
+        166,
+        220
+      ],
+      "width": 384,
+      "height": 448,
+      "sha256": "76BE49783ADBF49DDC537AEB1CF8E4C18436DDB4F5A12E8188FA11DC6012AC36",
+      "approved": true
+    }
+  ],
+  "note": "Uses the user-approved newly generated high-resolution originals without pose-fidelity rejection. Runtime fitting preserves established character height and ground contact while retaining each new original silhouette.",
+  "pilotTargetCharacters": [
+    "RYU",
+    "CHUNLI",
+    "KEN",
+    "IBUKI"
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "source": "/mnt/data/\ub958_\uc2a4\ud0c0\uc77c_\ucc29\uc9c0\uc640_\ud68c\ubcf5_6\ud504\ub808\uc784_\uc2a4\ud504\ub77c\uc774\ud2b8_\uc2dc\ud2b8.png",
+  "output": "/mnt/data/work_rc34/public/art/animation-hq/ryu/landing.webp",
+  "frames": 6,
+  "frameSize": [
+    384,
+    448
+  ],
+  "scale": 0.8636363636363636,
+  "bytes": 586602,
+  "sha256": "44838076F2AB3C781A0B995DB7CBBB427B39C3E26DAA1A773B4B401BF7CFE79B",
+  "metrics": [
+    {
+      "frame": 1,
+      "grid": [
+        0,
+        0
+      ],
+      "sourceBBox": [
+        101,
+        32,
+        385,
+        486
+      ],
+      "paste": [
+        64,
+        30
+      ],
+      "scaledSize": [
+        245,
+        392
+      ],
+      "outputBBox": [
+        64,
+        30,
+        309,
+        422
+      ]
+    },
+    {
+      "frame": 2,
+      "grid": [
+        0,
+        1
+      ],
+      "sourceBBox": [
+        77,
+        111,
+        405,
+        510
+      ],
+      "paste": [
+        44,
+        80
+      ],
+      "scaledSize": [
+        283,
+        345
+      ],
+      "outputBBox": [
+        44,
+        80,
+        327,
+        425
+      ]
+    },
+    {
+      "frame": 3,
+      "grid": [
+        0,
+        2
+      ],
+      "sourceBBox": [
+        108,
+        204,
+        438,
+        510
+      ],
+      "paste": [
+        49,
+        161
+      ],
+      "scaledSize": [
+        285,
+        264
+      ],
+      "outputBBox": [
+        49,
+        161,
+        334,
+        425
+      ]
+    },
+    {
+      "frame": 4,
+      "grid": [
+        1,
+        0
+      ],
+      "sourceBBox": [
+        84,
+        141,
+        439,
+        465
+      ],
+      "paste": [
+        36,
+        140
+      ],
+      "scaledSize": [
+        307,
+        280
+      ],
+      "outputBBox": [
+        36,
+        140,
+        343,
+        420
+      ]
+    },
+    {
+      "frame": 5,
+      "grid": [
+        1,
+        1
+      ],
+      "sourceBBox": [
+        89,
+        72,
+        427,
+        465
+      ],
+      "paste": [
+        43,
+        81
+      ],
+      "scaledSize": [
+        292,
+        339
+      ],
+      "outputBBox": [
+        43,
+        81,
+        335,
+        420
+      ]
+    },
+    {
+      "frame": 6,
+      "grid": [
+        1,
+        2
+      ],
+      "sourceBBox": [
+        96,
+        38,
+        401,
+        465
+      ],
+      "paste": [
+        56,
+        51
+      ],
+      "scaledSize": [
+        263,
+        369
+      ],
+      "outputBBox": [
+        56,
+        51,
+        319,
+        420
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2927 @@
+# ============================================================
+# MASTER COMMAND
+# STREET FIGHTER III — SIDE-SCROLL CHRONICLES
+# MOBILE PWA / 5-STAGE COMPLETE FIRST VERSION
+# ============================================================
+
+현재 프로젝트 전체를 먼저 분석한 뒤, 아래 MASTER SPEC을 최상위 설계 기준으로 삼아
+실제 코드·게임플레이·그래픽·UI·사운드·PWA 설치·저장까지 구현하라.
+
+이 프로젝트의 목표는 단순한 프로토타입이나 전투 테스트가 아니다.
+
+최초 사용자가 접하게 되는 첫 버전 V0.1부터
+
+STAGE 1
+→ STAGE 2
+→ STAGE 3
+→ STAGE 4
+→ STAGE 5
+→ FINAL BOSS
+→ ENDING
+
+까지 하나의 캠페인으로 실제 완주할 수 있는 게임을 만들어라.
+
+PHASE 0~10은 사용자에게 차례로 공개되는 버전이 아니다.
+모두 V0.1을 완성하기 위한 INTERNAL DEVELOPMENT PHASE다.
+
+Stage 1만 완성하고 V0.1이라고 부르지 마라.
+Ryu만 구현하고 V0.1이라고 부르지 마라.
+회색 박스와 임시 캐릭터로 V0.1이라고 부르지 마라.
+
+아래 최종 완료 조건을 전부 만족한 순간에만 V0.1 COMPLETE를 선언한다.
+
+
+# ============================================================
+# 1. GAME IDENTITY
+# ============================================================
+
+게임의 핵심 정체성:
+
+"Street Fighter III: 3rd Strike의 캐릭터가 그대로 살아 있는 상태로
+도시를 횡스크롤로 진행하며 여러 격투가와 싸우다가,
+강적을 만나면 3rd Strike 방식의 1 VS 1 DUEL로 자연스럽게 전환되는 게임."
+
+핵심 조합:
+
+STREET FIGHTER III: 3rd Strike
++
+BELT-SCROLLING ACTION
++
+1 VS 1 FIGHTING DUEL
++
+MOBILE PWA
+
+
+최우선 품질 순위:
+
+1. Street Fighter III 캐릭터 충실도
+2. 캐릭터 애니메이션과 움직임
+3. 공격 타격감
+4. Parry
+5. BELT → DUEL 전환
+6. 실제 완성된 화면
+7. 세계관
+8. Stage 구성
+9. 부가 기능
+
+
+기능 수를 늘리는 것보다
+캐릭터 하나를 제대로 살아 움직이게 하는 것을 우선한다.
+
+
+# ============================================================
+# 2. REFERENCE GAME
+# ============================================================
+
+전투 및 캐릭터 표현의 기준 작품은
+
+STREET FIGHTER III: 3rd Strike
+
+로 고정한다.
+
+Street Fighter 6의 Drive 시스템은 사용하지 않는다.
+
+삭제:
+
+Drive Impact
+Drive Rush
+Drive Parry
+Drive Gauge
+Burnout
+
+대신 다음을 핵심 시스템으로 사용한다.
+
+Parry
+Low Parry
+Red Parry
+Guard
+Throw
+Throw Escape
+EX Move
+Super Art
+Super Gauge
+KO
+
+
+캐릭터의 다음 요소를 3rd Strike 감각에 맞춰라.
+
+Idle
+Walk Forward
+Walk Backward
+Crouch
+Jump
+Forward Jump
+Backward Jump
+Normals
+Command Normals
+Special Moves
+EX Moves
+Throws
+Parry
+Hit Reaction
+Knockdown
+Super Arts
+Victory Pose
+
+
+단순히 외형만 비슷해서는 안 된다.
+
+캐릭터를 움직이는 순간
+해당 캐릭터라는 느낌이 나야 한다.
+
+
+# ============================================================
+# 3. COPYRIGHT / ASSET WORKING RULE
+# ============================================================
+
+이 프로젝트는 개인 팬 프로젝트 기준으로 제작한다.
+
+그러나 개발 구조 자체는 원본 게임 파일의 직접 추출에 의존하지 않도록 설계한다.
+
+원작은 동작, 구도, 전투 감각, 캐릭터 디자인의 REFERENCE로 사용한다.
+
+필요한 게임용 이미지와 애니메이션 자료는
+프로젝트용으로 별도 제작하고 정리한다.
+
+원본 sprite/audio 파일을 프로젝트 구조의 필수 의존성으로 만들지 않는다.
+
+
+# ============================================================
+# 4. FIRST VERSION ABSOLUTE SCOPE
+# ============================================================
+
+V0.1에는 처음부터 반드시 다음이 모두 들어 있어야 한다.
+
+8 Playable Characters
+
+5 Complete Stages
+
+BELT MODE
+
+DUEL MODE
+
+Parry
+
+Low Parry
+
+Red Parry
+
+Guard
+
+Throw
+
+EX Move
+
+Super Art
+
+Enemy Director
+
+Elite Fighter
+
+Boss Duel
+
+Final Boss
+
+Ending
+
+Character Select
+
+Super Art Select
+
+Stage Progression
+
+Stage Clear
+
+Continue
+
+Save
+
+Options
+
+Touch Controls
+
+Gamepad Support where browser supports it
+
+PWA Installation
+
+Landscape Fullscreen
+
+Offline-capable game shell
+
+Audio
+
+VFX
+
+Completed HUD
+
+
+V0.1 예상 첫 플레이:
+
+약 50~70분.
+
+
+# ============================================================
+# 5. PLAYABLE CHARACTERS
+# ============================================================
+
+V0.1 플레이어 캐릭터는 다음 8명으로 고정한다.
+
+RYU
+KEN
+CHUN-LI
+ALEX
+DUDLEY
+MAKOTO
+IBUKI
+YUN
+
+
+캐릭터 성격을 획일화하지 마라.
+
+
+RYU
+정석형 / 중거리 / Hadoken / Shoryuken / Tatsumaki
+
+
+KEN
+공격형 / 빠른 압박 / 콤보 중심
+
+
+CHUN-LI
+긴 기본기 / 빠른 이동 / Footsie / Kikoken
+
+
+ALEX
+파워 / Grab / Brawler / BELT MODE 친화
+
+
+DUDLEY
+Boxing / 회피 / 근접 연계 / 정교한 펀치
+
+
+MAKOTO
+폭발적 전진 / 강한 단발 타격 / Karate
+
+
+IBUKI
+빠른 이동 / Kunai / 공중 접근 / 기동성
+
+
+YUN
+Rushdown / 빠른 연계 / Genei Jin 계열 플레이
+
+
+각 캐릭터는 단순한 스킨 교체가 아니라
+전투 경험 자체가 달라야 한다.
+
+
+# ============================================================
+# 6. BOSS CHARACTERS
+# ============================================================
+
+Boss Only Character:
+
+URIEN
+GILL
+
+
+Gill은 Stage 5 Final Boss다.
+
+Gill은 일반 보스보다 훨씬 높은 연출 예산을 배정한다.
+
+Intro
+Idle
+Attack
+Special
+Super
+Hit
+Phase Transition
+KO
+Final Sequence
+
+를 별도로 제작한다.
+
+
+# ============================================================
+# 7. CHARACTER DATA ARCHITECTURE
+# ============================================================
+
+기술 정보를 캐릭터 코드 안에 직접 하드코딩하지 마라.
+
+데이터 기반으로 분리한다.
+
+
+예:
+
+MoveData
+{
+    id
+    character
+    input
+    startup
+    active
+    recovery
+    damage
+    hitStop
+    hitStun
+    blockStun
+    pushback
+    launch
+    knockdown
+    cancelRules
+    exCost
+    superGain
+    animation
+    spriteSequence
+    hitbox
+    hurtbox
+    vfx
+    sfx
+}
+
+
+Combat code와 Character data를 분리한다.
+
+캐릭터 추가나 조정 시 Combat Engine을 다시 작성하지 않아도 되게 만들어라.
+
+
+# ============================================================
+# 8. 60HZ COMBAT CORE
+# ============================================================
+
+전투 로직은 반드시 Fixed 60Hz Simulation으로 만든다.
+
+Rendering FPS와 Combat Simulation을 분리한다.
+
+
+Combat:
+60Hz FIXED
+
+Rendering:
+Device refresh dependent
+
+
+120Hz 스마트폰에서도 기술 프레임이 달라지면 안 된다.
+
+프레임 드롭 시에도 전투 판정 순서가 무너지지 않게 한다.
+
+
+# ============================================================
+# 9. PARRY SYSTEM
+# ============================================================
+
+Parry는 이 게임의 가장 중요한 시스템 중 하나다.
+
+
+HIGH PARRY:
+
+공격 직전 Forward 입력.
+
+
+LOW PARRY:
+
+공격 직전 Down 입력.
+
+
+성공 시:
+
+Damage 0
+
+Parry VFX
+
+Parry SFX
+
+짧은 freeze
+
+즉시 행동 가능
+
+공격자 recovery 유지
+
+
+BELT MODE에서도 동일한 시스템을 사용한다.
+
+예:
+
+Enemy A 공격
+→ Parry
+
+Enemy B 공격
+→ Parry
+
+Enemy C Low Attack
+↓ Parry
+
+→ Counter Attack
+
+이 가능해야 한다.
+
+
+RED PARRY도 구현한다.
+
+Guard 중 정확한 타이밍의 Parry 입력으로
+즉시 반격 기회를 만든다.
+
+Red Parry는 고급 기술이며
+게임 진행 필수 요소로 강요하지 않는다.
+
+
+# ============================================================
+# 10. SUPER ART
+# ============================================================
+
+캐릭터 선택 후
+
+SUPER ART SELECT
+
+화면을 제공한다.
+
+
+SA I
+SA II
+SA III
+
+
+Super Art에 따라
+
+Gauge Length
+Stock Count
+Battle Strategy
+
+가 달라지도록 한다.
+
+
+SF6식 Level 1/2/3 Super 구조로 바꾸지 않는다.
+
+
+# ============================================================
+# 11. BELT MODE
+# ============================================================
+
+일반 Stage 진행 모드.
+
+플레이어는
+
+좌우 진행
++
+화면 깊이 이동
+
+을 사용한다.
+
+
+일반 화면 적 수:
+
+3~6명 권장
+
+특수 상황:
+
+최대 7~8명 가능
+
+
+그러나 모든 적이 동시에 공격해서는 안 된다.
+
+
+Enemy Director를 만든다.
+
+역할:
+
+Attack Slot
+Waiting Slot
+Flank Slot
+Ranged Slot
+Recovery Slot
+
+
+보통 동시에 적극 공격하는 적은 1~2명 정도로 유지한다.
+
+나머지는 이동, 위협, 위치 변경, 빈틈 탐색을 한다.
+
+
+# ============================================================
+# 12. BELT MODE — SF3 MOVE FIDELITY
+# ============================================================
+
+BELT MODE용으로 캐릭터의 필살기 자체를 새로 만들지 마라.
+
+같은 캐릭터 기술을 사용한다.
+
+예:
+
+Hadoken
+
+Shoryuken
+
+Tatsumaki
+
+Hayate
+
+Kunai
+
+Flash Chop
+
+등.
+
+
+다만 다수전에서 사용할 수 있도록
+targeting과 공간 판정을 확장한다.
+
+
+예:
+
+Shoryuken
+= 대공 + 포위 탈출
+
+Tatsumaki
+= 전진 공격 + 여러 적 타격
+
+Throw
+= 적 하나를 다른 적에게 던질 수 있음
+
+Hadoken
+= 전방 적 통제
+
+
+기술의 정체성은 유지하고
+활용 범위만 확대한다.
+
+
+# ============================================================
+# 13. SOFT LANE ALIGNMENT
+# ============================================================
+
+SF3 기술은 기본적으로 한 축 싸움에 맞춰져 있다.
+
+BELT MODE에서 Y축 때문에 공격이 지나치게 자주 빗나가면
+조작감이 나빠진다.
+
+따라서 공격 직전 가까운 적에 대해
+
+SOFT LANE ALIGNMENT
+
+를 적용한다.
+
+그러나 자동 이동처럼 느껴지면 안 된다.
+
+매우 짧은 거리만 허용한다.
+
+No Teleport.
+
+No Hard Lock.
+
+No Forced Snap.
+
+
+# ============================================================
+# 14. DUEL MODE
+# ============================================================
+
+강적을 만나면 BELT MODE에서 DUEL MODE로 전환한다.
+
+
+BELT MODE
+
+↓
+일반 적 후퇴 또는 쓰러짐
+↓
+음악 감소
+↓
+Boss 등장
+↓
+카메라 접근
+↓
+캐릭터 대치
+↓
+Y축 이동 잠금
+↓
+DUEL HUD 등장
+↓
+FIGHT
+↓
+1 VS 1
+
+
+DUEL MODE에서는
+
+Forward
+Backward
+Crouch
+Jump
+Guard
+Throw
+Throw Escape
+Parry
+Low Parry
+Red Parry
+EX
+Super Art
+Corner
+KO
+
+를 사용한다.
+
+
+BELT MODE와 DUEL MODE는
+서로 다른 Combat Engine을 사용하지 않는다.
+
+ONE COMBAT CORE를 사용한다.
+
+
+ModeRules만 변경한다.
+
+
+# ============================================================
+# 15. BELT → DUEL TRANSITION
+# ============================================================
+
+이 게임을 대표하는 장면으로 취급한다.
+
+평균 4~7초.
+
+예:
+
+거리의 마지막 적이 쓰러진다.
+
+배경 음악이 약해진다.
+
+화면 오른쪽에서 강적이 등장한다.
+
+플레이어 캐릭터가 자동으로 그 방향을 바라본다.
+
+카메라가 낮아지고 가까워진다.
+
+적들이 뒤로 물러난다.
+
+캐릭터 클로즈업.
+
+Boss 클로즈업.
+
+HP HUD가 DUEL HUD로 변한다.
+
+"FIGHT!"
+
+대전 시작.
+
+
+전환 카메라 패턴을 최소 3종 이상 제작해
+5개 Stage가 모두 동일한 연출처럼 보이지 않게 한다.
+
+
+# ============================================================
+# 16. WORLD / STORY
+# ============================================================
+
+배경은 판타지 세계가 아니다.
+
+현대 Street Fighter 세계다.
+
+도시
+도장
+지하철
+시장
+거리
+체육관
+Fight Club
+훈련시설
+Secret Society 시설
+
+등을 사용한다.
+
+
+핵심 스토리:
+
+세계 여러 도시의 강한 격투가들이
+수상한 격투 이벤트와 실종 사건에 연결된다.
+
+처음에는 단순한 Street Fighting처럼 보인다.
+
+진행하면서 Secret Society의 흔적이 나타난다.
+
+Stage 5에서 사건이 Gill과 연결된다.
+
+
+캐릭터들이 서로 싸우는 이유는
+무조건 악당이기 때문이 아니다.
+
+오해
+힘 시험
+임무 충돌
+정보 확인
+통과 시험
+개인적 경쟁
+
+등 자연스러운 이유를 사용한다.
+
+
+# ============================================================
+# 17. STAGE 1
+# NEW YORK — DOWNTOWN
+# ============================================================
+
+목표 시간:
+
+약 9~12분.
+
+
+Visual:
+
+뉴욕풍 도심
+
+농구장
+
+지하철 입구
+
+그래피티
+
+택시
+
+소방계단
+
+Street Store
+
+골목
+
+
+시간 변화:
+
+오후 → 해질녘.
+
+
+적:
+
+Street Brawler
+
+Boxer
+
+Wrestler
+
+Kick Fighter
+
+Heavy Brawler
+
+
+환경:
+
+쓰레기통
+
+가로등
+
+상자
+
+차량
+
+간판
+
+
+환경 물체와 적이 충돌할 수 있게 한다.
+
+
+Stage 1 목적:
+
+조작
+
+Basic Combo
+
+Parry
+
+Throw
+
+EX
+
+를 자연스럽게 경험시킨다.
+
+
+Boss Duel:
+
+플레이 캐릭터에 따라 적절한 SF 캐릭터를 선택한다.
+
+동일 캐릭터 mirror가 자연스럽지 않으면 대체 Boss를 사용한다.
+
+
+# ============================================================
+# 18. STAGE 2
+# HONG KONG — NIGHT MARKET
+# ============================================================
+
+목표 시간:
+
+약 10~12분.
+
+
+Visual:
+
+야시장
+
+네온
+
+음식점
+
+좁은 시장 통로
+
+오토바이
+
+건물 옥상
+
+화려한 간판
+
+밤거리
+
+
+Stage 1보다 전투 템포를 높인다.
+
+
+적:
+
+Fast Striker
+
+Kung-Fu Fighter
+
+Agile Fighter
+
+Kick Fighter
+
+Throw Fighter
+
+
+Stage gimmick:
+
+좁은 길
+
+시장 물체
+
+파괴되는 좌판
+
+간판
+
+여러 방향에서의 적 진입
+
+
+Boss Duel은 속도와 연계를 강조한다.
+
+
+# ============================================================
+# 19. STAGE 3
+# JAPAN — KARATE DISTRICT
+# ============================================================
+
+목표 시간:
+
+약 10~13분.
+
+
+Visual:
+
+현대 일본 상점가
+
+주택가
+
+전철
+
+도장
+
+자판기
+
+산길
+
+훈련장
+
+
+판타지 일본으로 만들지 않는다.
+
+현대 공간 안에 전통 도장이 존재하는 느낌으로 한다.
+
+
+적:
+
+Karate Fighter
+
+Dojo Fighter
+
+Grappler
+
+Technical Fighter
+
+Fast Fighter
+
+
+Stage 3부터
+
+Parry
+Counter
+Spacing
+
+이 중요해진다.
+
+
+적 HP만 늘려 난이도를 높이지 않는다.
+
+AI 판단을 강화한다.
+
+
+# ============================================================
+# 20. STAGE 4
+# LONDON — UNDERGROUND FIGHT CLUB
+# ============================================================
+
+목표 시간:
+
+약 11~14분.
+
+
+Visual:
+
+비 오는 런던 거리
+
+펍
+
+복싱 체육관
+
+젖은 아스팔트
+
+골목
+
+지하 Fight Club
+
+철망
+
+관중
+
+스포트라이트
+
+
+적:
+
+Boxer
+
+Heavyweight
+
+Technical Boxer
+
+Grappler
+
+MMA-style Fighter
+
+
+중반부터 Secret Society 관련 인물들이 나타난다.
+
+
+Elite Rush를 한 번 사용한다.
+
+그러나 단순 HP 높은 적 연속 등장으로 만들지 않는다.
+
+전투 스타일이 서로 달라야 한다.
+
+
+# ============================================================
+# 21. STAGE 5
+# SECRET SOCIETY FACILITY
+# ============================================================
+
+목표 시간:
+
+약 13~17분.
+
+
+Stage 5는 V0.1의 최고 품질 Stage다.
+
+
+구성:
+
+도시 외곽
+
+Secret Society entrance
+
+시설 복도
+
+훈련 구역
+
+연구 시설
+
+거대한 홀
+
+Urien area
+
+Gill final arena
+
+
+이 Stage에서는 이전 시스템 전체를 사용하게 한다.
+
+
+Normal Fight
+
+Advanced Enemy
+
+Elite
+
+Parry challenge
+
+Environmental Fight
+
+Urien Duel
+
+Story Event
+
+Final approach
+
+Gill Final Duel
+
+Ending
+
+
+Stage 5를 단순히 Stage 4보다 적이 많은 지역으로 만들지 마라.
+
+
+# ============================================================
+# 22. FINAL BOSS — GILL
+# ============================================================
+
+Gill전은 전체 V0.1의 클라이맥스다.
+
+Boss 전용:
+
+Intro animation
+
+Unique HUD presentation
+
+Special VFX
+
+Super VFX
+
+Phase transition
+
+Music transition
+
+Final KO
+
+Ending sequence
+
+
+Phase 1:
+
+기본 전투.
+
+
+Phase 2:
+
+기술 패턴 강화.
+
+연출 변화.
+
+
+Final segment:
+
+음악과 배경의 긴장감 상승.
+
+그러나 플레이어 입력을 지나치게 빼앗는 긴 컷신은 사용하지 않는다.
+
+
+# ============================================================
+# 23. CAMPAIGN FLOW
+# ============================================================
+
+최초 플레이 흐름은 반드시 다음과 같다.
+
+
+TITLE
+↓
+NEW GAME
+↓
+CHARACTER SELECT
+↓
+SUPER ART SELECT
+↓
+STAGE 1
+↓
+STAGE CLEAR
+↓
+STAGE 2
+↓
+STAGE CLEAR
+↓
+STAGE 3
+↓
+STAGE CLEAR
+↓
+STAGE 4
+↓
+STAGE CLEAR
+↓
+STAGE 5
+↓
+FINAL BOSS
+↓
+ENDING
+↓
+RESULT
+
+
+게임을 종료하면 현재 Stage 시작 지점을 저장한다.
+
+
+Continue 예:
+
+CONTINUE
+STAGE 3 — JAPAN
+
+
+첫 엔딩 후:
+
+STAGE SELECT
+
+해금.
+
+
+# ============================================================
+# 24. MOBILE PLATFORM
+# ============================================================
+
+최종 실행 환경은
+
+MOBILE WEB APP / PWA
+
+다.
+
+
+앱스토어 설치를 필수로 하지 않는다.
+
+사용자는:
+
+URL 접속
+↓
+Install / Add to Home Screen
+↓
+홈 화면 아이콘
+↓
+Standalone 실행
+
+형태로 사용한다.
+
+
+# ============================================================
+# 25. RECOMMENDED WEB STACK
+# ============================================================
+
+권장:
+
+TypeScript
+
+Vite
+
+PixiJS / WebGL
+
+Custom Combat Core
+
+Web Audio API
+
+IndexedDB
+
+Service Worker
+
+PWA Manifest
+
+
+특정 Framework가 현재 프로젝트와 더 잘 맞는다면 유지해도 된다.
+
+그러나 Combat Timing을 UI Framework나 일반 Game Loop에 종속시키지 않는다.
+
+
+# ============================================================
+# 26. PWA REQUIREMENTS
+# ============================================================
+
+manifest 포함:
+
+name
+
+short_name
+
+icons
+
+start_url
+
+display: standalone
+
+orientation: landscape
+
+theme_color
+
+background_color
+
+
+Service Worker 구현.
+
+
+App shell은 offline cache.
+
+
+저장 데이터와 게임 cache 버전은 분리한다.
+
+
+예:
+
+game-cache-v001
+
+save-data-v1
+
+
+게임 업데이트 시 Save를 지우지 않는다.
+
+
+# ============================================================
+# 27. LANDSCAPE ONLY
+# ============================================================
+
+게임은 가로화면 기준으로 설계한다.
+
+Portrait 상태에서는 플레이하지 않는다.
+
+
+안내:
+
+"휴대폰을 가로로 돌려주세요."
+
+
+가로 전환 후 게임 표시.
+
+
+가능한 환경에서는 Fullscreen / standalone mode를 사용한다.
+
+
+# ============================================================
+# 28. TOUCH CONTROL
+# ============================================================
+
+왼쪽:
+
+8-direction virtual stick.
+
+
+오른쪽:
+
+LP
+MP
+HP
+
+LK
+MK
+HK
+
+
+기본은 Street Fighter 6-button layout이다.
+
+
+Command input:
+
+Hadoken:
+↓ ↘ → + P
+
+Shoryuken:
+→ ↓ ↘ + P
+
+등의 입력을 유지한다.
+
+
+한 버튼 필살기를 기본 조작으로 만들지 않는다.
+
+
+# ============================================================
+# 29. TOUCH CUSTOMIZATION
+# ============================================================
+
+설정에서 반드시 제공:
+
+Stick position
+
+Stick size
+
+Button position
+
+Button size
+
+Button opacity
+
+Vibration toggle
+
+
+설정은 IndexedDB에 저장한다.
+
+
+모바일 기기마다 손 크기와 화면 비율이 다르므로
+이 기능은 필수다.
+
+
+# ============================================================
+# 30. SAFE AREA
+# ============================================================
+
+다음을 고려한다.
+
+Notch
+
+Dynamic Island
+
+Android navigation area
+
+Rounded corners
+
+
+CSS safe-area 환경변수를 사용한다.
+
+
+HUD나 버튼이 잘리지 않게 한다.
+
+
+# ============================================================
+# 31. VISUAL PRODUCTION — ABSOLUTE RULE
+# ============================================================
+
+이 프로젝트는 VISUAL-FIRST로 진행한다.
+
+
+필요한 그래픽 에셋이 없다는 이유로
+
+회색 박스
+
+흰 사각형
+
+기본 HTML 버튼
+
+임시 원
+
+색깔만 있는 Placeholder
+
+를 최종 화면처럼 남겨두지 마라.
+
+
+필요한 이미지가 없으면
+필요한 이미지를 적극적으로 제작한다.
+
+
+순서:
+
+게임에 필요한 화면 확인
+
+↓
+
+Visual Reference 제작
+
+↓
+
+게임용 asset 제작
+
+↓
+
+Sprite / Background / UI / FX 분리
+
+↓
+
+실제 게임 적용
+
+↓
+
+스마트폰 화면 캡처
+
+↓
+
+Reference와 비교
+
+↓
+
+부족하면 다시 제작
+
+
+"나중에 그림을 넣는다."
+
+라는 방식으로 미루지 않는다.
+
+
+# ============================================================
+# 32. IMAGE GENERATION / CREATION DUTY
+# ============================================================
+
+개발 환경에서 이미지 생성 기능이나 이미지 제작 도구를 사용할 수 있다면
+적극적으로 사용한다.
+
+이미지는 분위기 참고만 하고 버리지 않는다.
+
+다음 목적으로 사용한다.
+
+Character visual reference
+
+Animation key pose
+
+Stage background reference
+
+Foreground element
+
+Prop reference
+
+UI reference
+
+VFX reference
+
+Boss intro
+
+Stage intro
+
+Ending image
+
+Marketing-style title art
+
+PWA icon
+
+
+생성된 이미지를 그대로 게임 asset으로 사용하기 어려우면
+
+crop
+
+clean
+
+separate layers
+
+resize
+
+sprite-sheet conversion
+
+palette adjustment
+
+transparency
+
+compression
+
+등 필요한 가공을 수행한다.
+
+
+# ============================================================
+# 33. FIRST VISUAL MASTER SET
+# ============================================================
+
+게임 로직 제작과 동시에
+최소 다음 화면의 Visual Master를 먼저 확보한다.
+
+
+TITLE
+
+CHARACTER SELECT
+
+SUPER ART SELECT
+
+RYU BELT MODE
+
+ALEX BELT MODE
+
+CHUN-LI BELT MODE
+
+MULTI-ENEMY BATTLE
+
+PARRY MOMENT
+
+EX MOVE
+
+SUPER ART
+
+STAGE 1 NEW YORK
+
+STAGE 2 HONG KONG
+
+STAGE 3 JAPAN
+
+STAGE 4 LONDON
+
+STAGE 5 SECRET SOCIETY
+
+BELT → DUEL
+
+GILL FINAL BATTLE
+
+ENDING
+
+
+이 화면들이 게임 전체의 시각적 계약서다.
+
+
+# ============================================================
+# 34. STAGE VISUAL COMPLETENESS
+# ============================================================
+
+Stage 1 이미지만 제작하고 중단하지 마라.
+
+Stage 1~5 모두 초기 개발 시점부터 비주얼 방향을 확정한다.
+
+
+각 Stage 최소:
+
+Establishing Shot
+
+Walk Scene
+
+Normal Battle
+
+Crowd Battle
+
+Environmental Interaction
+
+Elite Battle
+
+Boss Entrance
+
+Duel
+
+Super Art Scene
+
+Stage Clear
+
+
+를 시각적으로 정의한다.
+
+
+# ============================================================
+# 35. CHARACTER VISUAL BIBLE
+# ============================================================
+
+8명 각각 최소:
+
+Front
+
+Side
+
+3/4
+
+Idle
+
+Walk
+
+Crouch
+
+Jump
+
+LP
+
+MP
+
+HP
+
+LK
+
+MK
+
+HK
+
+Throw
+
+Parry
+
+Hit
+
+Knockdown
+
+Special
+
+EX
+
+Super
+
+Victory
+
+
+를 정리한다.
+
+
+단 한 장짜리 캐릭터 콘셉트로
+전체 애니메이션을 추측해서 만들지 않는다.
+
+
+필요한 key pose를 적극 제작한다.
+
+
+# ============================================================
+# 36. ANIMATION QUALITY
+# ============================================================
+
+SFIII 특유의 부드럽고 풍부한 애니메이션을 핵심 목표로 한다.
+
+Idle 2frame
+Walk 3frame
+Attack 3frame
+
+같은 지나친 축약을 사용하지 않는다.
+
+
+필요한 프레임 수는 동작별로 다르게 한다.
+
+Timing과 silhouette를 우선한다.
+
+
+# ============================================================
+# 37. IMPACT SYSTEM
+# ============================================================
+
+공격은 Damage 숫자만 발생해서는 안 된다.
+
+
+모든 공격에서 상황에 따라 다음을 조합한다.
+
+Hit Stop
+
+Hit Spark
+
+Screen impulse
+
+Sound
+
+Enemy recoil
+
+Knockback
+
+Dust
+
+Ground impact
+
+Wall impact
+
+
+Light / Medium / Heavy가 명확히 다르게 느껴져야 한다.
+
+
+# ============================================================
+# 38. VFX ASSETS
+# ============================================================
+
+필수 VFX:
+
+Light Punch Hit
+
+Heavy Punch Hit
+
+Kick Hit
+
+Heavy Kick Hit
+
+Block
+
+Parry
+
+Red Parry
+
+EX Flash
+
+Super Flash
+
+Ground Dust
+
+Knockdown
+
+Wall Impact
+
+KO
+
+Stage Clear
+
+
+Parry VFX와 Sound는 특히 높은 우선순위를 둔다.
+
+
+# ============================================================
+# 39. AUDIO
+# ============================================================
+
+필수:
+
+Title music
+
+Character Select music
+
+Stage 1 BGM
+
+Stage 2 BGM
+
+Stage 3 BGM
+
+Stage 4 BGM
+
+Stage 5 BGM
+
+Boss / Duel BGM
+
+Final Boss BGM
+
+Ending music
+
+Ambient audio
+
+UI SFX
+
+Attack SFX
+
+Parry SFX
+
+EX SFX
+
+Super SFX
+
+KO
+
+
+오디오가 없어도 기능상 작동한다는 이유로
+완료 처리하지 않는다.
+
+
+# ============================================================
+# 40. PERFORMANCE POLICY
+# ============================================================
+
+전투 Simulation은 항상 최우선.
+
+
+성능이 부족하면 먼저 줄일 것:
+
+Background particles
+
+Crowd animation
+
+Rain density
+
+Secondary FX
+
+Decorative animation
+
+
+가장 마지막에 줄일 것:
+
+Character animation
+
+Hit timing
+
+Parry timing
+
+Combat simulation
+
+
+# ============================================================
+# 41. ASSET LOADING
+# ============================================================
+
+모바일 사용성 때문에
+처음부터 전체 대용량 asset을 강제 다운로드하지 않는다.
+
+
+첫 설치에 필요한 것:
+
+App shell
+
+Title
+
+Character Select
+
+Character core
+
+Stage 1
+
+
+Stage 2~5는
+사용 중 또는 idle 시간에 prefetch 가능.
+
+
+단:
+
+Stage 1 → 2 진행 시
+긴 대기 때문에 흐름이 끊기지 않도록
+다음 Stage는 미리 준비한다.
+
+
+한 번 다운로드한 Stage는 cache한다.
+
+
+# ============================================================
+# 42. SAVE SYSTEM
+# ============================================================
+
+IndexedDB 사용.
+
+
+저장:
+
+Current Stage
+
+Completed Stages
+
+Selected Character
+
+Selected Super Art
+
+Control Layout
+
+Audio Setting
+
+Vibration Setting
+
+Unlocked Stage Select
+
+Game Settings
+
+
+Autosave:
+
+Stage Clear
+
+Options Change
+
+Control Layout Change
+
+
+# ============================================================
+# 43. DEBUG / DEVELOPMENT TOOLS
+# ============================================================
+
+개발 전용 Debug Overlay를 만든다.
+
+
+표시 가능:
+
+FPS
+
+Combat Tick
+
+Player State
+
+Current Move
+
+Move Frame
+
+Hitbox
+
+Hurtbox
+
+Enemy State
+
+Attack Slot
+
+Parry Window
+
+Stage Trigger
+
+Memory
+
+Loaded Assets
+
+
+Production에서는 비활성화.
+
+
+# ============================================================
+# 44. FIDELITY LAB
+# ============================================================
+
+캐릭터 정확도를 계속 확인하기 위한
+개발 도구를 만든다.
+
+
+기능:
+
+Animation slow motion
+
+Frame step
+
+Move replay
+
+Input display
+
+Hitbox display
+
+Motion timing comparison
+
+Jump trajectory visualization
+
+Attack distance visualization
+
+
+캐릭터 기술 수정 때마다 수작업 눈대중으로 확인하는 시간을 줄인다.
+
+
+# ============================================================
+# PHASE 0
+# FOUNDATION + MOBILE PWA
+# ============================================================
+
+현재 프로젝트 구조를 분석한다.
+
+필요한 경우 기존 구조를 정리하되
+쓸 수 있는 코드를 무조건 폐기하지 않는다.
+
+
+구현:
+
+TypeScript foundation
+
+Rendering engine
+
+Fixed 60Hz simulation
+
+Input abstraction
+
+Touch input
+
+Gamepad input
+
+Audio manager
+
+Asset manager
+
+Scene manager
+
+Save manager
+
+IndexedDB
+
+PWA manifest
+
+Service worker
+
+Landscape guard
+
+Safe area
+
+Standalone mode
+
+Loading screen
+
+Error handling
+
+
+실제 모바일 브라우저 및 PWA 설치 상태에서 테스트한다.
+
+
+PHASE 0 완료 조건:
+
+게임이 스마트폰에서 설치 가능.
+
+가로화면 실행.
+
+Render loop 정상.
+
+Combat tick 60Hz.
+
+Touch 입력 정상.
+
+Save 정상.
+
+Offline shell 정상.
+
+
+완료 후 자동으로 PHASE 1로 진행한다.
+
+
+# ============================================================
+# PHASE 1
+# VISUAL MASTER
+# ============================================================
+
+여기서 개발을 멈추고 문서만 작성하지 마라.
+
+실제 필요한 Visual Reference와 게임용 asset 제작을 시작한다.
+
+
+제작:
+
+Title
+
+Character Select
+
+8 Character Visual Bible
+
+Stage 1~5 Visual Master
+
+BELT HUD
+
+DUEL HUD
+
+Touch UI
+
+Parry FX
+
+Hit FX
+
+Super FX
+
+Boss presentation
+
+
+최종 게임 화면의
+
+Camera
+
+Scale
+
+Composition
+
+Color
+
+UI Position
+
+Character Size
+
+Background Density
+
+를 확정한다.
+
+
+Stage 5 비주얼까지 반드시 이 PHASE에서 방향이 존재해야 한다.
+
+
+완료 후 PHASE 2.
+
+
+# ============================================================
+# PHASE 2
+# SFIII COMBAT CORE
+# ============================================================
+
+구현:
+
+State Machine
+
+Input Buffer
+
+Command Recognition
+
+Normal Attack
+
+Crouch Attack
+
+Jump Attack
+
+Special Move
+
+EX Move
+
+Throw
+
+Throw Escape
+
+Guard
+
+Hit
+
+Counter
+
+Knockdown
+
+Launch
+
+Parry
+
+Low Parry
+
+Red Parry
+
+Super Gauge
+
+Super Art
+
+KO
+
+Animation cancel rules
+
+Hit stop
+
+Hit stun
+
+Block stun
+
+
+Test Arena에서 검증.
+
+
+단 Test Arena는 최종 V0.1 화면이 아니다.
+
+내부 개발 도구로만 사용한다.
+
+
+완료 후 PHASE 3.
+
+
+# ============================================================
+# PHASE 3
+# RYU QUALITY TEMPLATE
+# ============================================================
+
+RYU를 첫 번째 품질 기준 캐릭터로 완성한다.
+
+
+Movement
+
+Normals
+
+Command Normals
+
+Hadoken
+
+Shoryuken
+
+Tatsumaki
+
+EX variants
+
+Throws
+
+Parry
+
+Hit
+
+Knockdown
+
+Super Arts
+
+Victory
+
+
+를 구현.
+
+
+이 단계에서
+
+Character Data structure
+
+Animation pipeline
+
+Sprite pipeline
+
+VFX binding
+
+SFX binding
+
+을 완성한다.
+
+
+RYU를 기준으로 이후 캐릭터 제작 속도를 올린다.
+
+
+중요:
+
+RYU만 끝났다고 V0.1이라고 부르지 않는다.
+
+
+완료 후 PHASE 4.
+
+
+# ============================================================
+# PHASE 4
+# BELT MODE
+# ============================================================
+
+구현:
+
+Depth Movement
+
+Lane handling
+
+Soft Lane Alignment
+
+Enemy collision
+
+Multi-enemy hit
+
+Throw enemy into enemy
+
+Wall reaction
+
+Environmental interaction
+
+Enemy spawn
+
+Combat arena lock
+
+Camera follow
+
+Camera zoom
+
+Screen boundary
+
+Enemy Director
+
+
+실제 Stage 1용 비주얼을 적극 적용한다.
+
+회색 블록으로 완료 처리하지 않는다.
+
+
+Ryu로 BELT MODE가 실제 게임처럼 보여야 한다.
+
+
+완료 후 PHASE 5.
+
+
+# ============================================================
+# PHASE 5
+# DUEL MODE + MODE TRANSITION
+# ============================================================
+
+구현:
+
+BELT → DUEL trigger
+
+Cinematic camera
+
+Enemy retreat
+
+Y-axis lock
+
+DUEL HUD
+
+1D movement
+
+Corner
+
+Guard
+
+Throw
+
+Parry
+
+EX
+
+Super
+
+KO
+
+Victory
+
+DUEL → Stage Clear / Stage Resume
+
+
+BELT와 DUEL 사이에서
+Character State와 Gauge가 자연스럽게 이어져야 한다.
+
+
+Transition 연출 3종 이상.
+
+
+완료 후 PHASE 6.
+
+
+# ============================================================
+# PHASE 6
+# FULL 8 CHARACTER ROSTER
+# ============================================================
+
+남은 캐릭터를 전부 완성한다.
+
+
+KEN
+
+CHUN-LI
+
+ALEX
+
+DUDLEY
+
+MAKOTO
+
+IBUKI
+
+YUN
+
+
+각 캐릭터마다:
+
+Movement
+
+Normals
+
+Specials
+
+EX
+
+Throws
+
+Parry
+
+Super Arts
+
+Hit Reactions
+
+Victory
+
+BELT compatibility
+
+DUEL compatibility
+
+
+를 검증한다.
+
+
+한 캐릭터가 다른 캐릭터와 같은 움직임에
+스프라이트만 바뀐 상태면 완료가 아니다.
+
+
+8명이 모두 플레이 가능해야 PHASE 7로 간다.
+
+
+# ============================================================
+# PHASE 7
+# ENEMY SYSTEM
+# ============================================================
+
+기본 AI Archetype:
+
+Brawler
+
+Boxer
+
+Karate
+
+Kick Fighter
+
+Grappler
+
+Agile
+
+Heavy
+
+
+각 AI의:
+
+Preferred distance
+
+Attack speed
+
+Block chance
+
+Parry capability where appropriate
+
+Grab behavior
+
+Flanking
+
+Recovery
+
+Group behavior
+
+를 다르게 만든다.
+
+
+Visual variation도 적극 제작한다.
+
+같은 사람을 색상만 바꿔 20명처럼 보이게 하지 않는다.
+
+
+Body
+
+Hair
+
+Face
+
+Clothes
+
+Accessories
+
+Color
+
+를 조합할 수 있게 한다.
+
+
+완료 후 PHASE 8.
+
+
+# ============================================================
+# PHASE 8
+# STAGE 1 → STAGE 5 COMPLETE
+# ============================================================
+
+이 PHASE에서 Stage 1 하나만 만들고 멈추지 않는다.
+
+반드시 다섯 Stage를 모두 연결한다.
+
+
+--------------------------------
+STAGE 1 — NEW YORK
+--------------------------------
+
+완성:
+
+Intro
+
+Walk
+
+Battle 1
+
+Battle 2
+
+Environment
+
+Elite
+
+Story beat
+
+Duel
+
+Clear
+
+
+--------------------------------
+STAGE 2 — HONG KONG
+--------------------------------
+
+동일한 기본 완성도.
+
+Stage 1과 다른 background / enemy tempo / interaction.
+
+
+--------------------------------
+STAGE 3 — JAPAN
+--------------------------------
+
+Parry / Counter 중심 전투.
+
+
+--------------------------------
+STAGE 4 — LONDON
+--------------------------------
+
+Boxing / Grappling / Fight Club 중심.
+
+
+--------------------------------
+STAGE 5 — SECRET SOCIETY
+--------------------------------
+
+이전 시스템 총결산.
+
+Urien.
+
+Final approach.
+
+Gill arena.
+
+
+각 Stage의 필요한 이미지와 배경이 부족하면
+즉시 제작한다.
+
+
+Stage 5까지 전체 Campaign path가 실제 연결되어야 한다.
+
+
+완료 후 PHASE 9.
+
+
+# ============================================================
+# PHASE 9
+# BOSSES + STORY + ENDING
+# ============================================================
+
+Urien 구현.
+
+Gill 구현.
+
+
+각 Stage Duel fighter의 Intro와 대사를 구성한다.
+
+
+스토리는 짧고 빠르게 전달한다.
+
+긴 텍스트 박스로 진행을 막지 않는다.
+
+
+구현:
+
+Stage Intro
+
+Character interaction
+
+Boss Entrance
+
+Duel intro
+
+Stage Clear
+
+Stage transition
+
+Gill intro
+
+Gill phases
+
+Final KO
+
+Ending
+
+Credits / Result
+
+
+엔딩 이후 Stage Select unlock.
+
+
+완료 후 PHASE 10.
+
+
+# ============================================================
+# PHASE 10
+# FULL POLISH + MOBILE RELEASE QUALITY
+# ============================================================
+
+새로운 대형 시스템을 추가하지 않는다.
+
+기존 시스템의 품질을 올린다.
+
+
+검사:
+
+Animation
+
+Hit feel
+
+Parry timing
+
+Touch response
+
+Input latency
+
+Camera
+
+Visual composition
+
+Stage transition
+
+Loading
+
+Audio
+
+VFX
+
+UI
+
+Safe area
+
+Performance
+
+PWA installation
+
+Offline startup
+
+Save
+
+Continue
+
+Gamepad
+
+Memory usage
+
+Asset caching
+
+
+실제 스마트폰 스크린샷을 찍고
+Visual Master와 비교한다.
+
+
+부족한 배경 / 캐릭터 이미지 / UI / VFX가 있으면
+이 단계에서도 적극적으로 다시 제작한다.
+
+
+"기능상 작동하므로 완료"
+
+라는 이유로 낮은 화면 완성도를 허용하지 않는다.
+
+
+# ============================================================
+# 45. FIRST VERSION ACCEPTANCE TEST
+# ============================================================
+
+다음 테스트를 전부 통과해야 V0.1 COMPLETE다.
+
+
+게임 URL 접속 가능.
+
+PWA 설치 가능.
+
+홈 화면 아이콘 실행 가능.
+
+Landscape 정상.
+
+Title 정상.
+
+Character Select 정상.
+
+8명 모두 선택 가능.
+
+Super Art 선택 가능.
+
+Stage 1 정상 시작.
+
+Stage 1 완주 가능.
+
+Stage 2 자동 진행 가능.
+
+Stage 2 완주 가능.
+
+Stage 3 자동 진행 가능.
+
+Stage 3 완주 가능.
+
+Stage 4 자동 진행 가능.
+
+Stage 4 완주 가능.
+
+Stage 5 자동 진행 가능.
+
+Urien 정상.
+
+Gill 정상.
+
+Ending 정상.
+
+Continue 정상.
+
+Stage Select 해금 정상.
+
+모든 캐릭터 BELT 가능.
+
+모든 캐릭터 DUEL 가능.
+
+Parry 정상.
+
+Low Parry 정상.
+
+Red Parry 정상.
+
+EX 정상.
+
+Super Art 정상.
+
+Throw 정상.
+
+Touch Control 정상.
+
+Control customization 정상.
+
+Audio 정상.
+
+Save 정상.
+
+Offline shell 정상.
+
+치명적 FPS 문제 없음.
+
+빈 화면 없음.
+
+Placeholder 화면 없음.
+
+필수 배경 누락 없음.
+
+임시 캐릭터 없음.
+
+임시 HUD 없음.
+
+Stage 5까지 실제 이미지 적용 완료.
+
+Ending까지 이미지 및 연출 적용 완료.
+
+
+하나라도 실패하면 V0.1 COMPLETE라고 선언하지 마라.
+
+
+# ============================================================
+# 46. DEVELOPMENT BEHAVIOR
+# ============================================================
+
+이 명령을 받은 뒤 계획만 설명하고 작업을 종료하지 마라.
+
+현재 코드베이스를 분석하고
+실제 파일을 수정하고
+실제 게임을 구현하라.
+
+
+PHASE 하나가 완료되면
+불필요한 사용자 확인을 기다리지 말고
+다음 PHASE로 계속 진행한다.
+
+
+단,
+
+프로젝트를 파괴할 가능성이 높은 선택,
+사용자만 알고 있는 필수 정보,
+외부 인증이 필요한 작업
+
+등 정말 진행 불가능한 경우에만 질문한다.
+
+
+기존 코드를 먼저 분석한다.
+
+작동하는 코드를 무조건 다시 쓰지 않는다.
+
+중복 시스템을 만들지 않는다.
+
+완성된 기능을 다음 PHASE에서 깨뜨리지 않는다.
+
+
+각 PHASE 종료 시:
+
+1. 구현 내용
+2. 실제 변경 파일
+3. 테스트 결과
+4. 아직 남은 문제
+5. 다음 PHASE 진행 내용
+
+을 짧게 기록하고 즉시 계속한다.
+
+
+# ============================================================
+# 47. NO-PLACEHOLDER RULE
+# ============================================================
+
+다음 표현으로 작업을 미루지 마라.
+
+"나중에 추가"
+
+"추후 그래픽 교체"
+
+"임시 UI"
+
+"현재는 placeholder"
+
+"프로토타입이라 생략"
+
+"Stage 1 이후 추후"
+
+"Boss는 나중에"
+
+"이미지는 마지막에"
+
+
+내부 구현 순간에 잠시 placeholder가 필요할 수는 있다.
+
+그러나 해당 기능 또는 Stage를 COMPLETE 처리하기 전에
+반드시 실제 asset으로 교체한다.
+
+
+# ============================================================
+# 48. QUALITY PRIORITY WHEN TIME IS LIMITED
+# ============================================================
+
+시간 또는 리소스가 부족할 때는
+게임 기능을 무작정 늘리지 않는다.
+
+
+우선 유지:
+
+8 playable characters
+
+5 complete stages
+
+Character animation
+
+Combat feel
+
+Parry
+
+BELT
+
+DUEL
+
+Boss
+
+Ending
+
+PWA
+
+Touch
+
+
+우선 축소 가능:
+
+Background crowd count
+
+Secondary particles
+
+Minor props
+
+Optional animation
+
+Decorative menu effects
+
+
+첫 버전의 핵심 구조를 잘라내지 않는다.
+
+
+# ============================================================
+# 49. FINAL PLAYER EXPERIENCE
+# ============================================================
+
+최초 사용자가 휴대폰 홈 화면에서 게임을 실행한다.
+
+Logo.
+
+Title.
+
+Character Select.
+
+8명의 캐릭터가 실제로 움직인다.
+
+Ryu를 선택한다.
+
+Super Art를 고른다.
+
+New York 거리로 들어간다.
+
+여러 Street Fighters와 싸운다.
+
+Parry.
+
+Hadoken.
+
+Shoryuken.
+
+EX.
+
+Throw.
+
+거리 끝에서 강적이 나타난다.
+
+음악이 바뀐다.
+
+카메라가 가까워진다.
+
+BELT MODE가 DUEL MODE로 바뀐다.
+
+1 VS 1 격투가 시작된다.
+
+승리한다.
+
+Hong Kong으로 이동한다.
+
+Japan.
+
+London.
+
+Secret Society.
+
+Urien.
+
+Gill.
+
+Final Duel.
+
+Ending.
+
+
+이 모든 것이
+
+"앞으로 만들 게임의 데모"
+
+처럼 보여서는 안 된다.
+
+
+목표는:
+
+"한 챕터가 완성된 실제 게임을 플레이했다."
+
+라는 느낌이다.
+
+
+# ============================================================
+# 50. MASTER COMPLETION RULE
+# ============================================================
+
+V0.1 =
+
+8 PLAYABLE CHARACTERS
++
+5 COMPLETE STAGES
++
+FULL CAMPAIGN
++
+BELT ACTION
++
+SFIII-STYLE DUEL
++
+PARRY
++
+EX
++
+SUPER ART
++
+URIEN
++
+GILL
++
+ENDING
++
+FULL VISUALS
++
+AUDIO
++
+MOBILE TOUCH
++
+INSTALLABLE PWA
+
+
+이 정의를 프로젝트 종료까지 변경하지 마라.
+
+
+이제 현재 프로젝트 전체를 분석하고 PHASE 0부터 실제 구현을 시작하라.
+
+계획서만 다시 작성하지 마라.
+
+가능한 작업은 직접 수행하라.
+
+필요한 이미지는 적극적으로 제작하고 실제 화면에 적용하라.
+
+Stage 1만 완성하고 멈추지 마라.
+
+Stage 5와 Ending까지 도달한 뒤에만 최초 버전 V0.1을 완료 처리하라.

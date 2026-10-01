@@ -1,0 +1,213 @@
+{
+  "character": "KEN",
+  "mode": "dry-run",
+  "records": [
+    {
+      "sequence": "hit",
+      "source": "art-source/ken/inbox/hit",
+      "sidecar": null,
+      "expectedFrames": 8,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "hit",
+        "preview": "/mnt/data/ssc_work/RC39_KEN_HIT_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/ssc_work/art-source/ken/authored-candidates/hit.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.046188,
+          "affineResidualMax": 0.086152,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "hit",
+          "limits": {
+            "startEndIoUMin": 0.62,
+            "peakRecoilIoUMin": 0.22,
+            "peakRecoilIoUMax": 0.78,
+            "centroidXRangeMin": 7.0,
+            "centroidXRangeMax": 95.0,
+            "centroidYRangeMin": 3.0,
+            "centroidYRangeMax": 75.0,
+            "centroidStepMax": 65.0,
+            "areaCvMax": 0.2,
+            "footCenterRangeMin": 12.0,
+            "footCenterRangeMax": 145.0,
+            "footWidthCvMax": 0.8,
+            "residualAverageMin": 0.012,
+            "residualAverageMax": 0.17,
+            "residualMaxMin": 0.028,
+            "residualMaxMax": 0.22
+          },
+          "startEndIoU": 1.0,
+          "peakRecoilIoU": 0.408025,
+          "centroidXRange": 27.628337,
+          "centroidYRange": 13.560811,
+          "centroidStepMax": 14.680902,
+          "areaCv": 0.0626,
+          "footCenterRange": 23.969128,
+          "footWidthCv": 0.034048,
+          "residualAverage": 0.046188,
+          "residualMax": 0.086152,
+          "checks": {
+            "recoveryReturnsNearNeutral": true,
+            "peakRecoilDistinct": true,
+            "recoilTravelPresent": true,
+            "compressionPresent": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "footSlideReadable": true,
+            "stanceNotExploded": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"hit\",\n  \"preview\": \"/mnt/data/ssc_work/RC39_KEN_HIT_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/ssc_work/art-source/ken/authored-candidates/hit.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.046188,\n    \"affineResidualMax\": 0.086152,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"hit\",\n    \"limits\": {\n      \"startEndIoUMin\": 0.62,\n      \"peakRecoilIoUMin\": 0.22,\n      \"peakRecoilIoUMax\": 0.78,\n      \"centroidXRangeMin\": 7.0,\n      \"centroidXRangeMax\": 95.0,\n      \"centroidYRangeMin\": 3.0,\n      \"centroidYRangeMax\": 75.0,\n      \"centroidStepMax\": 65.0,\n      \"areaCvMax\": 0.2,\n      \"footCenterRangeMin\": 12.0,\n      \"footCenterRangeMax\": 145.0,\n      \"footWidthCvMax\": 0.8,\n      \"residualAverageMin\": 0.012,\n      \"residualAverageMax\": 0.17,\n      \"residualMaxMin\": 0.028,\n      \"residualMaxMax\": 0.22\n    },\n    \"startEndIoU\": 1.0,\n    \"peakRecoilIoU\": 0.408025,\n    \"centroidXRange\": 27.628337,\n    \"centroidYRange\": 13.560811,\n    \"centroidStepMax\": 14.680902,\n    \"areaCv\": 0.0626,\n    \"footCenterRange\": 23.969128,\n    \"footWidthCv\": 0.034048,\n    \"residualAverage\": 0.046188,\n    \"residualMax\": 0.086152,\n    \"checks\": {\n      \"recoveryReturnsNearNeutral\": true,\n      \"peakRecoilDistinct\": true,\n      \"recoilTravelPresent\": true,\n      \"compressionPresent\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"footSlideReadable\": true,\n      \"stanceNotExploded\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "preview-pass"
+    },
+    {
+      "sequence": "guard",
+      "source": "art-source/ken/inbox/guard",
+      "sidecar": null,
+      "expectedFrames": 5,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "guard",
+        "preview": "/mnt/data/ssc_work/RC39_KEN_GUARD_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/ssc_work/art-source/ken/authored-candidates/guard.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.030994,
+          "affineResidualMax": 0.051929,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "guard",
+          "limits": {
+            "startEndIoUMin": 0.68,
+            "peakGuardIoUMin": 0.38,
+            "peakGuardIoUMax": 0.88,
+            "centroidXRangeMin": 3.0,
+            "centroidXRangeMax": 45.0,
+            "centroidYRangeMin": 2.0,
+            "centroidYRangeMax": 35.0,
+            "centroidStepMax": 34.0,
+            "areaCvMax": 0.16,
+            "footCenterRangeMax": 32.0,
+            "footWidthCvMax": 0.35,
+            "residualAverageMin": 0.006,
+            "residualAverageMax": 0.11,
+            "residualMaxMin": 0.014,
+            "residualMaxMax": 0.16
+          },
+          "startEndIoU": 1.0,
+          "peakGuardIoU": 0.75559,
+          "centroidXRange": 8.56095,
+          "centroidYRange": 13.205333,
+          "centroidStepMax": 11.052628,
+          "areaCv": 0.055895,
+          "footCenterRange": 1.96577,
+          "footWidthCv": 0.002172,
+          "residualAverage": 0.030994,
+          "residualMax": 0.051929,
+          "checks": {
+            "returnTowardNeutral": true,
+            "peakPoseDifferent": true,
+            "rootMotionPresent": true,
+            "verticalResponsePresent": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "feetStayPlanted": true,
+            "stanceWidthStable": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"guard\",\n  \"preview\": \"/mnt/data/ssc_work/RC39_KEN_GUARD_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/ssc_work/art-source/ken/authored-candidates/guard.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.030994,\n    \"affineResidualMax\": 0.051929,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"guard\",\n    \"limits\": {\n      \"startEndIoUMin\": 0.68,\n      \"peakGuardIoUMin\": 0.38,\n      \"peakGuardIoUMax\": 0.88,\n      \"centroidXRangeMin\": 3.0,\n      \"centroidXRangeMax\": 45.0,\n      \"centroidYRangeMin\": 2.0,\n      \"centroidYRangeMax\": 35.0,\n      \"centroidStepMax\": 34.0,\n      \"areaCvMax\": 0.16,\n      \"footCenterRangeMax\": 32.0,\n      \"footWidthCvMax\": 0.35,\n      \"residualAverageMin\": 0.006,\n      \"residualAverageMax\": 0.11,\n      \"residualMaxMin\": 0.014,\n      \"residualMaxMax\": 0.16\n    },\n    \"startEndIoU\": 1.0,\n    \"peakGuardIoU\": 0.75559,\n    \"centroidXRange\": 8.56095,\n    \"centroidYRange\": 13.205333,\n    \"centroidStepMax\": 11.052628,\n    \"areaCv\": 0.055895,\n    \"footCenterRange\": 1.96577,\n    \"footWidthCv\": 0.002172,\n    \"residualAverage\": 0.030994,\n    \"residualMax\": 0.051929,\n    \"checks\": {\n      \"returnTowardNeutral\": true,\n      \"peakPoseDifferent\": true,\n      \"rootMotionPresent\": true,\n      \"verticalResponsePresent\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"feetStayPlanted\": true,\n      \"stanceWidthStable\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "preview-pass"
+    },
+    {
+      "sequence": "parry",
+      "source": "art-source/ken/inbox/parry",
+      "sidecar": null,
+      "expectedFrames": 6,
+      "preflightReturnCode": 0,
+      "preflight": {
+        "installed": false,
+        "previewOnly": true,
+        "character": "KEN",
+        "sequence": "parry",
+        "preview": "/mnt/data/ssc_work/RC39_KEN_PARRY_AUTHORED_PREVIEW.png",
+        "candidate": "/mnt/data/ssc_work/art-source/ken/authored-candidates/parry.webp",
+        "poseQa": {
+          "affineResidualAverage": 0.023846,
+          "affineResidualMax": 0.040504,
+          "fullPoseAverageThreshold": 0.008,
+          "fullPoseMaxThreshold": 0.018,
+          "poseAuthoredPass": true
+        },
+        "semanticQa": {
+          "kind": "parry",
+          "limits": {
+            "startEndIoUMin": 0.64,
+            "peakParryIoUMin": 0.3,
+            "peakParryIoUMax": 0.84,
+            "centroidXRangeMin": 4.0,
+            "centroidXRangeMax": 55.0,
+            "centroidYRangeMin": 0.5,
+            "centroidYRangeMax": 42.0,
+            "centroidStepMax": 42.0,
+            "areaCvMax": 0.18,
+            "footCenterRangeMax": 38.0,
+            "footWidthCvMax": 0.45,
+            "residualAverageMin": 0.009,
+            "residualAverageMax": 0.13,
+            "residualMaxMin": 0.02,
+            "residualMaxMax": 0.18
+          },
+          "startEndIoU": 1.0,
+          "peakParryIoU": 0.755313,
+          "centroidXRange": 13.129268,
+          "centroidYRange": 1.777561,
+          "centroidStepMax": 6.922836,
+          "areaCv": 0.01201,
+          "footCenterRange": 3.909358,
+          "footWidthCv": 0.002101,
+          "residualAverage": 0.023846,
+          "residualMax": 0.040504,
+          "checks": {
+            "returnTowardNeutral": true,
+            "peakPoseDifferent": true,
+            "rootMotionPresent": true,
+            "verticalResponsePresent": true,
+            "noFrameJump": true,
+            "bodyVolumeStable": true,
+            "feetStayPlanted": true,
+            "stanceWidthStable": true,
+            "authoredMotionAverage": true,
+            "authoredMotionPeak": true
+          },
+          "semanticQaPass": true
+        }
+      },
+      "outputTail": "{\n  \"installed\": false,\n  \"previewOnly\": true,\n  \"character\": \"KEN\",\n  \"sequence\": \"parry\",\n  \"preview\": \"/mnt/data/ssc_work/RC39_KEN_PARRY_AUTHORED_PREVIEW.png\",\n  \"candidate\": \"/mnt/data/ssc_work/art-source/ken/authored-candidates/parry.webp\",\n  \"poseQa\": {\n    \"affineResidualAverage\": 0.023846,\n    \"affineResidualMax\": 0.040504,\n    \"fullPoseAverageThreshold\": 0.008,\n    \"fullPoseMaxThreshold\": 0.018,\n    \"poseAuthoredPass\": true\n  },\n  \"semanticQa\": {\n    \"kind\": \"parry\",\n    \"limits\": {\n      \"startEndIoUMin\": 0.64,\n      \"peakParryIoUMin\": 0.3,\n      \"peakParryIoUMax\": 0.84,\n      \"centroidXRangeMin\": 4.0,\n      \"centroidXRangeMax\": 55.0,\n      \"centroidYRangeMin\": 0.5,\n      \"centroidYRangeMax\": 42.0,\n      \"centroidStepMax\": 42.0,\n      \"areaCvMax\": 0.18,\n      \"footCenterRangeMax\": 38.0,\n      \"footWidthCvMax\": 0.45,\n      \"residualAverageMin\": 0.009,\n      \"residualAverageMax\": 0.13,\n      \"residualMaxMin\": 0.02,\n      \"residualMaxMax\": 0.18\n    },\n    \"startEndIoU\": 1.0,\n    \"peakParryIoU\": 0.755313,\n    \"centroidXRange\": 13.129268,\n    \"centroidYRange\": 1.777561,\n    \"centroidStepMax\": 6.922836,\n    \"areaCv\": 0.01201,\n    \"footCenterRange\": 3.909358,\n    \"footWidthCv\": 0.002101,\n    \"residualAverage\": 0.023846,\n    \"residualMax\": 0.040504,\n    \"checks\": {\n      \"returnTowardNeutral\": true,\n      \"peakPoseDifferent\": true,\n      \"rootMotionPresent\": true,\n      \"verticalResponsePresent\": true,\n      \"noFrameJump\": true,\n      \"bodyVolumeStable\": true,\n      \"feetStayPlanted\": true,\n      \"stanceWidthStable\": true,\n      \"authoredMotionAverage\": true,\n      \"authoredMotionPeak\": true\n    },\n    \"semanticQaPass\": true\n  }\n}\n",
+      "status": "preview-pass"
+    }
+  ],
+  "installed": [],
+  "rejected": [],
+  "pending": [],
+  "verification": null,
+  "rolledBack": false
+}

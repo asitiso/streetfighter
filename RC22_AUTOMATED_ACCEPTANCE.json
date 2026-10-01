@@ -1,0 +1,29 @@
+{
+  "candidate": "0.0.47-rc.22",
+  "cache": "game-cache-v047",
+  "manifestFiles": 140,
+  "manifestRoot": "DA58ABBF821007CD75BD5F6E2F1359162E1C6708B628CDFA45E75CC5EB004451",
+  "playableAttackAtlases": 8,
+  "families": [
+    "normal",
+    "special",
+    "super",
+    "throw"
+  ],
+  "framesPerFamily": 5,
+  "totalBakedFrames": 160,
+  "contactFramesArticulated": true,
+  "airAttackArticulated": true,
+  "attackAtlasPayloadKb": 1363,
+  "stageAudioStillDeferred": true,
+  "finalProofSealPreserved": true,
+  "motionProfiles": 10,
+  "phaseAwareAttackFrames": true,
+  "movementAfterimages": true,
+  "groundedFootInteraction": true,
+  "attackMotionArcs": true,
+  "impactFrameOverlay": true,
+  "reflectiveFloorResponse": true,
+  "hudPortraits": true,
+  "verdict": "MOTION_VISUAL_POLISH_PASS"
+}

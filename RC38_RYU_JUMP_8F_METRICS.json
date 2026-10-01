@@ -1,0 +1,230 @@
+{
+  "source": "/mnt/data/\ub958_\uc2a4\ud0c0\uc77c_\ubb34\uc220\uac00\uc758_8\ud504\ub808\uc784_\uc810\ud504_\uacf5\uaca9_\ubaa8\uc158_\uc2dc\ud2b8.png",
+  "output": "/mnt/data/work_rc34/public/art/animation-hq/ryu/jump.webp",
+  "frames": 8,
+  "frameSize": [
+    384,
+    448
+  ],
+  "scale": 0.9878787878787879,
+  "bytes": 831110,
+  "sha256": "55895FF9E0BCD59B1FF55CB132BA18DBA27D2E9FBCCD80C26344AC8F8D2EEFDC",
+  "metrics": [
+    {
+      "frame": 1,
+      "grid": [
+        0,
+        0
+      ],
+      "sourceBBox": [
+        47,
+        92,
+        343,
+        442
+      ],
+      "paste": [
+        38,
+        80
+      ],
+      "scaledSize": [
+        292,
+        346
+      ],
+      "outputBBox": [
+        38,
+        80,
+        330,
+        426
+      ]
+    },
+    {
+      "frame": 2,
+      "grid": [
+        0,
+        1
+      ],
+      "sourceBBox": [
+        51,
+        163,
+        357,
+        442
+      ],
+      "paste": [
+        35,
+        150
+      ],
+      "scaledSize": [
+        302,
+        276
+      ],
+      "outputBBox": [
+        35,
+        150,
+        337,
+        426
+      ]
+    },
+    {
+      "frame": 3,
+      "grid": [
+        0,
+        2
+      ],
+      "sourceBBox": [
+        47,
+        38,
+        380,
+        442
+      ],
+      "paste": [
+        23,
+        46
+      ],
+      "scaledSize": [
+        329,
+        399
+      ],
+      "outputBBox": [
+        23,
+        46,
+        352,
+        445
+      ]
+    },
+    {
+      "frame": 4,
+      "grid": [
+        0,
+        3
+      ],
+      "sourceBBox": [
+        106,
+        17,
+        353,
+        425
+      ],
+      "paste": [
+        69,
+        44
+      ],
+      "scaledSize": [
+        244,
+        403
+      ],
+      "outputBBox": [
+        69,
+        44,
+        313,
+        447
+      ]
+    },
+    {
+      "frame": 5,
+      "grid": [
+        1,
+        0
+      ],
+      "sourceBBox": [
+        105,
+        29,
+        364,
+        339
+      ],
+      "paste": [
+        64,
+        92
+      ],
+      "scaledSize": [
+        256,
+        306
+      ],
+      "outputBBox": [
+        64,
+        92,
+        320,
+        398
+      ]
+    },
+    {
+      "frame": 6,
+      "grid": [
+        1,
+        1
+      ],
+      "sourceBBox": [
+        104,
+        47,
+        402,
+        402
+      ],
+      "paste": [
+        48,
+        70
+      ],
+      "scaledSize": [
+        294,
+        351
+      ],
+      "outputBBox": [
+        48,
+        70,
+        342,
+        421
+      ]
+    },
+    {
+      "frame": 7,
+      "grid": [
+        1,
+        2
+      ],
+      "sourceBBox": [
+        108,
+        101,
+        392,
+        409
+      ],
+      "paste": [
+        54,
+        117
+      ],
+      "scaledSize": [
+        281,
+        304
+      ],
+      "outputBBox": [
+        54,
+        117,
+        335,
+        421
+      ]
+    },
+    {
+      "frame": 8,
+      "grid": [
+        1,
+        3
+      ],
+      "sourceBBox": [
+        53,
+        125,
+        398,
+        423
+      ],
+      "paste": [
+        19,
+        129
+      ],
+      "scaledSize": [
+        341,
+        294
+      ],
+      "outputBBox": [
+        19,
+        129,
+        360,
+        423
+      ]
+    }
+  ]
+}
