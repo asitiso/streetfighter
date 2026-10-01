@@ -47,7 +47,7 @@ export class Stage1Scene implements Scene {
   private finalKoFrames = 0;
   private defeatFrames = 0;
   private defeatDispatched = false;
-  private defeatReason: 'ko' | 'double-ko' = 'ko';
+  private defeatReason: 'ko' | 'double-ko' | 'time-over' = 'ko';
   private paused = false;
   private gillPhase: 1 | 2 | 3 = 1;
   private gillPhaseBanner = 0;
@@ -199,7 +199,21 @@ export class Stage1Scene implements Scene {
       return;
     }
 
-    this.stageTime = Math.max(0, this.stageTime - dt);
+    const timerActive = this.phase !== 'belt' || this.beltState === 'fight';
+    if (timerActive) this.stageTime = Math.max(0, this.stageTime - dt);
+    if (timerActive && this.stageTime <= 0) {
+      this.phase = 'defeat';
+      this.defeatReason = 'time-over';
+      this.defeatFrames = 90;
+      this.defeatDispatched = false;
+      this.world.projectiles.length = 0;
+      this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 90);
+      this.cameraFocusX = this.world.player.x;
+      this.cameraFocusY = this.world.player.y - 105;
+      this.cameraFocusZoom = 1.08;
+      this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 90);
+      return;
+    }
     this.elapsedCombatFrames += 1;
     this.world.update(this.input, tick);
     this.updateCamera();
@@ -549,6 +563,7 @@ export class Stage1Scene implements Scene {
   private spawnBeltWave(index: number): void {
     const base = this.areaStarts[index];
     this.beltState = 'fight';
+    this.stageTime = 99;
     this.world.rules.arenaLeft = Math.max(96, base + 70);
     this.world.rules.arenaRight = Math.min(this.stageLength - 80, base + 1120);
     this.world.rules.arenaTop = this.stageId === 2 ? (index === 1 ? 420 : 405) : this.stageId === 3 ? (index === 2 ? 410 : 398) : this.stageId === 4 ? (index === 2 ? 428 : 408) : this.stageId === 5 ? (index === 2 ? 420 : 404) : 394;
@@ -1591,6 +1606,7 @@ export class Stage1Scene implements Scene {
     duel.player.superGauge = gauge;
     duel.enemy.hp = 1000;
     this.world = duel;
+    this.stageTime = 99;
     this.cameraX = 0;
     this.cameraFocusFrames = 54;
     this.cameraFocusX = duel.enemy.x;
@@ -1616,6 +1632,7 @@ export class Stage1Scene implements Scene {
     this.gillPhase = 1;
     this.gillPhaseBanner = 90;
     this.world = duel;
+    this.stageTime = 99;
     this.cameraX = 0;
     this.cameraFocusFrames = 78;
     this.cameraFocusX = duel.enemy.x;
@@ -2422,7 +2439,7 @@ export class Stage1Scene implements Scene {
     ctx.lineWidth = 12;
     ctx.fillStyle = `rgba(255,245,235,${reveal})`;
     ctx.font = '900 112px Impact, Arial Black, sans-serif';
-    const defeatTitle = this.defeatReason === 'double-ko' ? 'DOUBLE K.O.' : 'K.O.';
+    const defeatTitle = this.defeatReason === 'double-ko' ? 'DOUBLE K.O.' : this.defeatReason === 'time-over' ? 'TIME OVER' : 'K.O.';
     ctx.strokeText(defeatTitle, 640, 350);
     ctx.fillText(defeatTitle, 640, 350);
     ctx.fillStyle = `rgba(241,189,81,${retryReveal})`;
