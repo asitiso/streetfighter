@@ -457,9 +457,28 @@ export class CombatWorld {
     const dx = b.x - a.x;
     const dy = Math.abs(b.y - a.y);
     if (Math.abs(dx) >= minX || dy >= minY) return;
-    const correction = (minX - Math.abs(dx)) * .5;
-    const sign = dx >= 0 ? 1 : -1;
-    a.x -= sign * correction;
-    b.x += sign * correction;
+
+    const overlap = minX - Math.abs(dx);
+    const sign: 1 | -1 = dx >= 0 ? 1 : -1;
+    const availableA = sign === 1 ? a.x - this.rules.arenaLeft : this.rules.arenaRight - a.x;
+    const availableB = sign === 1 ? this.rules.arenaRight - b.x : b.x - this.rules.arenaLeft;
+    let shiftA = Math.min(overlap * .5, Math.max(0, availableA));
+    let shiftB = Math.min(overlap * .5, Math.max(0, availableB));
+    let remaining = Math.max(0, overlap - shiftA - shiftB);
+
+    if (remaining > 0) {
+      const extraA = Math.min(remaining, Math.max(0, availableA - shiftA));
+      shiftA += extraA;
+      remaining -= extraA;
+    }
+    if (remaining > 0) {
+      const extraB = Math.min(remaining, Math.max(0, availableB - shiftB));
+      shiftB += extraB;
+    }
+
+    a.x -= sign * shiftA;
+    b.x += sign * shiftB;
+    a.x = Math.max(this.rules.arenaLeft, Math.min(this.rules.arenaRight, a.x));
+    b.x = Math.max(this.rules.arenaLeft, Math.min(this.rules.arenaRight, b.x));
   }
 }

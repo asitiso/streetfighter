@@ -70,6 +70,15 @@ verticalWorld.enemy.jumpHeight = 40;
 verticalWorld.resolveAttack(verticalWorld.player, verticalWorld.enemy, input);
 if (verticalWorld.enemy.hp >= verticalHp) fail('ground normal missed low airborne opponent');
 
+const wallPairWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
+wallPairWorld.player.x = wallPairWorld.rules.arenaLeft;
+wallPairWorld.player.y = 500;
+wallPairWorld.enemy.x = wallPairWorld.rules.arenaLeft + 8;
+wallPairWorld.enemy.y = 500;
+wallPairWorld.resolveBodyCollisions();
+if (wallPairWorld.player.x < wallPairWorld.rules.arenaLeft || wallPairWorld.enemy.x < wallPairWorld.rules.arenaLeft) fail('body collision pushed fighter outside left arena wall');
+if (Math.abs(wallPairWorld.enemy.x - wallPairWorld.player.x) < 57.5) fail('wall body collision failed to transfer blocked separation to free fighter');
+
 const counterWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
 counterWorld.player.x = 500; counterWorld.enemy.x = 558; counterWorld.player.y = 500; counterWorld.enemy.y = 500;
 counterWorld.enemy.startMove(normalFor('hp')); counterWorld.player.startMove(normalFor('lp')); counterWorld.enemy.aiCooldown = 997; counterWorld.enemy.aiProfile.guardChance = 0; input.set();
@@ -186,6 +195,7 @@ console.log('COMBAT_VERIFY_PASS', {
   projectileDamage: 1000 - projectileWorld.enemy.hp,
   projectileJumpClear: jumpOverWorld.player.hp === jumpHp,
   verticalMeleeFiltering: verticalWorld.enemy.hp < verticalHp,
+  wallSeparationBounded: wallPairWorld.player.x >= wallPairWorld.rules.arenaLeft,
   counter: true,
   throwEscape: true,
   jump: true,
