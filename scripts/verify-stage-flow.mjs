@@ -83,6 +83,16 @@ function clearStage5(scene, tickBase = 4000) {
 }
 
 const character = getCharacter('RYU');
+
+let defeatCallback = false;
+const defeatScene = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 1, undefined, () => { defeatCallback = true; });
+defeatScene.introFrames = 0;
+defeatScene.world.player.hp = 0;
+defeatScene.fixedUpdate(1 / 60, 9000);
+if (defeatScene.phase !== 'defeat') fail(`player KO did not enter defeat phase: ${defeatScene.phase}`);
+for (let i = 0; i < 121; i += 1) defeatScene.fixedUpdate(1 / 60, 9001 + i);
+if (!defeatCallback) fail('player KO did not dispatch retry callback');
+
 let clear1 = false, clear2 = false, clear3 = false, clear4 = false, clear5 = false;
 const stage1 = new Stage1Scene(new StubInput(), new StubAudio(), character, character.superArts[0], 1, () => { clear1 = true; });
 const r1 = testStage(stage1, 'stage1', 1);
@@ -123,4 +133,5 @@ console.log('STAGE_FLOW_VERIFY_PASS', {
   stage4Mma: r4.waveProfiles.flat().filter((x) => x === 'mma').length,
   stage5FinalBoss: 'GILL',
   gillPhases: 3,
+  playerKoRetry: defeatCallback,
 });

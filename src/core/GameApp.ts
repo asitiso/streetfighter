@@ -364,7 +364,7 @@ export class GameApp {
     const module = await this.loadStageModule('stage-1', () => import('../scenes/Stage1Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage1Scene } = module;
-    await this.scenes.setScene(new Stage1Scene(this.input, this.audio, character, art, 1, (result) => { void this.recordStageResult(result).then(() => this.startStage2(character, art)); }));
+    await this.scenes.setScene(new Stage1Scene(this.input, this.audio, character, art, 1, (result) => { void this.recordStageResult(result).then(() => this.startStage2(character, art)); }, () => { void this.startStage(character, art, false); }));
     this.assets.prefetchGroup('stage-2');
   }
 
@@ -376,7 +376,7 @@ export class GameApp {
     const module = await this.loadStageModule('stage-2', () => import('../scenes/Stage2Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage2Scene } = module;
-    await this.scenes.setScene(new Stage2Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage3(character, art)); }));
+    await this.scenes.setScene(new Stage2Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage3(character, art)); }, () => { void this.startStage2(character, art); }));
     this.assets.prefetchGroup('stage-3');
   }
 
@@ -387,7 +387,7 @@ export class GameApp {
     const module = await this.loadStageModule('stage-3', () => import('../scenes/Stage3Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage3Scene } = module;
-    await this.scenes.setScene(new Stage3Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage4(character, art)); }));
+    await this.scenes.setScene(new Stage3Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage4(character, art)); }, () => { void this.startStage3(character, art); }));
     this.assets.prefetchGroup('stage-4');
   }
 
@@ -398,7 +398,7 @@ export class GameApp {
     const module = await this.loadStageModule('stage-4', () => import('../scenes/Stage4Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage4Scene } = module;
-    await this.scenes.setScene(new Stage4Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage5(character, art)); }));
+    await this.scenes.setScene(new Stage4Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage5(character, art)); }, () => { void this.startStage4(character, art); }));
     this.assets.prefetchGroup('stage-5');
   }
 
@@ -409,7 +409,7 @@ export class GameApp {
     const module = await this.loadStageModule('stage-5', () => import('../scenes/Stage5Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage5Scene } = module;
-    await this.scenes.setScene(new Stage5Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.showEnding(character, art)); }));
+    await this.scenes.setScene(new Stage5Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.showEnding(character, art)); }, () => { void this.startStage5(character, art); }));
     this.assets.prefetchGroup('ending');
   }
 

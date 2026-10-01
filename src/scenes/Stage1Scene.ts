@@ -31,7 +31,7 @@ import { heroContactSample } from '../render/HeroContactProfiles.js';
 
 export class Stage1Scene implements Scene {
   private world: CombatWorld;
-  private phase: 'belt' | 'transition' | 'duel' | 'final-transition' | 'final-duel' | 'final-ko' | 'clear' = 'belt';
+  private phase: 'belt' | 'transition' | 'duel' | 'final-transition' | 'final-duel' | 'final-ko' | 'clear' | 'defeat' = 'belt';
   private phaseFrames = 0;
   private time = 0;
   private stageTime = 99;
@@ -45,6 +45,8 @@ export class Stage1Scene implements Scene {
   private beltState: 'fight' | 'travel' = 'fight';
   private clearDispatched = false;
   private finalKoFrames = 0;
+  private defeatFrames = 0;
+  private defeatDispatched = false;
   private gillPhase: 1 | 2 | 3 = 1;
   private gillPhaseBanner = 0;
   private bossPatternCooldown = 0;
@@ -90,6 +92,7 @@ export class Stage1Scene implements Scene {
     readonly superArt: SuperArtDef,
     private readonly stageId: 1 | 2 | 3 | 4 | 5 = 1,
     private readonly onClear?: (result: StageResult) => void,
+    private readonly onDefeat?: () => void,
   ) {
     this.stageLength = stageId === 1 ? 3560 : stageId === 2 ? 3820 : stageId === 3 ? 4020 : stageId === 4 ? 4140 : 4320;
     this.introFrames = transitionPolishProfile(stageId).introFrames;
@@ -166,6 +169,18 @@ export class Stage1Scene implements Scene {
       if (!this.clearDispatched && this.phaseFrames <= dispatchAt) { this.clearDispatched = true; this.onClear?.(this.stageResult()); }
       return;
     }
+    if (this.phase === 'defeat') {
+      this.defeatFrames = Math.max(0, this.defeatFrames - 1);
+      this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 2);
+      this.cameraFocusX = this.world.player.x;
+      this.cameraFocusY = this.world.player.y - 105;
+      this.cameraFocusZoom = 1.1;
+      if (!this.defeatDispatched && this.defeatFrames <= 0) {
+        this.defeatDispatched = true;
+        this.onDefeat?.();
+      }
+      return;
+    }
     if (this.phase === 'belt' && this.waveBreakFrames > 0) {
       this.waveBreakFrames -= 1;
       if (this.waveBreakFrames === 0) this.beltState = 'fight';
@@ -202,6 +217,20 @@ export class Stage1Scene implements Scene {
       if (event.power > 0 && event.type !== 'block') this.hitPulse = Math.max(this.hitPulse, Math.min(12, Math.round(event.power / 18)));
     }
     if (this.hitPulse > 0) this.hitPulse -= 1;
+
+    if (this.world.player.hp <= 0) {
+      this.phase = 'defeat';
+      this.defeatFrames = 120;
+      this.defeatDispatched = false;
+      this.world.projectiles.length = 0;
+      this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 120);
+      this.cameraFocusX = this.world.player.x;
+      this.cameraFocusY = this.world.player.y - 105;
+      this.cameraFocusZoom = 1.1;
+      this.cameraSlowFrames = Math.max(this.cameraSlowFrames, 24);
+      this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 120);
+      return;
+    }
 
     if (this.phase === 'belt' && this.beltState === 'fight' && this.world.livingEnemies.length === 0) {
       this.defeatedEnemies += this.world.enemies.length;
@@ -307,6 +336,7 @@ export class Stage1Scene implements Scene {
     this.drawBossPatternFlash(ctx);
     this.drawStageClear(ctx);
     this.drawHelp(ctx);
+    this.drawDefeat(ctx);
     ctx.restore();
   }
 
@@ -391,7 +421,7 @@ export class Stage1Scene implements Scene {
   }
 
   private cameraPresentation(scroll: number): { zoom: number; panX: number; panY: number; shakeX: number; shakeY: number } {
-    let zoom = this.phase === 'final-duel' || this.phase === 'final-ko' ? 1.065 : this.phase === 'duel' ? 1.035 : 1;
+    let zoom = this.phase === 'final-duel' || this.phase === 'final-ko' ? 1.065 : this.phase === 'duel' || this.phase === 'defeat' ? 1.035 : 1;
     let panX = 0;
     let panY = 0;
     if (this.world.rules.mode === 'duel') {
@@ -2357,6 +2387,31 @@ export class Stage1Scene implements Scene {
     ctx.restore();
   }
 
+
+  private drawDefeat(ctx: CanvasRenderingContext2D): void {
+    if (this.phase !== 'defeat') return;
+    const total = 120;
+    const elapsed = total - this.defeatFrames;
+    const reveal = Math.max(0, Math.min(1, elapsed / 18));
+    const retryReveal = Math.max(0, Math.min(1, (elapsed - 36) / 22));
+    ctx.save();
+    ctx.fillStyle = `rgba(3,4,8,${.58 * reveal})`;
+    ctx.fillRect(0, 0, 1280, 720);
+    ctx.textAlign = 'center';
+    ctx.strokeStyle = `rgba(66,13,20,${.95 * reveal})`;
+    ctx.lineWidth = 12;
+    ctx.fillStyle = `rgba(255,245,235,${reveal})`;
+    ctx.font = '900 112px Impact, Arial Black, sans-serif';
+    ctx.strokeText('K.O.', 640, 350);
+    ctx.fillText('K.O.', 640, 350);
+    ctx.fillStyle = `rgba(241,189,81,${retryReveal})`;
+    ctx.font = '900 16px Arial Black, sans-serif';
+    ctx.fillText('RETRYING CURRENT STAGE', 640, 406);
+    ctx.fillStyle = `rgba(255,255,255,${.62 * retryReveal})`;
+    ctx.font = '800 11px Arial, sans-serif';
+    ctx.fillText('CHARACTER / SUPER ART / CAMPAIGN PROGRESS KEPT', 640, 430);
+    ctx.restore();
+  }
 
   private stageBossDef(): CharacterDef {
     if (this.stageId === 2) return this.playerDef.id === 'YUN' ? getCharacter('CHUNLI') : getCharacter('YUN');

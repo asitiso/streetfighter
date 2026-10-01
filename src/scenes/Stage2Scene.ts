@@ -11,7 +11,8 @@ export class Stage2Scene extends Stage1Scene {
     playerDef: CharacterDef,
     superArt: SuperArtDef,
     onClear?: (result: StageResult) => void,
+    onDefeat?: () => void,
   ) {
-    super(input, audio, playerDef, superArt, 2, onClear);
+    super(input, audio, playerDef, superArt, 2, onClear, onDefeat);
   }
 }
