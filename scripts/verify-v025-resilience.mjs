@@ -12,6 +12,7 @@ import {
 import { AssetManager, ASSET_GROUPS, GAME_CACHE_NAME } from '../dist/assets/core/AssetManager.js';
 import { RuntimeTelemetry } from '../dist/assets/core/RuntimeTelemetry.js';
 import { evaluateReleaseGate } from '../dist/assets/core/ReleaseGate.js';
+import { SessionRecoveryStore } from '../dist/assets/core/SessionRecovery.js';
 
 const corrupted = sanitizeGameSave({
   ...DEFAULT_SAVE,
@@ -45,6 +46,29 @@ assert.ok(recovered.health.issues.includes('PRIMARY CORRUPT'));
 const legacy = decodeSaveRecord({ ...clean, schemaVersion: undefined });
 assert.equal(legacy?.legacy, true);
 assert.equal(legacy?.save.currentStage, 4);
+
+const originalLocalStorage = globalThis.localStorage;
+const recoveryStorage = new Map();
+globalThis.localStorage = {
+  getItem: (key) => recoveryStorage.get(key) ?? null,
+  setItem: (key, value) => { recoveryStorage.set(key, String(value)); },
+  removeItem: (key) => { recoveryStorage.delete(key); },
+  clear: () => recoveryStorage.clear(),
+  key: (index) => [...recoveryStorage.keys()][index] ?? null,
+  get length() { return recoveryStorage.size; },
+};
+const recoveryA = new SessionRecoveryStore('RC-TEST');
+recoveryA.begin();
+recoveryA.checkpoint('stage-3', 3, 'RYU', 1);
+const recoveryB = new SessionRecoveryStore('RC-TEST');
+recoveryB.begin();
+const recoveredSession = recoveryB.snapshot();
+assert.equal(recoveredSession.available, true, 'active stage checkpoint must survive a page exit');
+assert.equal(recoveredSession.checkpoint?.stage, 3);
+if (originalLocalStorage === undefined) delete globalThis.localStorage; else globalThis.localStorage = originalLocalStorage;
+
+const gameAppSource = readFileSync(new URL('../dist/assets/core/GameApp.js', import.meta.url), 'utf8');
+assert.ok(!gameAppSource.includes("recovery.markClean('pagehide')"), 'pagehide must not erase active recovery checkpoint');
 
 const originalCaches = globalThis.caches;
 const originalFetch = globalThis.fetch;
@@ -143,6 +167,7 @@ console.log('V025_RESILIENCE_PASS', {
   saveSchema: SAVE_SCHEMA_VERSION,
   cache: GAME_CACHE_NAME,
   networkCut: cut.ready,
+  interruptedSessionRecovery: recoveredSession.checkpoint?.stage,
   memoryTrendMbPerMin: leak.heapTrendMbPerMin?.toFixed(1),
   releaseGate: ready.verdict,
 });

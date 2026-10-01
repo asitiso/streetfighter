@@ -648,7 +648,7 @@ export class GameApp {
   };
 
 
-  private onPageHide = (): void => { this.recovery.markClean('pagehide'); };
+  private onPageHide = (): void => { this.touch.releaseAll(); this.audio.setBackgrounded(true); };
 
   private onVisibilityChange = (): void => {
     if (document.hidden) {
