@@ -174,6 +174,7 @@ export function decodeSaveRecord(raw: unknown): { save: GameSave; issues: string
     if (record.checksum !== checksumSave(sanitized.save)) return null;
     return { ...sanitized, legacy: false };
   }
+  if (!['currentStage', 'completedStages', 'selectedCharacter', 'selectedSuperArt'].every((key) => Object.hasOwn(record, key))) return null;
   const legacy = sanitizeGameSave(raw);
   return { ...legacy, legacy: true };
 }
