@@ -86,6 +86,8 @@ function clearStage5(scene, tickBase = 4000) {
   scene.world.enemy.hp = Math.round(scene.world.enemy.maxHp * .64);
   scene.fixedUpdate(1 / 60, tick++);
   if (scene.gillPhase !== 2 || scene.world.enemy.aiTempoScale < 1.19 || scene.world.enemy.superGauge < 100) fail('Gill phase 2 transition missing');
+  for (let t = 0; t < 30 && scene.world.superFreezeFrames > 0; t += 1) scene.fixedUpdate(1 / 60, tick++);
+  if (scene.world.superFreezeFrames > 0) fail('Gill phase 2 super freeze did not finish');
   scene.world.enemy.hp = Math.round(scene.world.enemy.maxHp * .28);
   scene.fixedUpdate(1 / 60, tick++);
   if (scene.gillPhase !== 3 || scene.world.enemy.aiTempoScale < 1.3 || scene.world.enemy.aiSuperBias < .4) fail('Gill final segment transition missing');
