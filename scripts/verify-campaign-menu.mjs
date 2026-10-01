@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { TitleScene } from '../dist/assets/scenes/TitleScene.js';
 import { StageSelectScene } from '../dist/assets/scenes/StageSelectScene.js';
 
@@ -46,4 +49,10 @@ stageInput.set(); stageScene.fixedUpdate(1 / 60);
 stageInput.set('back'); stageScene.fixedUpdate(1 / 60);
 if (!backed) fail('stage select back action missing');
 
-console.log('CAMPAIGN_MENU_VERIFY_PASS', { titleAction: chosen, pauseInputSeparated: true, selectedStage, back: backed, menuMoves: audio.moves });
+const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
+const appSource = readFileSync(join(distRoot, 'assets/core/GameApp.js'), 'utf8');
+if (!appSource.includes('startStageNumber(stage, character, art, false, true)')) fail('stage select does not enter isolated replay mode');
+if (!appSource.includes('replay ? this.showStageSelect()')) fail('replay clear does not return to stage select');
+if (!appSource.includes('if (!replay)')) fail('replay mode still mutates campaign progression');
+
+console.log('CAMPAIGN_MENU_VERIFY_PASS', { titleAction: chosen, pauseInputSeparated: true, selectedStage, back: backed, isolatedReplay: true, menuMoves: audio.moves });

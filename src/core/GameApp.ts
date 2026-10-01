@@ -359,59 +359,79 @@ export class GameApp {
     ));
   }
 
-  private async startStage(character: CharacterDef, art: SuperArtDef, resetProgress = true): Promise<void> {
-    await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 1, hasCampaignStarted: true, ...(resetProgress ? { completedStages: [], stageResults: [] } : {}) });
-    this.recovery.checkpoint('stage-1', 1, character.id, art.id);
+  private async startStage(character: CharacterDef, art: SuperArtDef, resetProgress = true, replay = false): Promise<void> {
+    if (!replay) {
+      await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 1, hasCampaignStarted: true, ...(resetProgress ? { completedStages: [], stageResults: [] } : {}) });
+      this.recovery.checkpoint('stage-1', 1, character.id, art.id);
+    }
     const module = await this.loadStageModule('stage-1', () => import('../scenes/Stage1Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage1Scene } = module;
-    await this.scenes.setScene(new Stage1Scene(this.input, this.audio, character, art, 1, (result) => { void this.recordStageResult(result).then(() => this.startStage2(character, art)); }, () => { void this.startStage(character, art, false); }));
-    this.assets.prefetchGroup('stage-2');
+    await this.scenes.setScene(new Stage1Scene(this.input, this.audio, character, art, 1, (result) => {
+      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage2(character, art));
+    }, () => { void this.startStage(character, art, false, replay); }));
+    if (!replay) this.assets.prefetchGroup('stage-2');
   }
 
 
-  private async startStage2(character: CharacterDef, art: SuperArtDef): Promise<void> {
-    const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1]));
-    await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 2, completedStages: completed, hasCampaignStarted: true });
-    this.recovery.checkpoint('stage-2', 2, character.id, art.id);
+  private async startStage2(character: CharacterDef, art: SuperArtDef, replay = false): Promise<void> {
+    if (!replay) {
+      const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1]));
+      await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 2, completedStages: completed, hasCampaignStarted: true });
+      this.recovery.checkpoint('stage-2', 2, character.id, art.id);
+    }
     const module = await this.loadStageModule('stage-2', () => import('../scenes/Stage2Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage2Scene } = module;
-    await this.scenes.setScene(new Stage2Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage3(character, art)); }, () => { void this.startStage2(character, art); }));
-    this.assets.prefetchGroup('stage-3');
+    await this.scenes.setScene(new Stage2Scene(this.input, this.audio, character, art, (result) => {
+      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage3(character, art));
+    }, () => { void this.startStage2(character, art, replay); }));
+    if (!replay) this.assets.prefetchGroup('stage-3');
   }
 
-  private async startStage3(character: CharacterDef, art: SuperArtDef): Promise<void> {
-    const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1, 2]));
-    await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 3, completedStages: completed, hasCampaignStarted: true });
-    this.recovery.checkpoint('stage-3', 3, character.id, art.id);
+  private async startStage3(character: CharacterDef, art: SuperArtDef, replay = false): Promise<void> {
+    if (!replay) {
+      const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1, 2]));
+      await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 3, completedStages: completed, hasCampaignStarted: true });
+      this.recovery.checkpoint('stage-3', 3, character.id, art.id);
+    }
     const module = await this.loadStageModule('stage-3', () => import('../scenes/Stage3Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage3Scene } = module;
-    await this.scenes.setScene(new Stage3Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage4(character, art)); }, () => { void this.startStage3(character, art); }));
-    this.assets.prefetchGroup('stage-4');
+    await this.scenes.setScene(new Stage3Scene(this.input, this.audio, character, art, (result) => {
+      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage4(character, art));
+    }, () => { void this.startStage3(character, art, replay); }));
+    if (!replay) this.assets.prefetchGroup('stage-4');
   }
 
-  private async startStage4(character: CharacterDef, art: SuperArtDef): Promise<void> {
-    const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1, 2, 3]));
-    await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 4, completedStages: completed, hasCampaignStarted: true });
-    this.recovery.checkpoint('stage-4', 4, character.id, art.id);
+  private async startStage4(character: CharacterDef, art: SuperArtDef, replay = false): Promise<void> {
+    if (!replay) {
+      const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1, 2, 3]));
+      await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 4, completedStages: completed, hasCampaignStarted: true });
+      this.recovery.checkpoint('stage-4', 4, character.id, art.id);
+    }
     const module = await this.loadStageModule('stage-4', () => import('../scenes/Stage4Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage4Scene } = module;
-    await this.scenes.setScene(new Stage4Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.startStage5(character, art)); }, () => { void this.startStage4(character, art); }));
-    this.assets.prefetchGroup('stage-5');
+    await this.scenes.setScene(new Stage4Scene(this.input, this.audio, character, art, (result) => {
+      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage5(character, art));
+    }, () => { void this.startStage4(character, art, replay); }));
+    if (!replay) this.assets.prefetchGroup('stage-5');
   }
 
-  private async startStage5(character: CharacterDef, art: SuperArtDef): Promise<void> {
-    const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1, 2, 3, 4]));
-    await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 5, completedStages: completed, hasCampaignStarted: true });
-    this.recovery.checkpoint('stage-5', 5, character.id, art.id);
+  private async startStage5(character: CharacterDef, art: SuperArtDef, replay = false): Promise<void> {
+    if (!replay) {
+      const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1, 2, 3, 4]));
+      await this.persist({ selectedCharacter: character.id, selectedSuperArt: art.id, currentStage: 5, completedStages: completed, hasCampaignStarted: true });
+      this.recovery.checkpoint('stage-5', 5, character.id, art.id);
+    }
     const module = await this.loadStageModule('stage-5', () => import('../scenes/Stage5Scene.js'));
     if (!module) { await this.showTitle(); return; }
     const { Stage5Scene } = module;
-    await this.scenes.setScene(new Stage5Scene(this.input, this.audio, character, art, (result) => { void this.recordStageResult(result).then(() => this.showEnding(character, art)); }, () => { void this.startStage5(character, art); }));
-    this.assets.prefetchGroup('ending');
+    await this.scenes.setScene(new Stage5Scene(this.input, this.audio, character, art, (result) => {
+      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.showEnding(character, art));
+    }, () => { void this.startStage5(character, art, replay); }));
+    if (!replay) this.assets.prefetchGroup('ending');
   }
 
   private async showEnding(character: CharacterDef, art: SuperArtDef): Promise<void> {
@@ -502,17 +522,17 @@ export class GameApp {
       this.input,
       this.audio,
       this.save.currentStage,
-      (stage) => { const { character, art } = this.savedFighter(); void this.startStageNumber(stage, character, art, false); },
+      (stage) => { const { character, art } = this.savedFighter(); void this.startStageNumber(stage, character, art, false, true); },
       () => { void this.showTitle(); },
     ));
   }
 
-  private async startStageNumber(stage: 1 | 2 | 3 | 4 | 5, character: CharacterDef, art: SuperArtDef, resetProgress = false): Promise<void> {
-    if (stage === 1) { await this.startStage(character, art, resetProgress); return; }
-    if (stage === 2) { await this.startStage2(character, art); return; }
-    if (stage === 3) { await this.startStage3(character, art); return; }
-    if (stage === 4) { await this.startStage4(character, art); return; }
-    await this.startStage5(character, art);
+  private async startStageNumber(stage: 1 | 2 | 3 | 4 | 5, character: CharacterDef, art: SuperArtDef, resetProgress = false, replay = false): Promise<void> {
+    if (stage === 1) { await this.startStage(character, art, resetProgress, replay); return; }
+    if (stage === 2) { await this.startStage2(character, art, replay); return; }
+    if (stage === 3) { await this.startStage3(character, art, replay); return; }
+    if (stage === 4) { await this.startStage4(character, art, replay); return; }
+    await this.startStage5(character, art, replay);
   }
 
 
