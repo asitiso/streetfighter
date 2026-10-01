@@ -337,6 +337,11 @@ export class Fighter {
     return this.state === 'idle' || this.state === 'walk' || this.state === 'crouch' || this.state === 'block' || this.state === 'parry';
   }
 
+  canBeThrown(): boolean {
+    if (this.airborne || this.hp <= 0) return false;
+    return this.state !== 'hit' && this.state !== 'knockdown' && this.state !== 'parry' && this.state !== 'ko' && this.state !== 'victory';
+  }
+
   receiveHit(move: MoveData, attacker: Fighter, guarding: boolean, counter = false): 'hit' | 'block' | 'parry' | 'red-parry' {
     const low = move.level === 'low';
     this.lastHitDirection = attacker.facing;

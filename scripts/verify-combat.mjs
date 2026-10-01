@@ -104,6 +104,14 @@ const airGuard = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
 airGuard.airborne = true;
 airGuard.jumpHeight = 50;
 if (airGuard.canDefend()) fail('airborne fighter incorrectly guard eligible');
+if (airGuard.canBeThrown()) fail('airborne fighter incorrectly throwable');
+
+const downedThrow = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+downedThrow.state = 'knockdown';
+if (downedThrow.canBeThrown()) fail('knocked-down fighter incorrectly throwable');
+const hitThrow = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+hitThrow.state = 'hit';
+if (hitThrow.canBeThrown()) fail('hit-stun fighter incorrectly throwable');
 
 const landingAttack = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
 landingAttack.airborne = true;
@@ -130,4 +138,6 @@ console.log('COMBAT_VERIFY_PASS', {
   airMoveCancelledOnLanding: landingAttack.currentMove === null,
   attackCannotGuard: !attackingGuard.canDefend(),
   airGuardDisabled: !airGuard.canDefend(),
+  airborneThrowDisabled: !airGuard.canBeThrown(),
+  knockdownThrowDisabled: !downedThrow.canBeThrown(),
 });

@@ -261,6 +261,7 @@ export class CombatWorld {
     const hitNumber = attacker.hitNumberFor(defender);
     const hitMove = move.multiHit ? { ...move, damage: Math.max(1, Math.round(move.damage * move.multiHit.perHitScale)), hitStop: hitNumber >= move.multiHit.hits ? move.hitStop : Math.min(5, move.hitStop), hitStun: hitNumber >= move.multiHit.hits ? move.hitStun : Math.max(8, Math.round(move.hitStun * .55)), pushback: hitNumber >= move.multiHit.hits ? move.pushback : Math.min(10, move.pushback * .14), knockdown: hitNumber >= move.multiHit.hits ? move.knockdown : false, launch: hitNumber >= move.multiHit.hits ? move.launch : undefined } : move;
 
+    if (hitMove.level === 'throw' && !defender.canBeThrown()) return;
     if (hitMove.level === 'throw' && this.throwEscape(defender)) {
       attacker.markHitTarget(defender);
       attacker.throwEscaped(attacker.facing === 1 ? -1 : 1);
