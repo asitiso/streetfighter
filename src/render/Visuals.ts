@@ -17,6 +17,7 @@ import { animationTransitionSample } from './AnimationTransitionProfiles.js';
 import { animationSequenceSample } from './AnimationTimingMapper.js';
 import { animationTextureManager } from './AnimationTextureManager.js';
 import { animationFrameProfile } from './AnimationFrameProfiles.js';
+import { specialKeyPoseAsset, specialKeyPoseImage, specialKeyPoseVisible } from './SpecialKeyPoseLibrary.js';
 
 
 interface NaturalizedRenderPose {
@@ -369,6 +370,32 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
   return true;
 }
 
+function drawSpecialKeyPoseSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number): boolean {
+  const move = fighter.currentMove;
+  if (fighter.state !== 'attack' || !move || !characterTextureManager.wantsHd() || !specialKeyPoseVisible(move, fighter.moveFrame)) return false;
+  const asset = specialKeyPoseAsset(fighter.character.id, move);
+  const image = asset ? specialKeyPoseImage(asset) : null;
+  if (!image) return false;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.save();
+  ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
+  drawShadow(ctx);
+  ctx.restore();
+  ctx.translate(0, -fighter.jumpHeight);
+  ctx.scale(fighter.facing * fighter.character.widthScale * .88, fighter.character.heightScale * .88);
+  if (fighter.hitFlash > 0) ctx.filter = 'brightness(2.1) saturate(.5)';
+  const smoothing = ctx.imageSmoothingEnabled;
+  const smoothingQuality = ctx.imageSmoothingQuality;
+  characterTextureManager.configureSampling(ctx, true);
+  ctx.drawImage(image, -96, -220, 192, 224);
+  ctx.imageSmoothingEnabled = smoothing;
+  ctx.imageSmoothingQuality = smoothingQuality;
+  ctx.restore();
+  return true;
+}
+
 function drawAttackAtlasSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
   const texture = characterTextureManager.attackSelection(fighter.character.id);
   if (!texture) return false;
@@ -557,6 +584,7 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
     ctx.translate(-x, -y);
   }
   if (drawHighFrameSequenceSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
+  if (drawSpecialKeyPoseSprite(ctx, fighter, x, y)) { ctx.restore(); return; }
   if (drawAttackAtlasSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawAssetCombatSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   const throwPair = throwPairVisual(fighter);
