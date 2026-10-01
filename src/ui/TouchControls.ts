@@ -30,6 +30,8 @@ export class TouchControls {
   private editing = false;
   private settings: TouchControlSettings = { ...DEFAULTS };
   private drag: { group: DragGroup; pointerId: number; startX: number; startY: number; baseX: number; baseY: number } | null = null;
+  private dpadPointerId: number | null = null;
+  private dpadAction: Action | null = null;
   private previewCallback: ((settings: TouchControlSettings) => void) | null = null;
   private commitCallback: ((settings: TouchControlSettings) => void) | null = null;
 
@@ -62,12 +64,23 @@ export class TouchControls {
           this.vibrate(action === 'left' || action === 'right' || action === 'up' || action === 'down' ? 3 : 7);
         }
       };
-      const up = (e: PointerEvent) => { e.preventDefault(); this.input.setTouch(action, false); };
+      const up = (e: PointerEvent) => {
+        e.preventDefault();
+        const dpadDirection = action === 'left' || action === 'right' || action === 'up' || action === 'down';
+        if (e.type === 'pointerleave' && dpadDirection && this.dpadPointerId === e.pointerId) return;
+        this.input.setTouch(action, false);
+      };
       node.addEventListener('pointerdown', down);
       node.addEventListener('pointerup', up);
       node.addEventListener('pointercancel', up);
       node.addEventListener('pointerleave', up);
     }
+
+    const dpad = this.element.querySelector<HTMLElement>('.dpad');
+    dpad?.addEventListener('pointerdown', this.onDpadPointerDown, { capture: true });
+    dpad?.addEventListener('pointermove', this.onDpadPointerMove, { passive: false });
+    dpad?.addEventListener('pointerup', this.onDpadPointerEnd);
+    dpad?.addEventListener('pointercancel', this.onDpadPointerEnd);
 
     for (const group of this.element.querySelectorAll<HTMLElement>('[data-layout-group]')) {
       group.addEventListener('pointerdown', (event) => this.beginDrag(event, group.dataset.layoutGroup as DragGroup), { capture: true });
@@ -81,6 +94,8 @@ export class TouchControls {
 
   releaseAll(): void {
     this.drag = null;
+    this.dpadPointerId = null;
+    this.dpadAction = null;
     for (const action of ['left','right','up','down','jump','lp','mp','hp','lk','mk','hk','start'] as Action[]) this.input.setTouch(action, false);
   }
 
@@ -124,6 +139,43 @@ export class TouchControls {
     this.element.classList.toggle('editing', editing);
     if (!editing) this.drag = null;
     for (const action of ['left','right','up','down','jump','lp','mp','hp','lk','mk','hk','start'] as Action[]) this.input.setTouch(action, false);
+  }
+
+  private onDpadPointerDown = (event: PointerEvent): void => {
+    if (this.editing || !this.active || this.dpadPointerId !== null) return;
+    this.dpadPointerId = event.pointerId;
+    (event.currentTarget as HTMLElement | null)?.setPointerCapture?.(event.pointerId);
+    this.setDpadAction(this.dpadActionAt(event.clientX, event.clientY));
+  };
+
+  private onDpadPointerMove = (event: PointerEvent): void => {
+    if (this.editing || event.pointerId !== this.dpadPointerId) return;
+    event.preventDefault();
+    this.setDpadAction(this.dpadActionAt(event.clientX, event.clientY));
+  };
+
+  private onDpadPointerEnd = (event: PointerEvent): void => {
+    if (event.pointerId !== this.dpadPointerId) return;
+    event.preventDefault();
+    this.setDpadAction(null);
+    this.dpadPointerId = null;
+  };
+
+  private dpadActionAt(clientX: number, clientY: number): Action | null {
+    const hit = document.elementFromPoint(clientX, clientY)?.closest<HTMLElement>('.dpad [data-action]');
+    if (!hit || !this.element.contains(hit)) return null;
+    const action = hit.dataset.action as Action | undefined;
+    return action === 'left' || action === 'right' || action === 'up' || action === 'down' ? action : null;
+  }
+
+  private setDpadAction(next: Action | null): void {
+    if (next === this.dpadAction) return;
+    if (this.dpadAction) this.input.setTouch(this.dpadAction, false);
+    this.dpadAction = next;
+    if (next) {
+      this.input.setTouch(next, true);
+      this.vibrate(3);
+    }
   }
 
   private beginDrag(event: PointerEvent, group: DragGroup): void {
