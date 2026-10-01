@@ -592,7 +592,14 @@ export class Fighter {
       this.wallBounceFrames = 0;
       this.groundBounceFrames = 0;
       this.landingFrames = 8;
-      if (this.state === 'jump') { this.state = 'idle'; this.stateFrame = 0; }
+      if (this.state === 'attack' && this.currentMove?.technique === 'air') {
+        this.interruptMove();
+        this.state = 'idle';
+        this.stateFrame = 0;
+      } else if (this.state === 'jump') {
+        this.state = 'idle';
+        this.stateFrame = 0;
+      }
     }
   }
 

@@ -2,6 +2,7 @@ import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
 import { normalFor, SPECIAL_MOVES, THROW_MOVE } from '../dist/assets/combat/MoveLibrary.js';
 import { Fighter } from '../dist/assets/combat/Fighter.js';
+import { airNormalFor } from '../dist/assets/combat/TechniqueLibrary.js';
 
 class StubInput {
   heldSet = new Set();
@@ -89,6 +90,15 @@ parried.parryWindow = 10;
 parried.receiveHit(normalFor('lp'), interrupter, false, false);
 if (parried.currentMove !== null || parried.state !== 'parry') fail('parry did not cancel stale current move');
 
+const landingAttack = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+landingAttack.airborne = true;
+landingAttack.jumpHeight = .2;
+landingAttack.jumpVelocity = -2;
+landingAttack.startMove(airNormalFor('RYU', 'hp'));
+input.set();
+landingAttack.updatePlayer(input, duelRules);
+if (landingAttack.airborne || landingAttack.currentMove !== null || landingAttack.state !== 'idle' || landingAttack.landingFrames <= 0) fail('air normal survived landing');
+
 console.log('COMBAT_VERIFY_PASS', {
   hitDamage: 1000 - hitWorld.enemy.hp,
   guard: true,
@@ -102,4 +112,5 @@ console.log('COMBAT_VERIFY_PASS', {
   interruptedMoveCancelled: interrupted.currentMove === null,
   blockedMoveCancelled: blocked.currentMove === null,
   parriedMoveCancelled: parried.currentMove === null,
+  airMoveCancelledOnLanding: landingAttack.currentMove === null,
 });
