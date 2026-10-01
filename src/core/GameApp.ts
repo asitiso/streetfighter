@@ -120,9 +120,10 @@ export class GameApp {
     this.recovery.checkpoint('title', null, null, null);
     const interrupted = this.recovery.snapshot();
     const stage = Math.max(1, Math.min(5, this.save?.currentStage ?? 1));
+    const campaignComplete = !!this.save?.stageSelectUnlocked && (this.save?.completedStages.includes(5) ?? false);
     const options: TitleMenuOption[] = [
       { id: 'new-game', label: 'NEW GAME', detail: 'CHARACTER SELECT → STAGE 1', enabled: true, action: () => { void this.showCharacterSelect(); } },
-      { id: 'continue', label: 'CONTINUE', detail: this.save?.hasCampaignStarted ? `STAGE ${stage} • ${this.save.selectedCharacter}` : 'NO CAMPAIGN SAVE', enabled: !!this.save?.hasCampaignStarted, action: () => { void this.continueCampaign(); } },
+      { id: 'continue', label: 'CONTINUE', detail: this.save?.hasCampaignStarted ? `STAGE ${stage} • ${this.save.selectedCharacter}` : campaignComplete ? 'CAMPAIGN COMPLETE • USE STAGE SELECT' : 'NO CAMPAIGN SAVE', enabled: !!this.save?.hasCampaignStarted, action: () => { void this.continueCampaign(); } },
       { id: 'recover-session', label: 'RECOVER SESSION', detail: interrupted.label, enabled: interrupted.available, action: () => { void this.recoverInterruptedSession(); } },
       { id: 'stage-select', label: 'STAGE SELECT', detail: this.save?.stageSelectUnlocked ? 'STAGES 1–5 UNLOCKED' : 'CLEAR THE CAMPAIGN TO UNLOCK', enabled: !!this.save?.stageSelectUnlocked, action: () => { void this.showStageSelect(); } },
       { id: 'battle-record', label: 'BATTLE RECORD', detail: this.save?.stageResults.length ? `${this.save.stageResults.length}/5 STAGES RECORDED` : 'NO STAGE RECORDS', enabled: !!this.save?.stageResults.length, action: () => { void this.showResults(); } },
@@ -415,7 +416,7 @@ export class GameApp {
 
   private async showEnding(character: CharacterDef, art: SuperArtDef): Promise<void> {
     const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1, 2, 3, 4, 5]));
-    await this.persist({ currentStage: 5, completedStages: completed, hasCampaignStarted: true, stageSelectUnlocked: true });
+    await this.persist({ currentStage: 5, completedStages: completed, hasCampaignStarted: false, stageSelectUnlocked: true });
     this.recovery.checkpoint('ending', 5, character.id, art.id);
     const module = await this.loadStageModule('ending', () => import('../scenes/EndingScene.js'));
     if (!module) { await this.showTitle(); return; }
