@@ -288,6 +288,9 @@ export class Fighter {
       recovery: Math.max(2, Math.round(move.recovery * this.installFrameScale)),
     } : move;
     this.currentMove = effective;
+    this.parryWindow = 0;
+    this.lowParryWindow = 0;
+    this.redParryWindow = 0;
     this.moveFrame = 0;
     this.attackConnected = false;
     this.attackVictims.clear();
@@ -329,6 +332,11 @@ export class Fighter {
     return this.moveFrame >= this.currentMove.startup && this.moveFrame < this.currentMove.startup + this.currentMove.active;
   }
 
+  canDefend(): boolean {
+    if (this.airborne) return false;
+    return this.state === 'idle' || this.state === 'walk' || this.state === 'crouch' || this.state === 'block' || this.state === 'parry';
+  }
+
   receiveHit(move: MoveData, attacker: Fighter, guarding: boolean, counter = false): 'hit' | 'block' | 'parry' | 'red-parry' {
     const low = move.level === 'low';
     this.lastHitDirection = attacker.facing;
@@ -342,11 +350,11 @@ export class Fighter {
       this.superVictimDirection = attacker.facing;
       if (!move.multiHit) { this.superVictimHitIndex = 1; this.superVictimHitTotal = 1; }
     }
-    if (this.redParryWindow > 0) {
+    if (this.canDefend() && this.redParryWindow > 0) {
       this.enterParry(10);
       return 'red-parry';
     }
-    if ((!low && this.parryWindow > 0) || (low && this.lowParryWindow > 0)) {
+    if (this.canDefend() && ((!low && this.parryWindow > 0) || (low && this.lowParryWindow > 0))) {
       this.enterParry(8);
       return 'parry';
     }

@@ -90,6 +90,21 @@ parried.parryWindow = 10;
 parried.receiveHit(normalFor('lp'), interrupter, false, false);
 if (parried.currentMove !== null || parried.state !== 'parry') fail('parry did not cancel stale current move');
 
+const attackingGuard = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+attackingGuard.parryWindow = 6;
+attackingGuard.lowParryWindow = 6;
+attackingGuard.startMove(normalFor('hp'));
+if (attackingGuard.canDefend()) fail('attacking fighter remained guard eligible');
+if (attackingGuard.parryWindow !== 0 || attackingGuard.lowParryWindow !== 0) fail('attack start did not close parry windows');
+const attackHp = attackingGuard.hp;
+attackingGuard.receiveHit(normalFor('lp'), interrupter, true, true);
+if (attackingGuard.hp >= attackHp || attackingGuard.state !== 'hit') fail('attacking fighter incorrectly blocked incoming hit');
+
+const airGuard = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
+airGuard.airborne = true;
+airGuard.jumpHeight = 50;
+if (airGuard.canDefend()) fail('airborne fighter incorrectly guard eligible');
+
 const landingAttack = new Fighter(getCharacter('RYU'), 'player', 400, 500, 1);
 landingAttack.airborne = true;
 landingAttack.jumpHeight = .2;
@@ -113,4 +128,6 @@ console.log('COMBAT_VERIFY_PASS', {
   blockedMoveCancelled: blocked.currentMove === null,
   parriedMoveCancelled: parried.currentMove === null,
   airMoveCancelledOnLanding: landingAttack.currentMove === null,
+  attackCannotGuard: !attackingGuard.canDefend(),
+  airGuardDisabled: !airGuard.canDefend(),
 });

@@ -270,7 +270,7 @@ export class CombatWorld {
     }
 
     const defenderBack = defender.facing === 1 ? 'left' : 'right';
-    const guarding = defender.side === 'player' ? input.held(defenderBack) : this.enemyDefenseDecision(defender, attacker, move);
+    const guarding = defender.canDefend() && (defender.side === 'player' ? input.held(defenderBack) : this.enemyDefenseDecision(defender, attacker, move));
     const counter = defender.state === 'attack' && !!defender.currentMove && defender.moveFrame < defender.currentMove.startup;
     const hpBefore = defender.hp;
     const outcome = defender.receiveHit(hitMove, attacker, guarding, counter);
@@ -317,7 +317,7 @@ export class CombatWorld {
         const dy = Math.abs((defender.y - 88) - projectile.y);
         if (dx > projectile.radius + 34 || dy > Math.max(55, projectile.move.hitbox.lane)) continue;
         const defenderBack = defender.facing === 1 ? 'left' : 'right';
-        const guarding = defender.side === 'player' ? input.held(defenderBack) : this.enemyDefenseDecision(defender, projectile.owner, projectile.move);
+        const guarding = defender.canDefend() && (defender.side === 'player' ? input.held(defenderBack) : this.enemyDefenseDecision(defender, projectile.owner, projectile.move));
         const counter = defender.state === 'attack' && !!defender.currentMove && defender.moveFrame < defender.currentMove.startup;
         const hpBefore = defender.hp;
         const outcome = defender.receiveHit(projectile.move, projectile.owner, guarding, counter);
