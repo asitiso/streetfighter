@@ -4,15 +4,32 @@ export class SceneManager {
   private current: Scene | null = null;
   private width = 1280;
   private height = 720;
+  private transitionTail: Promise<void> = Promise.resolve();
 
-  async setScene(scene: Scene): Promise<void> {
-    if (this.current) {
-      await this.current.exit();
-      this.current.destroy();
-    }
-    this.current = scene;
-    this.current.resize(this.width, this.height);
-    await this.current.enter();
+  setScene(scene: Scene): Promise<void> {
+    const transition = async (): Promise<void> => {
+      const previous = this.current;
+      this.current = null;
+      if (previous) {
+        await previous.exit();
+        previous.destroy();
+      }
+
+      this.current = scene;
+      scene.resize(this.width, this.height);
+      try {
+        await scene.enter();
+      } catch (error) {
+        if (this.current === scene) this.current = null;
+        try { await scene.exit(); } catch { /* preserve original enter error */ }
+        try { scene.destroy(); } catch { /* preserve original enter error */ }
+        throw error;
+      }
+    };
+
+    const next = this.transitionTail.then(transition, transition);
+    this.transitionTail = next.catch(() => undefined);
+    return next;
   }
 
   fixedUpdate(dt: number, tick: number): void {
