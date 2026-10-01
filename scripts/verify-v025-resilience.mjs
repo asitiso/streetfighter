@@ -70,6 +70,10 @@ if (originalLocalStorage === undefined) delete globalThis.localStorage; else glo
 const gameAppSource = readFileSync(new URL('../dist/assets/core/GameApp.js', import.meta.url), 'utf8');
 assert.ok(!gameAppSource.includes("recovery.markClean('pagehide')"), 'pagehide must not erase active recovery checkpoint');
 
+const assetManagerSource = readFileSync(new URL('../dist/assets/core/AssetManager.js', import.meta.url), 'utf8');
+assert.ok(assetManagerSource.includes("navigator.onLine !== false"), 'online asset loading must distinguish fresh-code mode');
+assert.ok(assetManagerSource.includes("url.startsWith('/assets/')") && assetManagerSource.includes("url.endsWith('.js')"), 'online JS assets must prefer network freshness');
+
 const originalCaches = globalThis.caches;
 const originalFetch = globalThis.fetch;
 const cacheMap = new Map();
@@ -168,6 +172,7 @@ console.log('V025_RESILIENCE_PASS', {
   cache: GAME_CACHE_NAME,
   networkCut: cut.ready,
   interruptedSessionRecovery: recoveredSession.checkpoint?.stage,
+  freshStageCodeOnline: true,
   memoryTrendMbPerMin: leak.heapTrendMbPerMin?.toFixed(1),
   releaseGate: ready.verdict,
 });

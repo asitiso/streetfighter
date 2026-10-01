@@ -124,7 +124,8 @@ export class AssetManager {
       onProgress?.(0, urls.length);
       await Promise.all(urls.map(async (url) => {
         this.modulePreload(url);
-        const response = await this.fetchWithCacheFallback(url, false);
+        const preferFreshCode = typeof navigator !== 'undefined' && navigator.onLine !== false && url.startsWith('/assets/') && url.endsWith('.js');
+        const response = await this.fetchWithCacheFallback(url, preferFreshCode);
         if (!response.ok) throw new Error(`Asset preload failed: ${url} (${response.status})`);
         done += 1;
         onProgress?.(done, urls.length);
