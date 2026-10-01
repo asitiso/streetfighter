@@ -125,7 +125,7 @@ export class Stage1Scene implements Scene {
     this.audio.startStageSoundscape?.(this.stageId);
     this.audio.setStageIntensity?.('belt');
   }
-  exit(): void { this.audio.stopSoundscape?.(); }
+  exit(): void { this.audio.setBackgrounded?.(false); this.audio.stopSoundscape?.(); }
   resize(_width: number, _height: number): void {}
   destroy(): void {}
 
@@ -143,8 +143,10 @@ export class Stage1Scene implements Scene {
       }
       return;
     }
-    if (this.input.pressed('start')) {
+    const pauseAllowed = this.introFrames <= 0 && (this.phase === 'belt' || this.phase === 'duel' || this.phase === 'final-duel');
+    if (pauseAllowed && this.input.pressed('start')) {
       this.paused = !this.paused;
+      this.audio.setBackgrounded?.(this.paused);
       return;
     }
     if (this.paused) return;
@@ -2415,7 +2417,7 @@ export class Stage1Scene implements Scene {
     ctx.fillText('K.O.', 640, 350);
     ctx.fillStyle = `rgba(241,189,81,${retryReveal})`;
     ctx.font = '900 16px Arial Black, sans-serif';
-    ctx.fillText(this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / K TO RETRY', 640, 406);
+    ctx.fillText(this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / ATTACK TO RETRY', 640, 406);
     ctx.fillStyle = `rgba(255,255,255,${.62 * retryReveal})`;
     ctx.font = '800 11px Arial, sans-serif';
     ctx.fillText('CHARACTER / SUPER ART / CAMPAIGN PROGRESS KEPT', 640, 430);
@@ -2729,7 +2731,7 @@ export class Stage1Scene implements Scene {
     ctx.fillStyle = 'rgba(5,7,12,.72)'; ctx.beginPath(); ctx.roundRect(22, 628, 1236, 76, 12); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.74)'; ctx.font = '700 11px Arial, sans-serif';
     ctx.fillText(this.world.rules.mode === 'duel' ? 'DUEL: ← → WALK   ↑ / SPACE JUMP   ↓ CROUCH   •   LP MP HP / LK MK HK' : 'BELT: ← → ADVANCE   ↑ ↓ DEPTH   •   SPACE / JUMP BUTTON = JUMP   •   LP MP HP / LK MK HK', 38, 650);
-    ctx.fillText('PARRY: TAP FORWARD   •   LOW PARRY: TAP DOWN   •   THROW: LP+LK', 38, 669);
+    ctx.fillText('PARRY: TAP FORWARD   •   LOW PARRY: TAP DOWN   •   THROW: LP+LK   •   START / P: PAUSE', 38, 669);
     const techniques = techniqueCatalogFor(this.playerDef.id);
     const command = techniques.command;
     ctx.fillStyle = 'rgba(255,226,132,.9)';

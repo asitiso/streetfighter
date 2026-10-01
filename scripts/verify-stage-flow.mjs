@@ -109,12 +109,18 @@ const jumpInput = new StubInput();
 const jumpScene = new Stage1Scene(jumpInput, new StubAudio(), character, character.superArts[0], 1);
 jumpScene.introFrames = 0;
 jumpInput.press('jump');
+jumpInput.press('lp');
 jumpScene.fixedUpdate(1 / 60, 9300);
 jumpInput.clear();
-if (!jumpScene.world.player.airborne || jumpScene.world.player.jumpHeight < 0) fail('belt-mode dedicated jump input failed');
+if (!jumpScene.world.player.airborne) fail('belt-mode dedicated jump input failed');
+if (!jumpScene.world.player.currentMove || jumpScene.world.player.currentMove.technique !== 'air') fail('jump + attack did not start an air normal');
 
 const pauseInput = new StubInput();
 const pauseScene = new Stage1Scene(pauseInput, new StubAudio(), character, character.superArts[0], 1);
+pauseInput.press('start');
+pauseScene.fixedUpdate(1 / 60, 9399);
+pauseInput.clear();
+if (pauseScene.paused) fail('START paused during stage intro');
 pauseScene.introFrames = 0;
 pauseInput.press('start');
 pauseScene.fixedUpdate(1 / 60, 9400);
@@ -170,5 +176,6 @@ console.log('STAGE_FLOW_VERIFY_PASS', {
   gillPhases: 3,
   playerKoRetry: defeatCallback,
   beltJump: jumpScene.world.player.airborne,
+  jumpAttack: jumpScene.world.player.currentMove?.technique === 'air',
   pauseResume: !pauseScene.paused,
 });

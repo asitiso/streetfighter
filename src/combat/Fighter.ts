@@ -148,6 +148,18 @@ export class Fighter {
       return;
     }
 
+    const jumpPressed = input.pressed('jump') || (!rules.depthMovement && input.pressed('up'));
+    if (!this.airborne && jumpPressed) {
+      this.dashFrames = 0;
+      this.airborne = true;
+      this.jumpVelocity = this.combatProfile.jumpVelocity;
+      this.state = 'jump';
+      this.stateFrame = 0;
+      const airAttack = this.readMove(input, rules);
+      if (airAttack) this.startMove(airAttack);
+      return;
+    }
+
     const attack = this.readMove(input, rules);
     if (attack) { this.dashFrames = 0; this.startMove(attack); return; }
 
@@ -162,14 +174,6 @@ export class Fighter {
     }
     if (!this.airborne && input.pressed('left') && this.buffer.doubleTap('left', 11)) { this.startDash(-1); this.clamp(rules); return; }
     if (!this.airborne && input.pressed('right') && this.buffer.doubleTap('right', 11)) { this.startDash(1); this.clamp(rules); return; }
-
-    if (!this.airborne && (input.pressed('jump') || (!rules.depthMovement && input.pressed('up')))) {
-      this.airborne = true;
-      this.jumpVelocity = this.combatProfile.jumpVelocity;
-      this.state = 'jump';
-      this.stateFrame = 0;
-      return;
-    }
 
     const moveSpeed = 4.3 * this.character.speed * this.combatProfile.walkScale * this.installMoveScale;
     let moved = false;
