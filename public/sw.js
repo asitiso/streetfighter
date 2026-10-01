@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'game-cache-v063';
+const CACHE_VERSION = 'game-cache-v064';
 const GAME_CACHE_PREFIX = 'game-cache-v';
 const UPDATE_META_CACHE = 'ssc-update-meta';
 const ROLLBACK_MARKER = '/__ssc_rollback_target__';
@@ -40,8 +40,11 @@ async function setRollbackTarget(target) {
 }
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL)));
-  // First install activates normally; updates wait so the in-app update screen can apply them deliberately.
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_VERSION);
+    await cache.addAll(APP_SHELL);
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (event) => {
@@ -86,26 +89,32 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith((async () => {
+    const url = new URL(event.request.url);
+    if (url.origin !== self.location.origin) return fetch(event.request);
+
     const rollback = await rollbackTarget();
-    const pathname = new URL(event.request.url).pathname;
+    const pathname = url.pathname;
     const pinCurrentShell = APP_SHELL.includes(pathname);
     if (rollback && !pinCurrentShell) {
       const rollbackHit = await (await caches.open(rollback)).match(event.request);
       if (rollbackHit) return rollbackHit;
     }
+
     const current = await caches.open(CACHE_VERSION);
-    const currentHit = await current.match(event.request);
-    if (currentHit) return currentHit;
-    const previous = await previousGameCache();
-    if (previous && previous !== rollback) {
-      const fallback = await (await caches.open(previous)).match(event.request);
-      if (fallback) return fallback;
-    }
     try {
       const response = await fetch(event.request);
-      if (response && response.status === 200 && response.type !== 'opaque') await current.put(event.request, response.clone());
+      if (response && response.status === 200 && response.type !== 'opaque') {
+        await current.put(event.request, response.clone());
+      }
       return response;
     } catch {
+      const currentHit = await current.match(event.request);
+      if (currentHit) return currentHit;
+      const previous = await previousGameCache();
+      if (previous && previous !== rollback) {
+        const fallback = await (await caches.open(previous)).match(event.request);
+        if (fallback) return fallback;
+      }
       return event.request.mode === 'navigate' ? (await current.match('/index.html') || Response.error()) : Response.error();
     }
   })());
