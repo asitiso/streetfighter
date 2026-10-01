@@ -1,3 +1,4 @@
+import { sanitizeGameSave, DEFAULT_SAVE } from '../dist/assets/save/SaveManager.js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
@@ -14,5 +15,23 @@ const checks = [
   [save.includes('touchStickScale') && save.includes('touchOpacity'), 'save defaults'],
 ];
 for (const [pass, label] of checks) if (!pass) throw new Error(`OPTIONS VERIFY FAIL: ${label}`);
-console.log('OPTIONS_VERIFY_PASS', checks.map(([,label]) => label));
+
+const positioned = sanitizeGameSave({
+  ...DEFAULT_SAVE,
+  touchStickX: 260,
+  touchStickY: 180,
+  touchButtonsX: 250,
+  touchButtonsY: 170,
+}).save;
+if (positioned.touchStickX !== 260 || positioned.touchStickY !== 180 || positioned.touchButtonsX !== 250 || positioned.touchButtonsY !== 170) {
+  throw new Error('OPTIONS VERIFY FAIL: touch positions were clamped during save sanitization');
+}
+
+console.log('OPTIONS_VERIFY_PASS', {
+  checks: checks.map(([,label]) => label),
+  persistedTouchLayout: {
+    stick: [positioned.touchStickX, positioned.touchStickY],
+    buttons: [positioned.touchButtonsX, positioned.touchButtonsY],
+  },
+});
 import { fileURLToPath } from 'node:url';
