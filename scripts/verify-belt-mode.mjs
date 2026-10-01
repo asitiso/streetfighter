@@ -48,6 +48,18 @@ for (let tick = 1; tick <= 5; tick += 1) laneWorld.update(input, tick);
 if (laneWorld.player.y <= laneStart) fail('soft lane alignment did not nudge player toward target lane');
 if (laneWorld.player.y - laneStart > 12) fail('soft lane alignment snapped too far');
 
+const jumpPassWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'belt');
+jumpPassWorld.player.x = 500; jumpPassWorld.player.y = 500; jumpPassWorld.enemy.x = 520; jumpPassWorld.enemy.y = 500;
+jumpPassWorld.player.airborne = true; jumpPassWorld.player.jumpHeight = 80; jumpPassWorld.player.state = 'jump';
+const playerBeforePush = jumpPassWorld.player.x;
+const enemyBeforePush = jumpPassWorld.enemy.x;
+jumpPassWorld.resolveBodyCollisions();
+if (jumpPassWorld.player.x !== playerBeforePush || jumpPassWorld.enemy.x !== enemyBeforePush) fail('high jump was blocked by fighter pushbox');
+
+jumpPassWorld.addProp({ id: 'jump-crate', label: 'JUMP CRATE', x: 500, y: 500, width: 60, depth: 40, hp: 100, solid: true });
+jumpPassWorld.resolveBodyCollisions();
+if (jumpPassWorld.player.x !== playerBeforePush || jumpPassWorld.player.y !== 500) fail('high jump was blocked by low environment prop');
+
 const propWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'belt');
 propWorld.player.x = 500; propWorld.player.y = 500; propWorld.enemy.x = 1100; propWorld.enemy.y = 420; propWorld.enemy.aiCooldown = 997;
 propWorld.addProp({ id: 'crate-test', label: 'TEST CRATE', x: 575, y: 500, width: 60, depth: 40, hp: 45, solid: true });
@@ -71,5 +83,7 @@ console.log('BELT_VERIFY_PASS', {
   damagedCount,
   laneNudge: Number((laneWorld.player.y - laneStart).toFixed(2)),
   propBreak: true,
+  highJumpPassesPushbox: true,
+  highJumpClearsLowProp: true,
   throwCollision: true,
 });

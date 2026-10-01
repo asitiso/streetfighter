@@ -439,6 +439,7 @@ export class CombatWorld {
     for (const fighter of [this.player, ...this.livingEnemies]) {
       for (const prop of this.props) {
         if (!prop.solid || prop.broken) continue;
+        if (fighter.airborne && fighter.jumpHeight > 52) continue;
         const dx = fighter.x - prop.x;
         const dy = fighter.y - prop.y;
         const minX = prop.width * .5 + 28;
@@ -452,6 +453,7 @@ export class CombatWorld {
   }
 
   private separatePair(a: Fighter, b: Fighter, minX: number, minY: number): void {
+    if ((a.airborne || b.airborne) && Math.max(a.jumpHeight, b.jumpHeight) > 42) return;
     const dx = b.x - a.x;
     const dy = Math.abs(b.y - a.y);
     if (Math.abs(dx) >= minX || dy >= minY) return;
