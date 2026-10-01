@@ -255,8 +255,15 @@ export class CombatWorld {
     const dy = Math.abs(defender.y - attacker.y);
     const withinX = dx >= -move.hitbox.back && dx <= move.hitbox.forward * attacker.character.reach;
     const withinY = dy <= Math.max(this.rules.laneTolerance, move.hitbox.lane);
-    const verticalReach = move.hitbox.height + (attacker.airborne ? attacker.jumpHeight * .55 : 0);
-    if (!withinX || !withinY || (defender.airborne && defender.jumpHeight > verticalReach + 34)) return;
+    const verticalDelta = Math.abs(attacker.jumpHeight - defender.jumpHeight);
+    const verticalTolerance = move.launch
+      ? Math.max(135, move.hitbox.height + 36)
+      : move.technique === 'air'
+        ? (move.damage >= 70 ? 96 : 82)
+        : move.level === 'low'
+          ? 34
+          : Math.max(62, move.hitbox.height * .72);
+    if (!withinX || !withinY || verticalDelta > verticalTolerance) return;
     if (move.juggleLimit !== undefined && defender.airborne && defender.juggleHits >= move.juggleLimit) return;
     const hitNumber = attacker.hitNumberFor(defender);
     const hitMove = move.multiHit ? { ...move, damage: Math.max(1, Math.round(move.damage * move.multiHit.perHitScale)), hitStop: hitNumber >= move.multiHit.hits ? move.hitStop : Math.min(5, move.hitStop), hitStun: hitNumber >= move.multiHit.hits ? move.hitStun : Math.max(8, Math.round(move.hitStun * .55)), pushback: hitNumber >= move.multiHit.hits ? move.pushback : Math.min(10, move.pushback * .14), knockdown: hitNumber >= move.multiHit.hits ? move.knockdown : false, launch: hitNumber >= move.multiHit.hits ? move.launch : undefined } : move;
@@ -315,7 +322,8 @@ export class CombatWorld {
       for (const defender of defenders) {
         if (defender.hp <= 0 || projectile.hitVictims.has(defender.uid)) continue;
         const dx = Math.abs(defender.x - projectile.x);
-        const dy = Math.abs((defender.y - 88) - projectile.y);
+        const defenderCenterY = defender.y - 88 - defender.jumpHeight * .9;
+        const dy = Math.abs(defenderCenterY - projectile.y);
         if (dx > projectile.radius + 34 || dy > Math.max(55, projectile.move.hitbox.lane)) continue;
         const defenderBack = defender.facing === 1 ? 'left' : 'right';
         const guarding = defender.canDefend() && (defender.side === 'player' ? input.held(defenderBack) : this.enemyDefenseDecision(defender, projectile.owner, projectile.move));

@@ -48,6 +48,28 @@ projectileWorld.player.startMove(SPECIAL_MOVES.find((move) => move.label === 'HA
 for (let tick = 1; tick <= 60; tick += 1) projectileWorld.update(input, tick);
 if (projectileWorld.enemy.hp >= 1000) fail('projectile did not hit target');
 
+const jumpOverWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
+jumpOverWorld.player.x = 500; jumpOverWorld.player.y = 500; jumpOverWorld.player.airborne = true; jumpOverWorld.player.jumpHeight = 105;
+jumpOverWorld.enemy.x = 610; jumpOverWorld.enemy.y = 500; jumpOverWorld.enemy.facing = -1;
+const jumpOverMove = SPECIAL_MOVES.find((move) => move.label === 'HADOKEN');
+jumpOverWorld.spawnScriptedProjectile(jumpOverWorld.enemy, jumpOverMove);
+jumpOverWorld.projectiles[0].x = jumpOverWorld.player.x + 8;
+const jumpHp = jumpOverWorld.player.hp;
+jumpOverWorld.updateProjectiles(input);
+if (jumpOverWorld.player.hp !== jumpHp) fail('high jump did not clear ground projectile');
+
+const verticalWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
+verticalWorld.player.x = 500; verticalWorld.player.y = 500; verticalWorld.enemy.x = 558; verticalWorld.enemy.y = 500;
+verticalWorld.enemy.airborne = true; verticalWorld.enemy.jumpHeight = 105; verticalWorld.enemy.state = 'jump';
+verticalWorld.player.startMove(normalFor('hp'));
+verticalWorld.player.moveFrame = verticalWorld.player.currentMove.startup;
+const verticalHp = verticalWorld.enemy.hp;
+verticalWorld.resolveAttack(verticalWorld.player, verticalWorld.enemy, input);
+if (verticalWorld.enemy.hp !== verticalHp) fail('ground normal hit opponent at jump apex');
+verticalWorld.enemy.jumpHeight = 40;
+verticalWorld.resolveAttack(verticalWorld.player, verticalWorld.enemy, input);
+if (verticalWorld.enemy.hp >= verticalHp) fail('ground normal missed low airborne opponent');
+
 const counterWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
 counterWorld.player.x = 500; counterWorld.enemy.x = 558; counterWorld.player.y = 500; counterWorld.enemy.y = 500;
 counterWorld.enemy.startMove(normalFor('hp')); counterWorld.player.startMove(normalFor('lp')); counterWorld.enemy.aiCooldown = 997; counterWorld.enemy.aiProfile.guardChance = 0; input.set();
@@ -128,6 +150,8 @@ console.log('COMBAT_VERIFY_PASS', {
   parry: true,
   command: fighter.currentMove.id,
   projectileDamage: 1000 - projectileWorld.enemy.hp,
+  projectileJumpClear: jumpOverWorld.player.hp === jumpHp,
+  verticalMeleeFiltering: verticalWorld.enemy.hp < verticalHp,
   counter: true,
   throwEscape: true,
   jump: true,
