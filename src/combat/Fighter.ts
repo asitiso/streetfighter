@@ -363,7 +363,7 @@ export class Fighter {
       this.enterParry(8);
       return 'parry';
     }
-    if (guarding && move.level !== 'throw' && !move.guardBreak) {
+    if (guarding && this.canDefend() && move.level !== 'throw' && !move.guardBreak) {
       this.interruptMove();
       this.state = 'block';
       this.stateFrame = -move.blockStun;
