@@ -484,7 +484,7 @@ def normalize_frames(kind: str, frames: list[Image.Image], min_source_body_heigh
         crop = crop.resize((sw, sh), Image.Resampling.LANCZOS)
         dest = Image.new('RGBA', (FRAME_W, FRAME_H), (0,0,0,0))
         x = round(center_x - sw / 2)
-        if kind in GROUND_KINDS:
+        if kind in GROUND_KINDS or (kind == 'shoryuken' and (i <= 2 or i >= 9)):
             y = baseline - sh
         else:
             # preserve pose differences while removing root-translation from source layout
