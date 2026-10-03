@@ -9,9 +9,9 @@
     448
   ],
   "sourceSha256": "8B71D8CD13E194D9C6CC8B2BA9932BE6A30FC78AC32436C2F7765CCD986EFF65",
-  "frameTotal": 126,
-  "enabledFrameTotal": 126,
-  "fullFrameTotal": 126,
+  "frameTotal": 138,
+  "enabledFrameTotal": 138,
+  "fullFrameTotal": 138,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -1530,6 +1530,123 @@
             "footCenterDeltaMax": 82.0,
             "areaRatioMin": 0.62,
             "areaRatioMax": 1.48
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
+    },
+    {
+      "id": "kikosho",
+      "frames": 12,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        7680,
+        448
+      ],
+      "renderMode": "full",
+      "bytes": 687024,
+      "sha256": "3C2074E62324819BC0605A46B76464B3813556D30DC534737C9EADC36C454AFD",
+      "enabled": true,
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/chunli/inbox/kikosho",
+      "poseQa": {
+        "affineResidualAverage": 0.03357,
+        "affineResidualMax": 0.057358,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "hadoken",
+        "limits": {
+          "startEndIoUMin": 0.48,
+          "releaseIoUMin": 0.22,
+          "releaseIoUMax": 0.92,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 113.33333333333334,
+          "centroidYRangeMax": 44.0,
+          "reachRangeMin": 56.66666666666667,
+          "reachRangeMax": 258.33333333333337,
+          "releaseReachDeltaMin": 40.0,
+          "footCenterRangeMax": 103.33333333333334,
+          "footWidthCvMax": 0.58,
+          "areaCvMax": 0.22,
+          "residualAverageMin": 0.014,
+          "residualAverageMax": 0.19,
+          "residualMaxMin": 0.03,
+          "residualMaxMax": 0.25,
+          "releaseFrameIndex": 5
+        },
+        "startEndIoU": 1.0,
+        "releaseIoU": 0.361166,
+        "centroidXRange": 43.372281,
+        "centroidYRange": 40.6256,
+        "reachRange": 62.0,
+        "releaseReachDelta": 48.0,
+        "footCenterRange": 61.787311,
+        "footWidthCv": 0.034399,
+        "areaCv": 0.071906,
+        "residualAverage": 0.03357,
+        "residualMax": 0.057358,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "releasePoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "handExtensionPresent": true,
+          "releaseExtendsPastGather": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToCast": {
+          "iou": 0.521755,
+          "centroidDistance": 13.861441,
+          "footCenterDelta": 4.882833,
+          "areaRatio": 1.219288,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 60.0,
+            "areaRatioMin": 0.66,
+            "areaRatioMax": 1.42
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "castToBase": {
+          "iou": 0.521755,
+          "centroidDistance": 13.861441,
+          "footCenterDelta": 4.882833,
+          "areaRatio": 0.820151,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 60.0,
+            "areaRatioMin": 0.66,
+            "areaRatioMax": 1.42
           },
           "checks": {
             "silhouetteCue": true,

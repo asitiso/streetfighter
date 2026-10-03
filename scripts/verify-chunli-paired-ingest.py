@@ -25,7 +25,7 @@ def main():
             shutil.copyfile(ROOT / path, target)
         runtime = fixture / 'public/art/animation-hq/chunli'
         shutil.copytree(ROOT / 'public/art/animation-hq/chunli', runtime)
-        for kind in ('jump', 'landing', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush'):
+        for kind in ('jump', 'landing', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush', 'kikosho'):
             shutil.copytree(ROOT / f'art-source/chunli/inbox/{kind}', fixture / f'art-source/chunli/inbox/{kind}')
         manifest_path = runtime / 'manifest.json'
         manifest = json.loads(manifest_path.read_text())
@@ -86,7 +86,7 @@ def main():
         assert result.returncode != 0, 'Incomplete peer source was accepted'
         assert before == {p: p.read_bytes() for p in guarded}, 'Rejected peer changed runtime files'
         # First-time attack promotion must remove a newly written runtime on failure.
-        for attack_kind in ('stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush'):
+        for attack_kind in ('stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush', 'kikosho'):
             new_runtime = runtime / f'{attack_kind}.webp'
             new_runtime.unlink()
             manifest = json.loads(manifest_path.read_text())

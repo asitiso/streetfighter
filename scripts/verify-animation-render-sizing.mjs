@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { animationSequencesFor } from '../dist/assets/render/AnimationSequenceLibrary.js';
 import { Fighter } from '../dist/assets/combat/Fighter.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
-import { specialMovesFor } from '../dist/assets/combat/MoveLibrary.js';
+import { specialMovesFor, superArtMoveFor } from '../dist/assets/combat/MoveLibrary.js';
 const sequences=new Map(['CHUNLI','KEN'].flatMap(id=>animationSequencesFor(id,false)).map(s=>[s.asset,s]));
 globalThis.Image=class {
   complete=true;
@@ -40,6 +40,11 @@ for(const id of ['CHUNLI','KEN']) {
       call=calls.findLast(c=>c[0].src?.endsWith('/chunli/super-rush.webp'));
       assert.ok(call,'Houyokusen must use authored strip');
       assert.equal(call[3],640);
+      assert.deepEqual(call.slice(5),[-160,-220,320,224]);
+      fighter.currentMove=superArtMoveFor(id,1); fighter.moveFrame=fighter.currentMove.startup;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/chunli/kikosho.webp'));
+      assert.ok(call,'SA1 must use its own authored strip');
       assert.deepEqual(call.slice(5),[-160,-220,320,224]);
     }
   }
