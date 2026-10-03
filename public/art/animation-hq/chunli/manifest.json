@@ -9,9 +9,9 @@
     448
   ],
   "sourceSha256": "8B71D8CD13E194D9C6CC8B2BA9932BE6A30FC78AC32436C2F7765CCD986EFF65",
-  "frameTotal": 138,
-  "enabledFrameTotal": 138,
-  "fullFrameTotal": 138,
+  "frameTotal": 150,
+  "enabledFrameTotal": 150,
+  "fullFrameTotal": 150,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -1647,6 +1647,123 @@
             "footCenterDeltaMax": 60.0,
             "areaRatioMin": 0.66,
             "areaRatioMax": 1.42
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
+    },
+    {
+      "id": "tensei-ranka",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "renderMode": "full",
+      "bytes": 597710,
+      "sha256": "3B4E58EA0D9E324E38529672CFDEF95505CC5500410DF45A807CFA0B55323DB5",
+      "enabled": true,
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/chunli/inbox/tensei-ranka",
+      "poseQa": {
+        "affineResidualAverage": 0.086589,
+        "affineResidualMax": 0.145292,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "shoryuken",
+        "limits": {
+          "startEndIoUMin": 0.42,
+          "contactIoUMin": 0.18,
+          "contactIoUMax": 0.76,
+          "apexIoUMin": 0.16,
+          "apexIoUMax": 0.7,
+          "centroidXRangeMax": 82.0,
+          "centroidYRangeMin": 28.0,
+          "centroidYRangeMax": 145.0,
+          "topRiseMin": 42.0,
+          "topRiseMax": 165.0,
+          "areaCvMax": 0.24,
+          "footWidthCvMin": 0.06,
+          "footWidthCvMax": 1.4,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.22,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.28,
+          "contactFrameIndex": 4,
+          "apexFrameIndex": 7
+        },
+        "startEndIoU": 1.0,
+        "contactIoU": 0.388812,
+        "apexIoU": 0.452116,
+        "centroidXRange": 22.59719,
+        "centroidYRange": 69.266632,
+        "topRise": 76.0,
+        "areaCv": 0.096619,
+        "footWidthCv": 0.805242,
+        "residualAverage": 0.086589,
+        "residualMax": 0.145292,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "apexPoseDistinct": true,
+          "horizontalRootControlled": true,
+          "verticalArcPresent": true,
+          "risingSilhouettePresent": true,
+          "bodyVolumeStable": true,
+          "legPhaseChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToRise": {
+          "iou": 0.636817,
+          "centroidDistance": 14.611419,
+          "footCenterDelta": 21.672533,
+          "areaRatio": 0.970628,
+          "limits": {
+            "iouMin": 0.36,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 58.0,
+            "footCenterDeltaMax": 75.0,
+            "areaRatioMin": 0.62,
+            "areaRatioMax": 1.48
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "riseToBase": {
+          "iou": 0.636817,
+          "centroidDistance": 14.611419,
+          "footCenterDelta": 21.672533,
+          "areaRatio": 1.030261,
+          "limits": {
+            "iouMin": 0.36,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 58.0,
+            "footCenterDeltaMax": 75.0,
+            "areaRatioMin": 0.62,
+            "areaRatioMax": 1.48
           },
           "checks": {
             "silhouetteCue": true,

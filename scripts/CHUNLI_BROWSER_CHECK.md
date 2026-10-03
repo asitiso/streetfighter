@@ -19,3 +19,7 @@ Generic super and SA2 added: eight moves in both facings (16 combinations) passe
 ## Kikosho extension (2026-10-03)
 
 SA1 added: nine moves in both facings (18 combinations) passed without console warnings/errors. Its unchanged three-tick startup reaches 10/12 stored art frames; all reachable frames and phase endpoints passed. Chun-Li totals 138 enabled authored frames in 14 records, cache v081.
+
+## Tensei Ranka extension (2026-10-03)
+
+SA3 added: ten moves in both facings (20 combinations) passed without browser warning/error entries. SA3 keeps its mapping through real flight and renderer output follows jumpHeight. Two-tick startup reaches 10/12 stored poses; all reachable frames and phase endpoints passed. Chun-Li totals 150 enabled authored frames in 15 records, cache v082.

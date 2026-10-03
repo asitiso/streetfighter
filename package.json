@@ -113,7 +113,10 @@
     "verify:chunli-houyokusen-timing": "node scripts/verify-chunli-houyokusen.mjs",
     "ingest:chunli-kikosho": "python3 scripts/install-authored-chunli-walk.py kikosho --install",
     "verify:chunli-kikosho": "python3 scripts/install-authored-chunli-walk.py kikosho --runtime",
-    "verify:chunli-kikosho-timing": "node scripts/verify-chunli-kikosho.mjs"
+    "verify:chunli-kikosho-timing": "node scripts/verify-chunli-kikosho.mjs",
+    "ingest:chunli-tensei-ranka": "python3 scripts/install-authored-chunli-walk.py tensei-ranka --install",
+    "verify:chunli-tensei-ranka": "python3 scripts/install-authored-chunli-walk.py tensei-ranka --runtime",
+    "verify:chunli-tensei-ranka-timing": "node scripts/verify-chunli-tensei-ranka.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"

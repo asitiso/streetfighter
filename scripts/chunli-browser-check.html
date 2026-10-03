@@ -1,7 +1,7 @@
 <!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Chun-Li 실제 렌더 검증</title>
 <style>body{background:#10151d;color:#eef2fa;font:16px system-ui;margin:18px}h1{font-size:24px;margin:0 0 10px}button,select{font:inherit;margin:4px;padding:8px;background:#202d40;color:#fff;border:1px solid #526785;border-radius:6px}canvas{display:block;width:100%;height:auto;margin-top:12px}#status{padding:10px;color:#ffdb6f}</style>
 <h1>Chun-Li 실제 렌더러 · 프레임 검증</h1><p>브라우저가 실제 게임 이미지와 타이밍을 읽어 준비부터 회복까지 그립니다. 전투 판정과 입력 검증은 별도입니다.</p>
-<label>동작 <select id="move"><option value="sa1">기공장 (SA1)</option><option value="rush">봉익선 (일반 초필살기)</option><option value="sa2">봉익선 (SA2)</option><option value="rise">상승 발차기</option><option value="bird">스피닝 버드 킥</option><option value="kikoken">기공권</option><option value="ex">EX 기공권</option><option value="light">서서 약펀치</option><option value="heavy">서서 강펀치</option></select></label>
+<label>동작 <select id="move"><option value="sa3">천성난화 (SA3)</option><option value="sa1">기공장 (SA1)</option><option value="rush">봉익선 (일반 초필살기)</option><option value="sa2">봉익선 (SA2)</option><option value="rise">상승 발차기</option><option value="bird">스피닝 버드 킥</option><option value="kikoken">기공권</option><option value="ex">EX 기공권</option><option value="light">서서 약펀치</option><option value="heavy">서서 강펀치</option></select></label>
 <label>방향 <select id="facing"><option value="1">오른쪽</option><option value="-1">왼쪽</option></select></label><button id="save">현재 프레임 PNG 저장</button><p id="status" role="status">이미지 로딩 중…</p><canvas id="check" width="1280" height="900"></canvas>
 <script type="module">
 import { Fighter } from './assets/combat/Fighter.js';
@@ -15,7 +15,7 @@ import { runtimeQuality } from './assets/core/RuntimeQuality.js';
 import { drawCombatFighter } from './assets/render/Visuals.js';
 const def=getCharacter('CHUNLI'), fighter=new Fighter(def,'player',160,280,1,def.superArts[0]);
 const specials=specialMovesFor('CHUNLI');
-const moves={sa1:superArtMoveFor('CHUNLI',1),rush:specials.super,sa2:superArtMoveFor('CHUNLI',2),rise:specials.antiAir,bird:specials.mobility,kikoken:specials.primary,ex:specials.exPrimary,light:normalFor('lp',false,'CHUNLI'),heavy:normalFor('hp',false,'CHUNLI')};
+const moves={sa3:superArtMoveFor('CHUNLI',3),sa1:superArtMoveFor('CHUNLI',1),rush:specials.super,sa2:superArtMoveFor('CHUNLI',2),rise:specials.antiAir,bird:specials.mobility,kikoken:specials.primary,ex:specials.exPrimary,light:normalFor('lp',false,'CHUNLI'),heavy:normalFor('hp',false,'CHUNLI')};
 const canvas=document.querySelector('canvas'), ctx=canvas.getContext('2d'), status=document.querySelector('#status');
 runtimeQuality.setTier('high'); characterTextureManager.setMode('hd'); animationTextureManager.preloadCharacter('CHUNLI','combat');
 const started=performance.now();

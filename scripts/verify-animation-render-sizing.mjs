@@ -46,6 +46,13 @@ for(const id of ['CHUNLI','KEN']) {
       call=calls.findLast(c=>c[0].src?.endsWith('/chunli/kikosho.webp'));
       assert.ok(call,'SA1 must use its own authored strip');
       assert.deepEqual(call.slice(5),[-160,-220,320,224]);
+      fighter.currentMove=superArtMoveFor(id,3); fighter.moveFrame=fighter.currentMove.startup; fighter.airborne=true; fighter.jumpHeight=83; translations.length=0;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/chunli/tensei-ranka.webp'));
+      assert.ok(call,'Airborne SA3 must use its own authored strip');
+      assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+      assert.ok(translations.some(([x,y])=>x===0&&y===-83),'SA3 sprite must follow gameplay jump height');
+      fighter.airborne=false;fighter.jumpHeight=0;
     }
   }
 }
