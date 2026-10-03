@@ -19,7 +19,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken'])
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -97,6 +97,9 @@ def main():
         elif kind == 'stand-heavy':
             start_limits = end_limits = handoff.STAND_HEAVY_BASE_LIMITS
             start_key, end_key = 'baseToAttack', 'attackToBase'
+        elif kind == 'hadoken':
+            start_limits = end_limits = handoff.HADOKEN_BASE_LIMITS
+            start_key, end_key = 'baseToCast', 'castToBase'
         handoffs = {
             start_key: handoff.compare_motion_bridge(master, handoff.alpha_mask(frames[0]), start_limits),
             end_key: handoff.compare_motion_bridge(handoff.alpha_mask(frames[-1]), master, end_limits),

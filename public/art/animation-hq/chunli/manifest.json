@@ -9,9 +9,9 @@
     448
   ],
   "sourceSha256": "8B71D8CD13E194D9C6CC8B2BA9932BE6A30FC78AC32436C2F7765CCD986EFF65",
-  "frameTotal": 74,
-  "enabledFrameTotal": 74,
-  "fullFrameTotal": 74,
+  "frameTotal": 86,
+  "enabledFrameTotal": 86,
+  "fullFrameTotal": 86,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -1046,6 +1046,123 @@
             "footCenterDeltaMax": 55.0,
             "areaRatioMin": 0.68,
             "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
+    },
+    {
+      "id": "hadoken",
+      "frames": 12,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        4608,
+        448
+      ],
+      "renderMode": "full",
+      "bytes": 866704,
+      "sha256": "45EDB34D8E422639DF9C8400C2B440029543FC14AE39FF7C3C501320CC188B46",
+      "enabled": true,
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/chunli/inbox/hadoken",
+      "poseQa": {
+        "affineResidualAverage": 0.048664,
+        "affineResidualMax": 0.073583,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "hadoken",
+        "limits": {
+          "startEndIoUMin": 0.48,
+          "releaseIoUMin": 0.22,
+          "releaseIoUMax": 0.92,
+          "centroidXRangeMin": 6.0,
+          "centroidXRangeMax": 68.0,
+          "centroidYRangeMax": 44.0,
+          "reachRangeMin": 34.0,
+          "reachRangeMax": 155.0,
+          "releaseReachDeltaMin": 24.0,
+          "footCenterRangeMax": 62.0,
+          "footWidthCvMax": 0.58,
+          "areaCvMax": 0.22,
+          "residualAverageMin": 0.014,
+          "residualAverageMax": 0.19,
+          "residualMaxMin": 0.03,
+          "residualMaxMax": 0.25,
+          "releaseFrameIndex": 5
+        },
+        "startEndIoU": 1.0,
+        "releaseIoU": 0.523285,
+        "centroidXRange": 24.097412,
+        "centroidYRange": 14.865539,
+        "reachRange": 50.0,
+        "releaseReachDelta": 33.0,
+        "footCenterRange": 14.212371,
+        "footWidthCv": 0.113116,
+        "areaCv": 0.105987,
+        "residualAverage": 0.048664,
+        "residualMax": 0.073583,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "releasePoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "handExtensionPresent": true,
+          "releaseExtendsPastGather": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToCast": {
+          "iou": 0.683559,
+          "centroidDistance": 11.969659,
+          "footCenterDelta": 2.646281,
+          "areaRatio": 1.094178,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 60.0,
+            "areaRatioMin": 0.66,
+            "areaRatioMax": 1.42
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "castToBase": {
+          "iou": 0.683559,
+          "centroidDistance": 11.969659,
+          "footCenterDelta": 2.646281,
+          "areaRatio": 0.913928,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 60.0,
+            "areaRatioMin": 0.66,
+            "areaRatioMax": 1.42
           },
           "checks": {
             "silhouetteCue": true,
