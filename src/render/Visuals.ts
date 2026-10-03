@@ -333,7 +333,7 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
   ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
   drawShadow(ctx);
   ctx.restore();
-  if (fighter.state === 'jump') ctx.translate(0, -fighter.jumpHeight);
+  if (fighter.state === 'jump' || (fighter.character.id === 'CHUNLI' && sequence.kind === 'shoryuken')) ctx.translate(0, -fighter.jumpHeight);
 
   const frameProfile = animationFrameProfile(fighter.character.id, sequence.kind);
   const lockStrength = sequence.footLock ? frameProfile.footLockStrength : 0;

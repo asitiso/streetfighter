@@ -27,7 +27,9 @@ for (const facing of [-1,1]) {
   }
   assert.ok(new Set(activeFrames).size>=5,'Active spin must advance through rotation poses');
 }
-for(const other of [specials.antiAir,specials.super,...[1,2,3].map(id=>superArtMoveFor('CHUNLI',id))]) {
+fighter.currentMove=specials.antiAir;
+assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'tatsumaki','Rising kick must keep its own presentation');
+for(const other of [specials.super,...[1,2,3].map(id=>superArtMoveFor('CHUNLI',id))]) {
   fighter.currentMove=other;
   assert.equal(animationSequenceSample(fighter,0),null,`Spinning bird must not replace ${other.id}`);
 }
