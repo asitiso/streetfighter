@@ -22,6 +22,14 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
     let call=calls.findLast(c=>c[0].src?.includes(`/animation-hq/${id.toLowerCase()}/idle.webp`));
     assert.ok(call,`${id} idle must use authored strip`);
     assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+    if(id==='IBUKI') {
+      fighter.state='walk';fighter.previousX=fighter.x-facing*2;fighter.stateFrame=0;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/walk.webp'));
+      assert.ok(call,'Ibuki forward walk must use authored strip');
+      assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+      fighter.previousX=fighter.x;
+    }
     if(id==='CHUNLI') {
       fighter.currentMove=specialMovesFor(id).mobility; fighter.state='attack'; fighter.moveFrame=fighter.currentMove.startup;
       drawCombatFighter(ctx,fighter,0,0);
