@@ -66,12 +66,15 @@ def super_frame(step:int, dx:float, arm_reach:float, level:float, side:int, kick
     return im
 
 cases=[]
+manifest=json.loads((ROOT/'public/art/animation-hq/ken/manifest.json').read_text(encoding='utf-8'))
+records={record['id']:record for record in manifest['records']}
 for kind,count in [('tatsumaki',12),('super-rush',16)]:
     frames=runtime_frames(kind,count)
     pose=mod.pose_qa(frames,kind); sem=mod.semantic_qa(kind,frames,pose)
-    assert pose['poseAuthoredPass'] is False,(kind,pose)
-    assert sem['semanticQaPass'] is False,(kind,sem)
-    cases.append({'name':f'{kind}-current-staging-rejected','expected':False,'actual':False,'poseQa':pose,'semanticQa':sem})
+    active=bool(records[kind].get('enabled') and records[kind].get('poseAuthored'))
+    assert pose['poseAuthoredPass'] is active,(kind,pose)
+    assert sem['semanticQaPass'] is active,(kind,sem)
+    cases.append({'name':f'{kind}-runtime-{"authored" if active else "staging"}','expected':active,'actual':active,'poseQa':pose,'semanticQa':sem})
 
 # Tatsu authored fixture: chamber -> first extension -> cross-body/opposite extension -> second contact -> recovery.
 angles=[-35,-18,0,28,62,105,150,205,250,300,335,350]

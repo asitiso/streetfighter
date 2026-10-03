@@ -90,7 +90,7 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
   assert.equal(animationSequenceFrameTotal(id), 57, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), 0, `${id} enabled frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 12 : 0, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -190,7 +190,9 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
   assert.equal(extraManifest.frameTotal, 57);
-  assert.equal(extraManifest.enabledFrameTotal, 0);
+  const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
+  assert.equal(extraManifest.enabledFrameTotal, activeFrames);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
   assert.equal(extraManifest.records.length, 7);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
@@ -200,6 +202,15 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
     assert.equal(dim.width, 384 * rec.frames, `${id} ${rec.id} strip width mismatch`);
     assert.equal(dim.height, 448, `${id} ${rec.id} strip height mismatch`);
     assert.equal(dim.alpha, true, `${id} ${rec.id} transparency missing`);
+    assert.equal(rec.sha256, sha(data), `${id} ${rec.id} checksum mismatch`);
+    const seq = animationSequenceFor(id, rec.id, false);
+    assert.equal(seq?.enabled, Boolean(rec.enabled), `${id} ${rec.id} enabled mismatch`);
+    assert.equal(seq?.poseAuthored, Boolean(rec.poseAuthored), `${id} ${rec.id} authored mismatch`);
+    if (rec.enabled) {
+      assert.equal(rec.poseQa?.poseAuthoredPass, true, `${id} ${rec.id} pose gate`);
+      assert.equal(rec.semanticQa?.semanticQaPass, true, `${id} ${rec.id} motion gate`);
+      assert.equal(seq.source, 'authored-hq');
+    }
   }
 }
 
@@ -216,6 +227,13 @@ ryu.state = 'walk'; ryu.stateFrame = 30; ryu.previousX = 300; ryu.x = 306;
 sampled = animationSequenceSample(ryu, .5);
 assert.equal(sampled?.sequence.kind, 'walk');
 assert.ok((sampled?.frame ?? -1) >= 0 && (sampled?.frame ?? 99) < 12);
+
+const chunliDef = getCharacter('CHUNLI');
+const chunli = new Fighter(chunliDef, 'player', 300, 460, 1, chunliDef.superArts[0]);
+chunli.state = 'walk'; chunli.stateFrame = 30; chunli.previousX = 300; chunli.x = 306;
+sampled = animationSequenceSample(chunli, .5);
+assert.equal(sampled?.sequence.kind, 'walk', 'Chun-Li forward movement must use the authored walk');
+assert.ok(sampled.frame >= 0 && sampled.frame < 12);
 
 
 ryu.state = 'attack';
