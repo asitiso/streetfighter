@@ -12,6 +12,6 @@ for(const facing of [-1,1]) {
  assert.equal(frames.size,12,'Real walking state clock must advance through all steps');
  fighter.stateFrame=0;assert.equal(animationSequenceSample(fighter,0).frame,0);fighter.stateFrame=Math.ceil(cycle);assert.equal(animationSequenceSample(fighter,0).frame,0,'Cycle wraps');
  fighter.updatePlayer({held:()=>false,pressed:()=>false,released:()=>false},rules);assert.equal(animationSequenceSample(fighter,0).sequence.kind,'idle','Stopping returns to authored idle');
- fighter.state='walk';fighter.previousX=fighter.x;fighter.x-=facing;assert.equal(animationSequenceSample(fighter,0),null,'Unfinished retreat remains distinct');
+ fighter.state='walk';fighter.previousX=fighter.x;fighter.x-=facing;assert.equal(animationSequenceSample(fighter,0).sequence.kind,'walk-back','Retreat remains distinct');
 }
 console.log('IBUKI_WALK_PASS');

@@ -5,3 +5,5 @@ Run a clean game build, then `npm run prepare:ibuki-browser-check` and serve dis
 2026-10-03: both facings passed 6/6 frames, loop=true, rendering failures=0, no browser warning/error entries. Only idle is authored/enabled (6F of 57 staged base frames). A clean production build removes this generated page.
 
 Walk increment: select idle/walk and each facing. Readiness uses enabled registry count; actual state and velocity samples feed the renderer. All four combinations passed (idle 6/6, walk 12/12), loop=true, zero rendering failures and console warnings/errors. Ibuki now has 18 enabled authored frames. This supersedes the idle-only milestone above.
+
+Retreat increment: select idle/walk/walk-back and both facings (six combinations). All 6/12/10 frames and loop wraps passed, zero render failures and console warnings/errors. Arena width avoids clamping during 120 actual input ticks. Three authored records total 28 enabled frames; cache v085. Renderer integration does not claim a manual stage playthrough.
