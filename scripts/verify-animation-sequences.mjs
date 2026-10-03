@@ -90,7 +90,7 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
   assert.equal(animationSequenceFrameTotal(id), 57, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 12 : 0, `${id} enabled frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 22 : 0, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -234,6 +234,13 @@ chunli.state = 'walk'; chunli.stateFrame = 30; chunli.previousX = 300; chunli.x 
 sampled = animationSequenceSample(chunli, .5);
 assert.equal(sampled?.sequence.kind, 'walk', 'Chun-Li forward movement must use the authored walk');
 assert.ok(sampled.frame >= 0 && sampled.frame < 12);
+chunli.previousX = 306; chunli.x = 300;
+sampled = animationSequenceSample(chunli, .5);
+assert.equal(sampled?.sequence.kind, 'walk-back', 'Chun-Li retreat must use the authored backward walk');
+assert.ok(sampled.frame >= 0 && sampled.frame < 10);
+chunli.facing = -1; chunli.previousX = 300; chunli.x = 306;
+sampled = animationSequenceSample(chunli, .5);
+assert.equal(sampled?.sequence.kind, 'walk-back', 'Retreat must follow facing when Chun-Li faces left');
 
 
 ryu.state = 'attack';
