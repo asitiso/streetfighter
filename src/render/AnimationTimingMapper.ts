@@ -65,6 +65,7 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
   if (characterId === 'CHUNLI') {
+    if (move.id === 'CHUNLI_SUPER' || move.id === 'CHUNLI_SA2') return 'super-rush';
     if (move.id === 'CHUNLI_ANTI_AIR') return 'shoryuken';
     if (move.id === 'CHUNLI_MOBILITY') return 'tatsumaki';
     if (move.id === 'CHUNLI_PRIMARY' || move.id === 'CHUNLI_EX_PRIMARY') return 'hadoken';

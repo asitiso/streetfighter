@@ -31,7 +31,7 @@ fighter.currentMove=specials.antiAir;
 assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'tatsumaki','Rising kick must keep its own presentation');
 for(const other of [specials.super,...[1,2,3].map(id=>superArtMoveFor('CHUNLI',id))]) {
   fighter.currentMove=other;
-  assert.equal(animationSequenceSample(fighter,0),null,`Spinning bird must not replace ${other.id}`);
+  assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'tatsumaki',`Spinning bird must not replace ${other.id}`);
 }
 fighter.currentMove=specials.primary; fighter.moveFrame=0;
 assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,'hadoken');
