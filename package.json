@@ -99,7 +99,11 @@
     "verify:chunli-heavy-attack": "node scripts/verify-chunli-heavy-attack.mjs",
     "ingest:chunli-kikoken": "python3 scripts/install-authored-chunli-walk.py hadoken --install",
     "verify:chunli-kikoken": "python3 scripts/install-authored-chunli-walk.py hadoken --runtime",
-    "verify:chunli-kikoken-timing": "node scripts/verify-chunli-kikoken.mjs"
+    "verify:chunli-kikoken-timing": "node scripts/verify-chunli-kikoken.mjs",
+    "ingest:chunli-spinning-bird": "python3 scripts/install-authored-chunli-walk.py tatsumaki --install",
+    "verify:chunli-spinning-bird": "python3 scripts/install-authored-chunli-walk.py tatsumaki --runtime",
+    "verify:chunli-spinning-bird-timing": "node scripts/verify-chunli-spinning-bird.mjs",
+    "verify:animation-render-sizing": "node scripts/verify-animation-render-sizing.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"

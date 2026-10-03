@@ -340,7 +340,7 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
   if (lockStrength > 0) {
     const anchorX = frameProfile.anchorX[sample.frame] ?? 0;
     const anchorY = frameProfile.anchorY[sample.frame] ?? 0;
-    // Anchor data is measured in the 384x448 source frame while runtime draws at 192x224 * .88.
+    // Anchor data uses source pixels; all sequence canvases draw at half scale * .88.
     const sourceToWorld = .44;
     ctx.translate(
       fighter.facing * anchorX * lockStrength * sourceToWorld,
@@ -359,10 +359,10 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
     0,
     frameWidth,
     frameHeight,
-    -96,
+    -sequence.frameWidth / 4,
     -220,
-    192,
-    224,
+    sequence.frameWidth / 2,
+    sequence.frameHeight / 2,
   );
   ctx.imageSmoothingEnabled = smoothing;
   ctx.imageSmoothingQuality = smoothingQuality;
