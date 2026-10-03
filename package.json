@@ -127,7 +127,10 @@
     "verify:ibuki-walk-timing": "node scripts/verify-ibuki-walk.mjs",
     "ingest:ibuki-retreat": "python3 scripts/install-authored-chunli-walk.py walk-back --character IBUKI --install",
     "verify:ibuki-retreat": "python3 scripts/install-authored-chunli-walk.py walk-back --character IBUKI --runtime",
-    "verify:ibuki-retreat-timing": "node scripts/verify-ibuki-retreat.mjs"
+    "verify:ibuki-retreat-timing": "node scripts/verify-ibuki-retreat.mjs",
+    "ingest:ibuki-dash": "python3 scripts/install-authored-chunli-walk.py dash --character IBUKI --install",
+    "verify:ibuki-dash": "python3 scripts/install-authored-chunli-walk.py dash --character IBUKI --runtime",
+    "verify:ibuki-dash-timing": "node scripts/verify-ibuki-dash.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"

@@ -224,8 +224,8 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   },
   'IBUKI:dash': {
     weights: [1.220, 0.820, 0.720, 0.720, 0.820, 1.000, 1.340],
-    anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, -10.000, 0.000],
-    anchorY: [0.000, -1.000, -2.000, -2.000, -2.000, -1.000, 0.000],
+    anchorX: [0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.173,
   },
   'IBUKI:jump': {

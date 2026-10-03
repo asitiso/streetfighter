@@ -34,6 +34,12 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
       assert.ok(call,'Ibuki retreat must use its distinct authored strip');
       assert.deepEqual(call.slice(5),[-96,-220,192,224]);
       fighter.previousX=fighter.x;
+      fighter.dashFrames=8;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/dash.webp'));
+      assert.ok(call,'Ibuki dash must use authored strip');
+      assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+      fighter.dashFrames=0;
     }
     if(id==='CHUNLI') {
       fighter.currentMove=specialMovesFor(id).mobility; fighter.state='attack'; fighter.moveFrame=fighter.currentMove.startup;
