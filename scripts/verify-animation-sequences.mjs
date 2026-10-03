@@ -90,7 +90,7 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
   assert.equal(animationSequenceFrameTotal(id), 57, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 22 : 0, `${id} enabled frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 29 : 0, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -241,6 +241,17 @@ assert.ok(sampled.frame >= 0 && sampled.frame < 10);
 chunli.facing = -1; chunli.previousX = 300; chunli.x = 306;
 sampled = animationSequenceSample(chunli, .5);
 assert.equal(sampled?.sequence.kind, 'walk-back', 'Retreat must follow facing when Chun-Li faces left');
+chunli.dashFrames = 8;
+sampled = animationSequenceSample(chunli, 0);
+assert.equal(sampled?.sequence.kind, 'dash', 'Chun-Li dash must use its authored motion instead of walking');
+assert.equal(sampled.frame, 0);
+chunli.dashFrames = 1;
+sampled = animationSequenceSample(chunli, .1);
+assert.equal(sampled?.sequence.kind, 'dash');
+assert.ok(sampled.frame > 0 && sampled.frame < 7, 'Dash must advance toward recovery');
+chunli.dashFrames = 0;
+sampled = animationSequenceSample(chunli, .2);
+assert.equal(sampled?.sequence.kind, 'walk-back', 'Dash completion must restore movement sampling');
 
 
 ryu.state = 'attack';

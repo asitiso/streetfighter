@@ -10,8 +10,8 @@
   ],
   "sourceSha256": "8B71D8CD13E194D9C6CC8B2BA9932BE6A30FC78AC32436C2F7765CCD986EFF65",
   "frameTotal": 57,
-  "enabledFrameTotal": 22,
-  "fullFrameTotal": 22,
+  "enabledFrameTotal": 29,
+  "fullFrameTotal": 29,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -272,11 +272,100 @@
         2688,
         448
       ],
-      "bytes": 427568,
-      "sha256": "803FB3A677AC691BDFBBA56953A41005687169C2CC8D07A3F73BAC19C0B4FA5A",
-      "enabled": false,
+      "bytes": 699998,
+      "sha256": "DDF2D5E68DE2C8363735560718A4ECBBA5B1B344BEC060C1AFEE5D847F7FFA3C",
+      "enabled": true,
       "renderMode": "full",
-      "poseAuthored": false
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/chunli/inbox/dash",
+      "poseQa": {
+        "affineResidualAverage": 0.068696,
+        "affineResidualMax": 0.087754,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "dash",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.88,
+          "midpointIoUMin": 0.28,
+          "midpointIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 75.0,
+          "centroidYRangeMin": 10.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 58.0,
+          "areaCvMax": 0.18,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.2
+        },
+        "startEndIoU": 0.616721,
+        "midpointIoU": 0.572941,
+        "centroidXRange": 46.246464,
+        "centroidYRange": 30.617677,
+        "centroidStepMax": 31.740805,
+        "areaCv": 0.067325,
+        "residualAverage": 0.068696,
+        "residualMax": 0.087754,
+        "checks": {
+          "recoveryNotDuplicate": true,
+          "drivePoseDistinct": true,
+          "forwardLeanPresent": true,
+          "verticalDrivePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToDash": {
+          "iou": 0.545184,
+          "centroidDistance": 8.45985,
+          "footCenterDelta": 8.026068,
+          "areaRatio": 1.135231,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.8,
+            "centroidDistanceMax": 45.0,
+            "areaRatioMin": 0.7,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true
+          },
+          "pass": true
+        },
+        "dashToBase": {
+          "iou": 0.511993,
+          "centroidDistance": 17.811463,
+          "footCenterDelta": 1.980016,
+          "areaRatio": 0.792732,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.82,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 70.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
     },
     {
       "id": "jump",

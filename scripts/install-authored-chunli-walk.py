@@ -1,4 +1,4 @@
-"""Preview/install Chun-Li authored walking sequences using the existing motion gates."""
+"""Preview/install Chun-Li authored movement using the existing motion gates."""
 from argparse import ArgumentParser
 from pathlib import Path
 import hashlib
@@ -20,7 +20,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['walk', 'walk-back'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['walk', 'walk-back', 'dash'])
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -53,11 +53,16 @@ def main():
     pose = motion.pose_qa(frames, kind)
     semantic = motion.semantic_qa(kind, frames, pose)
     master = handoff.alpha_mask(Image.open(ROOT / 'public/art/combat-sprites-hq/chunli.webp'))
-    start = handoff.compare_motion_bridge(master, handoff.alpha_mask(frames[0]), handoff.WALK_BACK_BASE_LIMITS)
-    end = handoff.compare_motion_bridge(handoff.alpha_mask(frames[-1]), master, handoff.WALK_BACK_BASE_LIMITS)
+    start_limits = handoff.DASH_START_LIMITS if kind == 'dash' else handoff.WALK_BACK_BASE_LIMITS
+    end_limits = handoff.DASH_END_LIMITS if kind == 'dash' else handoff.WALK_BACK_BASE_LIMITS
+    start = handoff.compare_motion_bridge(master, handoff.alpha_mask(frames[0]), start_limits)
+    end = handoff.compare_motion_bridge(handoff.alpha_mask(frames[-1]), master, end_limits)
+    # Preserve the walking report names for existing consumers.
+    start_key = 'baseToDash' if kind == 'dash' else 'baseToWalk'
+    end_key = 'dashToBase' if kind == 'dash' else 'walkToBase'
     passed = pose['poseAuthoredPass'] and semantic['semanticQaPass'] and start['pass'] and end['pass']
     report = {'character':'CHUNLI', 'sequence':kind, 'source':source.relative_to(ROOT).as_posix(),
-              'poseQa':pose, 'semanticQa':semantic, 'baseToWalk':start, 'walkToBase':end, 'pass':passed}
+              'poseQa':pose, 'semanticQa':semantic, start_key:start, end_key:end, 'pass':passed}
     if not args.runtime:
         candidate = ROOT / f'art-source/chunli/authored-candidates/{kind}.webp'
         candidate.parent.mkdir(parents=True, exist_ok=True)
@@ -83,7 +88,7 @@ def main():
         record.update({'bytes':len(data), 'sha256':hashlib.sha256(data).hexdigest().upper(),
                        'enabled':True, 'poseAuthored':True, 'stagingOnly':False,
                        'authoredSource':report['source'], 'poseQa':pose, 'semanticQa':semantic,
-                       'handoffQa':{'baseToWalk':start, 'walkToBase':end}})
+                       'handoffQa':{start_key:start, end_key:end}})
         manifest['pipeline'] = 'rc40-chunli-authored-gated-v1'
         manifest['enabledFrameTotal'] = sum(r['frames'] for r in manifest['records'] if r['enabled'])
         manifest['fullFrameTotal'] = sum(r['frames'] for r in manifest['records'] if r['enabled'] and r['renderMode']=='full')
