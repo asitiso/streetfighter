@@ -1,7 +1,7 @@
 {
   "candidate": "0.0.63-rc.38",
   "character": "IBUKI",
-  "pipeline": "rc36-staging-disabled-v2",
+  "pipeline": "rc40-ibuki-authored-gated-v1",
   "source": "approved RC34 HQ original",
   "sourcePath": "/art/combat-sprites-hq/ibuki.webp",
   "sourceSize": [
@@ -10,8 +10,8 @@
   ],
   "sourceSha256": "76BE49783ADBF49DDC537AEB1CF8E4C18436DDB4F5A12E8188FA11DC6012AC36",
   "frameTotal": 57,
-  "enabledFrameTotal": 0,
-  "fullFrameTotal": 0,
+  "enabledFrameTotal": 6,
+  "fullFrameTotal": 6,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -25,11 +25,97 @@
         2304,
         448
       ],
-      "bytes": 275120,
-      "sha256": "78920256039ED31837F49DC667C9AD4B69D8D3EAC30DBAD7F0125ECBF4610EF9",
-      "enabled": false,
+      "bytes": 334110,
+      "sha256": "C4FF25F474D662307DA3A03AC83C072A1CE91CA8503C213B2AF9722F01CF3BC4",
+      "enabled": true,
       "renderMode": "full",
-      "poseAuthored": false
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/ibuki/inbox/idle",
+      "poseQa": {
+        "affineResidualAverage": 0.022542,
+        "affineResidualMax": 0.027905,
+        "fullPoseAverageThreshold": 0.003,
+        "fullPoseMaxThreshold": 0.006,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "idle",
+        "limits": {
+          "loopIoUMin": 0.72,
+          "centroidXRangeMax": 12.0,
+          "centroidYRangeMax": 10.0,
+          "centroidStepMax": 8.0,
+          "areaCvMax": 0.075,
+          "footCenterRangeMax": 14.0,
+          "footWidthCvMax": 0.12,
+          "residualAverageMax": 0.05,
+          "residualMaxMax": 0.085
+        },
+        "loopIoU": 0.824001,
+        "centroidXRange": 5.046629,
+        "centroidYRange": 6.726019,
+        "centroidStepMax": 5.734372,
+        "areaCv": 0.021138,
+        "footCenterRange": 5.179838,
+        "footWidthCv": 0.013459,
+        "residualAverage": 0.022542,
+        "residualMax": 0.027905,
+        "checks": {
+          "loopClosure": true,
+          "rootXStable": true,
+          "rootYStable": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "feetPlanted": true,
+          "stanceWidthStable": true,
+          "motionRestrainedAverage": true,
+          "motionRestrainedPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToIdle": {
+          "iou": 0.75821,
+          "centroidDistance": 3.443367,
+          "footCenterDelta": 10.054377,
+          "areaRatio": 1.062198,
+          "limits": {
+            "iouMin": 0.62,
+            "centroidDistanceMax": 18.0,
+            "footCenterDeltaMax": 24.0,
+            "areaRatioMin": 0.78,
+            "areaRatioMax": 1.24
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "idleToBase": {
+          "iou": 0.768386,
+          "centroidDistance": 1.266276,
+          "footCenterDelta": 8.27656,
+          "areaRatio": 0.90462,
+          "limits": {
+            "iouMin": 0.62,
+            "centroidDistanceMax": 18.0,
+            "footCenterDeltaMax": 24.0,
+            "areaRatioMin": 0.78,
+            "areaRatioMax": 1.24
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
     },
     {
       "id": "walk",

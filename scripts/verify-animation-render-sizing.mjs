@@ -3,7 +3,7 @@ import { animationSequencesFor } from '../dist/assets/render/AnimationSequenceLi
 import { Fighter } from '../dist/assets/combat/Fighter.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
 import { specialMovesFor, superArtMoveFor } from '../dist/assets/combat/MoveLibrary.js';
-const sequences=new Map(['CHUNLI','KEN'].flatMap(id=>animationSequencesFor(id,false)).map(s=>[s.asset,s]));
+const sequences=new Map(['CHUNLI','KEN','IBUKI'].flatMap(id=>animationSequencesFor(id,false)).map(s=>[s.asset,s]));
 globalThis.Image=class {
   complete=true;
   set src(value) { this.url=value; const seq=sequences.get(value); this.naturalWidth=seq ? seq.frameWidth*seq.frameCount : 384; this.naturalHeight=448; this.onload?.(); }
@@ -12,7 +12,7 @@ globalThis.Image=class {
 const { runtimeQuality }=await import('../dist/assets/core/RuntimeQuality.js');
 const { drawCombatFighter }=await import('../dist/assets/render/Visuals.js');
 runtimeQuality.setTier('high');
-for(const id of ['CHUNLI','KEN']) {
+for(const id of ['CHUNLI','KEN','IBUKI']) {
   const def=getCharacter(id), fighter=new Fighter(def,'player',300,460,1,def.superArts[0]);
   const calls=[],translations=[];
   const ctx=new Proxy({globalAlpha:1,translate:(...args)=>translations.push(args),drawImage:(...args)=>calls.push(args),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})}, {get:(o,k)=>k in o?o[k]:(()=>{})});

@@ -116,7 +116,12 @@
     "verify:chunli-kikosho-timing": "node scripts/verify-chunli-kikosho.mjs",
     "ingest:chunli-tensei-ranka": "python3 scripts/install-authored-chunli-walk.py tensei-ranka --install",
     "verify:chunli-tensei-ranka": "python3 scripts/install-authored-chunli-walk.py tensei-ranka --runtime",
-    "verify:chunli-tensei-ranka-timing": "node scripts/verify-chunli-tensei-ranka.mjs"
+    "verify:chunli-tensei-ranka-timing": "node scripts/verify-chunli-tensei-ranka.mjs",
+    "ingest:ibuki-idle": "python3 scripts/install-authored-chunli-walk.py idle --character IBUKI --install",
+    "verify:ibuki-idle": "python3 scripts/install-authored-chunli-walk.py idle --character IBUKI --runtime",
+    "verify:ibuki-idle-timing": "node scripts/verify-ibuki-idle.mjs",
+    "prepare:ibuki-browser-check": "node scripts/prepare-ibuki-browser-check.mjs",
+    "verify:ibuki-ingest": "python3 scripts/verify-ibuki-ingest.py"
   },
   "devDependencies": {
     "typescript": "5.9.3"
