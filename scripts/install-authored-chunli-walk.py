@@ -19,7 +19,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush', 'kikosho'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush', 'kikosho', 'tensei-ranka'])
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -28,10 +28,11 @@ def main():
     motion = load_module('authored_motion', 'install-authored-ken-sequence.py')
     handoff = load_module('authored_handoff', 'audit-ken-handoff-semantics.py')
     kind = args.kind
-    # Kikosho is a separate asset/registry identity with the same planted
-    # two-palm charge/release/recovery motion requirements as projectile casting.
-    qa_kind = 'hadoken' if kind == 'kikosho' else kind
-    motion.EXPECTED['kikosho'] = motion.EXPECTED['hadoken']
+    # Separate Super Art asset identities reuse the existing motion-family gates.
+    quality_kinds = {'kikosho': 'hadoken', 'tensei-ranka': 'shoryuken'}
+    qa_kind = quality_kinds.get(kind, kind)
+    for sequence_kind, quality_kind in quality_kinds.items():
+        motion.EXPECTED[sequence_kind] = motion.EXPECTED[quality_kind]
     frame_width = 640 if kind in ('tatsumaki', 'super-rush', 'kikosho') else 384
     motion.FRAME_W = frame_width
     if kind == 'tatsumaki':
@@ -71,7 +72,7 @@ def main():
         paths = sorted(sequence_source.glob('[0-9][0-9].png'))
         if [p.name for p in paths] != [f'{i:02d}.png' for i in range(1, sequence_count + 1)]:
             raise SystemExit(f'CHUNLI {sequence_kind}: provide exactly 01.png through {sequence_count:02d}.png')
-        normalized, source_metrics = motion.normalize_frames('hadoken' if sequence_kind == 'kikosho' else sequence_kind, [Image.open(p).convert('RGBA') for p in paths])
+        normalized, source_metrics = motion.normalize_frames(quality_kinds.get(sequence_kind, sequence_kind), [Image.open(p).convert('RGBA') for p in paths])
         if sequence_kind == 'jump':
             # Launch/contact share the grounded baseline; compression lifts
             # the feet 12px as the fighter leaves the ground.
@@ -126,7 +127,7 @@ def main():
         elif kind in ('hadoken', 'kikosho'):
             start_limits = end_limits = handoff.HADOKEN_BASE_LIMITS
             start_key, end_key = 'baseToCast', 'castToBase'
-        elif kind == 'shoryuken':
+        elif kind in ('shoryuken', 'tensei-ranka'):
             start_limits = end_limits = handoff.SHORYUKEN_BASE_LIMITS
             start_key, end_key = 'baseToRise', 'riseToBase'
         elif kind == 'super-rush':
