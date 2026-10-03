@@ -4,4 +4,4 @@
 
 Run `npm run ingest:chunli:walk` to preview, gate, and install the source frames. Run `npm run verify:chunli-walk` to check the installed runtime strip. Both reuse the existing pose and walk semantic checks; installation also checks transitions to and from the approved master. The preview and QA report are at the repository root.
 
-Forward walking is enabled. Other Chun-Li movement strips remain staging candidates until their authored motion passes quality checks.
+Forward and backward walking are enabled. Other Chun-Li movement strips remain staging candidates until their authored motion passes quality checks. The shared installer accepts `walk-back` for the 10-frame guarded retreat.
