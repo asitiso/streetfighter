@@ -9,4 +9,4 @@ python3 scripts/install-authored-chunli-walk.py dash --install
 python3 scripts/install-authored-chunli-walk.py dash --runtime
 ```
 
-Walk and walk-back commands remain compatible. Jump and landing are also enabled and verified as a pair. Idle and hit are still staging candidates.
+Walk and walk-back commands remain compatible. Jump and landing are also enabled and verified as a pair. Idle and hit are also authored and enabled; all seven base movement/reaction sequences are active (57 frames).

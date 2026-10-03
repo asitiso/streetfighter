@@ -19,7 +19,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['walk', 'walk-back', 'dash', 'jump', 'landing'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit'])
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -85,6 +85,12 @@ def main():
         end_limits = handoff.DASH_END_LIMITS if kind == 'dash' else handoff.WALK_BACK_BASE_LIMITS
         start_key = 'baseToDash' if kind == 'dash' else 'baseToWalk'
         end_key = 'dashToBase' if kind == 'dash' else 'walkToBase'
+        if kind == 'idle':
+            start_limits = end_limits = handoff.MASTER_LIMITS
+            start_key, end_key = 'baseToIdle', 'idleToBase'
+        elif kind == 'hit':
+            start_limits = end_limits = handoff.HIT_BASE_LIMITS
+            start_key, end_key = 'baseToHit', 'hitToBase'
         handoffs = {
             start_key: handoff.compare_motion_bridge(master, handoff.alpha_mask(frames[0]), start_limits),
             end_key: handoff.compare_motion_bridge(handoff.alpha_mask(frames[-1]), master, end_limits),

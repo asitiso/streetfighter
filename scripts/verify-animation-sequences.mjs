@@ -90,7 +90,7 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
   assert.equal(animationSequenceFrameTotal(id), 57, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 43 : 0, `${id} enabled frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 57 : 0, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -275,6 +275,32 @@ assert.ok(sampled.frame > 0 && sampled.frame < 6, 'Landing must advance toward r
 chunli.landingFrames = 0; chunli.state = 'walk';
 sampled = animationSequenceSample(chunli, .8);
 assert.equal(sampled?.sequence.kind, 'walk-back', 'Landing completion must restore movement sampling');
+chunli.state = 'idle'; chunli.stateFrame = 0;
+sampled = animationSequenceSample(chunli, 0);
+assert.equal(sampled?.sequence.kind, 'idle', 'Neutral Chun-Li must sample the authored breathing loop');
+assert.equal(sampled.frame, 0);
+chunli.stateFrame = 15;
+sampled = animationSequenceSample(chunli, .25);
+assert.equal(sampled?.sequence.kind, 'idle');
+assert.ok(sampled.frame > 0, 'Idle must advance with the fighter state clock');
+const idleCycleFrames = animationFrameProfile('CHUNLI', 'idle').weights.reduce((sum, weight) => sum + Math.max(.05, weight), 0) / sampled.sequence.fps * 60;
+chunli.stateFrame = Math.ceil(idleCycleFrames);
+sampled = animationSequenceSample(chunli, 0);
+assert.equal(sampled.frame, 0, 'Idle must wrap to the initial pose after one cycle');
+chunli.stateFrame = 612;
+sampled = animationSequenceSample(chunli, 10.2);
+assert.ok(sampled.frame >= 0 && sampled.frame < 6, 'Idle must keep looping within the six authored frames');
+chunli.state = 'hit'; chunli.stateFrame = 0; chunli.dashFrames = 4;
+sampled = animationSequenceSample(chunli, .1);
+assert.equal(sampled?.sequence.kind, 'hit', 'Hit reaction must override an interrupted dash');
+assert.equal(sampled.frame, 0);
+chunli.stateFrame = 8;
+sampled = animationSequenceSample(chunli, .2);
+assert.equal(sampled?.sequence.kind, 'hit');
+assert.ok(sampled.frame > 0 && sampled.frame < 8, 'Hit reaction must advance toward recovery');
+chunli.state = 'idle'; chunli.stateFrame = 0; chunli.dashFrames = 0;
+sampled = animationSequenceSample(chunli, .3);
+assert.equal(sampled?.sequence.kind, 'idle', 'Hit recovery must return to authored idle');
 
 
 ryu.state = 'attack';
