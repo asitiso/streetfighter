@@ -19,7 +19,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken'])
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -113,6 +113,9 @@ def main():
         elif kind == 'hadoken':
             start_limits = end_limits = handoff.HADOKEN_BASE_LIMITS
             start_key, end_key = 'baseToCast', 'castToBase'
+        elif kind == 'shoryuken':
+            start_limits = end_limits = handoff.SHORYUKEN_BASE_LIMITS
+            start_key, end_key = 'baseToRise', 'riseToBase'
         elif kind == 'tatsumaki':
             start_limits = end_limits = handoff.TATSUMAKI_BASE_LIMITS
             start_key, end_key = 'baseToSpin', 'spinToBase'

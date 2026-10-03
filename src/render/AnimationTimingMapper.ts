@@ -65,6 +65,7 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
   if (characterId === 'CHUNLI') {
+    if (move.id === 'CHUNLI_ANTI_AIR') return 'shoryuken';
     if (move.id === 'CHUNLI_MOBILITY') return 'tatsumaki';
     if (move.id === 'CHUNLI_PRIMARY' || move.id === 'CHUNLI_EX_PRIMARY') return 'hadoken';
     if (move.id === '5LP') return 'stand-light';
@@ -126,7 +127,9 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
   if (fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0 || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0 || fighter.state === 'knockdown' || fighter.state === 'ko' || fighter.state === 'victory') return null;
 
   if (fighter.state === 'attack' && fighter.currentMove) {
-    if (characterId === 'CHUNLI' && fighter.airborne) return null;
+    // This ground-initiated rising special owns its launch and must keep its
+    // strip during flight. Other Chun-Li attacks still use their air visuals.
+    if (characterId === 'CHUNLI' && fighter.airborne && fighter.currentMove.id !== 'CHUNLI_ANTI_AIR') return null;
     const kind = animationSequenceKindForAttack(characterId, fighter.currentMove);
     if (!kind) return null;
     const sequence = animationSequenceFor(characterId, kind, true);
