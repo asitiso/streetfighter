@@ -1,4 +1,4 @@
-"""Preview/install Chun-Li authored movement using the existing motion gates."""
+"""Preview/install authored character sequences using the existing motion gates."""
 from argparse import ArgumentParser
 from pathlib import Path
 import hashlib
@@ -20,6 +20,7 @@ def load_module(name, filename):
 def main():
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush', 'kikosho', 'tensei-ranka'])
+    parser.add_argument('--character', choices=['CHUNLI', 'IBUKI'], default='CHUNLI')
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -27,6 +28,8 @@ def main():
         parser.error('--install and --runtime cannot be combined')
     motion = load_module('authored_motion', 'install-authored-ken-sequence.py')
     handoff = load_module('authored_handoff', 'audit-ken-handoff-semantics.py')
+    character = args.character
+    slug = character.lower()
     kind = args.kind
     # Separate Super Art asset identities reuse the existing motion-family gates.
     quality_kinds = {'kikosho': 'hadoken', 'tensei-ranka': 'shoryuken'}
@@ -51,8 +54,8 @@ def main():
         for key in ('centroidXRangeMin', 'centroidXRangeMax', 'reachRangeMin', 'reachRangeMax', 'footCenterRangeMax'):
             motion.SUPER_RUSH_SEMANTIC_LIMITS[key] *= frame_width / 384
     label = kind.upper().replace('-', '_')
-    source = ROOT / f'art-source/chunli/inbox/{kind}'
-    runtime = ROOT / f'public/art/animation-hq/chunli/{kind}.webp'
+    source = ROOT / f'art-source/{slug}/inbox/{kind}'
+    runtime = ROOT / f'public/art/animation-hq/{slug}/{kind}.webp'
     manifest_path = runtime.parent / 'manifest.json'
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
     def load_frames(sequence_kind):
@@ -62,17 +65,30 @@ def main():
             sequence_record = next(r for r in manifest['records'] if r['id'] == sequence_kind)
             strip = Image.open(sequence_runtime).convert('RGBA')
             if strip.size != (frame_width * sequence_count, 448):
-                raise SystemExit(f'CHUNLI {sequence_kind}: unexpected runtime dimensions')
+                raise SystemExit(f'{character} {sequence_kind}: unexpected runtime dimensions')
             if not sequence_record['enabled'] or not sequence_record['poseAuthored']:
-                raise SystemExit(f'CHUNLI {sequence_kind}: runtime is not authored and enabled')
+                raise SystemExit(f'{character} {sequence_kind}: runtime is not authored and enabled')
             if sequence_record['sha256'] != hashlib.sha256(sequence_runtime.read_bytes()).hexdigest().upper():
-                raise SystemExit(f'CHUNLI {sequence_kind}: runtime checksum mismatch')
+                raise SystemExit(f'{character} {sequence_kind}: runtime checksum mismatch')
             return [strip.crop((i*frame_width, 0, (i+1)*frame_width, 448)) for i in range(sequence_count)], None
-        sequence_source = ROOT / f'art-source/chunli/inbox/{sequence_kind}'
+        sequence_source = ROOT / f'art-source/{slug}/inbox/{sequence_kind}'
         paths = sorted(sequence_source.glob('[0-9][0-9].png'))
         if [p.name for p in paths] != [f'{i:02d}.png' for i in range(1, sequence_count + 1)]:
-            raise SystemExit(f'CHUNLI {sequence_kind}: provide exactly 01.png through {sequence_count:02d}.png')
+            raise SystemExit(f'{character} {sequence_kind}: provide exactly 01.png through {sequence_count:02d}.png')
         normalized, source_metrics = motion.normalize_frames(quality_kinds.get(sequence_kind, sequence_kind), [Image.open(p).convert('RGBA') for p in paths])
+        if character == 'IBUKI' and sequence_kind == 'idle':
+            # Align this character's original root rather than assuming Ken's
+            # centered 423px baseline. A uniform offset preserves breathing motion.
+            master_mask = handoff.alpha_mask(Image.open(ROOT / f'public/art/combat-sprites-hq/{slug}.webp').convert('RGBA'))
+            master_y, master_x = motion.np.nonzero(master_mask)
+            dx = round((int(master_x.min()) + int(master_x.max()) + 1) / 2 - frame_width / 2)
+            dy = int(master_y.max()) + 1 - 423
+            for index, frame in enumerate(normalized):
+                anchored = Image.new('RGBA', (frame_width, 448))
+                anchored.alpha_composite(frame, (dx, dy))
+                normalized[index] = anchored
+                source_metrics[index]['paste'][0] += dx
+                source_metrics[index]['paste'][1] += dy
         if sequence_kind == 'jump':
             # Launch/contact share the grounded baseline; compression lifts
             # the feet 12px as the fighter leaves the ground.
@@ -88,7 +104,7 @@ def main():
     frames, metrics = load_frames(kind)
     pose = motion.pose_qa(frames, qa_kind)
     semantic = motion.semantic_qa(qa_kind, frames, pose)
-    master_image = Image.open(ROOT / 'public/art/combat-sprites-hq/chunli.webp').convert('RGBA')
+    master_image = Image.open(ROOT / f'public/art/combat-sprites-hq/{slug}.webp').convert('RGBA')
     if frame_width != 384:
         padded = Image.new('RGBA', (frame_width, 448))
         padded.alpha_composite(master_image, ((frame_width - 384) // 2, 0))
@@ -142,14 +158,14 @@ def main():
         }
         peer_pass = True
     passed = pose['poseAuthoredPass'] and semantic['semanticQaPass'] and peer_pass and all(h['pass'] for h in handoffs.values())
-    report = {'character':'CHUNLI', 'sequence':kind, 'source':source.relative_to(ROOT).as_posix(),
+    report = {'character':character, 'sequence':kind, 'source':source.relative_to(ROOT).as_posix(),
               'poseQa':pose, 'semanticQa':semantic, 'gateProfile':qa_kind, **handoffs, 'pass':passed}
     if kind in ('jump', 'landing'):
         report['pairedSequence'] = {'sequence':peer_kind, 'poseQa':peer_pose, 'semanticQa':peer_semantic, 'pass':peer_pass}
     promotions = [(kind, frames, metrics, pose, semantic, report)]
     if kind in ('jump', 'landing'):
-        peer_report = {'character':'CHUNLI', 'sequence':peer_kind,
-                       'source':f'art-source/chunli/inbox/{peer_kind}', 'poseQa':peer_pose,
+        peer_report = {'character':character, 'sequence':peer_kind,
+                       'source':f'art-source/{slug}/inbox/{peer_kind}', 'poseQa':peer_pose,
                        'semanticQa':peer_semantic, **handoffs, 'pass':passed,
                        'pairedSequence':{'sequence':kind, 'poseQa':pose, 'semanticQa':semantic,
                                          'pass':pose['poseAuthoredPass'] and semantic['semanticQaPass']}}
@@ -157,12 +173,12 @@ def main():
     if not args.runtime:
         for promoted_kind, promoted_frames, promoted_metrics, _, _, promoted_report in promotions:
             promoted_label = promoted_kind.upper().replace('-', '_')
-            candidate = ROOT / f'art-source/chunli/authored-candidates/{promoted_kind}.webp'
+            candidate = ROOT / f'art-source/{slug}/authored-candidates/{promoted_kind}.webp'
             candidate.parent.mkdir(parents=True, exist_ok=True)
             motion.make_strip(promoted_frames).save(candidate, 'WEBP', lossless=True, quality=100, method=4)
-            motion.make_preview(f'chunli {promoted_kind}', promoted_frames, ROOT / f'CHUNLI_{promoted_label}_AUTHORED_PREVIEW.png')
+            motion.make_preview(f'{slug} {promoted_kind}', promoted_frames, ROOT / f'{character}_{promoted_label}_AUTHORED_PREVIEW.png')
             promoted_report['metrics'] = promoted_metrics
-            (ROOT / f'CHUNLI_{promoted_label}_AUTHORED_QA.json').write_text(json.dumps(promoted_report, indent=2), encoding='utf-8')
+            (ROOT / f'{character}_{promoted_label}_AUTHORED_QA.json').write_text(json.dumps(promoted_report, indent=2), encoding='utf-8')
     print(json.dumps(report, indent=2))
     if not passed:
         raise SystemExit(1)
@@ -172,14 +188,14 @@ def main():
         lines = text.splitlines()
         pending = {}
         for promoted_kind, _, _, promoted_pose, promoted_semantic, promoted_report in promotions:
-            matches = [i for i, line in enumerate(lines) if "characterId:'CHUNLI'" in line and f"kind:'{promoted_kind}'" in line]
+            matches = [i for i, line in enumerate(lines) if f"characterId:'{character}'" in line and f"kind:'{promoted_kind}'" in line]
             if len(matches) != 1:
-                raise SystemExit(f'CHUNLI {promoted_kind}: registry entry is not unique')
+                raise SystemExit(f'{character} {promoted_kind}: registry entry is not unique')
             index = matches[0]
             line = re.sub(r'enabled:(?:true|false)', 'enabled:true', lines[index], count=1)
             line = re.sub(r'poseAuthored:(?:true|false)', 'poseAuthored:true', line, count=1)
             lines[index] = re.sub(r"source:'[^']+'", "source:'authored-hq'", line, count=1)
-            data = (ROOT / f'art-source/chunli/authored-candidates/{promoted_kind}.webp').read_bytes()
+            data = (ROOT / f'art-source/{slug}/authored-candidates/{promoted_kind}.webp').read_bytes()
             record = next((r for r in manifest['records'] if r['id'] == promoted_kind), None)
             if record is None:
                 count = motion.EXPECTED[promoted_kind]
@@ -191,7 +207,7 @@ def main():
                            'authoredSource':promoted_report['source'], 'poseQa':promoted_pose,
                            'semanticQa':promoted_semantic, 'handoffQa':handoffs})
             pending[runtime.parent / f'{promoted_kind}.webp'] = data
-        manifest['pipeline'] = 'rc40-chunli-authored-gated-v1'
+        manifest['pipeline'] = f'rc40-{slug}-authored-gated-v1'
         manifest['frameTotal'] = sum(r['frames'] for r in manifest['records'])
         manifest['enabledFrameTotal'] = sum(r['frames'] for r in manifest['records'] if r['enabled'])
         manifest['fullFrameTotal'] = sum(r['frames'] for r in manifest['records'] if r['enabled'] and r['renderMode']=='full')
@@ -208,9 +224,9 @@ def main():
                 else:
                     path.write_bytes(data)
             raise
-        print(f'CHUNLI_AUTHORED_{label}_INSTALLED')
+        print(f'{character}_AUTHORED_{label}_INSTALLED')
     elif args.runtime:
-        print(f'CHUNLI_AUTHORED_{label}_VERIFY_PASS')
+        print(f'{character}_AUTHORED_{label}_VERIFY_PASS')
 
 
 if __name__ == '__main__':

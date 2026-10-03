@@ -90,7 +90,7 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
   assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 57, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 0, `${id} enabled frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 6, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);

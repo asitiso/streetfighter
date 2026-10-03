@@ -206,8 +206,8 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   },
   'IBUKI:idle': {
     weights: [1.350, 1.000, 0.900, 1.000, 0.950, 1.400],
-    anchorX: [0.000, 10.000, 10.000, 0.000, -10.000, -10.000],
-    anchorY: [0.000, 3.000, 3.000, 0.000, -2.000, -2.000],
+    anchorX: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+    anchorY: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
     footLockStrength: 0.518,
   },
   'IBUKI:walk': {
