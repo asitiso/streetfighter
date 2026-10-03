@@ -96,7 +96,10 @@
     "verify:chunli-light-attack": "node scripts/verify-chunli-light-attack.mjs",
     "ingest:chunli-stand-heavy": "python3 scripts/install-authored-chunli-walk.py stand-heavy --install",
     "verify:chunli-stand-heavy": "python3 scripts/install-authored-chunli-walk.py stand-heavy --runtime",
-    "verify:chunli-heavy-attack": "node scripts/verify-chunli-heavy-attack.mjs"
+    "verify:chunli-heavy-attack": "node scripts/verify-chunli-heavy-attack.mjs",
+    "ingest:chunli-kikoken": "python3 scripts/install-authored-chunli-walk.py hadoken --install",
+    "verify:chunli-kikoken": "python3 scripts/install-authored-chunli-walk.py hadoken --runtime",
+    "verify:chunli-kikoken-timing": "node scripts/verify-chunli-kikoken.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"

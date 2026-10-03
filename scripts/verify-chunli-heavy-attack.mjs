@@ -30,7 +30,7 @@ for (const crouching of [false, true]) {
   }
 }
 fighter.currentMove = specialMovesFor('CHUNLI').primary;
-assert.equal(animationSequenceSample(fighter, 0), null, 'Kikoken must keep its own presentation');
+assert.notEqual(animationSequenceSample(fighter, 0)?.sequence.kind, 'stand-heavy', 'Kikoken must keep its own presentation');
 fighter.currentMove = move;
 fighter.airborne = true;
 assert.equal(animationSequenceSample(fighter, 0), null, 'Grounded heavy palm must not replace air attacks');

@@ -65,6 +65,7 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
   if (characterId === 'CHUNLI') {
+    if (move.id === 'CHUNLI_PRIMARY' || move.id === 'CHUNLI_EX_PRIMARY') return 'hadoken';
     if (move.id === '5LP') return 'stand-light';
     if (move.id === '5HP') return 'stand-heavy';
     return null;
