@@ -89,8 +89,8 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 }
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
-  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 86 : 57, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 86 : 0, `${id} enabled frame total mismatch`);
+  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 98 : 57, `${id} frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 98 : 0, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -189,21 +189,22 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   const extraManifest = JSON.parse(await readFile(new URL(`../public/art/animation-hq/${slug}/manifest.json`, import.meta.url), 'utf8'));
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
-  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 86 : 57);
+  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 98 : 57);
   const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
   assert.equal(extraManifest.enabledFrameTotal, activeFrames);
   assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
-  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 10 : 7);
+  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 11 : 7);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
   for (const rec of extraManifest.records) {
     const data = await readFile(new URL(`../public/art/animation-hq/${slug}/${rec.id}.webp`, import.meta.url));
     const dim = webpDimensions(data);
-    assert.equal(dim.width, 384 * rec.frames, `${id} ${rec.id} strip width mismatch`);
+    assert.equal(dim.width, rec.frameSize[0] * rec.frames, `${id} ${rec.id} strip width mismatch`);
     assert.equal(dim.height, 448, `${id} ${rec.id} strip height mismatch`);
     assert.equal(dim.alpha, true, `${id} ${rec.id} transparency missing`);
     assert.equal(rec.sha256, sha(data), `${id} ${rec.id} checksum mismatch`);
     const seq = animationSequenceFor(id, rec.id, false);
+    assert.equal(seq?.frameWidth, rec.frameSize[0], `${id} ${rec.id} frame width mismatch`);
     assert.equal(seq?.enabled, Boolean(rec.enabled), `${id} ${rec.id} enabled mismatch`);
     assert.equal(seq?.poseAuthored, Boolean(rec.poseAuthored), `${id} ${rec.id} authored mismatch`);
     if (rec.enabled) {
@@ -334,7 +335,7 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   lite: `${liteDim.width}x${liteDim.height}`,
   frameTotal: manifest.frameTotal,
   kenFrameTotal: kenManifest.frameTotal,
-  chunliFrameTotal: 86,
+  chunliFrameTotal: 98,
   ibukiFrameTotal: 57,
   enabledFrameTotal: manifest.enabledFrameTotal,
   strips: manifest.records.length,

@@ -9,9 +9,9 @@
     448
   ],
   "sourceSha256": "8B71D8CD13E194D9C6CC8B2BA9932BE6A30FC78AC32436C2F7765CCD986EFF65",
-  "frameTotal": 86,
-  "enabledFrameTotal": 86,
-  "fullFrameTotal": 86,
+  "frameTotal": 98,
+  "enabledFrameTotal": 98,
+  "fullFrameTotal": 98,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -1163,6 +1163,121 @@
             "footCenterDeltaMax": 60.0,
             "areaRatioMin": 0.66,
             "areaRatioMax": 1.42
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
+    },
+    {
+      "id": "tatsumaki",
+      "frames": 12,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        7680,
+        448
+      ],
+      "renderMode": "full",
+      "bytes": 1068942,
+      "sha256": "96171A67B3128307759F4C46768CCD83367057DFB476240E08B07F7EE5CCE0A8",
+      "enabled": true,
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/chunli/inbox/tatsumaki",
+      "poseQa": {
+        "affineResidualAverage": 0.082163,
+        "affineResidualMax": 0.111393,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "tatsumaki",
+        "limits": {
+          "startEndIoUMin": 0.36,
+          "startEndIoUMax": 0.92,
+          "quarterIoUMin": 0.18,
+          "quarterIoUMax": 0.78,
+          "oppositeIoUMin": 0.16,
+          "oppositeIoUMax": 0.74,
+          "centroidXRangeMin": 13.333333333333334,
+          "centroidXRangeMax": 166.66666666666669,
+          "centroidYRangeMin": 5.0,
+          "centroidYRangeMax": 95.0,
+          "extentWidthRangeMin": 63.333333333333336,
+          "extentWidthRangeMax": 316.6666666666667,
+          "areaCvMax": 0.24,
+          "residualAverageMin": 0.022,
+          "residualAverageMax": 0.22,
+          "residualMaxMin": 0.045,
+          "residualMaxMax": 0.3,
+          "quarterFrameIndex": 3,
+          "oppositeFrameIndex": 6
+        },
+        "startEndIoU": 0.821644,
+        "quarterIoU": 0.373011,
+        "oppositeIoU": 0.315117,
+        "centroidXRange": 48.668267,
+        "centroidYRange": 85.036625,
+        "extentWidthRange": 254.0,
+        "areaCv": 0.094758,
+        "residualAverage": 0.082163,
+        "residualMax": 0.111393,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "quarterTurnDistinct": true,
+          "oppositeTurnDistinct": true,
+          "spinTravelsHorizontally": true,
+          "spinChangesLevel": true,
+          "kickExtensionChanges": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToSpin": {
+          "iou": 0.606687,
+          "centroidDistance": 18.373525,
+          "footCenterDelta": 6.328999,
+          "areaRatio": 0.907852,
+          "limits": {
+            "iouMin": 0.28,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 72.0,
+            "footCenterDeltaMax": 92.0,
+            "areaRatioMin": 0.6,
+            "areaRatioMax": 1.52
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "spinToBase": {
+          "iou": 0.585814,
+          "centroidDistance": 22.4955,
+          "footCenterDelta": 7.767196,
+          "areaRatio": 1.144124,
+          "limits": {
+            "iouMin": 0.28,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 72.0,
+            "footCenterDeltaMax": 92.0,
+            "areaRatioMin": 0.6,
+            "areaRatioMax": 1.52
           },
           "checks": {
             "silhouetteCue": true,

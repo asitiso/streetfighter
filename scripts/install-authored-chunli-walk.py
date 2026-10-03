@@ -19,7 +19,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki'])
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -28,6 +28,14 @@ def main():
     motion = load_module('authored_motion', 'install-authored-ken-sequence.py')
     handoff = load_module('authored_handoff', 'audit-ken-handoff-semantics.py')
     kind = args.kind
+    frame_width = 640 if kind == 'tatsumaki' else 384
+    motion.FRAME_W = frame_width
+    if kind == 'tatsumaki':
+        # Horizontal gates use canvas pixels; retain their normalized limits
+        # on the wider canvas needed for full-size inverted legs.
+        motion.TATSUMAKI_SEMANTIC_LIMITS = dict(motion.TATSUMAKI_SEMANTIC_LIMITS)
+        for key in ('centroidXRangeMin', 'centroidXRangeMax', 'extentWidthRangeMin', 'extentWidthRangeMax'):
+            motion.TATSUMAKI_SEMANTIC_LIMITS[key] *= frame_width / 384
     label = kind.upper().replace('-', '_')
     source = ROOT / f'art-source/chunli/inbox/{kind}'
     runtime = ROOT / f'public/art/animation-hq/chunli/{kind}.webp'
@@ -39,13 +47,13 @@ def main():
         if args.runtime:
             sequence_record = next(r for r in manifest['records'] if r['id'] == sequence_kind)
             strip = Image.open(sequence_runtime).convert('RGBA')
-            if strip.size != (384 * sequence_count, 448):
+            if strip.size != (frame_width * sequence_count, 448):
                 raise SystemExit(f'CHUNLI {sequence_kind}: unexpected runtime dimensions')
             if not sequence_record['enabled'] or not sequence_record['poseAuthored']:
                 raise SystemExit(f'CHUNLI {sequence_kind}: runtime is not authored and enabled')
             if sequence_record['sha256'] != hashlib.sha256(sequence_runtime.read_bytes()).hexdigest().upper():
                 raise SystemExit(f'CHUNLI {sequence_kind}: runtime checksum mismatch')
-            return [strip.crop((i*384, 0, (i+1)*384, 448)) for i in range(sequence_count)], None
+            return [strip.crop((i*frame_width, 0, (i+1)*frame_width, 448)) for i in range(sequence_count)], None
         sequence_source = ROOT / f'art-source/chunli/inbox/{sequence_kind}'
         paths = sorted(sequence_source.glob('[0-9][0-9].png'))
         if [p.name for p in paths] != [f'{i:02d}.png' for i in range(1, sequence_count + 1)]:
@@ -66,7 +74,12 @@ def main():
     frames, metrics = load_frames(kind)
     pose = motion.pose_qa(frames, kind)
     semantic = motion.semantic_qa(kind, frames, pose)
-    master = handoff.alpha_mask(Image.open(ROOT / 'public/art/combat-sprites-hq/chunli.webp'))
+    master_image = Image.open(ROOT / 'public/art/combat-sprites-hq/chunli.webp').convert('RGBA')
+    if frame_width != 384:
+        padded = Image.new('RGBA', (frame_width, 448))
+        padded.alpha_composite(master_image, ((frame_width - 384) // 2, 0))
+        master_image = padded
+    master = handoff.alpha_mask(master_image)
     if kind in ('jump', 'landing'):
         peer_kind = 'landing' if kind == 'jump' else 'jump'
         peer_frames, peer_metrics = load_frames(peer_kind)
@@ -100,6 +113,9 @@ def main():
         elif kind == 'hadoken':
             start_limits = end_limits = handoff.HADOKEN_BASE_LIMITS
             start_key, end_key = 'baseToCast', 'castToBase'
+        elif kind == 'tatsumaki':
+            start_limits = end_limits = handoff.TATSUMAKI_BASE_LIMITS
+            start_key, end_key = 'baseToSpin', 'spinToBase'
         handoffs = {
             start_key: handoff.compare_motion_bridge(master, handoff.alpha_mask(frames[0]), start_limits),
             end_key: handoff.compare_motion_bridge(handoff.alpha_mask(frames[-1]), master, end_limits),
@@ -150,7 +166,7 @@ def main():
                 record = {'id':promoted_kind, 'frames':count, 'frameSize':[384,448],
                           'stripSize':[384*count,448], 'renderMode':'full'}
                 manifest['records'].append(record)
-            record.update({'bytes':len(data), 'sha256':hashlib.sha256(data).hexdigest().upper(),
+            record.update({'frameSize':[frame_width,448], 'stripSize':[frame_width*record['frames'],448], 'bytes':len(data), 'sha256':hashlib.sha256(data).hexdigest().upper(),
                            'enabled':True, 'poseAuthored':True, 'stagingOnly':False,
                            'authoredSource':promoted_report['source'], 'poseQa':promoted_pose,
                            'semanticQa':promoted_semantic, 'handoffQa':handoffs})
