@@ -27,7 +27,7 @@ for(const facing of [-1,1]) {
  for(const [other,kind] of [[specials.primary,'hadoken'],[specials.exPrimary,'hadoken'],[specials.mobility,'tatsumaki'],[normalFor('lp',false,'CHUNLI'),'stand-light'],[normalFor('hp',false,'CHUNLI'),'stand-heavy']]) {
   fighter.startMove(other);fighter.airborne=false;assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,kind);
  }
- for(const other of [specials.super,...[1,2,3].map(id=>superArtMoveFor('CHUNLI',id))]){fighter.currentMove=other;fighter.state='attack';assert.equal(animationSequenceSample(fighter,0),null);}
+ for(const other of [specials.super,...[1,2,3].map(id=>superArtMoveFor('CHUNLI',id))]){fighter.currentMove=other;fighter.state='attack';assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'shoryuken');}
  fighter.currentMove=airNormalFor('CHUNLI','hk');fighter.airborne=true;
  assert.equal(animationSequenceSample(fighter,0),null,'Air normal must retain its own presentation');
  fighter.airborne=false;fighter.state='idle';fighter.stateFrame=0;assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,'idle');

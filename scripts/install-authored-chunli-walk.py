@@ -19,7 +19,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush'])
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -28,7 +28,7 @@ def main():
     motion = load_module('authored_motion', 'install-authored-ken-sequence.py')
     handoff = load_module('authored_handoff', 'audit-ken-handoff-semantics.py')
     kind = args.kind
-    frame_width = 640 if kind == 'tatsumaki' else 384
+    frame_width = 640 if kind in ('tatsumaki', 'super-rush') else 384
     motion.FRAME_W = frame_width
     if kind == 'tatsumaki':
         # Horizontal gates use canvas pixels; retain their normalized limits
@@ -36,6 +36,11 @@ def main():
         motion.TATSUMAKI_SEMANTIC_LIMITS = dict(motion.TATSUMAKI_SEMANTIC_LIMITS)
         for key in ('centroidXRangeMin', 'centroidXRangeMax', 'extentWidthRangeMin', 'extentWidthRangeMax'):
             motion.TATSUMAKI_SEMANTIC_LIMITS[key] *= frame_width / 384
+    if kind == 'super-rush':
+        # Preserve canvas-relative horizontal limits on the wide kicking canvas.
+        motion.SUPER_RUSH_SEMANTIC_LIMITS = dict(motion.SUPER_RUSH_SEMANTIC_LIMITS)
+        for key in ('centroidXRangeMin', 'centroidXRangeMax', 'reachRangeMin', 'reachRangeMax', 'footCenterRangeMax'):
+            motion.SUPER_RUSH_SEMANTIC_LIMITS[key] *= frame_width / 384
     label = kind.upper().replace('-', '_')
     source = ROOT / f'art-source/chunli/inbox/{kind}'
     runtime = ROOT / f'public/art/animation-hq/chunli/{kind}.webp'
@@ -116,6 +121,9 @@ def main():
         elif kind == 'shoryuken':
             start_limits = end_limits = handoff.SHORYUKEN_BASE_LIMITS
             start_key, end_key = 'baseToRise', 'riseToBase'
+        elif kind == 'super-rush':
+            start_limits = end_limits = handoff.SUPER_RUSH_BASE_LIMITS
+            start_key, end_key = 'baseToRush', 'rushToBase'
         elif kind == 'tatsumaki':
             start_limits = end_limits = handoff.TATSUMAKI_BASE_LIMITS
             start_key, end_key = 'baseToSpin', 'spinToBase'

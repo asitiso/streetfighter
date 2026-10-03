@@ -107,7 +107,10 @@
     "prepare:chunli-browser-check": "node scripts/prepare-chunli-browser-check.mjs",
     "ingest:chunli-rising-kick": "python3 scripts/install-authored-chunli-walk.py shoryuken --install",
     "verify:chunli-rising-kick": "python3 scripts/install-authored-chunli-walk.py shoryuken --runtime",
-    "verify:chunli-rising-kick-timing": "node scripts/verify-chunli-rising-kick.mjs"
+    "verify:chunli-rising-kick-timing": "node scripts/verify-chunli-rising-kick.mjs",
+    "ingest:chunli-houyokusen": "python3 scripts/install-authored-chunli-walk.py super-rush --install",
+    "verify:chunli-houyokusen": "python3 scripts/install-authored-chunli-walk.py super-rush --runtime",
+    "verify:chunli-houyokusen-timing": "node scripts/verify-chunli-houyokusen.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"

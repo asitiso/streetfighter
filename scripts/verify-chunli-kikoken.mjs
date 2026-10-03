@@ -30,7 +30,7 @@ assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'hadoken','Ris
 for (const move of [specials.super,
   ...[1,2,3].map(id => superArtMoveFor('CHUNLI',id))]) {
   fighter.currentMove = move;
-  assert.equal(animationSequenceSample(fighter, 0), null, `Kikoken must not replace ${move.id}`);
+  assert.notEqual(animationSequenceSample(fighter, 0)?.sequence.kind, 'hadoken', `Kikoken must not replace ${move.id}`);
 }
 fighter.currentMove = specials.primary; fighter.airborne = true;
 assert.equal(animationSequenceSample(fighter, 0), null, 'Grounded casting must not replace air attacks');

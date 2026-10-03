@@ -35,6 +35,12 @@ for(const id of ['CHUNLI','KEN']) {
       assert.ok(call,'Airborne rising kick must use authored strip');
       assert.ok(translations.some(([x,y])=>x===0&&y===-61),'Rising sprite must follow gameplay jump height');
       fighter.airborne=false; fighter.jumpHeight=0;
+      fighter.currentMove=specialMovesFor(id).super; fighter.moveFrame=fighter.currentMove.startup;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/chunli/super-rush.webp'));
+      assert.ok(call,'Houyokusen must use authored strip');
+      assert.equal(call[3],640);
+      assert.deepEqual(call.slice(5),[-160,-220,320,224]);
     }
   }
 }
