@@ -28,6 +28,11 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
       call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/walk.webp'));
       assert.ok(call,'Ibuki forward walk must use authored strip');
       assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+      fighter.previousX=fighter.x+facing*2;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/walk-back.webp'));
+      assert.ok(call,'Ibuki retreat must use its distinct authored strip');
+      assert.deepEqual(call.slice(5),[-96,-220,192,224]);
       fighter.previousX=fighter.x;
     }
     if(id==='CHUNLI') {
