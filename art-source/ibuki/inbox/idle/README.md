@@ -15,3 +15,5 @@ node scripts/verify-ibuki-idle.mjs
 python3 scripts/verify-ibuki-ingest.py
 npm run prepare:ibuki-browser-check
 ```
+
+Subsequent walk increment enables 12 forward-walk frames (18 total). Walk references above describe the original idle-only milestone. Active idle/walk replacements now validate both installed-peer transitions; cache v084 includes both strips.

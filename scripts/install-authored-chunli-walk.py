@@ -76,7 +76,7 @@ def main():
         if [p.name for p in paths] != [f'{i:02d}.png' for i in range(1, sequence_count + 1)]:
             raise SystemExit(f'{character} {sequence_kind}: provide exactly 01.png through {sequence_count:02d}.png')
         normalized, source_metrics = motion.normalize_frames(quality_kinds.get(sequence_kind, sequence_kind), [Image.open(p).convert('RGBA') for p in paths])
-        if character == 'IBUKI' and sequence_kind == 'idle':
+        if character == 'IBUKI' and sequence_kind in ('idle', 'walk'):
             # Align this character's original root rather than assuming Ken's
             # centered 423px baseline. A uniform offset preserves breathing motion.
             master_mask = handoff.alpha_mask(Image.open(ROOT / f'public/art/combat-sprites-hq/{slug}.webp').convert('RGBA'))
@@ -157,6 +157,27 @@ def main():
             end_key: handoff.compare_motion_bridge(handoff.alpha_mask(frames[-1]), master, end_limits),
         }
         peer_pass = True
+    if character == 'IBUKI' and kind in ('idle', 'walk'):
+        # Check the opposite sequence actually installed in either update direction.
+        peer_kind = 'idle' if kind == 'walk' else 'walk'
+        installed_peer = next(r for r in manifest['records'] if r['id'] == peer_kind)
+        peer_active = installed_peer['enabled'] and installed_peer['poseAuthored']
+        if kind == 'walk' and not peer_active:
+            raise SystemExit('IBUKI walk: install authored idle before walking')
+        if peer_active:
+            peer_path = runtime.parent / f'{peer_kind}.webp'
+            if installed_peer['sha256'] != hashlib.sha256(peer_path.read_bytes()).hexdigest().upper():
+                raise SystemExit(f'IBUKI {kind}: installed {peer_kind} peer checksum mismatch')
+            peer_strip = Image.open(peer_path).convert('RGBA')
+            peer_width, peer_height = installed_peer['frameSize']
+            if peer_strip.size != (peer_width * installed_peer['frames'], peer_height):
+                raise SystemExit(f'IBUKI {kind}: unexpected {peer_kind} peer dimensions')
+            peer_first = peer_strip.crop((0, 0, peer_width, peer_height))
+            peer_last = peer_strip.crop((peer_width * (installed_peer['frames']-1), 0, peer_width * installed_peer['frames'], peer_height))
+            idle_first, idle_last = (peer_first, peer_last) if kind == 'walk' else (frames[0], frames[-1])
+            walk_first, walk_last = (frames[0], frames[-1]) if kind == 'walk' else (peer_first, peer_last)
+            handoffs['idleToWalk'] = handoff.compare_motion_bridge(handoff.alpha_mask(idle_last), handoff.alpha_mask(walk_first), handoff.PAIR_LIMITS)
+            handoffs['walkToIdle'] = handoff.compare_motion_bridge(handoff.alpha_mask(walk_last), handoff.alpha_mask(idle_first), handoff.PAIR_LIMITS)
     passed = pose['poseAuthoredPass'] and semantic['semanticQaPass'] and peer_pass and all(h['pass'] for h in handoffs.values())
     report = {'character':character, 'sequence':kind, 'source':source.relative_to(ROOT).as_posix(),
               'poseQa':pose, 'semanticQa':semantic, 'gateProfile':qa_kind, **handoffs, 'pass':passed}
