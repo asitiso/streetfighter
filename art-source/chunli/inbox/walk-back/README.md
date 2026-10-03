@@ -9,4 +9,4 @@ python3 scripts/install-authored-chunli-walk.py walk-back --install
 python3 scripts/install-authored-chunli-walk.py walk-back --runtime
 ```
 
-The existing forward-walk commands remain supported without a positional argument. Other Chun-Li movement sequences are still staging candidates.
+The existing forward-walk commands remain supported without a positional argument. Dash is also enabled through the shared installer. Idle, jump, landing, and hit are still staging candidates.

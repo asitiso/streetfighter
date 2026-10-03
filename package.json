@@ -13,6 +13,8 @@
     "verify:chunli-walk": "python3 scripts/install-authored-chunli-walk.py --runtime",
     "ingest:chunli:walk-back": "python3 scripts/install-authored-chunli-walk.py walk-back --install",
     "verify:chunli-walk-back": "python3 scripts/install-authored-chunli-walk.py walk-back --runtime",
+    "ingest:chunli:dash": "python3 scripts/install-authored-chunli-walk.py dash --install",
+    "verify:chunli-dash": "python3 scripts/install-authored-chunli-walk.py dash --runtime",
     "audit:ken-source": "python3 scripts/audit-ken-source-sheet.py --allow-reference-only",
     "verify:ken-gates": "python3 scripts/verify-ken-source-gates.py",
     "ingest:ken": "python3 scripts/ingest-authored-ken.py",
