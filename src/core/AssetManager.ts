@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v065';
+export const GAME_CACHE_NAME = 'game-cache-v086';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -33,9 +33,12 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/animation-hq/ken/manifest.json',
     '/art/animation-hq/ken/idle.webp', '/art/animation-hq/ken/walk.webp', '/art/animation-hq/ken/walk-back.webp',
     '/art/animation-hq/ken/dash.webp', '/art/animation-hq/ken/jump.webp', '/art/animation-hq/ken/landing.webp', '/art/animation-hq/ken/hit.webp',
+    '/art/special-keyposes/ken/hadoken.webp', '/art/special-keyposes/ken/shoryuken.webp',
+    '/art/special-keyposes/ken/tatsumaki.webp', '/art/special-keyposes/ken/super-rush.webp',
+    '/art/special-keyposes/chunli/kikoken.webp', '/art/special-keyposes/chunli/spinning-bird-kick.webp',
     '/art/animation-hq/chunli/manifest.json',
     '/art/animation-hq/chunli/idle.webp', '/art/animation-hq/chunli/walk.webp', '/art/animation-hq/chunli/walk-back.webp',
-    '/art/animation-hq/chunli/dash.webp', '/art/animation-hq/chunli/jump.webp', '/art/animation-hq/chunli/landing.webp', '/art/animation-hq/chunli/hit.webp',
+    '/art/animation-hq/chunli/dash.webp', '/art/animation-hq/chunli/jump.webp', '/art/animation-hq/chunli/landing.webp', '/art/animation-hq/chunli/hit.webp', '/art/animation-hq/chunli/stand-light.webp', '/art/animation-hq/chunli/stand-heavy.webp', '/art/animation-hq/chunli/hadoken.webp', '/art/animation-hq/chunli/tatsumaki.webp', '/art/animation-hq/chunli/shoryuken.webp', '/art/animation-hq/chunli/super-rush.webp', '/art/animation-hq/chunli/kikosho.webp', '/art/animation-hq/chunli/tensei-ranka.webp',
     '/art/animation-hq/ibuki/manifest.json',
     '/art/animation-hq/ibuki/idle.webp', '/art/animation-hq/ibuki/walk.webp', '/art/animation-hq/ibuki/walk-back.webp',
     '/art/animation-hq/ibuki/dash.webp', '/art/animation-hq/ibuki/jump.webp', '/art/animation-hq/ibuki/landing.webp', '/art/animation-hq/ibuki/hit.webp',
@@ -49,6 +52,9 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
 };
 
 export const CAMPAIGN_OFFLINE_URLS = Array.from(new Set([
+  '/art/special-keyposes/ken/hadoken.webp', '/art/special-keyposes/ken/shoryuken.webp',
+  '/art/special-keyposes/ken/tatsumaki.webp', '/art/special-keyposes/ken/super-rush.webp',
+  '/art/special-keyposes/chunli/kikoken.webp', '/art/special-keyposes/chunli/spinning-bird-kick.webp',
   ...ASSET_GROUPS['stage-1'],
   ...ASSET_GROUPS['stage-2'],
   ...ASSET_GROUPS['stage-3'],

@@ -1,11 +1,11 @@
-const CACHE_VERSION = 'game-cache-v065';
+const CACHE_VERSION = 'game-cache-v086';
 const GAME_CACHE_PREFIX = 'game-cache-v';
 const UPDATE_META_CACHE = 'ssc-update-meta';
 const ROLLBACK_MARKER = '/__ssc_rollback_target__';
 const APP_SHELL = [
   '/', '/index.html', '/manifest.webmanifest', '/release-integrity.json', '/icons/icon-192.png', '/icons/icon-512.png', '/assets/styles.css', '/assets/main.js',
   '/assets/core/AssetManager.js', '/assets/core/SafeAreaProbe.js', '/assets/core/AudioManager.js', '/assets/core/AudioMixProfiles.js', '/assets/core/LoadingProfiles.js', '/assets/core/FixedStepLoop.js', '/assets/core/GameApp.js', '/assets/core/Scene.js', '/assets/core/SceneManager.js', '/assets/core/RuntimeQuality.js', '/assets/core/ReleaseProfiles.js', '/assets/core/RuntimeTelemetry.js', '/assets/core/ReleaseGate.js', '/assets/core/ReleaseReport.js', '/assets/core/AcceptanceMatrix.js', '/assets/core/UpdatePolicy.js', '/assets/core/PwaInstallManager.js', '/assets/core/PwaUpdateManager.js', '/assets/core/DeviceCertification.js', '/assets/core/TouchLatencyProbe.js', '/assets/core/RuntimeErrorJournal.js', '/assets/core/SessionRecovery.js', '/assets/core/RecoveryHistory.js', '/assets/core/ReleaseSummary.js', '/assets/core/FinalCandidateDecision.js', '/assets/core/DeviceCertificationHistory.js', '/assets/core/ReproPackage.js', '/assets/core/ReleaseApproval.js', '/assets/core/ReleaseEvidenceFingerprint.js', '/assets/core/ReleaseIntegrity.js', '/assets/core/FinalProofBundle.js',
-  '/assets/input/InputManager.js', '/assets/save/SaveManager.js', '/assets/ui/TouchControls.js',
+  '/assets/input/InputManager.js', '/assets/save/SaveManager.js', '/assets/ui/TouchControls.js', '/assets/render/SpecialKeyPoseLibrary.js',
   '/assets/game/characters.js', '/assets/game/StageResult.js', '/assets/render/Visuals.js', '/assets/render/ImageAssets.js', '/assets/render/HqCharacterMasterRegistry.js', '/assets/render/CharacterTextureManager.js', '/assets/render/FinalVisualProfiles.js', '/assets/render/FinalPresentationProfiles.js', '/assets/render/CombatPresentationProfiles.js', '/assets/render/FinalPolishProfiles.js',
   '/assets/render/CombatSpriteProfiles.js', '/assets/render/AttackSpriteProfiles.js', '/assets/render/AnimationFrameProfiles.js', '/assets/render/MotionPolishProfiles.js', '/assets/render/LocomotionProfiles.js', '/assets/render/FighterReadabilityProfiles.js', '/assets/render/AnimationTransitionProfiles.js', '/assets/render/CinematicTimingProfiles.js', '/assets/render/SignatureMoveProfiles.js', '/assets/render/ContactVisualProfiles.js', '/assets/render/HeroContactProfiles.js', '/assets/render/VictimReactionProfiles.js', '/assets/render/AnimationPoseLibrary.js', '/assets/render/FighterVisualProfiles.js', '/assets/render/FighterKinematicsProfiles.js', '/assets/render/BossAnimationProfiles.js', '/assets/render/BossCinematicProfiles.js', '/assets/render/SuperCameraProfiles.js', '/assets/render/ThrowAnimationProfiles.js', '/assets/render/ThrowJointProfiles.js', '/assets/render/SuperVictimProfiles.js', '/assets/render/FinalSequenceProfiles.js',
   '/assets/combat/CombatTypes.js', '/assets/combat/CharacterCombatProfiles.js', '/assets/combat/TechniqueLibrary.js', '/assets/combat/EnemyArchetypes.js', '/assets/combat/EnemyDirector.js', '/assets/combat/InputBuffer.js', '/assets/combat/MoveLibrary.js', '/assets/combat/Fighter.js', '/assets/combat/CombatWorld.js',
@@ -14,6 +14,8 @@ const APP_SHELL = [
   '/art/portraits/ryu.webp', '/art/portraits/ken.webp', '/art/portraits/chunli.webp', '/art/portraits/alex.webp', '/art/portraits/dudley.webp', '/art/portraits/makoto.webp', '/art/portraits/ibuki.webp', '/art/portraits/yun.webp',
   '/art/combat-sprites/ryu.webp', '/art/combat-sprites/ken.webp', '/art/combat-sprites/chunli.webp', '/art/combat-sprites/alex.webp', '/art/combat-sprites/dudley.webp', '/art/combat-sprites/makoto.webp', '/art/combat-sprites/ibuki.webp', '/art/combat-sprites/yun.webp',
   '/art/attack-atlases/ryu.webp', '/art/attack-atlases/ken.webp', '/art/attack-atlases/chunli.webp', '/art/attack-atlases/alex.webp', '/art/attack-atlases/dudley.webp', '/art/attack-atlases/makoto.webp', '/art/attack-atlases/ibuki.webp', '/art/attack-atlases/yun.webp',
+  '/art/special-keyposes/ken/hadoken.webp', '/art/special-keyposes/ken/shoryuken.webp', '/art/special-keyposes/ken/tatsumaki.webp', '/art/special-keyposes/ken/super-rush.webp',
+  '/art/special-keyposes/chunli/kikoken.webp', '/art/special-keyposes/chunli/spinning-bird-kick.webp',
 ];
 
 function cacheVersion(name) {
