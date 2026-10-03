@@ -25,7 +25,7 @@ def main():
             shutil.copyfile(ROOT / path, target)
         runtime = fixture / 'public/art/animation-hq/chunli'
         shutil.copytree(ROOT / 'public/art/animation-hq/chunli', runtime)
-        for kind in ('jump', 'landing'):
+        for kind in ('jump', 'landing', 'stand-light'):
             shutil.copytree(ROOT / f'art-source/chunli/inbox/{kind}', fixture / f'art-source/chunli/inbox/{kind}')
         manifest_path = runtime / 'manifest.json'
         manifest = json.loads(manifest_path.read_text())
@@ -85,6 +85,29 @@ def main():
         result = ingest('jump')
         assert result.returncode != 0, 'Incomplete peer source was accepted'
         assert before == {p: p.read_bytes() for p in guarded}, 'Rejected peer changed runtime files'
+        # First-time attack promotion must remove a newly written runtime on failure.
+        new_runtime = runtime / 'stand-light.webp'
+        new_runtime.unlink()
+        manifest = json.loads(manifest_path.read_text())
+        manifest['records'] = [r for r in manifest['records'] if r['id'] != 'stand-light']
+        manifest_path.write_text(json.dumps(manifest))
+        before = {p: p.read_bytes() for p in guarded}
+        failed = False
+        with patch.object(sys, 'argv', ['installer', 'stand-light', '--install']), patch.object(Path, 'write_bytes', fail_manifest_once), redirect_stdout(io.StringIO()):
+            try:
+                installer.main()
+            except OSError:
+                pass
+            else:
+                raise AssertionError('New-record write failure did not propagate')
+        assert failed and not new_runtime.exists(), 'Failed first install left a new runtime file'
+        assert before == {p: p.read_bytes() for p in guarded}, 'Failed first install changed registry or manifest'
+        result = ingest('stand-light')
+        assert result.returncode == 0, result.stdout + result.stderr
+        manifest = json.loads(manifest_path.read_text())
+        record = next(r for r in manifest['records'] if r['id'] == 'stand-light')
+        assert record['sha256'] == hashlib.sha256(new_runtime.read_bytes()).hexdigest().upper()
+        assert manifest['frameTotal'] == sum(r['frames'] for r in manifest['records'])
     print('CHUNLI_PAIRED_INGEST_PASS bothDirections=True stalePeerReplaced=True incompletePeerRejected=True runtimeUnchanged=True writeFailureRollback=True')
 
 

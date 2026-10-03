@@ -64,6 +64,7 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 }
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
+  if (characterId === 'CHUNLI') return move.id === '5LP' ? 'stand-light' : null;
   if (characterId === 'RYU') {
     if (move.id === 'RYU_PRIMARY' || move.id === 'RYU_EX_PRIMARY' || move.id === 'RYU_SUPER' || move.id === 'RYU_SA1' || move.id === 'RYU_SA3') return 'hadoken';
     if (move.id === 'RYU_ANTI_AIR' || move.id === 'RYU_SA2') return 'shoryuken';
@@ -119,6 +120,7 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
   if (fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0 || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0 || fighter.state === 'knockdown' || fighter.state === 'ko' || fighter.state === 'victory') return null;
 
   if (fighter.state === 'attack' && fighter.currentMove) {
+    if (characterId === 'CHUNLI' && fighter.airborne) return null;
     const kind = animationSequenceKindForAttack(characterId, fighter.currentMove);
     if (!kind) return null;
     const sequence = animationSequenceFor(characterId, kind, true);
