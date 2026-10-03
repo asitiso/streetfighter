@@ -103,7 +103,8 @@
     "ingest:chunli-spinning-bird": "python3 scripts/install-authored-chunli-walk.py tatsumaki --install",
     "verify:chunli-spinning-bird": "python3 scripts/install-authored-chunli-walk.py tatsumaki --runtime",
     "verify:chunli-spinning-bird-timing": "node scripts/verify-chunli-spinning-bird.mjs",
-    "verify:animation-render-sizing": "node scripts/verify-animation-render-sizing.mjs"
+    "verify:animation-render-sizing": "node scripts/verify-animation-render-sizing.mjs",
+    "prepare:chunli-browser-check": "node scripts/prepare-chunli-browser-check.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"
