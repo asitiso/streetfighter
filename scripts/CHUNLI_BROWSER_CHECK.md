@@ -15,3 +15,7 @@ The check is generated into `dist` only when requested. A clean production build
 ## Houyokusen extension (2026-10-03)
 
 Generic super and SA2 added: eight moves in both facings (16 combinations) passed without console warnings/errors. Their unchanged startup allows 15/16 and 14/16 stored art frames respectively; all reachable frames, contact/recovery phases and endpoints passed. Chun-Li now has 126 enabled authored frames in 13 records, cache v080.
+
+## Kikosho extension (2026-10-03)
+
+SA1 added: nine moves in both facings (18 combinations) passed without console warnings/errors. Its unchanged three-tick startup reaches 10/12 stored art frames; all reachable frames and phase endpoints passed. Chun-Li totals 138 enabled authored frames in 14 records, cache v081.

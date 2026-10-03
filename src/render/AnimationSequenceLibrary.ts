@@ -10,6 +10,7 @@ export type AnimationSequenceKind =
   | 'hit'
   | 'guard'
   | 'parry'
+  | 'kikosho'
   | 'hadoken'
   | 'shoryuken'
   | 'tatsumaki'
@@ -86,6 +87,7 @@ const KEN: readonly AnimationSequence[] = [
 ] as const;
 
 const CHUNLI: readonly AnimationSequence[] = [
+  { id:'CHUNLI_KIKOSHO_HQ', characterId:'CHUNLI', kind:'kikosho', asset:'/art/animation-hq/chunli/kikosho.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:3,type:'whoosh',label:'charge'},{frame:5,type:'projectile'},{frame:6,type:'trail'},{frame:9,type:'recovery'}], enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_HOUYOKUSEN_HQ', characterId:'CHUNLI', kind:'super-rush', asset:'/art/animation-hq/chunli/super-rush.webp', frameCount:16, frameWidth:640, frameHeight:448, fps:30, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:11,recoveryStart:12}, events:[{frame:3,type:'contact'},{frame:4,type:'contact'},{frame:5,type:'contact'},{frame:6,type:'contact'},{frame:7,type:'contact'},{frame:8,type:'contact'},{frame:9,type:'contact'},{frame:11,type:'trail'},{frame:14,type:'recovery'}], enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_RISING_KICK_HQ', characterId:'CHUNLI', kind:'shoryuken', asset:'/art/animation-hq/chunli/shoryuken.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:7,recoveryStart:8}, events:[{frame:4,type:'contact'},{frame:6,type:'trail'},{frame:10,type:'recovery'}], enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_SPINNING_BIRD_HQ', characterId:'CHUNLI', kind:'tatsumaki', asset:'/art/animation-hq/chunli/tatsumaki.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:30, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:8,recoveryStart:9}, events:[{frame:3,type:'whoosh'},{frame:4,type:'contact'},{frame:6,type:'contact'},{frame:8,type:'contact'},{frame:10,type:'recovery'}], enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

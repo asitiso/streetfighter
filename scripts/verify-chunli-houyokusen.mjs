@@ -22,7 +22,8 @@ for(const facing of [-1,1]) {
   assert.equal(sample.contact,true);contactFrames.push(sample.frame);
  }
  assert.equal(new Set(contactFrames).size,multi.multiHit.hits,'Seven hit opportunities must progress through distinct kick frames');
- for(const id of [1,3]){fighter.currentMove=superArtMoveFor('CHUNLI',id);assert.equal(animationSequenceSample(fighter,0),null,`Houyokusen must not replace SA${id}`);}
+ fighter.currentMove=superArtMoveFor('CHUNLI',1);assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,'kikosho');
+ fighter.currentMove=superArtMoveFor('CHUNLI',3);assert.equal(animationSequenceSample(fighter,0),null,'SA3 must remain distinct');
  for(const [other,kind] of [[specials.primary,'hadoken'],[specials.exPrimary,'hadoken'],[specials.antiAir,'shoryuken'],[specials.mobility,'tatsumaki'],[normalFor('lp',false,'CHUNLI'),'stand-light'],[normalFor('hp',false,'CHUNLI'),'stand-heavy']]){fighter.currentMove=other;fighter.moveFrame=0;assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,kind);}
  fighter.currentMove=moves[1];fighter.airborne=true;assert.equal(animationSequenceSample(fighter,0),null,'Grounded kick super must not replace air attacks');
  fighter.airborne=false;fighter.state='idle';fighter.stateFrame=0;assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,'idle');
