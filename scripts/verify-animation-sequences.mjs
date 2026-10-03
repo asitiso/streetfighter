@@ -90,7 +90,7 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
   assert.equal(animationSequenceFrameTotal(id), 57, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 29 : 0, `${id} enabled frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 43 : 0, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -252,6 +252,29 @@ assert.ok(sampled.frame > 0 && sampled.frame < 7, 'Dash must advance toward reco
 chunli.dashFrames = 0;
 sampled = animationSequenceSample(chunli, .2);
 assert.equal(sampled?.sequence.kind, 'walk-back', 'Dash completion must restore movement sampling');
+chunli.state = 'jump'; chunli.airborne = true; chunli.jumpHeight = 40;
+chunli.jumpVelocity = chunli.combatProfile.jumpVelocity;
+sampled = animationSequenceSample(chunli, .3);
+assert.equal(sampled?.sequence.kind, 'jump');
+const riseFrame = sampled.frame;
+chunli.jumpVelocity = 0;
+sampled = animationSequenceSample(chunli, .4);
+assert.ok(sampled.frame > riseFrame, 'Jump must advance to the apex pose');
+const apexFrame = sampled.frame;
+chunli.jumpVelocity = -chunli.combatProfile.jumpVelocity;
+sampled = animationSequenceSample(chunli, .5);
+assert.ok(sampled.frame > apexFrame && sampled.frame < 8, 'Fall must advance toward contact');
+chunli.airborne = false; chunli.jumpHeight = 0; chunli.jumpVelocity = 0; chunli.state = 'idle'; chunli.landingFrames = 8;
+sampled = animationSequenceSample(chunli, .6);
+assert.equal(sampled?.sequence.kind, 'landing', 'Ground contact must sample authored landing');
+assert.equal(sampled.frame, 0);
+chunli.landingFrames = 1;
+sampled = animationSequenceSample(chunli, .7);
+assert.equal(sampled?.sequence.kind, 'landing');
+assert.ok(sampled.frame > 0 && sampled.frame < 6, 'Landing must advance toward recovery');
+chunli.landingFrames = 0; chunli.state = 'walk';
+sampled = animationSequenceSample(chunli, .8);
+assert.equal(sampled?.sequence.kind, 'walk-back', 'Landing completion must restore movement sampling');
 
 
 ryu.state = 'attack';
