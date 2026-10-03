@@ -19,7 +19,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light'])
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
     args = parser.parse_args()
@@ -36,8 +36,8 @@ def main():
     def load_frames(sequence_kind):
         sequence_count = motion.EXPECTED[sequence_kind]
         sequence_runtime = runtime.parent / f'{sequence_kind}.webp'
-        sequence_record = next(r for r in manifest['records'] if r['id'] == sequence_kind)
         if args.runtime:
+            sequence_record = next(r for r in manifest['records'] if r['id'] == sequence_kind)
             strip = Image.open(sequence_runtime).convert('RGBA')
             if strip.size != (384 * sequence_count, 448):
                 raise SystemExit(f'CHUNLI {sequence_kind}: unexpected runtime dimensions')
@@ -91,6 +91,9 @@ def main():
         elif kind == 'hit':
             start_limits = end_limits = handoff.HIT_BASE_LIMITS
             start_key, end_key = 'baseToHit', 'hitToBase'
+        elif kind == 'stand-light':
+            start_limits = end_limits = handoff.STAND_LIGHT_BASE_LIMITS
+            start_key, end_key = 'baseToAttack', 'attackToBase'
         handoffs = {
             start_key: handoff.compare_motion_bridge(master, handoff.alpha_mask(frames[0]), start_limits),
             end_key: handoff.compare_motion_bridge(handoff.alpha_mask(frames[-1]), master, end_limits),
@@ -135,24 +138,33 @@ def main():
             line = re.sub(r'poseAuthored:(?:true|false)', 'poseAuthored:true', line, count=1)
             lines[index] = re.sub(r"source:'[^']+'", "source:'authored-hq'", line, count=1)
             data = (ROOT / f'art-source/chunli/authored-candidates/{promoted_kind}.webp').read_bytes()
-            record = next(r for r in manifest['records'] if r['id'] == promoted_kind)
+            record = next((r for r in manifest['records'] if r['id'] == promoted_kind), None)
+            if record is None:
+                count = motion.EXPECTED[promoted_kind]
+                record = {'id':promoted_kind, 'frames':count, 'frameSize':[384,448],
+                          'stripSize':[384*count,448], 'renderMode':'full'}
+                manifest['records'].append(record)
             record.update({'bytes':len(data), 'sha256':hashlib.sha256(data).hexdigest().upper(),
                            'enabled':True, 'poseAuthored':True, 'stagingOnly':False,
                            'authoredSource':promoted_report['source'], 'poseQa':promoted_pose,
                            'semanticQa':promoted_semantic, 'handoffQa':handoffs})
             pending[runtime.parent / f'{promoted_kind}.webp'] = data
         manifest['pipeline'] = 'rc40-chunli-authored-gated-v1'
+        manifest['frameTotal'] = sum(r['frames'] for r in manifest['records'])
         manifest['enabledFrameTotal'] = sum(r['frames'] for r in manifest['records'] if r['enabled'])
         manifest['fullFrameTotal'] = sum(r['frames'] for r in manifest['records'] if r['enabled'] and r['renderMode']=='full')
         pending[registry] = ('\n'.join(lines)+'\n').encode('utf-8')
         pending[manifest_path] = json.dumps(manifest, indent=2).encode('utf-8')
-        backups = {path:path.read_bytes() for path in pending}
+        backups = {path:path.read_bytes() if path.exists() else None for path in pending}
         try:
             for path, data in pending.items():
                 path.write_bytes(data)
         except Exception:
             for path, data in backups.items():
-                path.write_bytes(data)
+                if data is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.write_bytes(data)
             raise
         print(f'CHUNLI_AUTHORED_{label}_INSTALLED')
     elif args.runtime:

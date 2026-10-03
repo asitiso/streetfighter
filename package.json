@@ -90,7 +90,10 @@
     "author:ken:defense-core": "npm run author:ken:hit-articulated && npm run author:ken:guard-articulated && npm run author:ken:parry-articulated",
     "author:ken:standing-attacks-articulated": "python3 scripts/generate-ken-articulated-standing-attacks.py",
     "author:ken:standing-attacks": "npm run author:ken:standing-attacks-articulated",
-    "verify:core": "npm run typecheck && npm run build && node scripts/verify-build.mjs && node scripts/verify-combat.mjs && node scripts/verify-belt-mode.mjs && node scripts/verify-boss-patterns.mjs && node scripts/verify-campaign-menu.mjs && node scripts/verify-stage-flow.mjs && node scripts/verify-options.mjs"
+    "verify:core": "npm run typecheck && npm run build && node scripts/verify-build.mjs && node scripts/verify-combat.mjs && node scripts/verify-belt-mode.mjs && node scripts/verify-boss-patterns.mjs && node scripts/verify-campaign-menu.mjs && node scripts/verify-stage-flow.mjs && node scripts/verify-options.mjs",
+    "ingest:chunli-stand-light": "python3 scripts/install-authored-chunli-walk.py stand-light --install",
+    "verify:chunli-stand-light": "python3 scripts/install-authored-chunli-walk.py stand-light --runtime",
+    "verify:chunli-light-attack": "node scripts/verify-chunli-light-attack.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"
