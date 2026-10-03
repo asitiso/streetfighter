@@ -621,14 +621,14 @@
     },
     {
       "sequence": "tatsumaki",
-      "enabled": false,
-      "poseAuthored": false,
+      "enabled": true,
+      "poseAuthored": true,
       "poseQa": {
-        "affineResidualAverage": 0.001773,
-        "affineResidualMax": 0.002313,
+        "affineResidualAverage": 0.11909,
+        "affineResidualMax": 0.15985,
         "fullPoseAverageThreshold": 0.008,
         "fullPoseMaxThreshold": 0.018,
-        "poseAuthoredPass": false
+        "poseAuthoredPass": true
       },
       "semanticQa": {
         "kind": "tatsumaki",
@@ -653,40 +653,40 @@
           "quarterFrameIndex": 3,
           "oppositeFrameIndex": 6
         },
-        "startEndIoU": 1.0,
-        "quarterIoU": 0.770649,
-        "oppositeIoU": 0.749511,
-        "centroidXRange": 32.398507,
-        "centroidYRange": 16.247268,
-        "extentWidthRange": 13.0,
-        "areaCv": 0.012645,
-        "residualAverage": 0.001773,
-        "residualMax": 0.002313,
+        "startEndIoU": 0.6967,
+        "quarterIoU": 0.27623,
+        "oppositeIoU": 0.28745,
+        "centroidXRange": 69.969058,
+        "centroidYRange": 90.886762,
+        "extentWidthRange": 176.0,
+        "areaCv": 0.135369,
+        "residualAverage": 0.11909,
+        "residualMax": 0.15985,
         "checks": {
-          "recoveryTowardNeutral": false,
+          "recoveryTowardNeutral": true,
           "quarterTurnDistinct": true,
-          "oppositeTurnDistinct": false,
+          "oppositeTurnDistinct": true,
           "spinTravelsHorizontally": true,
           "spinChangesLevel": true,
-          "kickExtensionChanges": false,
+          "kickExtensionChanges": true,
           "bodyVolumeStable": true,
-          "authoredMotionAverage": false,
-          "authoredMotionPeak": false
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
         },
-        "semanticQaPass": false
+        "semanticQaPass": true
       },
-      "runtimePromotionPass": false
+      "runtimePromotionPass": true
     },
     {
       "sequence": "super-rush",
-      "enabled": false,
-      "poseAuthored": false,
+      "enabled": true,
+      "poseAuthored": true,
       "poseQa": {
-        "affineResidualAverage": 0.001669,
-        "affineResidualMax": 0.002114,
+        "affineResidualAverage": 0.059808,
+        "affineResidualMax": 0.125146,
         "fullPoseAverageThreshold": 0.008,
         "fullPoseMaxThreshold": 0.018,
-        "poseAuthoredPass": false
+        "poseAuthoredPass": true
       },
       "semanticQa": {
         "kind": "super-rush",
@@ -715,29 +715,29 @@
             11
           ]
         },
-        "startEndIoU": 1.0,
-        "contactIoUMinObserved": 0.529813,
-        "contactIoUMaxObserved": 0.717203,
-        "contactDiversityIoUMin": 0.684353,
-        "centroidXRange": 31.491258,
-        "centroidYRange": 7.669507,
-        "reachRange": 29.0,
-        "footCenterRange": 108.392389,
-        "areaCv": 0.02147,
-        "residualAverage": 0.001669,
-        "residualMax": 0.002114,
+        "startEndIoU": 0.725678,
+        "contactIoUMinObserved": 0.252449,
+        "contactIoUMaxObserved": 0.55456,
+        "contactDiversityIoUMin": 0.233402,
+        "centroidXRange": 107.167968,
+        "centroidYRange": 77.737582,
+        "reachRange": 74.0,
+        "footCenterRange": 85.461443,
+        "areaCv": 0.134882,
+        "residualAverage": 0.059808,
+        "residualMax": 0.125146,
         "contactIoUs": [
-          0.555738,
-          0.69307,
-          0.529813,
-          0.559993,
-          0.717203
+          0.459881,
+          0.483545,
+          0.55456,
+          0.486188,
+          0.252449
         ],
         "contactPairIoUs": [
-          0.684353,
-          0.697126,
-          0.916293,
-          0.754181
+          0.613037,
+          0.510856,
+          0.552523,
+          0.233402
         ],
         "checks": {
           "recoveryTowardNeutral": true,
@@ -745,15 +745,15 @@
           "contactChainHasVariety": true,
           "forwardRushPresent": true,
           "bodyLevelsChange": true,
-          "multiHitReachPresent": false,
-          "groundTravelControlled": false,
+          "multiHitReachPresent": true,
+          "groundTravelControlled": true,
           "bodyVolumeStable": true,
-          "authoredMotionAverage": false,
-          "authoredMotionPeak": false
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
         },
-        "semanticQaPass": false
+        "semanticQaPass": true
       },
-      "runtimePromotionPass": false
+      "runtimePromotionPass": true
     },
     {
       "sequence": "guard",
@@ -868,5 +868,5 @@
       "runtimePromotionPass": true
     }
   ],
-  "allRuntimePromotionPass": false
+  "allRuntimePromotionPass": true
 }

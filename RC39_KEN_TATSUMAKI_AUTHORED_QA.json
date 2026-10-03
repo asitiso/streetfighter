@@ -1,0 +1,275 @@
+{
+  "character": "KEN",
+  "sequence": "tatsumaki",
+  "source": "art-source\\ken\\inbox\\tatsumaki",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        199,
+        25,
+        656,
+        503
+      ],
+      "sourceBodyHeight": 478,
+      "paste": [
+        35,
+        95
+      ],
+      "scaledSize": [
+        314,
+        328
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        152,
+        22,
+        530,
+        506
+      ],
+      "sourceBodyHeight": 484,
+      "paste": [
+        62,
+        70
+      ],
+      "scaledSize": [
+        259,
+        332
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        117,
+        11,
+        762,
+        380
+      ],
+      "sourceBodyHeight": 369,
+      "paste": [
+        5,
+        129
+      ],
+      "scaledSize": [
+        374,
+        214
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        151,
+        8,
+        696,
+        451
+      ],
+      "sourceBodyHeight": 443,
+      "paste": [
+        5,
+        84
+      ],
+      "scaledSize": [
+        374,
+        304
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        162,
+        20,
+        621,
+        512
+      ],
+      "sourceBodyHeight": 492,
+      "paste": [
+        34,
+        67
+      ],
+      "scaledSize": [
+        315,
+        338
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        77,
+        60,
+        730,
+        473
+      ],
+      "sourceBodyHeight": 413,
+      "paste": [
+        5,
+        118
+      ],
+      "scaledSize": [
+        374,
+        236
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        163,
+        9,
+        704,
+        489
+      ],
+      "sourceBodyHeight": 480,
+      "paste": [
+        6,
+        72
+      ],
+      "scaledSize": [
+        371,
+        329
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        42,
+        39,
+        731,
+        443
+      ],
+      "sourceBodyHeight": 404,
+      "paste": [
+        5,
+        126
+      ],
+      "scaledSize": [
+        374,
+        219
+      ]
+    },
+    {
+      "frame": 9,
+      "sourceBBox": [
+        294,
+        17,
+        639,
+        512
+      ],
+      "sourceBodyHeight": 495,
+      "paste": [
+        74,
+        66
+      ],
+      "scaledSize": [
+        237,
+        340
+      ]
+    },
+    {
+      "frame": 10,
+      "sourceBBox": [
+        240,
+        48,
+        529,
+        497
+      ],
+      "sourceBodyHeight": 449,
+      "paste": [
+        93,
+        82
+      ],
+      "scaledSize": [
+        198,
+        308
+      ]
+    },
+    {
+      "frame": 11,
+      "sourceBBox": [
+        233,
+        55,
+        680,
+        457
+      ],
+      "sourceBodyHeight": 402,
+      "paste": [
+        38,
+        147
+      ],
+      "scaledSize": [
+        307,
+        276
+      ]
+    },
+    {
+      "frame": 12,
+      "sourceBBox": [
+        183,
+        6,
+        574,
+        486
+      ],
+      "sourceBodyHeight": 480,
+      "paste": [
+        58,
+        94
+      ],
+      "scaledSize": [
+        268,
+        329
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.11909,
+    "affineResidualMax": 0.15985,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "tatsumaki",
+    "limits": {
+      "startEndIoUMin": 0.36,
+      "startEndIoUMax": 0.92,
+      "quarterIoUMin": 0.18,
+      "quarterIoUMax": 0.78,
+      "oppositeIoUMin": 0.16,
+      "oppositeIoUMax": 0.74,
+      "centroidXRangeMin": 8.0,
+      "centroidXRangeMax": 100.0,
+      "centroidYRangeMin": 5.0,
+      "centroidYRangeMax": 95.0,
+      "extentWidthRangeMin": 38.0,
+      "extentWidthRangeMax": 190.0,
+      "areaCvMax": 0.24,
+      "residualAverageMin": 0.022,
+      "residualAverageMax": 0.22,
+      "residualMaxMin": 0.045,
+      "residualMaxMax": 0.3,
+      "quarterFrameIndex": 3,
+      "oppositeFrameIndex": 6
+    },
+    "startEndIoU": 0.6967,
+    "quarterIoU": 0.27623,
+    "oppositeIoU": 0.28745,
+    "centroidXRange": 69.969058,
+    "centroidYRange": 90.886762,
+    "extentWidthRange": 176.0,
+    "areaCv": 0.135369,
+    "residualAverage": 0.11909,
+    "residualMax": 0.15985,
+    "checks": {
+      "recoveryTowardNeutral": true,
+      "quarterTurnDistinct": true,
+      "oppositeTurnDistinct": true,
+      "spinTravelsHorizontally": true,
+      "spinChangesLevel": true,
+      "kickExtensionChanges": true,
+      "bodyVolumeStable": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}

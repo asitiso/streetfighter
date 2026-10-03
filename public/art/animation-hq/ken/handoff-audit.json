@@ -402,8 +402,8 @@
   "specialAttacks": {
     "hadokenActive": true,
     "shoryukenActive": true,
-    "tatsumakiActive": false,
-    "superRushActive": false,
+    "tatsumakiActive": true,
+    "superRushActive": true,
     "hadokenFromBase": {
       "iou": 0.59542,
       "centroidDistance": 25.060685,
@@ -489,10 +489,10 @@
       "pass": true
     },
     "tatsumakiFromBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.585588,
+      "centroidDistance": 5.381358,
+      "footCenterDelta": 8.71276,
+      "areaRatio": 1.209704,
       "limits": {
         "iouMin": 0.28,
         "iouMax": 1.0,
@@ -510,10 +510,10 @@
       "pass": true
     },
     "tatsumakiToBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.733974,
+      "centroidDistance": 6.866912,
+      "footCenterDelta": 2.020139,
+      "areaRatio": 0.86139,
       "limits": {
         "iouMin": 0.28,
         "iouMax": 1.0,
@@ -531,10 +531,10 @@
       "pass": true
     },
     "superRushFromBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.853587,
+      "centroidDistance": 6.907618,
+      "footCenterDelta": 0.208826,
+      "areaRatio": 1.079699,
       "limits": {
         "iouMin": 0.34,
         "iouMax": 1.0,
@@ -552,10 +552,10 @@
       "pass": true
     },
     "superRushToBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.647033,
+      "centroidDistance": 15.239989,
+      "footCenterDelta": 0.350694,
+      "areaRatio": 0.828783,
       "limits": {
         "iouMin": 0.34,
         "iouMax": 1.0,
