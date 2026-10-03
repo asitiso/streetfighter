@@ -64,7 +64,11 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 }
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
-  if (characterId === 'CHUNLI') return move.id === '5LP' ? 'stand-light' : null;
+  if (characterId === 'CHUNLI') {
+    if (move.id === '5LP') return 'stand-light';
+    if (move.id === '5HP') return 'stand-heavy';
+    return null;
+  }
   if (characterId === 'RYU') {
     if (move.id === 'RYU_PRIMARY' || move.id === 'RYU_EX_PRIMARY' || move.id === 'RYU_SUPER' || move.id === 'RYU_SA1' || move.id === 'RYU_SA3') return 'hadoken';
     if (move.id === 'RYU_ANTI_AIR' || move.id === 'RYU_SA2') return 'shoryuken';

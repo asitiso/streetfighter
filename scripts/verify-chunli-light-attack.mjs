@@ -21,7 +21,7 @@ for (const facing of [-1, 1]) {
 }
 for (const crouching of [false, true]) {
   for (const button of ['lp','mp','hp','lk','mk','hk']) {
-    if (!crouching && button === 'lp') continue;
+    if (!crouching && (button === 'lp' || button === 'hp')) continue;
     fighter.currentMove = normalFor(button, crouching, 'CHUNLI');
     assert.equal(animationSequenceSample(fighter, 0), null, `Standing jab must not replace ${fighter.currentMove.id}`);
   }

@@ -86,6 +86,7 @@ const KEN: readonly AnimationSequence[] = [
 ] as const;
 
 const CHUNLI: readonly AnimationSequence[] = [
+  { id:'CHUNLI_STAND_HEAVY_HQ', characterId:'CHUNLI', kind:'stand-heavy', asset:'/art/animation-hq/chunli/stand-heavy.webp', frameCount:10, frameWidth:384, frameHeight:448, fps:27, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'whoosh'},{frame:5,type:'contact'}], enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_STAND_LIGHT_HQ', characterId:'CHUNLI', kind:'stand-light', asset:'/art/animation-hq/chunli/stand-light.webp', frameCount:7, frameWidth:384, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_IDLE_HQ', characterId:'CHUNLI', kind:'idle', asset:'/art/animation-hq/chunli/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:8.0, loop:true, timing:'ease-in', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_WALK_HQ', characterId:'CHUNLI', kind:'walk', asset:'/art/animation-hq/chunli/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:13.8, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

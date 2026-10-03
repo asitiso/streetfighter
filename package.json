@@ -93,7 +93,10 @@
     "verify:core": "npm run typecheck && npm run build && node scripts/verify-build.mjs && node scripts/verify-combat.mjs && node scripts/verify-belt-mode.mjs && node scripts/verify-boss-patterns.mjs && node scripts/verify-campaign-menu.mjs && node scripts/verify-stage-flow.mjs && node scripts/verify-options.mjs",
     "ingest:chunli-stand-light": "python3 scripts/install-authored-chunli-walk.py stand-light --install",
     "verify:chunli-stand-light": "python3 scripts/install-authored-chunli-walk.py stand-light --runtime",
-    "verify:chunli-light-attack": "node scripts/verify-chunli-light-attack.mjs"
+    "verify:chunli-light-attack": "node scripts/verify-chunli-light-attack.mjs",
+    "ingest:chunli-stand-heavy": "python3 scripts/install-authored-chunli-walk.py stand-heavy --install",
+    "verify:chunli-stand-heavy": "python3 scripts/install-authored-chunli-walk.py stand-heavy --runtime",
+    "verify:chunli-heavy-attack": "node scripts/verify-chunli-heavy-attack.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"
