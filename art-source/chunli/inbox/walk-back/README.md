@@ -9,4 +9,4 @@ python3 scripts/install-authored-chunli-walk.py walk-back --install
 python3 scripts/install-authored-chunli-walk.py walk-back --runtime
 ```
 
-The existing forward-walk commands remain supported without a positional argument. Dash is also enabled through the shared installer. Jump and landing are also enabled and verified as a pair. Idle and hit are still staging candidates.
+The existing forward-walk commands remain supported without a positional argument. Dash is also enabled through the shared installer. Jump and landing are also enabled and verified as a pair. Idle and hit are also authored and enabled; all seven base movement/reaction sequences are active (57 frames).

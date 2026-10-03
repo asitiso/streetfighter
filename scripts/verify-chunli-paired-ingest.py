@@ -33,6 +33,7 @@ def main():
             if record['id'] in ('jump', 'landing'):
                 record.update(enabled=False, poseAuthored=False)
         manifest_path.write_text(json.dumps(manifest))
+        expected_active = sum(r['frames'] for r in manifest['records'] if r['enabled'] or r['id'] in ('jump', 'landing'))
 
         def ingest(kind):
             return subprocess.run([sys.executable, str(fixture / 'scripts/install-authored-chunli-walk.py'), kind, '--install'],
@@ -51,7 +52,7 @@ def main():
                 assert record['enabled'] and record['poseAuthored'], f'{selected} did not promote {kind}'
                 assert record['sha256'] == hashlib.sha256(data).hexdigest().upper(), f'{kind} stale checksum'
                 assert data == (fixture / f'art-source/chunli/authored-candidates/{kind}.webp').read_bytes(), f'{kind} stale runtime'
-            assert manifest['enabledFrameTotal'] == 43
+            assert manifest['enabledFrameTotal'] == expected_active
 
         guarded = [runtime / 'jump.webp', runtime / 'landing.webp', manifest_path,
                    fixture / 'src/render/AnimationSequenceLibrary.ts']
