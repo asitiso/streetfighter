@@ -1,0 +1,40 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>Ibuki 동작 렌더 검증</title>
+<style>body{background:#10151d;color:#eef2fa;font:16px system-ui;margin:18px}select{font:inherit;padding:8px;background:#202d40;color:#fff}canvas{display:block;width:100%;height:auto;margin-top:12px}#status{padding:10px;color:#ffdb6f}</style>
+<h1>Ibuki 실제 렌더러 · 동작 검증</h1><p>실제 게임 상태를 진행해 대기·보행 동작과 반복, 이미지 로딩과 배율을 확인합니다.</p>
+<label>동작 <select id="motion"><option value="jump">점프</option><option value="landing">착지</option><option value="dash">전방 대시</option><option value="dash-back">후방 대시</option><option value="walk-back">후퇴</option><option value="walk">걷기</option><option value="idle">대기</option></select></label> <label>방향 <select id="facing"><option value="1">오른쪽</option><option value="-1">왼쪽</option></select></label><p id="status" role="status">이미지 로딩 중…</p><canvas width="1280" height="720"></canvas>
+<script type="module">
+import { Fighter } from './assets/combat/Fighter.js';
+import { getCharacter } from './assets/game/characters.js';
+import { animationSequencesFor } from './assets/render/AnimationSequenceLibrary.js';
+import { animationSequenceSample } from './assets/render/AnimationTimingMapper.js';
+import { animationTextureManager } from './assets/render/AnimationTextureManager.js';
+import { characterTextureManager } from './assets/render/CharacterTextureManager.js';
+import { runtimeQuality } from './assets/core/RuntimeQuality.js';
+import { drawCombatFighter } from './assets/render/Visuals.js';
+const def=getCharacter('IBUKI');let fighter;
+const ctx=document.querySelector('canvas').getContext('2d'),status=document.querySelector('#status');
+const input={held:()=>false,pressed:()=>false,released:()=>false};
+const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:-1000,arenaRight:2200,arenaTop:380,arenaBottom:590};
+runtimeQuality.setTier('high');characterTextureManager.setMode('hd');animationTextureManager.preloadCharacter('IBUKI','combat');
+function render(){
+ const motion=document.querySelector('#motion').value;fighter=new Fighter(def,'player',600,460,Number(document.querySelector('#facing').value),def.superArts[0]);
+ const isDash=motion.startsWith('dash'),isAir=motion==='jump'||motion==='landing',kind=isDash?'dash':motion;
+ const forward=fighter.facing===1?'right':'left',backward=fighter.facing===1?'left':'right';const direction=motion==='walk-back'||motion==='dash-back'?backward:forward;const controls=!isDash&&!isAir&&motion!=='idle'?{held:key=>key===direction,pressed:()=>false,released:()=>false}:input;
+ if(isAir)fighter.updatePlayer({held:()=>false,pressed:key=>key==='jump',released:()=>false},rules);
+ else if(isDash){const tap={held:key=>key===direction,pressed:key=>key===direction,released:()=>false};for(const [tick,keys] of [[0,tap],[1,input],[2,tap]]){fighter.captureInput(keys,tick);fighter.updatePlayer(keys,rules);}}
+ else if(motion!=='idle')fighter.updatePlayer(controls,rules);const expected={idle:6,walk:12,'walk-back':10,dash:7,jump:8,landing:6}[kind];
+ const frames=new Map();let previous=-1,wrapped=false;
+ for(let tick=0;tick<(isDash?8:120);tick++){const sample=animationSequenceSample(fighter,0);if(sample?.sequence.kind===kind){if(previous===expected-1&&sample.frame===0)wrapped=true;previous=sample.frame;if(!frames.has(sample.frame))frames.set(sample.frame,{stateFrame:fighter.stateFrame,state:fighter.state,dashFrames:fighter.dashFrames,airborne:fighter.airborne,jumpHeight:fighter.jumpHeight,jumpVelocity:fighter.jumpVelocity,landingFrames:fighter.landingFrames,velocity:fighter.x-fighter.previousX,sample});}fighter.updatePlayer(controls,rules);}
+ ctx.fillStyle='#10151d';const canvas=ctx.canvas;canvas.height=Math.ceil(expected/4)*360;ctx.fillStyle='#10151d';ctx.fillRect(0,0,1280,canvas.height);let failures=0,index=0;
+ for(const [frame,{stateFrame,state,dashFrames,airborne,jumpHeight,jumpVelocity,landingFrames,velocity,sample}] of frames){const x=index%4*320,y=Math.floor(index/4)*360;ctx.fillStyle='#182331';ctx.fillRect(x+2,y+2,316,356);ctx.fillStyle='#edf4ff';ctx.font='15px system-ui';ctx.fillText(`${frame+1}/${expected} · ${motion} · 게임 ${stateFrame}F`,x+12,y+24);
+  fighter.x=x+160;fighter.previousX=fighter.x-velocity;fighter.y=fighter.previousY=y+340;fighter.state=state;fighter.stateFrame=stateFrame;fighter.dashFrames=dashFrames;fighter.airborne=airborne;fighter.jumpHeight=jumpHeight;fighter.jumpVelocity=jumpVelocity;fighter.landingFrames=landingFrames;
+  let observed=null;const draw=ctx.drawImage;ctx.drawImage=function(image,...args){if(image.src?.endsWith(sample.sequence.asset))observed={sourceWidth:args[2],destWidth:args[6],naturalWidth:image.naturalWidth};return draw.call(this,image,...args);};
+  try{drawCombatFighter(ctx,fighter,0,0);}finally{ctx.drawImage=draw;}
+  const valid=observed&&observed.sourceWidth===384&&observed.destWidth===192&&observed.naturalWidth===384*expected;if(!valid)failures++;
+  ctx.fillStyle=valid?'#8ef0b3':'#ff8a8a';ctx.fillText(valid?'실제 이미지 · 동일 배율':'이미지/배율 확인 실패',x+12,y+48);index++;
+ }
+ const covered=isAir?(kind==='jump'?frames.size===8:frames.size===4&&[1,2,4,5].every(frame=>frames.has(frame))):isDash?frames.size===6&&[0,1,3,4,5,6].every(frame=>frames.has(frame)):frames.size===expected&&wrapped;
+ const passed=covered&&failures===0;status.textContent=`${passed?'PASS':'FAIL'} · IBUKI ${motion.toUpperCase()} · ${frames.size}/${expected} 프레임 · ${isAir?'도달 가능 '+frames.size+'/'+(kind==='jump'?8:4):isDash?'도달 가능 6/6':'반복 '+wrapped} · 렌더 실패 ${failures}`;document.body.dataset.verdict=passed?'pass':'fail';
+}
+const started=performance.now();function ready(){if(animationTextureManager.readyCount('IBUKI')===animationSequencesFor('IBUKI',true).length){render();return;}if(performance.now()-started>10000){status.textContent='FAIL · 이미지 로딩 제한 시간 초과';return;}requestAnimationFrame(ready);}ready();for(const id of ['facing','motion'])document.querySelector('#'+id).addEventListener('change',render);
+</script></html>

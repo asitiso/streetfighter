@@ -89,8 +89,8 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 }
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
-  assert.equal(animationSequenceFrameTotal(id), 57, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), 0, `${id} enabled frame total mismatch`);
+  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 57, `${id} frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 49, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -189,17 +189,29 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   const extraManifest = JSON.parse(await readFile(new URL(`../public/art/animation-hq/${slug}/manifest.json`, import.meta.url), 'utf8'));
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
-  assert.equal(extraManifest.frameTotal, 57);
-  assert.equal(extraManifest.enabledFrameTotal, 0);
-  assert.equal(extraManifest.records.length, 7);
+  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 150 : 57);
+  const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
+  assert.equal(extraManifest.enabledFrameTotal, activeFrames);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
+  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 15 : 7);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
   for (const rec of extraManifest.records) {
     const data = await readFile(new URL(`../public/art/animation-hq/${slug}/${rec.id}.webp`, import.meta.url));
     const dim = webpDimensions(data);
-    assert.equal(dim.width, 384 * rec.frames, `${id} ${rec.id} strip width mismatch`);
+    assert.equal(dim.width, rec.frameSize[0] * rec.frames, `${id} ${rec.id} strip width mismatch`);
     assert.equal(dim.height, 448, `${id} ${rec.id} strip height mismatch`);
     assert.equal(dim.alpha, true, `${id} ${rec.id} transparency missing`);
+    assert.equal(rec.sha256, sha(data), `${id} ${rec.id} checksum mismatch`);
+    const seq = animationSequenceFor(id, rec.id, false);
+    assert.equal(seq?.frameWidth, rec.frameSize[0], `${id} ${rec.id} frame width mismatch`);
+    assert.equal(seq?.enabled, Boolean(rec.enabled), `${id} ${rec.id} enabled mismatch`);
+    assert.equal(seq?.poseAuthored, Boolean(rec.poseAuthored), `${id} ${rec.id} authored mismatch`);
+    if (rec.enabled) {
+      assert.equal(rec.poseQa?.poseAuthoredPass, true, `${id} ${rec.id} pose gate`);
+      assert.equal(rec.semanticQa?.semanticQaPass, true, `${id} ${rec.id} motion gate`);
+      assert.equal(seq.source, 'authored-hq');
+    }
   }
 }
 
@@ -216,6 +228,80 @@ ryu.state = 'walk'; ryu.stateFrame = 30; ryu.previousX = 300; ryu.x = 306;
 sampled = animationSequenceSample(ryu, .5);
 assert.equal(sampled?.sequence.kind, 'walk');
 assert.ok((sampled?.frame ?? -1) >= 0 && (sampled?.frame ?? 99) < 12);
+
+const chunliDef = getCharacter('CHUNLI');
+const chunli = new Fighter(chunliDef, 'player', 300, 460, 1, chunliDef.superArts[0]);
+chunli.state = 'walk'; chunli.stateFrame = 30; chunli.previousX = 300; chunli.x = 306;
+sampled = animationSequenceSample(chunli, .5);
+assert.equal(sampled?.sequence.kind, 'walk', 'Chun-Li forward movement must use the authored walk');
+assert.ok(sampled.frame >= 0 && sampled.frame < 12);
+chunli.previousX = 306; chunli.x = 300;
+sampled = animationSequenceSample(chunli, .5);
+assert.equal(sampled?.sequence.kind, 'walk-back', 'Chun-Li retreat must use the authored backward walk');
+assert.ok(sampled.frame >= 0 && sampled.frame < 10);
+chunli.facing = -1; chunli.previousX = 300; chunli.x = 306;
+sampled = animationSequenceSample(chunli, .5);
+assert.equal(sampled?.sequence.kind, 'walk-back', 'Retreat must follow facing when Chun-Li faces left');
+chunli.dashFrames = 8;
+sampled = animationSequenceSample(chunli, 0);
+assert.equal(sampled?.sequence.kind, 'dash', 'Chun-Li dash must use its authored motion instead of walking');
+assert.equal(sampled.frame, 0);
+chunli.dashFrames = 1;
+sampled = animationSequenceSample(chunli, .1);
+assert.equal(sampled?.sequence.kind, 'dash');
+assert.ok(sampled.frame > 0 && sampled.frame < 7, 'Dash must advance toward recovery');
+chunli.dashFrames = 0;
+sampled = animationSequenceSample(chunli, .2);
+assert.equal(sampled?.sequence.kind, 'walk-back', 'Dash completion must restore movement sampling');
+chunli.state = 'jump'; chunli.airborne = true; chunli.jumpHeight = 40;
+chunli.jumpVelocity = chunli.combatProfile.jumpVelocity;
+sampled = animationSequenceSample(chunli, .3);
+assert.equal(sampled?.sequence.kind, 'jump');
+const riseFrame = sampled.frame;
+chunli.jumpVelocity = 0;
+sampled = animationSequenceSample(chunli, .4);
+assert.ok(sampled.frame > riseFrame, 'Jump must advance to the apex pose');
+const apexFrame = sampled.frame;
+chunli.jumpVelocity = -chunli.combatProfile.jumpVelocity;
+sampled = animationSequenceSample(chunli, .5);
+assert.ok(sampled.frame > apexFrame && sampled.frame < 8, 'Fall must advance toward contact');
+chunli.airborne = false; chunli.jumpHeight = 0; chunli.jumpVelocity = 0; chunli.state = 'idle'; chunli.landingFrames = 8;
+sampled = animationSequenceSample(chunli, .6);
+assert.equal(sampled?.sequence.kind, 'landing', 'Ground contact must sample authored landing');
+assert.equal(sampled.frame, 0);
+chunli.landingFrames = 1;
+sampled = animationSequenceSample(chunli, .7);
+assert.equal(sampled?.sequence.kind, 'landing');
+assert.ok(sampled.frame > 0 && sampled.frame < 6, 'Landing must advance toward recovery');
+chunli.landingFrames = 0; chunli.state = 'walk';
+sampled = animationSequenceSample(chunli, .8);
+assert.equal(sampled?.sequence.kind, 'walk-back', 'Landing completion must restore movement sampling');
+chunli.state = 'idle'; chunli.stateFrame = 0;
+sampled = animationSequenceSample(chunli, 0);
+assert.equal(sampled?.sequence.kind, 'idle', 'Neutral Chun-Li must sample the authored breathing loop');
+assert.equal(sampled.frame, 0);
+chunli.stateFrame = 15;
+sampled = animationSequenceSample(chunli, .25);
+assert.equal(sampled?.sequence.kind, 'idle');
+assert.ok(sampled.frame > 0, 'Idle must advance with the fighter state clock');
+const idleCycleFrames = animationFrameProfile('CHUNLI', 'idle').weights.reduce((sum, weight) => sum + Math.max(.05, weight), 0) / sampled.sequence.fps * 60;
+chunli.stateFrame = Math.ceil(idleCycleFrames);
+sampled = animationSequenceSample(chunli, 0);
+assert.equal(sampled.frame, 0, 'Idle must wrap to the initial pose after one cycle');
+chunli.stateFrame = 612;
+sampled = animationSequenceSample(chunli, 10.2);
+assert.ok(sampled.frame >= 0 && sampled.frame < 6, 'Idle must keep looping within the six authored frames');
+chunli.state = 'hit'; chunli.stateFrame = 0; chunli.dashFrames = 4;
+sampled = animationSequenceSample(chunli, .1);
+assert.equal(sampled?.sequence.kind, 'hit', 'Hit reaction must override an interrupted dash');
+assert.equal(sampled.frame, 0);
+chunli.stateFrame = 8;
+sampled = animationSequenceSample(chunli, .2);
+assert.equal(sampled?.sequence.kind, 'hit');
+assert.ok(sampled.frame > 0 && sampled.frame < 8, 'Hit reaction must advance toward recovery');
+chunli.state = 'idle'; chunli.stateFrame = 0; chunli.dashFrames = 0;
+sampled = animationSequenceSample(chunli, .3);
+assert.equal(sampled?.sequence.kind, 'idle', 'Hit recovery must return to authored idle');
 
 
 ryu.state = 'attack';
@@ -249,8 +335,9 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   lite: `${liteDim.width}x${liteDim.height}`,
   frameTotal: manifest.frameTotal,
   kenFrameTotal: kenManifest.frameTotal,
-  chunliFrameTotal: 57,
+  chunliFrameTotal: 150,
   ibukiFrameTotal: 57,
+  ibukiEnabledFrameTotal: 49,
   enabledFrameTotal: manifest.enabledFrameTotal,
   strips: manifest.records.length,
   payloadKb: Math.round(totalBytes / 1024),

@@ -17,6 +17,7 @@ import { animationTransitionSample } from './AnimationTransitionProfiles.js';
 import { animationSequenceSample } from './AnimationTimingMapper.js';
 import { animationTextureManager } from './AnimationTextureManager.js';
 import { animationFrameProfile } from './AnimationFrameProfiles.js';
+import { specialKeyPoseAsset, specialKeyPoseImage, specialKeyPoseOpacity } from './SpecialKeyPoseLibrary.js';
 
 
 interface NaturalizedRenderPose {
@@ -332,14 +333,14 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
   ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
   drawShadow(ctx);
   ctx.restore();
-  if (fighter.state === 'jump') ctx.translate(0, -fighter.jumpHeight);
+  if (fighter.state === 'jump' || (fighter.character.id === 'CHUNLI' && (sequence.kind === 'shoryuken' || sequence.kind === 'tensei-ranka'))) ctx.translate(0, -fighter.jumpHeight);
 
   const frameProfile = animationFrameProfile(fighter.character.id, sequence.kind);
   const lockStrength = sequence.footLock ? frameProfile.footLockStrength : 0;
   if (lockStrength > 0) {
     const anchorX = frameProfile.anchorX[sample.frame] ?? 0;
     const anchorY = frameProfile.anchorY[sample.frame] ?? 0;
-    // Anchor data is measured in the 384x448 source frame while runtime draws at 192x224 * .88.
+    // Anchor data uses source pixels; all sequence canvases draw at half scale * .88.
     const sourceToWorld = .44;
     ctx.translate(
       fighter.facing * anchorX * lockStrength * sourceToWorld,
@@ -358,11 +359,53 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
     0,
     frameWidth,
     frameHeight,
-    -96,
+    -sequence.frameWidth / 4,
     -220,
-    192,
-    224,
+    sequence.frameWidth / 2,
+    sequence.frameHeight / 2,
   );
+  ctx.imageSmoothingEnabled = smoothing;
+  ctx.imageSmoothingQuality = smoothingQuality;
+  ctx.restore();
+  return true;
+}
+
+function drawSpecialKeyPoseSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+  const move = fighter.currentMove;
+  if (fighter.state !== 'attack' || !move || !characterTextureManager.wantsHd()) return false;
+  const opacity = specialKeyPoseOpacity(move, fighter.moveFrame);
+  if (opacity <= 0) return false;
+  const asset = specialKeyPoseAsset(fighter.character.id, move);
+  if (!asset) return false;
+  const image = specialKeyPoseImage(asset);
+  if (!image) return false;
+
+  if (opacity < 1) {
+    ctx.save();
+    ctx.globalAlpha *= 1 - opacity;
+    if (!drawAttackAtlasSprite(ctx, fighter, x, y, time)) drawAssetCombatSprite(ctx, fighter, x, y, time);
+    ctx.restore();
+  }
+
+  const activeProgress = Math.max(0, Math.min(1, (fighter.moveFrame - move.startup) / Math.max(1, move.active)));
+  const lift = asset.includes('shoryuken') ? activeProgress * 10 : asset.includes('tatsumaki') || asset.includes('spinning-bird-kick') ? Math.sin(activeProgress * Math.PI) * 5 : 0;
+  const drive = asset.includes('hadoken') || asset.includes('kikoken') ? activeProgress * 4 : asset.includes('super-rush') ? activeProgress * 7 : 0;
+  const rotation = asset.includes('tatsumaki') || asset.includes('spinning-bird-kick') ? Math.sin(activeProgress * Math.PI * 2) * .045 : 0;
+  ctx.save();
+  ctx.globalAlpha *= opacity;
+  ctx.translate(x + fighter.facing * drive, y - lift);
+  ctx.save();
+  ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
+  drawShadow(ctx);
+  ctx.restore();
+  ctx.translate(0, -fighter.jumpHeight);
+  ctx.rotate(fighter.facing * rotation);
+  ctx.scale(fighter.facing * fighter.character.widthScale * .88, fighter.character.heightScale * .88);
+  if (fighter.hitFlash > 0) ctx.filter = 'brightness(2.1) saturate(.5)';
+  const smoothing = ctx.imageSmoothingEnabled;
+  const smoothingQuality = ctx.imageSmoothingQuality;
+  characterTextureManager.configureSampling(ctx, true);
+  ctx.drawImage(image, -96, -220, 192, 224);
   ctx.imageSmoothingEnabled = smoothing;
   ctx.imageSmoothingQuality = smoothingQuality;
   ctx.restore();
@@ -557,6 +600,7 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
     ctx.translate(-x, -y);
   }
   if (drawHighFrameSequenceSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
+  if (drawSpecialKeyPoseSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawAttackAtlasSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawAssetCombatSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   const throwPair = throwPairVisual(fighter);

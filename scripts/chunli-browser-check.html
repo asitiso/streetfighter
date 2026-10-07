@@ -1,0 +1,62 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Chun-Li 실제 렌더 검증</title>
+<style>body{background:#10151d;color:#eef2fa;font:16px system-ui;margin:18px}h1{font-size:24px;margin:0 0 10px}button,select{font:inherit;margin:4px;padding:8px;background:#202d40;color:#fff;border:1px solid #526785;border-radius:6px}canvas{display:block;width:100%;height:auto;margin-top:12px}#status{padding:10px;color:#ffdb6f}</style>
+<h1>Chun-Li 실제 렌더러 · 프레임 검증</h1><p>브라우저가 실제 게임 이미지와 타이밍을 읽어 준비부터 회복까지 그립니다. 전투 판정과 입력 검증은 별도입니다.</p>
+<label>동작 <select id="move"><option value="sa3">천성난화 (SA3)</option><option value="sa1">기공장 (SA1)</option><option value="rush">봉익선 (일반 초필살기)</option><option value="sa2">봉익선 (SA2)</option><option value="rise">상승 발차기</option><option value="bird">스피닝 버드 킥</option><option value="kikoken">기공권</option><option value="ex">EX 기공권</option><option value="light">서서 약펀치</option><option value="heavy">서서 강펀치</option></select></label>
+<label>방향 <select id="facing"><option value="1">오른쪽</option><option value="-1">왼쪽</option></select></label><button id="save">현재 프레임 PNG 저장</button><p id="status" role="status">이미지 로딩 중…</p><canvas id="check" width="1280" height="900"></canvas>
+<script type="module">
+import { Fighter } from './assets/combat/Fighter.js';
+import { getCharacter } from './assets/game/characters.js';
+import { normalFor, specialMovesFor, superArtMoveFor } from './assets/combat/MoveLibrary.js';
+import { animationSequencesFor } from './assets/render/AnimationSequenceLibrary.js';
+import { animationSequenceSample } from './assets/render/AnimationTimingMapper.js';
+import { animationTextureManager } from './assets/render/AnimationTextureManager.js';
+import { characterTextureManager } from './assets/render/CharacterTextureManager.js';
+import { runtimeQuality } from './assets/core/RuntimeQuality.js';
+import { drawCombatFighter } from './assets/render/Visuals.js';
+const def=getCharacter('CHUNLI'), fighter=new Fighter(def,'player',160,280,1,def.superArts[0]);
+const specials=specialMovesFor('CHUNLI');
+const moves={sa3:superArtMoveFor('CHUNLI',3),sa1:superArtMoveFor('CHUNLI',1),rush:specials.super,sa2:superArtMoveFor('CHUNLI',2),rise:specials.antiAir,bird:specials.mobility,kikoken:specials.primary,ex:specials.exPrimary,light:normalFor('lp',false,'CHUNLI'),heavy:normalFor('hp',false,'CHUNLI')};
+const canvas=document.querySelector('canvas'), ctx=canvas.getContext('2d'), status=document.querySelector('#status');
+runtimeQuality.setTier('high'); characterTextureManager.setMode('hd'); animationTextureManager.preloadCharacter('CHUNLI','combat');
+const started=performance.now();
+function render() {
+ const move=moves[document.querySelector('#move').value];
+ fighter.x=fighter.previousX=300;fighter.y=fighter.previousY=460;fighter.airborne=false;fighter.jumpHeight=0;fighter.jumpVelocity=0;fighter.landingFrames=0;
+ fighter.superGauge=1000; fighter.startMove(move);
+ if(fighter.currentMove?.id!==move.id){status.textContent=`FAIL · 선택한 기술이 시작되지 않았습니다: ${move.label}`;document.body.dataset.verdict='fail';return;}
+ fighter.facing=Number(document.querySelector('#facing').value);
+ const frames=new Map();
+ const input={held:()=>false,pressed:()=>false,released:()=>false};
+ const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arenaRight:1180,arenaTop:380,arenaBottom:590};
+ for(let tick=0;tick<move.startup+move.active+move.recovery;tick++){const sample=animationSequenceSample(fighter,0);if(sample&&!frames.has(sample.frame))frames.set(sample.frame,{tick,sample,jumpHeight:fighter.jumpHeight,airborne:fighter.airborne});fighter.updatePlayer(input,rules);}
+ fighter.superGauge=1000;fighter.startMove(move);
+ const rows=Math.ceil(frames.size/4); canvas.height=rows*360;
+ ctx.fillStyle='#10151d';ctx.fillRect(0,0,canvas.width,canvas.height);
+ let failures=0,index=0;
+ for(const [frame,{tick,sample,jumpHeight,airborne}] of frames) {
+  const col=index%4,row=Math.floor(index/4),x=col*320,y=row*360;
+  ctx.fillStyle='#182331';ctx.fillRect(x+2,y+2,316,356);
+  ctx.fillStyle='#edf4ff';ctx.font='15px system-ui';ctx.fillText(`${frame+1}/${sample.sequence.frameCount} · ${sample.contact?'접촉':tick<move.startup?'준비':'회복'} · 게임 ${tick}F`,x+12,y+24);
+  ctx.strokeStyle='#52647a';ctx.beginPath();ctx.moveTo(x+12,y+341);ctx.lineTo(x+308,y+341);ctx.stroke();
+  fighter.x=fighter.previousX=x+160;fighter.y=fighter.previousY=y+340;fighter.moveFrame=tick;fighter.jumpHeight=jumpHeight;fighter.airborne=airborne;fighter.landingFrames=0;
+  const original=ctx.drawImage; let observed=null;
+  ctx.drawImage=function(image,...args){if(image.src?.endsWith(sample.sequence.asset))observed={sourceWidth:args[2],destWidth:args[6],naturalWidth:image.naturalWidth};return original.call(this,image,...args);};
+  try {drawCombatFighter(ctx,fighter,0,0);} finally {ctx.drawImage=original;}
+  const valid=observed&&observed.sourceWidth===sample.sequence.frameWidth&&observed.destWidth===sample.sequence.frameWidth/2;
+  if(!valid)failures++;
+  ctx.fillStyle=valid?'#8ef0b3':'#ff8a8a';ctx.fillText(valid?'실제 이미지 · 동일 배율':'이미지/배율 확인 실패',x+12,y+48); index++;
+ }
+ const expected=animationSequenceSample(fighter,0)?.sequence.frameCount;
+ // Faster variants can deliberately skip intermediate source poses. Check
+ // every reachable frame plus the start/end and all combat phases instead.
+ const phases=[...frames.values()].map(({tick})=>tick<move.startup?'startup':tick<move.startup+move.active?'active':'recovery');
+ const coverage=frames.has(0)&&frames.has(expected-1)&&['startup','active','recovery'].every(p=>phases.includes(p));
+ status.textContent=failures===0&&coverage?`PASS · ${move.label} · ${frames.size}/${expected} 재생 프레임 · 실제 자산 로딩/준비·접촉·회복/배율 확인`:`FAIL · ${failures} 렌더 실패 · 단계 포함 ${coverage} · ${frames.size}/${expected} 프레임`;
+ document.body.dataset.verdict=status.textContent.startsWith('PASS')?'pass':'fail';
+}
+const expectedTextures=animationSequencesFor('CHUNLI',true).filter(sequence=>sequence.poseAuthored).length;
+function ready(){if(animationTextureManager.readyCount('CHUNLI')===expectedTextures){render();return;}if(performance.now()-started>10000){status.textContent='FAIL · 이미지 로딩 제한 시간 초과';document.body.dataset.verdict='fail';return;}requestAnimationFrame(ready);}
+ready();
+for(const id of ['move','facing'])document.querySelector(`#${id}`).addEventListener('change',render);
+document.querySelector('#save').addEventListener('click',()=>{const link=document.createElement('a');link.download=`chunli-${document.querySelector('#move').value}-${document.querySelector('#facing').value}.png`;link.href=canvas.toDataURL('image/png');link.click();});
+</script></html>
