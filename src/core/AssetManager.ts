@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v086';
+export const GAME_CACHE_NAME = 'game-cache-v087';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
