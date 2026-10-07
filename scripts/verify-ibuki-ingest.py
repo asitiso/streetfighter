@@ -13,6 +13,7 @@ def main():
   shutil.copytree(ROOT/'public/art/animation-hq/ibuki',fixture/'public/art/animation-hq/ibuki')
   kinds=['idle','walk','walk-back','dash']
   for kind in kinds:shutil.copytree(ROOT/f'art-source/ibuki/inbox/{kind}',fixture/f'art-source/ibuki/inbox/{kind}')
+  for kind in ('jump','landing'):shutil.copytree(ROOT/f'art-source/ibuki/inbox/{kind}',fixture/f'art-source/ibuki/inbox/{kind}')
   runtime_dir=fixture/'public/art/animation-hq/ibuki';manifest=runtime_dir/'manifest.json';registry=fixture/'src/render/AnimationSequenceLibrary.ts'
   spec=importlib.util.spec_from_file_location('ibuki_installer',fixture/'scripts/install-authored-chunli-walk.py');installer=importlib.util.module_from_spec(spec);spec.loader.exec_module(installer)
   def ingest(kind):return subprocess.run([sys.executable,str(fixture/'scripts/install-authored-chunli-walk.py'),kind,'--character','IBUKI','--install'],cwd=fixture,capture_output=True,text=True)
@@ -46,6 +47,23 @@ def main():
    line=next(line for line in registry.read_text().splitlines() if sequence_id in line);assert 'enabled:true' in line and 'poseAuthored:true' in line
    before={p:p.read_bytes() for p in guarded};source=fixture/f'art-source/ibuki/inbox/{kind}/{record["frames"]:02d}.png';source_data=source.read_bytes();source.unlink();result=ingest(kind)
    assert result.returncode!=0,'Incomplete source accepted';assert before=={p:p.read_bytes() for p in guarded},'Rejected source changed runtime';source.write_bytes(source_data)
+  # Either air command promotes both verified sources, never a stale installed peer.
+  for selected in ('jump','landing'):
+   peer='landing' if selected=='jump' else 'jump';(runtime_dir/f'{peer}.webp').write_bytes(b'stale-air-peer')
+   guarded=[runtime_dir/'jump.webp',runtime_dir/'landing.webp',manifest,registry];before={p:p.read_bytes() for p in guarded}
+   failed=False
+   with patch.object(sys,'argv',['installer',selected,'--character','IBUKI','--install']),patch.object(Path,'write_bytes',fail_once),redirect_stdout(io.StringIO()):
+    try:installer.main()
+    except OSError:pass
+    else:raise AssertionError('Expected paired write failure')
+   assert failed and before=={p:p.read_bytes() for p in guarded},'Air rollback did not restore both strips'
+   result=ingest(selected);assert result.returncode==0,result.stdout+result.stderr
+   data=json.loads(manifest.read_text());assert data['enabledFrameTotal']==49
+   for air in ('jump','landing'):
+    record=next(r for r in data['records'] if r['id']==air);assert record['enabled'] and record['poseAuthored']
+    assert record['sha256']==hashlib.sha256((runtime_dir/f'{air}.webp').read_bytes()).hexdigest().upper()
+   before={p:p.read_bytes() for p in guarded};source=fixture/f'art-source/ibuki/inbox/{peer}/01.png';source_data=source.read_bytes();source.unlink();result=ingest(selected)
+   assert result.returncode!=0,'Incomplete air peer accepted';assert before=={p:p.read_bytes() for p in guarded};source.write_bytes(source_data)
   # Every replacement direction validates installed peers, not uninstalled source.
   for kind in kinds[:3]:
    for peer in kinds[:3]:
@@ -56,5 +74,5 @@ def main():
     assert result.returncode!=0,f'Corrupt {peer} accepted when replacing {kind}'
     assert before=={p:p.read_bytes() for p in guarded},'Rejected peer changed runtime'
     peer_path.write_bytes(peer_data)
- print('IBUKI_INGEST_PASS bootstrap=True idleWalkRetreatDash=True rollback=True characterIsolation=True incompleteSourceRejected=True corruptPeerDirections=6')
+ print('IBUKI_INGEST_PASS bootstrap=True airPairBothDirections=True pairedRollback=True incompletePeerRejected=True characterIsolation=True corruptPeerDirections=6')
 if __name__=='__main__':main()

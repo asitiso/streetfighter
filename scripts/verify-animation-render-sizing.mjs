@@ -40,6 +40,16 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
       assert.ok(call,'Ibuki dash must use authored strip');
       assert.deepEqual(call.slice(5),[-96,-220,192,224]);
       fighter.dashFrames=0;
+      fighter.state='jump';fighter.airborne=true;fighter.jumpHeight=61;fighter.jumpVelocity=3;translations.length=0;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/jump.webp'));
+      assert.ok(call,'Ibuki jump needs authored strip');assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+      assert.ok(translations.some(([x,y])=>x===0&&y===-61),'Jump follows physical height');
+      fighter.state='idle';fighter.airborne=false;fighter.jumpHeight=0;fighter.landingFrames=7;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/landing.webp'));
+      assert.ok(call,'Ibuki landing needs authored strip');assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+      fighter.landingFrames=0;
     }
     if(id==='CHUNLI') {
       fighter.currentMove=specialMovesFor(id).mobility; fighter.state='attack'; fighter.moveFrame=fighter.currentMove.startup;

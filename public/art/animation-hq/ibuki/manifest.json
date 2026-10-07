@@ -10,8 +10,8 @@
   ],
   "sourceSha256": "76BE49783ADBF49DDC537AEB1CF8E4C18436DDB4F5A12E8188FA11DC6012AC36",
   "frameTotal": 57,
-  "enabledFrameTotal": 35,
-  "fullFrameTotal": 35,
+  "enabledFrameTotal": 49,
+  "fullFrameTotal": 49,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -584,11 +584,124 @@
         3072,
         448
       ],
-      "bytes": 578016,
-      "sha256": "56C944F80F3D39E16B108C8753172AA53F7612A162567B0331A6C191389D515E",
-      "enabled": false,
+      "bytes": 396758,
+      "sha256": "BC27171A4AA8230B86661D1CF5A1103BEE3E3EC86211A22BE1196CF89BF4FD73",
+      "enabled": true,
       "renderMode": "full",
-      "poseAuthored": false
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/ibuki/inbox/jump",
+      "poseQa": {
+        "affineResidualAverage": 0.105333,
+        "affineResidualMax": 0.15226,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "jump",
+        "limits": {
+          "startEndIoUMin": 0.35,
+          "startEndIoUMax": 0.9,
+          "apexIoUMin": 0.3,
+          "apexIoUMax": 0.72,
+          "centroidXRangeMax": 50.0,
+          "centroidYRangeMin": 45.0,
+          "centroidYRangeMax": 135.0,
+          "centroidStepMax": 92.0,
+          "areaCvMax": 0.18,
+          "footWidthCvMin": 0.15,
+          "footWidthCvMax": 1.2,
+          "residualAverageMin": 0.03,
+          "residualAverageMax": 0.18,
+          "residualMaxMin": 0.05,
+          "residualMaxMax": 0.22
+        },
+        "startEndIoU": 0.416995,
+        "apexIoU": 0.304859,
+        "centroidXRange": 8.81516,
+        "centroidYRange": 82.972702,
+        "centroidStepMax": 75.138034,
+        "areaCv": 0.08091,
+        "footWidthCv": 1.099808,
+        "residualAverage": 0.105333,
+        "residualMax": 0.15226,
+        "checks": {
+          "contactBridgeNotDuplicate": true,
+          "apexPoseDistinct": true,
+          "horizontalShapeStable": true,
+          "verticalPhasePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "aerialLegShapeChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToJump": {
+          "iou": 0.467876,
+          "centroidDistance": 28.239611,
+          "footCenterDelta": 13.177717,
+          "areaRatio": 0.784295,
+          "limits": {
+            "iouMin": 0.4,
+            "iouMax": 0.9,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 65.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.45
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "jumpToLanding": {
+          "iou": 0.494568,
+          "centroidDistance": 3.456209,
+          "footCenterDelta": 47.244794,
+          "areaRatio": 1.379034,
+          "limits": {
+            "iouMin": 0.25,
+            "iouMax": 0.78,
+            "footCenterDeltaMax": 65.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "landingToBase": {
+          "iou": 0.800952,
+          "centroidDistance": 0.710157,
+          "footCenterDelta": 9.594251,
+          "areaRatio": 0.909798,
+          "limits": {
+            "iouMin": 0.35,
+            "iouMax": 0.9,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 65.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
     },
     {
       "id": "landing",
@@ -601,11 +714,124 @@
         2304,
         448
       ],
-      "bytes": 413114,
-      "sha256": "534FE323DD55BAA84C0875B28BC9822513BC08383D0CF4D08FF088F15EA0EE51",
-      "enabled": false,
+      "bytes": 503096,
+      "sha256": "A731D798E5A1397631A5A91F34AA68D79307A6D8A2F04EA16C2B18281FE86686",
+      "enabled": true,
       "renderMode": "full",
-      "poseAuthored": false
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/ibuki/inbox/landing",
+      "poseQa": {
+        "affineResidualAverage": 0.143779,
+        "affineResidualMax": 0.206001,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "landing",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.85,
+          "squashIoUMin": 0.2,
+          "squashIoUMax": 0.7,
+          "centroidXRangeMax": 55.0,
+          "centroidYRangeMin": 45.0,
+          "centroidYRangeMax": 135.0,
+          "centroidStepMax": 78.0,
+          "areaCvMax": 0.16,
+          "footWidthCvMin": 0.15,
+          "footWidthCvMax": 0.95,
+          "residualAverageMin": 0.03,
+          "residualAverageMax": 0.18,
+          "residualMaxMin": 0.05,
+          "residualMaxMax": 0.22
+        },
+        "startEndIoU": 0.536672,
+        "squashIoU": 0.417318,
+        "centroidXRange": 16.840574,
+        "centroidYRange": 52.894391,
+        "centroidStepMax": 46.31091,
+        "areaCv": 0.104941,
+        "footWidthCv": 0.191423,
+        "residualAverage": 0.143779,
+        "residualMax": 0.206001,
+        "checks": {
+          "neutralBridgeNotDuplicate": true,
+          "squashPoseDistinct": true,
+          "horizontalRootStable": true,
+          "compressionPresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "stanceAbsorbsImpact": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToJump": {
+          "iou": 0.467876,
+          "centroidDistance": 28.239611,
+          "footCenterDelta": 13.177717,
+          "areaRatio": 0.784295,
+          "limits": {
+            "iouMin": 0.4,
+            "iouMax": 0.9,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 65.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.45
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "jumpToLanding": {
+          "iou": 0.494568,
+          "centroidDistance": 3.456209,
+          "footCenterDelta": 47.244794,
+          "areaRatio": 1.379034,
+          "limits": {
+            "iouMin": 0.25,
+            "iouMax": 0.78,
+            "footCenterDeltaMax": 65.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "landingToBase": {
+          "iou": 0.800952,
+          "centroidDistance": 0.710157,
+          "footCenterDelta": 9.594251,
+          "areaRatio": 0.909798,
+          "limits": {
+            "iouMin": 0.35,
+            "iouMax": 0.9,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 65.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
     },
     {
       "id": "hit",
