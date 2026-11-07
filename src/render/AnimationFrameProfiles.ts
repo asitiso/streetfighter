@@ -66,6 +66,24 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 1,
   },
+  'RYU:crouch-light-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:crouch-medium-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:crouch-heavy-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
   'RYU:stand-light': {
     weights: [1.050, 0.800, 0.720, 1.180, 0.820, 1.000, 1.320],
     anchorX: [0, 0, 0, 0, 0, 0, 0],

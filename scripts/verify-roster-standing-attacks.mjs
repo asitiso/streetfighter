@@ -23,7 +23,7 @@ for(const id of roster) {
  }
 }
 for(const crouch of [false,true])for(const button of ['lp','mp','hp','lk','mk','hk']){
- const move=normalFor(button,crouch,'RYU'),expected=crouch&&button==='lp'?'crouch-light':crouch&&button==='mp'?'crouch-medium':crouch&&button==='hp'?'crouch-heavy':!crouch&&button==='lp'?'stand-light':!crouch&&button==='hp'?'stand-heavy':!crouch&&button==='mp'?'stand-medium':!crouch&&button==='lk'?'stand-light-kick':!crouch&&button==='mk'?'stand-medium-kick':!crouch&&button==='hk'?'stand-heavy-kick':null;
+ const move=normalFor(button,crouch,'RYU'),expected=crouch&&button==='lp'?'crouch-light':crouch&&button==='mp'?'crouch-medium':crouch&&button==='hp'?'crouch-heavy':crouch&&button==='lk'?'crouch-light-kick':crouch&&button==='mk'?'crouch-medium-kick':crouch&&button==='hk'?'crouch-heavy-kick':!crouch&&button==='lp'?'stand-light':!crouch&&button==='hp'?'stand-heavy':!crouch&&button==='mp'?'stand-medium':!crouch&&button==='lk'?'stand-light-kick':!crouch&&button==='mk'?'stand-medium-kick':!crouch&&button==='hk'?'stand-heavy-kick':null;
  assert.equal(animationSequenceKindForAttack('RYU',move),expected,'Ryu '+move.id+' must keep exact presentation');
 }
 const ryuCatalog=techniqueCatalogFor('RYU');
@@ -73,7 +73,7 @@ for(const id of [...roster,'RYU'])for(const facing of [-1,1])for(const [button,k
  assert.equal(animationSequenceSample(fighter,0),null,'Grounded normal must not replace an airborne attack');
  fighter.airborne=false;
  for(const crouch of [false,true])for(const other of ['lp','mp','hp','lk','mk','hk']) {
-  if(id==='RYU'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp'].includes(other)):(!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)))continue;
+  if(id==='RYU'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):(!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)))continue;
   fighter.currentMove=normalFor(other,crouch,id);assert.equal(animationSequenceSample(fighter,0),null);
  }
 }
