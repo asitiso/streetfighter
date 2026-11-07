@@ -123,7 +123,22 @@ const IBUKI: readonly AnimationSequence[] = [
   { id:'IBUKI_HIT_HQ', characterId:'IBUKI', kind:'hit', asset:'/art/animation-hq/ibuki/hit.webp', frameCount:8, frameWidth:384, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
 ] as const;
 
-const ALL: readonly AnimationSequence[] = [...RYU, ...KEN, ...CHUNLI, ...IBUKI];
+const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
+  { id:'ALEX_WALK_HQ', characterId:'ALEX', kind:'walk', asset:'/art/animation-hq/alex/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:12, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_WALK_HQ', characterId:'DUDLEY', kind:'walk', asset:'/art/animation-hq/dudley/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:14, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_WALK_HQ', characterId:'MAKOTO', kind:'walk', asset:'/art/animation-hq/makoto/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:14, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_WALK_HQ', characterId:'YUN', kind:'walk', asset:'/art/animation-hq/yun/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:16, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_WALK_HQ', characterId:'URIEN', kind:'walk', asset:'/art/animation-hq/urien/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:12, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_WALK_HQ', characterId:'GILL', kind:'walk', asset:'/art/animation-hq/gill/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:11.5, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'ALEX_IDLE_HQ', characterId:'ALEX', kind:'idle', asset:'/art/animation-hq/alex/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:8, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_IDLE_HQ', characterId:'DUDLEY', kind:'idle', asset:'/art/animation-hq/dudley/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:10, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_IDLE_HQ', characterId:'MAKOTO', kind:'idle', asset:'/art/animation-hq/makoto/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:9, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_IDLE_HQ', characterId:'YUN', kind:'idle', asset:'/art/animation-hq/yun/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:11, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_IDLE_HQ', characterId:'URIEN', kind:'idle', asset:'/art/animation-hq/urien/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:7.6, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_IDLE_HQ', characterId:'GILL', kind:'idle', asset:'/art/animation-hq/gill/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:7.2, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+];
+
+const ALL: readonly AnimationSequence[] = [...RYU, ...KEN, ...CHUNLI, ...IBUKI, ...ROSTER_MOVEMENT];
 const BY_ID = new Map(ALL.map((sequence) => [sequence.id, sequence]));
 
 export function animationSequenceById(id: string): AnimationSequence | null {
