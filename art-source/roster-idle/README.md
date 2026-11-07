@@ -487,3 +487,17 @@ python scripts/build-roster-motions.py --character CHUNLI --kind stand-light-kic
 python scripts/verify-chunli-backdash-ingest.py --kind stand-light-kick
 node scripts/verify-roster-standing-attacks.mjs
 ```
+
+## Chun-Li standing medium kick
+
+Six new drawings in `chunli/stand-medium-kick-sheet.png` use the built-in image tool with exact saved prompt `chunli/stand-medium-kick-prompt.txt`. Neutral, knee chamber, half extension, waist-height contact, folded withdrawal and recovered guard become10stored640x448frames with order [1,1,2,3,4,4,5,5,6,6]. Startup0–3/contact4–5/recovery6–9. First-generation original pose/action/handoff gates pass: residual average0.025768/peak0.045798, contact reach45px, foot height190.5px (versus LK140px), support center range0.77537px/baseline0.
+
+Installed idle337px/opaque422 and rear-support anchoring retain scale/root; profile offsets remain zero. Only grounded5MK maps to it. Both-facing actual input covers all10frames/both contacts/hitstop/idle recovery. LP/MP/HP/LK, crouch, air, command, target, special and Super Art presentation and gameplay remain unchanged. Shared recipes/selector/fixture/contact audit are reused; wrong guard/punch contacts, displaced supports, static/translated motion, runtime/source/peer errors reject. Reinstallation remains byte-stable with first/new-file/replacement rollback. All20prior records/art/bindings/pipeline are preserved.
+
+Current194enabled/full frames,21records; standing LP/MP/HP/LK/MK authored, HK still fallback. New strip429664bytes raises Chun-Li combined movement+combat entry from12798344 to13228008bytes. Explicitly raise only Chun-Li animation budget13MB→14MB, preserving original art quality and eager loading. Other budgets unchanged; movement-only preparation still excludes normals. Cachev140. Standing checks now53strips/483frames across9characters,2418Canvasdraws.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind stand-medium-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --kind stand-medium-kick
+node scripts/verify-roster-standing-attacks.mjs
+```

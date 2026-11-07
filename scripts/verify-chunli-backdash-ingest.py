@@ -8,10 +8,10 @@ import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-supported={'CHUNLI':('dash-back','guard','parry','stand-medium','stand-light-kick'),'IBUKI':('dash-back','guard','parry'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick')}
+supported={'CHUNLI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick'),'IBUKI':('dash-back','guard','parry'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick')}
 if selected_kind not in supported[character]:parser.error('Unsupported supplemental character/kind')
 count,width,order={'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
-slug=character.lower();prior_count={'CHUNLI':19,'IBUKI':16,'KEN':19}[character];total={'CHUNLI':184,'IBUKI':154,'KEN':182}[character]
+slug=character.lower();prior_count={'CHUNLI':20,'IBUKI':16,'KEN':19}[character];total={'CHUNLI':194,'IBUKI':154,'KEN':182}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
