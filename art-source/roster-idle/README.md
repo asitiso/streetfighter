@@ -531,3 +531,19 @@ python scripts/build-roster-motions.py --character IBUKI --kind stand-medium --r
 python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind stand-medium
 node scripts/verify-roster-standing-attacks.mjs
 ```
+
+## Ibuki standing light kick
+
+Six new neutral/knee-chamber/half-extension/low-contact/half-withdrawal/recovered-guard drawings in `ibuki/stand-light-kick-sheet.png` use the built-in image tool; exact prompt saved in `ibuki/stand-light-kick-prompt.txt`. Order [1,2,3,4,5,5,6,6] supplies8stored640x448frames,startup0–2/contact3/recovery4–7. First-generation original pose/action/handoff gates pass unchanged: residual average0.031133/peak0.049036, contact reach70px, foot height144px, planted support center range0.662555px/baseline0.
+
+Installed idle342px/opaque429 and rear-support anchoring preserve scale/root; profile offsets are zero. Exact grounded5LK only. Existing punches, crouch/otherkicks/air/command/target/special/Super Art mappings and gameplay remain unchanged. Actual input reaches all8/contact3, freezes during hitstop and returns idle in both facings. Standing checks now58strips/528frames across10characters,2632Canvasdraws.
+
+The shared recipe/selector/actual-contact audit/parameterized fixture are reused. Guard/punch substitution at actual contact and shifted support roots/baselines reject, along with static/translated/runtime/source/peer errors. Byte-stable reinstall and first/new-file/replacement rollback preserve all18prior records/art/bindings/pipeline. IBUKI selector now supports dash-back/guard/parry/stand-medium/stand-light-kick only.
+
+Ibuki now170enabled/full frames,19records, standing LP/MP/HP/LK authored. New strip517332bytes raises combined movement+combat entry to8917042bytes, below unchanged13MB budget; movement-only preparation excludes normals. Other budgets unchanged. Cachev143.
+
+```sh
+python scripts/build-roster-motions.py --character IBUKI --kind stand-light-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind stand-light-kick
+node scripts/verify-roster-standing-attacks.mjs
+```
