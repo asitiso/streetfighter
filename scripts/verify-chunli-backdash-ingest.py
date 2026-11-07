@@ -7,10 +7,10 @@ import importlib.util,io,json,shutil,sys,hashlib,argparse
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['dash-back','guard','parry'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-if character=='KEN' and selected_kind!='dash-back':parser.error('Ken uses its existing defense importer')
-count,width,order={'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4])}[selected_kind]
-slug=character.lower();prior_count={'CHUNLI':17,'IBUKI':16,'KEN':15}[character];total={'CHUNLI':168,'IBUKI':154,'KEN':144}[character]
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['dash-back','guard','parry','stand-medium'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
+if (character=='KEN' and selected_kind not in ('dash-back','stand-medium')) or (character!='KEN' and selected_kind=='stand-medium'):parser.error('Unsupported supplemental character/kind')
+count,width,order={'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6])}[selected_kind]
+slug=character.lower();prior_count={'CHUNLI':17,'IBUKI':16,'KEN':16}[character];total={'CHUNLI':168,'IBUKI':154,'KEN':152}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -69,9 +69,13 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
   assert max(roots)-min(roots)<1,'Planted Ibuki defense root slides with changing arm silhouette'
  def negative(frames,label):assert not motion.semantic_qa(selected_kind,frames,motion.pose_qa(frames,selected_kind))['semanticQaPass'],label
  pad=Image.new('RGBA',(width,448));pad.alpha_composite(guard,((width-384)//2,0))
+ if selected_kind=='stand-medium':
+  wrong=frames.copy();wrong[1]=frames[3];wrong[3]=pad
+  report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+  assert not report['checks']['actualContactReach'] and not report['semanticQaPass'],'Guard at actual Ken contact accepted despite compensating startup punch'
  negative([pad]*count,'Static guard accepted')
  translated=[]
- for dx in {5:(0,-8,-16,-8,0),6:(0,-8,-16,-16,-8,0),7:(0,-8,-16,-16,-8,-4,0)}[count]:
+ for dx in {5:(0,-8,-16,-8,0),6:(0,-8,-16,-16,-8,0),7:(0,-8,-16,-16,-8,-4,0),8:(0,-8,-16,-16,-8,-4,0,0)}[count]:
   frame=Image.new('RGBA',(width,448));frame.alpha_composite(pad,(dx,0));translated.append(frame)
  negative(translated,'Translated guard accepted')
  if selected_kind=='dash-back':
