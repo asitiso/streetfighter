@@ -1,4 +1,4 @@
-"""Reject wrong crouching MK actions, standing/static art and support drift."""
+"""Reject wrong crouching LK/MK/HK actions, standing/static art and support drift."""
 from pathlib import Path
 import importlib.util
 from PIL import Image
@@ -8,8 +8,8 @@ builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
 motion=builder.module();motion.FRAME_W=640
 def check(frames,kind,profile):
  pose=motion.pose_qa(frames,kind)
- return builder.crouch_medium_kick_semantic_qa(motion,frames,pose,profile) if kind=='crouch-medium-kick' else builder.crouch_kick_semantic_qa(motion,frames,pose)
-for kind,count,contact,standing_kind in [('crouch-light-kick',8,3,'stand-light-kick'),('crouch-medium-kick',10,4,'stand-medium-kick')]:
+ return builder.crouch_medium_kick_semantic_qa(motion,frames,pose,profile) if kind=='crouch-medium-kick' else builder.crouch_kick_semantic_qa(motion,frames,pose,kind)
+for kind,count,contact,standing_kind in [('crouch-light-kick',8,3,'stand-light-kick'),('crouch-medium-kick',10,4,'stand-medium-kick'),('crouch-heavy-kick',12,5,'stand-heavy-kick')]:
  for entry in builder.CONFIG:
   profile=entry.get('attackRecipes',{}).get('stand-medium-kick',{}).get('semanticProfile','kick') if kind=='crouch-medium-kick' else 'kick'
   directory=ROOT/'public/art/animation-hq'/entry['slug']
@@ -30,4 +30,4 @@ for kind,count,contact,standing_kind in [('crouch-light-kick',8,3,'stand-light-k
    try:check(frames,kind,'unknown')
    except ValueError:pass
    else:raise AssertionError('Unknown crouching MK profile accepted')
-print('ROSTER_CROUCH_KICK_SEMANTICS_PASS characters=6 attackKinds=2 storedFrames=108 wrongActionAndStandingAndStaticRejected=True slidingAndFloatingSupportRejected=True invalidProfileRejected=True')
+print('ROSTER_CROUCH_KICK_SEMANTICS_PASS characters=6 attackKinds=3 storedFrames=180 wrongActionAndStandingAndStaticRejected=True slidingAndFloatingSupportRejected=True invalidProfileRejected=True')
