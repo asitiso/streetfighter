@@ -349,13 +349,6 @@ export class Fighter {
     this.lastHitReaction = move.level === 'throw' ? 'throw' : move.launch ? 'launch' : move.level === 'low' ? 'low' : move.level === 'high' ? 'high' : 'mid';
     this.lastHitZone = this.resolveHitZone(move);
     this.lastHitPower = Math.max(move.damage, move.pushback * 2);
-    if (move.superCost) {
-      this.superVictimFrames = Math.max(this.superVictimFrames, 28);
-      this.superVictimTotal = Math.max(this.superVictimTotal, 28);
-      this.superVictimMotif = move.superPresentation?.motif ?? 'burst';
-      this.superVictimDirection = attacker.facing;
-      if (!move.multiHit) { this.superVictimHitIndex = 1; this.superVictimHitTotal = 1; }
-    }
     if (this.canDefend() && this.redParryWindow > 0) {
       this.enterParry(10);
       return 'red-parry';
@@ -366,6 +359,7 @@ export class Fighter {
     }
     if (guarding && this.canDefend() && move.level !== 'throw' && !move.guardBreak) {
       this.interruptMove();
+      this.clearSuperVictimReaction();
       this.state = 'block';
       this.stateFrame = -move.blockStun;
       this.x += attacker.facing * move.pushback * .3;
@@ -373,6 +367,13 @@ export class Fighter {
       return 'block';
     }
 
+    if (move.superCost) {
+      this.superVictimFrames = Math.max(this.superVictimFrames, 28);
+      this.superVictimTotal = Math.max(this.superVictimTotal, 28);
+      this.superVictimMotif = move.superPresentation?.motif ?? 'burst';
+      this.superVictimDirection = attacker.facing;
+      if (!move.multiHit) { this.superVictimHitIndex = 1; this.superVictimHitTotal = 1; }
+    }
     this.interruptMove();
     const juggleScale = this.airborne ? Math.max(.58, 1 - this.juggleHits * .09) : 1;
     const damage = Math.round(move.damage * (counter ? 1.12 : 1) * juggleScale);
@@ -637,7 +638,7 @@ export class Fighter {
     }
     if (this.superVictimFrames > 0) {
       this.superVictimFrames -= 1;
-      if (this.superVictimFrames === 0) { this.superVictimMotif = ''; this.superVictimTotal = 0; this.superVictimHitIndex = 1; this.superVictimHitTotal = 1; }
+      if (this.superVictimFrames === 0) this.clearSuperVictimReaction();
     }
     if (this.throwSyncFrames > 0) {
       this.throwSyncFrames -= 1;
@@ -646,8 +647,17 @@ export class Fighter {
     if (this.aiCornerPressureFrames > 0) this.aiCornerPressureFrames -= 1;
   }
 
+  private clearSuperVictimReaction(): void {
+    this.superVictimFrames = 0;
+    this.superVictimTotal = 0;
+    this.superVictimMotif = '';
+    this.superVictimHitIndex = 1;
+    this.superVictimHitTotal = 1;
+  }
+
   private enterParry(frames: number): void {
     this.interruptMove();
+    this.clearSuperVictimReaction();
     this.state = 'parry';
     this.stateFrame = -frames;
     this.hitStop = 2;

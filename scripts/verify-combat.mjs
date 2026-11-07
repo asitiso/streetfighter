@@ -1,3 +1,4 @@
+import './verify-defense-outcomes.mjs';
 import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
 import { normalFor, SPECIAL_MOVES, THROW_MOVE } from '../dist/assets/combat/MoveLibrary.js';
