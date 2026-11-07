@@ -42,8 +42,8 @@ assert.equal(manifest.character, 'RYU');
 assert.equal(manifest.pipeline, 'roster-movement-authored-v1');
 assert.deepEqual(manifest.sourceSize, [384,448]);
 assert.equal(manifest.frameTotal, 111);
-assert.equal(manifest.enabledFrameTotal, 70);
-assert.equal(manifest.fullFrameTotal, 70);
+assert.equal(manifest.enabledFrameTotal, 87);
+assert.equal(manifest.fullFrameTotal, 87);
 assert.equal(manifest.bridgeFrameTotal, 0);
 assert.equal(manifest.records.length, 13);
 
@@ -62,12 +62,12 @@ let totalBytes = 0;
 for (const rec of manifest.records) {
   const data = await readFile(new URL(`../public/art/animation-hq/ryu/${rec.id}.webp`, import.meta.url));
   const dim = webpDimensions(data);
-  assert.equal(dim.width, 384 * rec.frames, `${rec.id} strip width mismatch`);
+  assert.equal(dim.width, rec.frameSize[0] * rec.frames, `${rec.id} strip width mismatch`);
   assert.equal(dim.height, 448, `${rec.id} strip height mismatch`);
   assert.equal(dim.alpha, true, `${rec.id} should preserve transparency`);
-  assert.equal(rec.frameSize[0], 384);
+  assert.equal(rec.frameSize[0], ['stand-light','stand-heavy'].includes(rec.id)?640:384);
   assert.equal(rec.frameSize[1], 448);
-  assert.deepEqual(rec.stripSize, [384 * rec.frames, 448]);
+  assert.deepEqual(rec.stripSize, [rec.frameSize[0] * rec.frames, 448]);
   assert.equal(rec.sha256, sha(data), `${rec.id} sha mismatch`);
   assert.ok(data.byteLength > rec.frames * 18_000, `${rec.id} suspiciously small for HQ frames`);
   totalBytes += data.byteLength;
@@ -76,7 +76,7 @@ assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalB
 assert.ok(totalBytes < 12_000_000, `HQ pilot payload too large: ${totalBytes}`);
 
 assert.equal(animationSequenceFrameTotal('RYU'), 111);
-assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 70);
+assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 87);
 assert.equal(animationSequenceFrameTotal('KEN'), 137, 'Ken registry should include 57 movement + 11 defense + 69 staged attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
@@ -118,13 +118,13 @@ assert.equal(animationSequenceFor('RYU','hit', false)?.frameCount, 8);
 assert.equal(animationSequenceFor('RYU','hadoken', false)?.renderMode, 'bridge');
 assert.equal(animationSequenceFor('RYU','shoryuken', false)?.renderMode, 'bridge');
 
-for (const kind of ['stand-light','stand-heavy','hadoken','shoryuken']) {
+for (const kind of ['hadoken','shoryuken']) {
   const seq = animationSequenceFor('RYU', kind, false);
   assert.ok(seq, `missing Ryu staging sequence ${kind}`);
   assert.equal(seq.enabled, false, `${kind} must stay disabled until pose-authored art is available`);
   assert.equal(seq.poseAuthored, false, `${kind} must not be marked pose-authored`);
 }
-for(const [kind,count] of [['walk-back',10],['hit',8],['guard',5],['parry',6]]){
+for(const [kind,count] of [['walk-back',10],['hit',8],['guard',5],['parry',6],['stand-light',7],['stand-heavy',10]]){
  const seq=animationSequenceFor('RYU',kind),rec=manifest.records.find(r=>r.id===kind);
  assert.ok(seq?.enabled&&seq.poseAuthored&&rec.enabled&&rec.poseAuthored);assert.equal(seq.frameCount,count);
  assert.equal(rec.poseQa.poseAuthoredPass,true);assert.equal(rec.semanticQa.semanticQaPass,true);
@@ -316,7 +316,7 @@ const normal = (await import('../dist/assets/combat/MoveLibrary.js')).normalFor(
 ryu.currentMove = normal;
 ryu.moveFrame = 0;
 sampled = animationSequenceSample(ryu, .1);
-assert.equal(sampled, null, 'non-authored attack pilot must stay disabled');
+assert.equal(sampled.sequence.kind,'stand-light');assert.equal(sampled.frame,0);assert.equal(sampled.contact,false);
 
 const sequenceSource = await readFile(new URL('../src/render/AnimationSequenceLibrary.ts', import.meta.url), 'utf8');
 for (const token of ['RYU_IDLE_HQ','RYU_WALK_HQ','RYU_DASH_HQ','RYU_JUMP_HQ','RYU_LANDING_HQ','RYU_HIT_HQ','RYU_RC36_TARGET_FRAME_TOTAL = 100']) {

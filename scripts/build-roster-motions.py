@@ -61,6 +61,7 @@ def module():
  motion.GROUND_KINDS.add('crouch-light')
  original_semantic=motion.semantic_qa
  def semantic(kind,frames,pose):
+  if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light','stand-heavy'):return ryu_punch_semantic_qa(motion,frames,pose,kind)
   if kind=='dash-back':return backward_dash_semantic_qa(motion,frames,pose)
   if kind=='stand-medium':
    return {**motion.stand_light_semantic_qa(frames,pose),'kind':kind}
@@ -75,6 +76,20 @@ def module():
   return original_semantic(kind,frames,pose)
  motion.semantic_qa=semantic
  return motion
+
+def ryu_punch_semantic_qa(motion,frames,pose,kind):
+ heavy=kind=='stand-heavy'
+ report=motion.stand_heavy_semantic_qa(frames,pose) if heavy else motion.stand_light_semantic_qa(frames,pose)
+ limits=motion.STAND_HEAVY_SEMANTIC_LIMITS if heavy else motion.STAND_LIGHT_SEMANTIC_LIMITS
+ contacts=(4,5) if heavy else (3,)
+ reaches=[float(np.nonzero(motion._binary_mask(frame))[1].max()) for frame in frames]
+ deltas=[reaches[i]-reaches[0] for i in contacts]
+ report.update({'contactReachFrames':list(contacts),'contactReachDeltas':deltas})
+ # Whole-strip reach can be supplied by a different frame. Validate each
+ # actual contact too, retaining the existing numeric strike reach limits.
+ report['checks']['actualContactReach']=all(limits['reachRangeMin']<=v<=limits['reachRangeMax'] for v in deltas)
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
 
 def backward_dash_semantic_qa(motion,frames,pose):
  report=motion.dash_semantic_qa(frames,pose)
@@ -481,15 +496,16 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU'],help='Supplemental Ryu support motions; default remains the six-character batch');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU'],help='Supplemental Ryu motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
- if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry'):parser.error('RYU selector supports walk-back, hit, guard and parry only')
+ if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry','stand-light','stand-heavy'):parser.error('RYU selector supports retreat, hit, defense and standing light/heavy punches only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
  entries=[{'id':'RYU','slug':'ryu'}] if args.character=='RYU' else CONFIG
  width=640 if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
  for entry in entries:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
+  motion.ROSTER_CHARACTER=entry['id']
   profile=entry.get('attackRecipes',{}).get('stand-medium-kick',{}).get('semanticProfile','kick')
   if kind in ('stand-medium-kick','crouch-medium-kick') and profile not in ('kick','knee','hook'):raise ValueError('Invalid MK semantic profile')
   motion.ROSTER_MK_PROFILE=profile
