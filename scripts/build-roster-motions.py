@@ -158,9 +158,16 @@ def backward_dash_semantic_qa(motion,frames,pose):
   ys,_=np.nonzero(mask);lower=mask[max(0,round(ys.max()-(box[3]-box[1])*.30)):]
   _,xs=np.nonzero(lower);foot_midpoint=(float(xs.min())+float(xs.max()))/2
   return motion._mask_centroid(mask[:upper_end])[0]-foot_midpoint
- drive=torso_from_feet(masks[0])-torso_from_feet(masks[3])
+ drive_torso=torso_from_feet(masks[3])
+ drive=torso_from_feet(masks[0])-drive_torso
  report['checks']['horizontalDrivePresent']=report['checks'].pop('forwardLeanPresent')
  report['checks']['backwardDrivePresent']=8<=drive<=100
+ if getattr(motion,'ROSTER_CHARACTER',None)=='RYU':
+  # The older forward runner starts already leaning forward: a reduction
+  # in that lean is not a backward pose. Require the drive torso itself
+  # to be behind the leg-spread midpoint as well as moving backward.
+  report['driveTorsoOffsetPx']=round(drive_torso,6)
+  report['checks']['rearwardTorsoAtDrive']=drive_torso<0
  report.update({'kind':'dash-back','backwardDrivePx':round(drive,6),'driveBasis':'upper-half-relative-lower-leg-extent'})
  report['semanticQaPass']=all(report['checks'].values())
  return report
@@ -555,7 +562,7 @@ def air_batch(args):
 def main():
  parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU'],help='Supplemental Ryu motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
- if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('RYU selector supports support, standing/crouching normals and crouch only')
+ if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash-back'):parser.error('RYU selector supports support, backward dash, standing/crouching normals and crouch only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
  entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'crouch-light':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6]},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else CONFIG
