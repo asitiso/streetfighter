@@ -64,6 +64,9 @@ def handoffs(directory,kind,frames):
  if kind=='dash':
   base=load_peer('idle')[0]
   return {'idleToDash':compare(base,frames[0],h.DASH_START_LIMITS),'dashToIdle':compare(frames[-1],base,h.DASH_END_LIMITS)}
+ if kind=='hit':
+  base=load_peer('idle')[0]
+  return {'idleToHit':compare(base,frames[0],h.HIT_BASE_LIMITS),'hitToIdle':compare(frames[-1],base,h.HIT_BASE_LIMITS)}
  bridges={}
  for peer in ('idle','walk','walk-back'):
   if peer==kind or peer not in records:continue
@@ -80,6 +83,10 @@ def handoffs(directory,kind,frames):
   bridges['idleToJump']=compare(frames[0],jump_start,h.JUMP_BASE_LIMITS)
   bridges['jumpToLanding']=compare(jump_end,landing_start,h.JUMP_LANDING_LIMITS)
   bridges['landingToIdle']=compare(landing_end,frames[0],h.LANDING_END_LIMITS)
+ if kind=='idle' and 'hit' in records:
+  start,end=load_peer('hit')
+  bridges['idleToHit']=compare(frames[0],start,h.HIT_BASE_LIMITS)
+  bridges['hitToIdle']=compare(end,frames[0],h.HIT_BASE_LIMITS)
  return bridges
 
 def webp(frames):
@@ -97,6 +104,13 @@ def write_pending(pending):
    if data is None:path.unlink(missing_ok=True)
    else:path.write_bytes(data)
   raise
+
+def replace_records(manifest,records):
+ # Preserve installed order when replacing a motion after newer motions were
+ # added. Only first-time records append; reinstallation stays reviewable.
+ updates={record['id']:record for record in records}
+ installed=[updates.pop(record['id'],record) for record in manifest['records']]
+ manifest['records']=installed+list(updates.values())
 
 def air_bridges(directory,jump,landing):
  manifest=json.loads((directory/'manifest.json').read_text());record=next(r for r in manifest['records'] if r['id']=='idle')
@@ -154,7 +168,7 @@ def air_batch(args):
   if not args.runtime:
    for record in records:
     record.update({'poseQa':quality[record['id']]['pose'],'semanticQa':quality[record['id']]['semantic'],'handoffQa':bridges})
-   manifest['records']=[r for r in manifest['records'] if r['id'] not in orders]+records
+   replace_records(manifest,records)
    manifest['frameTotal']=manifest['enabledFrameTotal']=sum(r['frames'] for r in manifest['records'])
    pending[manifest_path]=(json.dumps(manifest,indent=2)+'\n').encode()
   reports.append({'character':slug,'quality':quality,'handoffs':bridges})
@@ -162,7 +176,7 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back','dash','air'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back','dash','air','hit'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
@@ -182,10 +196,10 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png'}[kind])
-  raw=extract(Image.open(source),{'idle':2,'walk':4,'walk-back':3,'dash':3}[kind]);normalization=None;overrides=[]
-  if kind=='dash':
-   if 'dashEntry' in entry:
+  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png'}[kind])
+  raw=extract(Image.open(source),{'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3}[kind]);normalization=None;overrides=[]
+  if kind in ('dash','hit'):
+   if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
     overrides.append({'frame':1,'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['pose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
@@ -193,13 +207,14 @@ def main():
    heights=[frame.getbbox()[3]-frame.getbbox()[1] for frame in raw]
    # Use standing recovery as the anatomical scale reference. A median of
    # compressed dash poses would enlarge every limb when returning to guard.
-   motion.TARGET_HEIGHT['dash']=idle_height*float(np.median(heights))/heights[-1]
+   motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/heights[-1]
    normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':heights[-1],'uniformScale':idle_height/heights[-1]}
   keys,metrics=motion.normalize_frames(kind,raw)
   choices=[]
   gait=[0,0,1,2,2,3,4,4,5,6,6,7] if kind=='walk' else [0,0,1,2,2,3,4,4,5,5]
   orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
   if kind=='dash':orders=[[0,1,2,2,3,4,5]]
+  if kind=='hit':orders=[[0,1,2,2,3,4,5,5]]
   for order in orders:
    frames=[keys[i] for i in order]
    pose=motion.pose_qa(frames,kind);semantic=motion.semantic_qa(kind,frames,pose)
@@ -220,7 +235,7 @@ def main():
   manifest=json.loads((directory/'manifest.json').read_text()) if (directory/'manifest.json').exists() else {'character':entry['id'],'pipeline':'roster-movement-authored-v1','records':[]}
   manifest['pipeline']='roster-movement-authored-v1'
   manifest.pop('source',None);manifest.pop('sourceSha256',None)
-  manifest['records']=[r for r in manifest['records'] if r['id']!=kind]+[record]
+  replace_records(manifest,[record])
   manifest['frameTotal']=manifest['enabledFrameTotal']=sum(r['frames'] for r in manifest['records'])
   pending[directory/f'{kind}.webp']=data
   pending[directory/'manifest.json']=(json.dumps(manifest,indent=2)+'\n').encode()

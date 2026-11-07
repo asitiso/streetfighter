@@ -1,8 +1,8 @@
 {
   "character": "MAKOTO",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 49,
-  "enabledFrameTotal": 49,
+  "frameTotal": 57,
+  "enabledFrameTotal": 57,
   "records": [
     {
       "id": "idle",
@@ -1423,6 +1423,246 @@
           },
           "pass": true
         }
+      }
+    },
+    {
+      "id": "hit",
+      "frames": 8,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3072,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "EFAD7DFC3996A9D9799BA20E778F8B02EF911C32920BE3A81057270574F9C646",
+      "bytes": 552054,
+      "poseQa": {
+        "affineResidualAverage": 0.060878,
+        "affineResidualMax": 0.117617,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "hit",
+        "limits": {
+          "startEndIoUMin": 0.62,
+          "peakRecoilIoUMin": 0.22,
+          "peakRecoilIoUMax": 0.78,
+          "centroidXRangeMin": 7.0,
+          "centroidXRangeMax": 95.0,
+          "centroidYRangeMin": 3.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 65.0,
+          "areaCvMax": 0.2,
+          "footCenterRangeMin": 12.0,
+          "footCenterRangeMax": 145.0,
+          "footWidthCvMax": 0.8,
+          "residualAverageMin": 0.012,
+          "residualAverageMax": 0.17,
+          "residualMaxMin": 0.028,
+          "residualMaxMax": 0.22
+        },
+        "startEndIoU": 0.738592,
+        "peakRecoilIoU": 0.403083,
+        "centroidXRange": 24.850601,
+        "centroidYRange": 25.550522,
+        "centroidStepMax": 24.455315,
+        "areaCv": 0.075134,
+        "footCenterRange": 31.368694,
+        "footWidthCv": 0.02425,
+        "residualAverage": 0.060878,
+        "residualMax": 0.117617,
+        "checks": {
+          "recoveryReturnsNearNeutral": true,
+          "peakRecoilDistinct": true,
+          "recoilTravelPresent": true,
+          "compressionPresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "footSlideReadable": true,
+          "stanceNotExploded": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "idleToHit": {
+          "iou": 0.666751,
+          "centroidDistance": 16.966076,
+          "footCenterDelta": 7.467771,
+          "areaRatio": 1.276784,
+          "limits": {
+            "iouMin": 0.52,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 30.0,
+            "footCenterDeltaMax": 48.0,
+            "areaRatioMin": 0.7,
+            "areaRatioMax": 1.35
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "hitToIdle": {
+          "iou": 0.722515,
+          "centroidDistance": 10.02354,
+          "footCenterDelta": 16.526849,
+          "areaRatio": 0.863975,
+          "limits": {
+            "iouMin": 0.52,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 30.0,
+            "footCenterDeltaMax": 48.0,
+            "areaRatioMin": 0.7,
+            "areaRatioMax": 1.35
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        3,
+        3,
+        4,
+        5,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            346,
+            507
+          ],
+          "sourceBodyHeight": 507,
+          "paste": [
+            67,
+            57
+          ],
+          "scaledSize": [
+            250,
+            366
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            389,
+            495
+          ],
+          "sourceBodyHeight": 495,
+          "paste": [
+            52,
+            66
+          ],
+          "scaledSize": [
+            281,
+            357
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            410,
+            440
+          ],
+          "sourceBodyHeight": 440,
+          "paste": [
+            44,
+            105
+          ],
+          "scaledSize": [
+            296,
+            318
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            374,
+            437
+          ],
+          "sourceBodyHeight": 437,
+          "paste": [
+            57,
+            108
+          ],
+          "scaledSize": [
+            270,
+            315
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            342,
+            467
+          ],
+          "sourceBodyHeight": 467,
+          "paste": [
+            68,
+            86
+          ],
+          "scaledSize": [
+            247,
+            337
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            342,
+            467
+          ],
+          "sourceBodyHeight": 467,
+          "paste": [
+            68,
+            86
+          ],
+          "scaledSize": [
+            247,
+            337
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/makoto/hit-sheet.png",
+      "sourceSha256": "1312D39529142C973FFC9C5863AA8EA7DCA747A6C81E1DCA3811CB55B6ABDF57",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 467,
+        "uniformScale": 0.721627408993576
       }
     }
   ]
