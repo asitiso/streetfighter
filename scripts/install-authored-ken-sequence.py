@@ -7,6 +7,7 @@ import cv2
 import hashlib
 import json
 import numpy as np
+import os
 import re
 import subprocess
 import sys
@@ -49,7 +50,7 @@ POSE_THRESHOLDS = {
     'idle': (0.003, 0.006),
 }
 MIN_SOURCE_BODY_HEIGHT = 240
-POSE_ECC_CACHE = PoseEccCache(ROOT / 'RC39_POSE_ECC_CACHE.json')
+POSE_ECC_CACHE = PoseEccCache(Path(os.environ.get('POSE_ECC_CACHE_PATH') or ROOT / 'RC39_POSE_ECC_CACHE.json'))
 
 # Idle is a restrained loop: enough authored pose change to feel alive, but not enough
 # root/foot/body drift to read as walk, flinch or attack anticipation.

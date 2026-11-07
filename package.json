@@ -4,6 +4,7 @@
   "version": "0.0.63-rc.38",
   "type": "module",
   "scripts": {
+    "verify:ibuki": "node scripts/verify-ibuki-pipeline.mjs",
     "build": "node scripts/clean-dist.mjs && tsc && node scripts/build-static.mjs && node scripts/generate-release-integrity.mjs",
     "typecheck": "tsc --noEmit --pretty false",
     "serve": "python3 -m http.server 4173 -d dist",
