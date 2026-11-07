@@ -473,3 +473,17 @@ python scripts/build-roster-motions.py --character CHUNLI --kind stand-medium --
 python scripts/verify-chunli-backdash-ingest.py --kind stand-medium
 node scripts/verify-roster-standing-attacks.mjs
 ```
+
+## Chun-Li standing light kick
+
+Six built-in source drawings in `chunli/stand-light-kick-sheet.png`, with exact prompt in `chunli/stand-light-kick-prompt.txt`, show neutral, knee chamber, partial extension, low contact, withdrawal and recovered guard. Order [1,2,3,4,5,5,6,6] supplies eight 640x448 frames: startup0–2, contact3, recovery4–7. Unchanged gates pass first generation: residual average0.025405/peak0.045371, reach56px, contact foot height140px, support center range0.504433px/baseline0. Installed idle337px/opaque422 and rear-support anchoring preserve scale; profile offsets remain zero.
+
+Only grounded5LK selects the new strip. Actual-input/Canvas checks reach every frame in both facings, preserve contact/hitstop and return to idle. Other normal, crouch, air, command, target, special and Super Art behavior remains unchanged. The shared selector, recipe, actual-contact audit and fixture are reused; punch/guard substitution, shifted support, static/translated art, invalid runtime/source/peer metadata reject. Byte-stable reinstall and first/new-file/replacement rollback preserve all19prior records/art/bindings.
+
+Chun-Li now has184enabled/full frames in20records, including standing LP/MP/HP/LK. New strip464850bytes; combined movement+combat entry12798344bytes remains below the existing13MBcap. Movement-only loading excludes it. Cachev139. Standing checks cover52strips/473frames across9characters and2374Canvasdraws.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind stand-light-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --kind stand-light-kick
+node scripts/verify-roster-standing-attacks.mjs
+```
