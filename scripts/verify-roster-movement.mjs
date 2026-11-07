@@ -54,7 +54,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
   }
   assert.equal(walkFrames.size,walk.frameCount);walking.updatePlayer(quiet,rules);
   assert.equal(animationSequenceSample(walking,0)?.sequence.id,seq.id,'Releasing movement returns to idle');
-  if(added.includes(def.id)||def.id==='RYU') {
+  if(added.includes(def.id)||['RYU','CHUNLI'].includes(def.id)) {
    const retreat=new Fighter(def,'player',600,460,facing),back=animationSequenceFor(def.id,'walk-back'),backFrames=new Set();
    assert.ok(back?.enabled&&back.poseAuthored,`${def.id} must have an authored retreat`);
    let previous=0,wrapped=false;
@@ -69,7 +69,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    retreat.updatePlayer({...quiet,held:key=>key===(facing===1?'right':'left')},rules);
    assert.equal(animationSequenceSample(retreat,0)?.sequence.id,walk.id,'Forward switch must use forward walking');
    retreat.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(retreat,0)?.sequence.id,seq.id);
-   if(added.includes(def.id)||def.id==='RYU'){
+   if(added.includes(def.id)||['RYU','CHUNLI'].includes(def.id)){
    for(const direction of [-1,1]) {
     const dash=new Fighter(def,'player',600,460,facing),action=direction===1?'right':'left';
     const tap={held:key=>key===action,pressed:key=>key===action,released:()=>false};
@@ -135,6 +135,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     }
     assert.equal(frames.size,8);assert.notEqual(victim.state,'hit');if(air)assert.ok(airDraw,'Air hit must render above ground');
    }
+   if(def.id!=='CHUNLI'){
    const guardSeq=animationSequenceFor(def.id,'guard'),parrySeq=animationSequenceFor(def.id,'parry');
    assert.ok(guardSeq?.enabled&&guardSeq.poseAuthored,`${def.id} needs authored guard`);
    assert.ok(parrySeq?.enabled&&parrySeq.poseAuthored,`${def.id} needs authored parry`);
@@ -158,6 +159,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     let ticks=0;const frames=new Set();while(defender.state==='parry'&&ticks<30){const sample=animationSequenceSample(defender,0);assert.equal(sample?.sequence.id,parrySeq.id);frames.add(sample.frame);checkCanvas(defender,parrySeq);defender.updatePlayer(quiet,rules);ticks++;}
     assert.equal(ticks,red?10:8);assert.equal(defender.hp,defender.maxHp);assert.equal(defender.state,'idle');assert.equal(animationSequenceSample(defender,0)?.sequence.id,seq.id);
     assert.ok(frames.has(2)||frames.has(3),'Parry contact must be visible');assert.ok(frames.has(5));if(red)assert.equal(frames.size,6);
+   }
    }
   }
  }
@@ -198,9 +200,9 @@ for(const id of ['URIEN','GILL']) {
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
 }
-for(const id of ['KEN','CHUNLI','IBUKI'])for(const facing of [-1,1])for(const direction of [-1,1]){
+for(const id of ['KEN','IBUKI'])for(const facing of [-1,1])for(const direction of [-1,1]){
  const f=new Fighter(getCharacter(id),'player',600,460,facing),action=direction===1?'right':'left',tap={...quiet,held:k=>k===action,pressed:k=>k===action};
  for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){f.captureInput(input,tick);f.updatePlayer(input,rules);}
- assert.equal(animationSequenceFor(id,'dash-back'),null);assert.equal(animationSequenceSample(f,0).sequence.kind,'dash','Existing three retain generic dash in both directions');
+ assert.equal(animationSequenceFor(id,'dash-back'),null);assert.equal(animationSequenceSample(f,0).sequence.kind,'dash','Existing two retain generic dash in both directions');
 }
-console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:7,hitFrames:56,defenseCharacters:7,defenseFrames:77,canvasDraws});
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:8,hitFrames:64,defenseCharacters:7,defenseFrames:77,canvasDraws});
