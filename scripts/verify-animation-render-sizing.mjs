@@ -56,6 +56,9 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
       assert.ok(call,'Kunai release uses its wide authored strip');assert.equal(call[3],640);
       assert.deepEqual(call.slice(5),[-160,-220,320,224],'Wide Kunai preserves source pixel scale');
       fighter.currentMove=null;fighter.state='idle';
+      fighter.currentMove=superArtMoveFor('IBUKI',3);fighter.state='attack';fighter.moveFrame=fighter.currentMove.startup;
+      drawCombatFighter(ctx,fighter,0,0);call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/super-rush.webp'));
+      assert.ok(call,'Hashin Sho uses its wide authored strip');assert.deepEqual(call.slice(5),[-160,-220,320,224]);fighter.currentMove=null;fighter.state='idle';
       fighter.currentMove=specialMovesFor('IBUKI').antiAir;fighter.state='attack';fighter.moveFrame=fighter.currentMove.startup;fighter.airborne=true;fighter.jumpHeight=61;translations.length=0;
       drawCombatFighter(ctx,fighter,0,0);
       call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/shoryuken.webp'));
