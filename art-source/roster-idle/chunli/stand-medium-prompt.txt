@@ -1,0 +1,8 @@
+Use case: stylized-concept. Asset type: production CHUN-LI STANDING MEDIUM PALM STRIKE full-body sprite source.
+Reference exact Chun-Li neutralguard identity/proportions/crisp cel-shaded arcade rendering: blue qipao withgoldtrim,whitewaistband,brownpairedwhitebuns/ribbons,blackspikedwristcuffs,white lace-upboots,muscularnaturallimbs.
+Exactly SIX complete figures TWO columns THREE rows row-major,allfaceSCREENRIGHTsame3quartercamera,ONEfixedhead/body/limbscale/mass.
+Action game5MP PALM STRIKE: firm controlled FORWARD PALM-HEEL THRUST at upperchest/shoulder height. FrontSCREENRIGHT palmheelstrikesstraightforward,openhandfingersup butnotabovehead,rearhandguardschin. Moderatehip/shoulderdrive,lesswindupthanheavy,longerpalm; NOT sideparry/deflection orclenchedfistpunch. Bothbootfeetremainplantedatsamepositions/stancewidth/baseline.
+Sixindependentposes:1 originaluprightneutralguard;2 leadelbow/shoulderprepareandpalmopens;3 HALFforwardextension,palmheeladvances;4 FULLcontactwithnearlystraightelbow,palmheel60–85pxbeyondneutralhandreachat337pxbodyheight;5 HALFwithdrawal,elbowfoldsandshoulderrecovers,notcopiedpreparation;6 recoveredoriginalneutralguardmatching1.
+Naturaljointarticulation,headandlimblengthsfixed,no stretchedarm/wholebodytransforms/lunge/perposefitshrink. Stablebodyvolume/feet,subtlecloth/ribbonfollowthrough,completefingers/cuffs/boots/heels/toes/ribbons.
+Spaciousportraitcanvas,figures65–70%cellheightandatleast340pxtall,40pxor moreclearoutsideeveryhand/head/foot/ribbontip,widehorizontalspaceforpalmcontact,generousgutters,nooverlap/cropping.
+TRUEalphaZEROoutsidebodiesandbetweenlimbs. Nobackdrop/gradient/shadow/floor/halo/blur/lines/energy/impacteffects/text/panels/extrafigures.
