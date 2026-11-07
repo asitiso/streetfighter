@@ -22,6 +22,46 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
     let call=calls.findLast(c=>c[0].src?.includes(`/animation-hq/${id.toLowerCase()}/idle.webp`));
     assert.ok(call,`${id} idle must use authored strip`);
     assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+    if(id==='KEN') {
+      const quiet={held:()=>false,pressed:()=>false,released:()=>false};
+      const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arenaRight:1180,arenaTop:380,arenaBottom:590};
+      for(const move of [specialMovesFor(id).antiAir,superArtMoveFor(id,1),superArtMoveFor(id,2)]) {
+        const rising=new Fighter(def,'player',600,460,facing,def.superArts[0]);
+        rising.superGauge=rising.superGaugeMax;
+        rising.startMove(move);
+        assert.equal(rising.currentMove?.id,move.id,`${move.id} must actually start`);
+        let airborneDraws=0,landed=false,landingDraws=0;
+        for(let tick=0;tick<180;tick++) {
+          calls.length=0;translations.length=0;
+          drawCombatFighter(ctx,rising,0,0);
+          if(rising.state==='attack'&&rising.currentMove?.id===move.id) {
+            const strip=calls.find(c=>c[0].src?.endsWith('/ken/shoryuken.webp'));
+            assert.ok(strip,`${move.id} must keep its authored rising strip`);
+            assert.deepEqual(strip.slice(5),[-96,-220,192,224]);
+            if(rising.jumpHeight>0) {
+              airborneDraws++;
+              assert.equal(translations.filter(([x,y])=>x===0&&y===-rising.jumpHeight).length,1,`${move.id} must follow gameplay jump height exactly once`);
+            }
+          }
+          if(airborneDraws&&!rising.airborne)landed=true;
+          if(landed&&rising.state==='idle'&&rising.landingFrames>0) {
+            assert.ok(calls.some(c=>c[0].src?.endsWith('/ken/landing.webp')),'Available landing frames must render');
+            landingDraws++;
+          }
+          // Longer Super Art recovery can consume landingFrames while the
+          // attack still owns the visual; do not invent an extra landing clip.
+          if(landed&&rising.state==='idle'&&rising.landingFrames===0) {
+            assert.ok(calls.some(c=>c[0].src?.endsWith('/ken/idle.webp')),'Recovery must return to idle');
+            break;
+          }
+          rising.updatePlayer(quiet,rules);
+        }
+        assert.ok(airborneDraws>0,`${move.id} must exercise actual airborne rendering`);
+        assert.ok(landed,`${move.id} must return to ground`);
+        assert.equal(rising.state,'idle');assert.equal(rising.jumpHeight,0);
+        console.log('KEN_RISING_HEIGHT_PASS',{move:move.id,facing,airborneDraws,landingDraws});
+      }
+    }
     if(id==='IBUKI') {
       fighter.state='walk';fighter.previousX=fighter.x-facing*2;fighter.stateFrame=0;
       drawCombatFighter(ctx,fighter,0,0);
