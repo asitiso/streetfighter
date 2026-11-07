@@ -5,6 +5,7 @@ export type AnimationSequenceKind =
   | 'dash'
   | 'jump'
   | 'landing'
+  | 'crouch-medium'
   | 'crouch-light'
   | 'crouch'
   | 'stand-heavy-kick'
@@ -131,6 +132,12 @@ const IBUKI: readonly AnimationSequence[] = [
 ] as const;
 
 const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
+  { id:'ALEX_CROUCH_MEDIUM_HQ', characterId:'ALEX', kind:'crouch-medium', asset:'/art/animation-hq/alex/crouch-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_CROUCH_MEDIUM_HQ', characterId:'DUDLEY', kind:'crouch-medium', asset:'/art/animation-hq/dudley/crouch-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_CROUCH_MEDIUM_HQ', characterId:'MAKOTO', kind:'crouch-medium', asset:'/art/animation-hq/makoto/crouch-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_CROUCH_MEDIUM_HQ', characterId:'YUN', kind:'crouch-medium', asset:'/art/animation-hq/yun/crouch-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_CROUCH_MEDIUM_HQ', characterId:'URIEN', kind:'crouch-medium', asset:'/art/animation-hq/urien/crouch-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_CROUCH_MEDIUM_HQ', characterId:'GILL', kind:'crouch-medium', asset:'/art/animation-hq/gill/crouch-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_CROUCH_LIGHT_HQ', characterId:'ALEX', kind:'crouch-light', asset:'/art/animation-hq/alex/crouch-light.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'DUDLEY_CROUCH_LIGHT_HQ', characterId:'DUDLEY', kind:'crouch-light', asset:'/art/animation-hq/dudley/crouch-light.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'MAKOTO_CROUCH_LIGHT_HQ', characterId:'MAKOTO', kind:'crouch-light', asset:'/art/animation-hq/makoto/crouch-light.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
