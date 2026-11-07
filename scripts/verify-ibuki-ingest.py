@@ -14,6 +14,7 @@ def main():
   kinds=['idle','walk','walk-back','dash','hit']
   for kind in kinds:shutil.copytree(ROOT/f'art-source/ibuki/inbox/{kind}',fixture/f'art-source/ibuki/inbox/{kind}')
   for kind in ('jump','landing'):shutil.copytree(ROOT/f'art-source/ibuki/inbox/{kind}',fixture/f'art-source/ibuki/inbox/{kind}')
+  shutil.copytree(ROOT/'art-source/ibuki/inbox/stand-light',fixture/'art-source/ibuki/inbox/stand-light')
   runtime_dir=fixture/'public/art/animation-hq/ibuki';manifest=runtime_dir/'manifest.json';registry=fixture/'src/render/AnimationSequenceLibrary.ts'
   spec=importlib.util.spec_from_file_location('ibuki_installer',fixture/'scripts/install-authored-chunli-walk.py');installer=importlib.util.module_from_spec(spec);spec.loader.exec_module(installer)
   def ingest(kind):return subprocess.run([sys.executable,str(fixture/'scripts/install-authored-chunli-walk.py'),kind,'--character','IBUKI','--install'],cwd=fixture,capture_output=True,text=True)
@@ -64,6 +65,17 @@ def main():
     assert record['sha256']==hashlib.sha256((runtime_dir/f'{air}.webp').read_bytes()).hexdigest().upper()
    before={p:p.read_bytes() for p in guarded};source=fixture/f'art-source/ibuki/inbox/{peer}/01.png';source_data=source.read_bytes();source.unlink();result=ingest(selected)
    assert result.returncode!=0,'Incomplete air peer accepted';assert before=={p:p.read_bytes() for p in guarded};source.write_bytes(source_data)
+  # A failed first attack install must remove its newly written runtime file.
+  attack=runtime_dir/'stand-light.webp';attack.unlink(missing_ok=True)
+  data=json.loads(manifest.read_text());data['records']=[r for r in data['records'] if r['id']!='stand-light'];manifest.write_text(json.dumps(data))
+  guarded=[manifest,registry];before={p:p.read_bytes() for p in guarded};failed=False
+  with patch.object(sys,'argv',['installer','stand-light','--character','IBUKI','--install']),patch.object(Path,'write_bytes',fail_once),redirect_stdout(io.StringIO()):
+   try:installer.main()
+   except OSError:pass
+   else:raise AssertionError('Expected attack write failure')
+  assert failed and not attack.exists() and before=={p:p.read_bytes() for p in guarded}
+  result=ingest('stand-light');assert result.returncode==0,result.stdout+result.stderr
+  assert json.loads(manifest.read_text())['enabledFrameTotal']==64
   # Every replacement direction validates installed peers, not uninstalled source.
   for kind in kinds[:3]:
    for peer in kinds[:3]:

@@ -1,0 +1,228 @@
+{
+  "character": "IBUKI",
+  "sequence": "stand-light",
+  "source": "art-source/ibuki/inbox/stand-light",
+  "poseQa": {
+    "affineResidualAverage": 0.020099,
+    "affineResidualMax": 0.036385,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "stand-light",
+    "limits": {
+      "startEndIoUMin": 0.58,
+      "contactIoUMin": 0.32,
+      "contactIoUMax": 0.94,
+      "centroidXRangeMin": 4.0,
+      "centroidXRangeMax": 45.0,
+      "centroidYRangeMax": 28.0,
+      "reachRangeMin": 24.0,
+      "reachRangeMax": 105.0,
+      "footCenterRangeMax": 38.0,
+      "footWidthCvMax": 0.32,
+      "areaCvMax": 0.16,
+      "residualAverageMin": 0.01,
+      "residualAverageMax": 0.15,
+      "residualMaxMin": 0.022,
+      "residualMaxMax": 0.2,
+      "contactFrameIndex": 3
+    },
+    "startEndIoU": 1.0,
+    "contactIoU": 0.816201,
+    "centroidXRange": 5.219391,
+    "centroidYRange": 4.741936,
+    "reachRange": 35.0,
+    "footCenterRange": 0.315191,
+    "footWidthCv": 0.0,
+    "areaCv": 0.01821,
+    "residualAverage": 0.020099,
+    "residualMax": 0.036385,
+    "checks": {
+      "recoveryTowardNeutral": true,
+      "contactPoseDistinct": true,
+      "bodyDrivePresent": true,
+      "verticalRootStable": true,
+      "attackReachPresent": true,
+      "feetStayPlanted": true,
+      "stanceWidthStable": true,
+      "bodyVolumeStable": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  },
+  "gateProfile": "stand-light",
+  "baseToAttack": {
+    "iou": 0.587656,
+    "centroidDistance": 5.401818,
+    "footCenterDelta": 28.55896,
+    "areaRatio": 1.065601,
+    "limits": {
+      "iouMin": 0.48,
+      "iouMax": 1.0,
+      "centroidDistanceMax": 36.0,
+      "footCenterDeltaMax": 42.0,
+      "areaRatioMin": 0.72,
+      "areaRatioMax": 1.34
+    },
+    "checks": {
+      "silhouetteCue": true,
+      "scaleContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true
+    },
+    "pass": true
+  },
+  "attackToBase": {
+    "iou": 0.587656,
+    "centroidDistance": 5.401818,
+    "footCenterDelta": 28.55896,
+    "areaRatio": 0.938438,
+    "limits": {
+      "iouMin": 0.48,
+      "iouMax": 1.0,
+      "centroidDistanceMax": 36.0,
+      "footCenterDeltaMax": 42.0,
+      "areaRatioMin": 0.72,
+      "areaRatioMax": 1.34
+    },
+    "checks": {
+      "silhouetteCue": true,
+      "scaleContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true
+    },
+    "pass": true
+  },
+  "pass": true,
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        5,
+        5,
+        383,
+        547
+      ],
+      "sourceBodyHeight": 542,
+      "paste": [
+        88,
+        90
+      ],
+      "scaledSize": [
+        237,
+        340
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        5,
+        5,
+        387,
+        546
+      ],
+      "sourceBodyHeight": 541,
+      "paste": [
+        84,
+        91
+      ],
+      "scaledSize": [
+        240,
+        339
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        5,
+        5,
+        389,
+        549
+      ],
+      "sourceBodyHeight": 544,
+      "paste": [
+        85,
+        89
+      ],
+      "scaledSize": [
+        241,
+        341
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        5,
+        5,
+        445,
+        548
+      ],
+      "sourceBodyHeight": 543,
+      "paste": [
+        83,
+        89
+      ],
+      "scaledSize": [
+        276,
+        341
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        5,
+        5,
+        389,
+        549
+      ],
+      "sourceBodyHeight": 544,
+      "paste": [
+        85,
+        89
+      ],
+      "scaledSize": [
+        241,
+        341
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        5,
+        5,
+        387,
+        546
+      ],
+      "sourceBodyHeight": 541,
+      "paste": [
+        84,
+        91
+      ],
+      "scaledSize": [
+        240,
+        339
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        5,
+        5,
+        383,
+        547
+      ],
+      "sourceBodyHeight": 542,
+      "paste": [
+        88,
+        90
+      ],
+      "scaledSize": [
+        237,
+        340
+      ]
+    }
+  ]
+}
