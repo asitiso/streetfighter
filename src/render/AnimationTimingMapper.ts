@@ -103,9 +103,9 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
     if (move.id === 'KEN_ANTI_AIR' || move.id === 'KEN_SA1' || move.id === 'KEN_SA2') return 'shoryuken';
     if (move.id === 'KEN_MOBILITY') return 'tatsumaki';
     if (move.id === 'KEN_SUPER' || move.id === 'KEN_SA3') return 'super-rush';
-    // These authored strips depict standing punches, not every attack that
+    // These authored strips depict specific standing normals, not every attack that
     // shares their button strength (crouching, kicking, or command normals).
-    return move.id === '5LP' ? 'stand-light' : move.id === '5MP' ? 'stand-medium' : move.id === '5HP' ? 'stand-heavy' : null;
+    return move.id === '5LP' ? 'stand-light' : move.id === '5MP' ? 'stand-medium' : move.id === '5HP' ? 'stand-heavy' : move.id === '5LK' ? 'stand-light-kick' : null;
   }
   if (['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'].includes(characterId)) {
     switch (move.id) {
