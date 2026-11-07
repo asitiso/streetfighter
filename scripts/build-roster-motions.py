@@ -1,6 +1,6 @@
 """Build the six missing roster movement strips using existing quality gates.
 
-Source sheets are generated key poses (2x2 idle/air, 2x4 walk, 2x3 retreat/dash).
+Source sheets are generated key poses (2x2 idle/air/defense, 2x4 walk, 2x3 retreat/dash/hit).
 Default is read-only QA; --install writes all six only after every gate passes.
 """
 from pathlib import Path
@@ -15,6 +15,7 @@ from scipy import ndimage
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'art-source/roster-idle'
 CONFIG=json.loads((SOURCE/'batch.json').read_text())
+GUARD_ORDER=[1,1,2,2,3]
 
 def module():
  spec=importlib.util.spec_from_file_location('roster_idle_motion',ROOT/'scripts/install-authored-ken-sequence.py')
@@ -64,9 +65,9 @@ def handoffs(directory,kind,frames):
  if kind=='dash':
   base=load_peer('idle')[0]
   return {'idleToDash':compare(base,frames[0],h.DASH_START_LIMITS),'dashToIdle':compare(frames[-1],base,h.DASH_END_LIMITS)}
- if kind=='hit':
-  base=load_peer('idle')[0]
-  return {'idleToHit':compare(base,frames[0],h.HIT_BASE_LIMITS),'hitToIdle':compare(frames[-1],base,h.HIT_BASE_LIMITS)}
+ if kind in ('hit','guard','parry'):
+  base=load_peer('idle')[0];limits={'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS}[kind]
+  return {'idleTo'+kind.title():compare(base,frames[0],limits),kind+'ToIdle':compare(frames[-1],base,limits)}
  bridges={}
  for peer in ('idle','walk','walk-back'):
   if peer==kind or peer not in records:continue
@@ -83,10 +84,12 @@ def handoffs(directory,kind,frames):
   bridges['idleToJump']=compare(frames[0],jump_start,h.JUMP_BASE_LIMITS)
   bridges['jumpToLanding']=compare(jump_end,landing_start,h.JUMP_LANDING_LIMITS)
   bridges['landingToIdle']=compare(landing_end,frames[0],h.LANDING_END_LIMITS)
- if kind=='idle' and 'hit' in records:
-  start,end=load_peer('hit')
-  bridges['idleToHit']=compare(frames[0],start,h.HIT_BASE_LIMITS)
-  bridges['hitToIdle']=compare(end,frames[0],h.HIT_BASE_LIMITS)
+ if kind=='idle':
+  for peer,limits in [('hit',h.HIT_BASE_LIMITS),('guard',h.GUARD_BASE_LIMITS),('parry',h.PARRY_BASE_LIMITS)]:
+   if peer in records:
+    start,end=load_peer(peer)
+    bridges['idleTo'+peer.title()]=compare(frames[0],start,limits)
+    bridges[peer+'ToIdle']=compare(end,frames[0],limits)
  return bridges
 
 def webp(frames):
@@ -176,7 +179,7 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back','dash','air','hit'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back','dash','air','hit','guard','parry'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
@@ -196,9 +199,14 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png'}[kind])
-  raw=extract(Image.open(source),{'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3}[kind]);normalization=None;overrides=[]
-  if kind in ('dash','hit'):
+  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png'}[kind])
+  raw=extract(Image.open(source),{'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3,'guard':2,'parry':2}[kind]);normalization=None;overrides=[]
+  if kind=='guard':
+   for recipe in entry.get('guardOverrides',[]):
+    extra=SOURCE/slug/recipe['source'];target=recipe['pose']-1
+    raw[target]=extract(Image.open(extra),recipe['rows'])[recipe['sourcePose']-1]
+    overrides.append({'frames':[i+1 for i,pose in enumerate(GUARD_ORDER) if pose==target],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['sourcePose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
+  if kind in ('dash','hit','guard','parry'):
    if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
@@ -215,6 +223,10 @@ def main():
   orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
   if kind=='dash':orders=[[0,1,2,2,3,4,5]]
   if kind=='hit':orders=[[0,1,2,2,3,4,5,5]]
+  # A long block holds its initial frame. Start already shielding instead of
+  # holding the neutral reference pose while an attack is being blocked.
+  if kind=='guard':orders=[GUARD_ORDER]
+  if kind=='parry':orders=[[0,1,2,2,3,3]]
   for order in orders:
    frames=[keys[i] for i in order]
    pose=motion.pose_qa(frames,kind);semantic=motion.semantic_qa(kind,frames,pose)

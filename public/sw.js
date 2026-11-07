@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'game-cache-v107';
+const CACHE_VERSION = 'game-cache-v108';
 const GAME_CACHE_PREFIX = 'game-cache-v';
 const UPDATE_META_CACHE = 'ssc-update-meta';
 const ROLLBACK_MARKER = '/__ssc_rollback_target__';
