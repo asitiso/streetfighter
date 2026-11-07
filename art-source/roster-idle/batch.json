@@ -2,7 +2,14 @@
   {
     "id": "ALEX",
     "slug": "alex",
-    "guardOverrides": [{"pose":3,"source":"parry-sheet.png","rows":2,"sourcePose":3}],
+    "guardOverrides": [
+      {
+        "pose": 3,
+        "source": "parry-sheet.png",
+        "rows": 2,
+        "sourcePose": 3
+      }
+    ],
     "fps": 8,
     "source": "sheet.png"
   },
@@ -16,26 +23,132 @@
     "id": "MAKOTO",
     "slug": "makoto",
     "fps": 9,
-    "source": "sheet.png"
+    "source": "sheet.png",
+    "attackRecipes": {
+      "stand-light": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4
+        ]
+      },
+      "stand-heavy": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
+      }
+    }
   },
   {
     "id": "YUN",
     "slug": "yun",
     "fps": 11,
-    "source": "sheet.png"
+    "source": "sheet.png",
+    "attackRecipes": {
+      "stand-light": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4
+        ]
+      },
+      "stand-heavy": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
+      }
+    }
   },
   {
     "id": "URIEN",
     "slug": "urien",
-    "guardOverrides": [{"pose":2,"source":"parry-sheet.png","rows":2,"sourcePose":2},{"pose":4,"source":"parry-sheet.png","rows":2,"sourcePose":2}],
-    "dashEntry": {"source":"retreat-sheet.png","rows":3,"pose":1},
+    "guardOverrides": [
+      {
+        "pose": 2,
+        "source": "parry-sheet.png",
+        "rows": 2,
+        "sourcePose": 2
+      },
+      {
+        "pose": 4,
+        "source": "parry-sheet.png",
+        "rows": 2,
+        "sourcePose": 2
+      }
+    ],
+    "dashEntry": {
+      "source": "retreat-sheet.png",
+      "rows": 3,
+      "pose": 1
+    },
     "fps": 7.6,
-    "source": "sheet.png"
+    "source": "sheet.png",
+    "attackRecipes": {
+      "stand-heavy": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
+      }
+    }
   },
   {
     "id": "GILL",
     "slug": "gill",
     "fps": 7.2,
-    "source": "sheet.png"
+    "source": "sheet.png",
+    "attackRecipes": {
+      "stand-light": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4
+        ]
+      }
+    }
   }
 ]
