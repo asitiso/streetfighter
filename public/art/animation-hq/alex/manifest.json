@@ -1,8 +1,8 @@
 {
   "character": "ALEX",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 184,
-  "enabledFrameTotal": 184,
+  "frameTotal": 191,
+  "enabledFrameTotal": 191,
   "records": [
     {
       "id": "idle",
@@ -5108,6 +5108,241 @@
         2,
         3
       ]
+    },
+    {
+      "id": "dash-back",
+      "frames": 7,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        4480,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "C30E567A9B253B557331E0D52D02B1473CFF07D52E4B8F2D7EB839F38AD08BBF",
+      "bytes": 581792,
+      "poseQa": {
+        "affineResidualAverage": 0.033295,
+        "affineResidualMax": 0.052856,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "dash-back",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.88,
+          "midpointIoUMin": 0.28,
+          "midpointIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 75.0,
+          "centroidYRangeMin": 10.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 58.0,
+          "areaCvMax": 0.18,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.2
+        },
+        "startEndIoU": 0.761724,
+        "midpointIoU": 0.430129,
+        "centroidXRange": 31.774238,
+        "centroidYRange": 38.146188,
+        "centroidStepMax": 35.958716,
+        "areaCv": 0.04117,
+        "residualAverage": 0.033295,
+        "residualMax": 0.052856,
+        "checks": {
+          "recoveryNotDuplicate": true,
+          "drivePoseDistinct": true,
+          "verticalDrivePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "horizontalDrivePresent": true,
+          "backwardDrivePresent": true
+        },
+        "semanticQaPass": true,
+        "backwardDrivePx": 59.078385,
+        "driveBasis": "upper-half-relative-lower-leg-extent"
+      },
+      "handoffQa": {
+        "idleToDashBack": {
+          "iou": 0.716415,
+          "centroidDistance": 15.040694,
+          "footCenterDelta": 12.957703,
+          "areaRatio": 1.27972,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.8,
+            "centroidDistanceMax": 45.0,
+            "areaRatioMin": 0.7,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true
+          },
+          "pass": true
+        },
+        "dashBackToIdle": {
+          "iou": 0.730157,
+          "centroidDistance": 6.165771,
+          "footCenterDelta": 19.637271,
+          "areaRatio": 0.838426,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.82,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 70.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        3,
+        3,
+        4,
+        5,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            352,
+            510
+          ],
+          "sourceBodyHeight": 510,
+          "paste": [
+            195,
+            60
+          ],
+          "scaledSize": [
+            250,
+            363
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            378,
+            483
+          ],
+          "sourceBodyHeight": 483,
+          "paste": [
+            186,
+            79
+          ],
+          "scaledSize": [
+            269,
+            344
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            514,
+            424
+          ],
+          "sourceBodyHeight": 424,
+          "paste": [
+            137,
+            121
+          ],
+          "scaledSize": [
+            366,
+            302
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            438,
+            422
+          ],
+          "sourceBodyHeight": 422,
+          "paste": [
+            164,
+            123
+          ],
+          "scaledSize": [
+            312,
+            300
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            346,
+            467
+          ],
+          "sourceBodyHeight": 467,
+          "paste": [
+            197,
+            91
+          ],
+          "scaledSize": [
+            246,
+            332
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            349,
+            475
+          ],
+          "sourceBodyHeight": 475,
+          "paste": [
+            196,
+            85
+          ],
+          "scaledSize": [
+            248,
+            338
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/alex/dash-back-sheet.png",
+      "sourceSha256": "BFA76E83A02E0A9CB859B7EFF09090C4016D53D67B9A8F71606983D655E8EE60",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 338,
+        "sourceGuardHeight": 475,
+        "uniformScale": 0.7115789473684211
+      },
+      "facingRelativeDirection": "backward"
     }
   ]
 }

@@ -3,6 +3,7 @@ export type AnimationSequenceKind =
   | 'walk'
   | 'walk-back'
   | 'dash'
+  | 'dash-back'
   | 'jump'
   | 'landing'
   | 'crouch-heavy-kick'
@@ -244,6 +245,12 @@ const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
   { id:'URIEN_LANDING_HQ', characterId:'URIEN', kind:'landing', asset:'/art/animation-hq/urien/landing.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:20, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'GILL_JUMP_HQ', characterId:'GILL', kind:'jump', asset:'/art/animation-hq/gill/jump.webp', frameCount:8, frameWidth:384, frameHeight:448, fps:14, loop:false, timing:'linear', footLock:false, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'GILL_LANDING_HQ', characterId:'GILL', kind:'landing', asset:'/art/animation-hq/gill/landing.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:20, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'ALEX_DASH_BACK_HQ', characterId:'ALEX', kind:'dash-back', asset:'/art/animation-hq/alex/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_DASH_BACK_HQ', characterId:'DUDLEY', kind:'dash-back', asset:'/art/animation-hq/dudley/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:22, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_DASH_BACK_HQ', characterId:'MAKOTO', kind:'dash-back', asset:'/art/animation-hq/makoto/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:22, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_DASH_BACK_HQ', characterId:'YUN', kind:'dash-back', asset:'/art/animation-hq/yun/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:24, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_DASH_BACK_HQ', characterId:'URIEN', kind:'dash-back', asset:'/art/animation-hq/urien/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:19, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_DASH_BACK_HQ', characterId:'GILL', kind:'dash-back', asset:'/art/animation-hq/gill/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:18, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_DASH_HQ', characterId:'ALEX', kind:'dash', asset:'/art/animation-hq/alex/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'DUDLEY_DASH_HQ', characterId:'DUDLEY', kind:'dash', asset:'/art/animation-hq/dudley/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:22, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'MAKOTO_DASH_HQ', characterId:'MAKOTO', kind:'dash', asset:'/art/animation-hq/makoto/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:22, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

@@ -74,18 +74,31 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     const tap={held:key=>key===action,pressed:key=>key===action,released:()=>false};
     for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){dash.captureInput(input,tick);dash.updatePlayer(input,rules);}
     assert.equal(dash.dashFrames,8,'Double tap must start the unchanged eight-tick dash');
-    const dashSeq=animationSequenceFor(def.id,'dash');assert.ok(dashSeq?.enabled&&dashSeq.poseAuthored,`${def.id} needs authored forward dash`);
+    const dashSeq=animationSequenceFor(def.id,direction===facing?'dash':'dash-back');assert.ok(dashSeq?.enabled&&dashSeq.poseAuthored,`${def.id} needs authored directional dash`);
     const frames=new Set();let ticks=0;
     while(dash.dashFrames>0) {
      const sample=animationSequenceSample(dash,0);
-     if(direction===facing){assert.equal(sample?.sequence.id,dashSeq.id);frames.add(sample.frame);checkCanvas(dash,dashSeq);}
-     else {assert.equal(sample,null,'Forward drive art must not replace a backward dash');calls.length=0;drawCombatFighter(ctx,dash,0,0);assert.ok(!calls.some(c=>c[0].src===dashSeq.asset));}
+     assert.equal(sample?.sequence.id,dashSeq.id);frames.add(sample.frame);checkCanvas(dash,dashSeq);
+     assert.equal(dashSeq.facingRelativeDirection,direction===facing?'forward':'backward');
+     if(ticks===0&&direction!==facing){
+      dashSeq.enabled=false;try{assert.equal(animationSequenceSample(dash,0),null,'Disabled backward art preserves prior fallback');}finally{dashSeq.enabled=true;}
+      dashSeq.facingRelativeDirection='forward';try{assert.equal(animationSequenceSample(dash,0),null,'Wrong-direction art cannot play');}finally{dashSeq.facingRelativeDirection='backward';}
+     }
+     if(ticks===2){
+      dash.hitStop=2;const clock=dash.dashFrames,x=dash.x;
+      for(let stop=0;stop<2;stop++){dash.updatePlayer(quiet,rules);assert.equal(dash.dashFrames,clock);assert.equal(dash.x,x);assert.equal(animationSequenceSample(dash,0).frame,sample.frame);}
+     }
      const before=dash.x;dash.captureInput(quiet,3+ticks);dash.updatePlayer(quiet,rules);
-     assert.ok((dash.x-before)*direction>0);assert.equal(dash.facing,facing);ticks++;
+     assert.ok(Math.abs((dash.x-before)-direction*8.2*def.speed*dash.combatProfile.walkScale)<1e-8);assert.equal(dash.facing,facing);ticks++;
     }
     assert.equal(ticks,8);
-    if(direction===facing)assert.deepEqual([...frames],[0,1,3,4,5,6],'Launch/drive/braking/recovery must all be reached');
+    assert.deepEqual([...frames],[0,1,3,4,5,6],'Launch/drive/braking/recovery must all be reached');
     dash.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(dash,0)?.sequence.id,seq.id);
+    for(const button of ['lp','jump']){
+     const interrupted=new Fighter(def,'player',600,460,facing);
+     for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){interrupted.captureInput(input,tick);interrupted.updatePlayer(input,rules);}
+     interrupted.updatePlayer({...quiet,pressed:key=>key===button},rules);assert.equal(interrupted.dashFrames,0);assert.equal(animationSequenceSample(interrupted,0).sequence.kind,button==='jump'?'jump':'stand-light');
+    }
    }
    const jumping=new Fighter(def,'player',600,460,facing),jumpSeq=animationSequenceFor(def.id,'jump'),landingSeq=animationSequenceFor(def.id,'landing');
    assert.ok(jumpSeq?.enabled&&jumpSeq.poseAuthored,`${def.id} needs authored jump`);
@@ -159,7 +172,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
      assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),input.sourceSha256,'Dash source provenance must match');
     }
    }
-   if(['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'].includes(record.id)) {
+   if(['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash-back','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'].includes(record.id)) {
     const source=await readFile(new URL(`../${record.source}`,import.meta.url));
     assert.equal(createHash('sha256').update(source).digest('hex').toUpperCase(),record.sourceSha256,'Source provenance must match');
     for(const override of record.sourceOverrides??[]) {
@@ -172,7 +185,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     }
    }
   }
-  assert.equal(manifest.enabledFrameTotal,184);
+  assert.equal(manifest.enabledFrameTotal,191);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.
@@ -180,5 +193,10 @@ for(const id of ['URIEN','GILL']) {
  const fighter=new Fighter(getCharacter(id),'enemy',600,460,1),target=new Fighter(getCharacter('RYU'),'player',850,460,-1);
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
+}
+for(const id of ['RYU','KEN','CHUNLI','IBUKI'])for(const facing of [-1,1])for(const direction of [-1,1]){
+ const f=new Fighter(getCharacter(id),'player',600,460,facing),action=direction===1?'right':'left',tap={...quiet,held:k=>k===action,pressed:k=>k===action};
+ for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){f.captureInput(input,tick);f.updatePlayer(input,rules);}
+ assert.equal(animationSequenceFor(id,'dash-back'),null);assert.equal(animationSequenceSample(f,0).sequence.kind,'dash','Existing four retain generic dash in both directions');
 }
 console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:6,hitFrames:48,defenseCharacters:6,defenseFrames:66,canvasDraws});
