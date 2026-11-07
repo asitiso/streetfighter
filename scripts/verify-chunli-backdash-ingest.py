@@ -7,10 +7,10 @@ import importlib.util,io,json,shutil,sys,hashlib,argparse
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['dash-back','guard','parry','stand-medium','stand-light-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-if (character=='KEN' and selected_kind not in ('dash-back','stand-medium','stand-light-kick')) or (character!='KEN' and selected_kind in ('stand-medium','stand-light-kick')):parser.error('Unsupported supplemental character/kind')
-count,width,order={'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6])}[selected_kind]
-slug=character.lower();prior_count={'CHUNLI':17,'IBUKI':16,'KEN':17}[character];total={'CHUNLI':168,'IBUKI':154,'KEN':160}[character]
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
+if (character=='KEN' and selected_kind not in ('dash-back','stand-medium','stand-light-kick','stand-medium-kick')) or (character!='KEN' and selected_kind in ('stand-medium','stand-light-kick','stand-medium-kick')):parser.error('Unsupported supplemental character/kind')
+count,width,order={'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6])}[selected_kind]
+slug=character.lower();prior_count={'CHUNLI':17,'IBUKI':16,'KEN':18}[character];total={'CHUNLI':168,'IBUKI':154,'KEN':170}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -73,19 +73,21 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
   wrong=frames.copy();wrong[1]=frames[3];wrong[3]=pad
   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
   assert not report['checks']['actualContactReach'] and not report['semanticQaPass'],'Guard at actual Ken contact accepted despite compensating startup punch'
- if selected_kind=='stand-light-kick':
+ if selected_kind in ('stand-light-kick','stand-medium-kick'):
+  contacts=(3,) if selected_kind=='stand-light-kick' else (4,5)
   punch=Image.open(runtime/'stand-medium.webp').convert('RGBA').crop((3*width,0,4*width,448))
   for substitute in (pad,punch):
-   wrong=frames.copy();wrong[3]=substitute
-   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
-   assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Guard or punch accepted as actual kick contact'
+   for contact in contacts:
+    wrong=frames.copy();wrong[contact]=substitute
+    report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+    assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Guard or punch accepted as actual kick contact '+str(contact)
   for offset,check in [((18,0),'supportRootStable'),((0,-12),'supportBaselineStable')]:
-   shifted=Image.new('RGBA',(width,448));shifted.alpha_composite(frames[3],offset);wrong=frames.copy();wrong[3]=shifted
+   shifted=Image.new('RGBA',(width,448));shifted.alpha_composite(frames[contacts[0]],offset);wrong=frames.copy();wrong[contacts[0]]=shifted
    report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
    assert not report['checks'][check] and not report['semanticQaPass'],'Displaced support sole accepted'
  negative([pad]*count,'Static guard accepted')
  translated=[]
- for dx in {5:(0,-8,-16,-8,0),6:(0,-8,-16,-16,-8,0),7:(0,-8,-16,-16,-8,-4,0),8:(0,-8,-16,-16,-8,-4,0,0)}[count]:
+ for dx in {5:(0,-8,-16,-8,0),6:(0,-8,-16,-16,-8,0),7:(0,-8,-16,-16,-8,-4,0),8:(0,-8,-16,-16,-8,-4,0,0),10:(0,-8,-16,-16,-8,-4,0,0,0,0)}[count]:
   frame=Image.new('RGBA',(width,448));frame.alpha_composite(pad,(dx,0));translated.append(frame)
  negative(translated,'Translated guard accepted')
  if selected_kind=='dash-back':
@@ -95,6 +97,9 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
   negative(wrong,'Forward runner accepted as backward')
  original=path.read_bytes();bad=json.loads(original);bad['records'][-1].update({'facingRelativeDirection':'forward'} if selected_kind=='dash-back' else {'frames':count+1});path.write_text(json.dumps(bad))
  rejected(lambda:run(runtime_only=True));path.write_bytes(original)
+ if selected_kind=='stand-medium-kick':
+  bad=json.loads(original);bad['records'][-1]['semanticProfile']='hook';path.write_text(json.dumps(bad))
+  rejected(lambda:run(runtime_only=True));path.write_bytes(original)
  peer=runtime/'idle.webp';original=peer.read_bytes();peer.write_bytes(original+b'corrupt')
  rejected(run);peer.write_bytes(original)
  src=source/(slug+'/'+selected_kind+'-sheet.png');original=src.read_bytes();src.unlink()

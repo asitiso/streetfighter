@@ -209,6 +209,9 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   'KEN:stand-light-kick': {
     weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
+  'KEN:stand-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'KEN:stand-light': {
     weights: [0.95, 0.72, 0.62, 1.18, 0.68, 0.92, 1.20],
     anchorX: [0, -4, -7, -10, -8, -3, 0],
