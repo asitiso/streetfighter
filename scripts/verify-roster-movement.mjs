@@ -69,7 +69,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    retreat.updatePlayer({...quiet,held:key=>key===(facing===1?'right':'left')},rules);
    assert.equal(animationSequenceSample(retreat,0)?.sequence.id,walk.id,'Forward switch must use forward walking');
    retreat.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(retreat,0)?.sequence.id,seq.id);
-   if(added.includes(def.id)){
+   if(added.includes(def.id)||def.id==='RYU'){
    for(const direction of [-1,1]) {
     const dash=new Fighter(def,'player',600,460,facing),action=direction===1?'right':'left';
     const tap={held:key=>key===action,pressed:key=>key===action,released:()=>false};
@@ -101,6 +101,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
      interrupted.updatePlayer({...quiet,pressed:key=>key===button},rules);assert.equal(interrupted.dashFrames,0);assert.equal(animationSequenceSample(interrupted,0).sequence.kind,button==='jump'?'jump':'stand-light');
     }
    }
+   if(added.includes(def.id)){
    const jumping=new Fighter(def,'player',600,460,facing),jumpSeq=animationSequenceFor(def.id,'jump'),landingSeq=animationSequenceFor(def.id,'landing');
    assert.ok(jumpSeq?.enabled&&jumpSeq.poseAuthored,`${def.id} needs authored jump`);
    assert.ok(landingSeq?.enabled&&landingSeq.poseAuthored,`${def.id} needs authored landing`);
@@ -119,6 +120,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    }
    assert.ok(rise&&fall&&landed&&apex);assert.equal(airFrames.size,8);assert.equal(landingFrames.size,6);
    assert.equal(jumping.jumpHeight,0);assert.equal(jumping.state,'idle');
+   }
    }
    const hitSeq=animationSequenceFor(def.id,'hit');assert.ok(hitSeq?.enabled&&hitSeq.poseAuthored);
    for(const air of [false,true]) {
@@ -196,9 +198,9 @@ for(const id of ['URIEN','GILL']) {
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
 }
-for(const id of ['RYU','KEN','CHUNLI','IBUKI'])for(const facing of [-1,1])for(const direction of [-1,1]){
+for(const id of ['KEN','CHUNLI','IBUKI'])for(const facing of [-1,1])for(const direction of [-1,1]){
  const f=new Fighter(getCharacter(id),'player',600,460,facing),action=direction===1?'right':'left',tap={...quiet,held:k=>k===action,pressed:k=>k===action};
  for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){f.captureInput(input,tick);f.updatePlayer(input,rules);}
- assert.equal(animationSequenceFor(id,'dash-back'),null);assert.equal(animationSequenceSample(f,0).sequence.kind,'dash','Existing four retain generic dash in both directions');
+ assert.equal(animationSequenceFor(id,'dash-back'),null);assert.equal(animationSequenceSample(f,0).sequence.kind,'dash','Existing three retain generic dash in both directions');
 }
 console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:7,hitFrames:56,defenseCharacters:7,defenseFrames:77,canvasDraws});

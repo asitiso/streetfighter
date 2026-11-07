@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v127';
+export const GAME_CACHE_NAME = 'game-cache-v128';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -65,7 +65,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/combat-sprites-hq/ken.webp', '/art/combat-sprites-hq/ibuki.webp',
     '/art/animation-hq/ryu/manifest.json',
     '/art/animation-hq/ryu/idle.webp', '/art/animation-hq/ryu/walk.webp', '/art/animation-hq/ryu/walk-back.webp',
-    '/art/animation-hq/ryu/dash.webp', '/art/animation-hq/ryu/jump.webp', '/art/animation-hq/ryu/landing.webp',
+    '/art/animation-hq/ryu/dash.webp', '/art/animation-hq/ryu/dash-back.webp', '/art/animation-hq/ryu/jump.webp', '/art/animation-hq/ryu/landing.webp',
     '/art/animation-hq/ryu/hit.webp', '/art/animation-hq/ryu/stand-light.webp', '/art/animation-hq/ryu/stand-medium.webp', '/art/animation-hq/ryu/stand-light-kick.webp', '/art/animation-hq/ryu/stand-medium-kick.webp', '/art/animation-hq/ryu/stand-heavy-kick.webp', '/art/animation-hq/ryu/stand-heavy.webp',
     // Staged-disabled Ryu specials stay on disk until their authored art is ready.
     '/art/animation-hq/ken/manifest.json',
