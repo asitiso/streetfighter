@@ -138,6 +138,8 @@ const CHUNLI: readonly AnimationSequence[] = [
 ] as const;
 
 const IBUKI: readonly AnimationSequence[] = [
+  { id:'IBUKI_GUARD_HQ', characterId:'IBUKI', kind:'guard', asset:'/art/animation-hq/ibuki/guard.webp', frameCount:5, frameWidth:384, frameHeight:448, fps:18, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'IBUKI_PARRY_HQ', characterId:'IBUKI', kind:'parry', asset:'/art/animation-hq/ibuki/parry.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:22, loop:false, timing:'snap', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_DASH_BACK_HQ', characterId:'IBUKI', kind:'dash-back', asset:'/art/animation-hq/ibuki/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:21, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_IDLE_HQ', characterId:'IBUKI', kind:'idle', asset:'/art/animation-hq/ibuki/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:8.8, loop:true, timing:'ease-in', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_WALK_HQ', characterId:'IBUKI', kind:'walk', asset:'/art/animation-hq/ibuki/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:14.6, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
