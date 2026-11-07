@@ -239,6 +239,12 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 1, 1, 1, 0, 0, 0],
     footLockStrength: 0.22,
   },
+  'CHUNLI:guard': {
+    weights: [1,1,1,1,1], anchorX: [0,0,0,0,0], anchorY: [0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:parry': {
+    weights: [1,1,1,1,1,1], anchorX: [0,0,0,0,0,0], anchorY: [0,0,0,0,0,0], footLockStrength: 0,
+  },
   'CHUNLI:idle': {
     weights: [1.350, 1.000, 0.900, 1.000, 0.950, 1.400],
     anchorX: [0.000, 10.000, 10.000, 0.000, -10.000, -10.000],
