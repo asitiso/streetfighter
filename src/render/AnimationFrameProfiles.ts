@@ -266,6 +266,9 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   'CHUNLI:stand-medium-kick': {
     weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
+  'CHUNLI:stand-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'CHUNLI:idle': {
     weights: [1.350, 1.000, 0.900, 1.000, 0.950, 1.400],
     anchorX: [0.000, 10.000, 10.000, 0.000, -10.000, -10.000],
