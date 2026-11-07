@@ -54,7 +54,10 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
   if (fighter.state === 'parry') return 'parry';
   if (!fighter.airborne && fighter.landingFrames > 0 && (fighter.state === 'idle' || fighter.state === 'walk')) return 'landing';
   if (fighter.state === 'jump') return 'jump';
-  if (fighter.dashFrames > 0 && !fighter.airborne && (fighter.state === 'walk' || fighter.state === 'idle')) return 'dash';
+  if (fighter.dashFrames > 0 && !fighter.airborne && (fighter.state === 'walk' || fighter.state === 'idle')) {
+    if (fighter.dashDirection !== fighter.facing && animationSequenceFor(fighter.character.id,'dash-back',true)?.poseAuthored) return 'dash-back';
+    return 'dash';
+  }
   if (!fighter.airborne && (fighter.state === 'crouch'
     || (fighter.crouchAnimationFrame >= 0 && (fighter.state === 'idle' || fighter.state === 'walk')
       && animationSequenceFor(fighter.character.id, 'crouch', true)?.poseAuthored))) return 'crouch';
@@ -193,7 +196,7 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
     const progress = clamp01(1 - fighter.landingFrames / 8);
     return { sequence, frame: frameAt(sequence, progress), progress, contact: false };
   }
-  if (kind === 'dash') {
+  if (kind === 'dash' || kind === 'dash-back') {
     const direction = fighter.dashDirection === fighter.facing ? 'forward' : 'backward';
     if (sequence.facingRelativeDirection && sequence.facingRelativeDirection !== direction) return null;
     const progress = clamp01(1 - fighter.dashFrames / 8);

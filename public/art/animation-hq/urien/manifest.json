@@ -1,8 +1,8 @@
 {
   "character": "URIEN",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 184,
-  "enabledFrameTotal": 184,
+  "frameTotal": 191,
+  "enabledFrameTotal": 191,
   "records": [
     {
       "id": "idle",
@@ -5083,6 +5083,241 @@
         2,
         3
       ]
+    },
+    {
+      "id": "dash-back",
+      "frames": 7,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        4480,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "7EBB70690FBF46865C7E8DBFFE9B1E85A6BF2DF995EC12571042E00B78B0A199",
+      "bytes": 569928,
+      "poseQa": {
+        "affineResidualAverage": 0.031644,
+        "affineResidualMax": 0.040875,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "dash-back",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.88,
+          "midpointIoUMin": 0.28,
+          "midpointIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 75.0,
+          "centroidYRangeMin": 10.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 58.0,
+          "areaCvMax": 0.18,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.2
+        },
+        "startEndIoU": 0.72809,
+        "midpointIoU": 0.361004,
+        "centroidXRange": 32.686593,
+        "centroidYRange": 28.843556,
+        "centroidStepMax": 39.186986,
+        "areaCv": 0.064676,
+        "residualAverage": 0.031644,
+        "residualMax": 0.040875,
+        "checks": {
+          "recoveryNotDuplicate": true,
+          "drivePoseDistinct": true,
+          "verticalDrivePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "horizontalDrivePresent": true,
+          "backwardDrivePresent": true
+        },
+        "semanticQaPass": true,
+        "backwardDrivePx": 64.826249,
+        "driveBasis": "upper-half-relative-lower-leg-extent"
+      },
+      "handoffQa": {
+        "idleToDashBack": {
+          "iou": 0.582457,
+          "centroidDistance": 4.452874,
+          "footCenterDelta": 22.292671,
+          "areaRatio": 1.398579,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.8,
+            "centroidDistanceMax": 45.0,
+            "areaRatioMin": 0.7,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true
+          },
+          "pass": true
+        },
+        "dashBackToIdle": {
+          "iou": 0.548828,
+          "centroidDistance": 11.290419,
+          "footCenterDelta": 31.366222,
+          "areaRatio": 0.663226,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.82,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 70.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        3,
+        3,
+        4,
+        5,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            314,
+            487
+          ],
+          "sourceBodyHeight": 487,
+          "paste": [
+            205,
+            67
+          ],
+          "scaledSize": [
+            230,
+            356
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            381,
+            480
+          ],
+          "sourceBodyHeight": 480,
+          "paste": [
+            180,
+            72
+          ],
+          "scaledSize": [
+            279,
+            351
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            500,
+            429
+          ],
+          "sourceBodyHeight": 429,
+          "paste": [
+            137,
+            109
+          ],
+          "scaledSize": [
+            366,
+            314
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            381,
+            446
+          ],
+          "sourceBodyHeight": 446,
+          "paste": [
+            180,
+            97
+          ],
+          "scaledSize": [
+            279,
+            326
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            361,
+            453
+          ],
+          "sourceBodyHeight": 453,
+          "paste": [
+            188,
+            92
+          ],
+          "scaledSize": [
+            264,
+            331
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            360,
+            461
+          ],
+          "sourceBodyHeight": 461,
+          "paste": [
+            188,
+            86
+          ],
+          "scaledSize": [
+            263,
+            337
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/urien/dash-back-sheet.png",
+      "sourceSha256": "7A5A5325DB60D5D8670A88F083167E64388CA3DB0136F3B571DDA201A970F6E3",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 461,
+        "uniformScale": 0.7310195227765727
+      },
+      "facingRelativeDirection": "backward"
     }
   ]
 }
