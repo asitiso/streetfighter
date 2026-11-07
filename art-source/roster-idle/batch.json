@@ -38,6 +38,22 @@
           4,
           4
         ]
+      },
+      "stand-medium-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ],
+        "semanticProfile": "knee"
       }
     }
   },
@@ -72,6 +88,22 @@
           4,
           4
         ]
+      },
+      "stand-medium-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ],
+        "semanticProfile": "hook"
       }
     }
   },
@@ -133,6 +165,22 @@
           4,
           4
         ]
+      },
+      "stand-medium-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ],
+        "semanticProfile": "kick"
       }
     }
   },
@@ -194,6 +242,22 @@
           4,
           4
         ]
+      },
+      "stand-medium-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ],
+        "semanticProfile": "kick"
       }
     }
   },
@@ -262,6 +326,22 @@
           4,
           4
         ]
+      },
+      "stand-medium-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ],
+        "semanticProfile": "kick"
       }
     }
   },
@@ -308,6 +388,22 @@
           4,
           4
         ]
+      },
+      "stand-medium-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          4,
+          4
+        ],
+        "semanticProfile": "kick"
       }
     }
   }

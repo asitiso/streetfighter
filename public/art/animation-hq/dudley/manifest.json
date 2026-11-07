@@ -1,8 +1,8 @@
 {
   "character": "DUDLEY",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 101,
-  "enabledFrameTotal": 101,
+  "frameTotal": 111,
+  "enabledFrameTotal": 111,
   "records": [
     {
       "id": "idle",
@@ -2982,6 +2982,226 @@
         2,
         2
       ]
+    },
+    {
+      "id": "stand-medium-kick",
+      "frames": 10,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        6400,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "1B8A64EB738AF8607D4CD17B1D03986AFC5B8004392D4A59764B76C4132DF257",
+      "bytes": 279362,
+      "poseQa": {
+        "affineResidualAverage": 0.017554,
+        "affineResidualMax": 0.03585,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-medium-kick",
+        "limits": {
+          "startEndIoUMin": 0.58,
+          "contactIoUMin": 0.32,
+          "contactIoUMax": 0.94,
+          "centroidXRangeMin": 4.0,
+          "centroidXRangeMax": 45.0,
+          "centroidYRangeMax": 28.0,
+          "reachRangeMin": 24.0,
+          "reachRangeMax": 105.0,
+          "footCenterRangeMax": 38.0,
+          "footWidthCvMax": 0.32,
+          "areaCvMax": 0.16,
+          "residualAverageMin": 0.01,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.022,
+          "residualMaxMax": 0.2,
+          "contactFrameIndex": 4
+        },
+        "startEndIoU": 0.977314,
+        "contactIoU": 0.684826,
+        "centroidXRange": 6.139134,
+        "centroidYRange": 8.905101,
+        "reachRange": 51.0,
+        "footCenterRange": 0.650316,
+        "footWidthCv": 0.007277,
+        "areaCv": 0.06623,
+        "residualAverage": 0.017554,
+        "residualMax": 0.03585,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "bothFeetPlanted": true,
+          "supportRootStable": true,
+          "supportBaselineStable": true
+        },
+        "semanticQaPass": true,
+        "semanticProfile": "hook"
+      },
+      "handoffQa": {
+        "idleToStandMediumKick": {
+          "iou": 0.715656,
+          "centroidDistance": 10.184475,
+          "footCenterDelta": 0.59219,
+          "areaRatio": 1.249779,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "standMediumKickToIdle": {
+          "iou": 0.718275,
+          "centroidDistance": 9.997052,
+          "footCenterDelta": 0.058127,
+          "areaRatio": 0.801344,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        4,
+        4
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            266,
+            480
+          ],
+          "sourceBodyHeight": 480,
+          "paste": [
+            224,
+            86
+          ],
+          "scaledSize": [
+            187,
+            337
+          ],
+          "footAnchorShift": -2
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            319,
+            467
+          ],
+          "sourceBodyHeight": 467,
+          "paste": [
+            188,
+            95
+          ],
+          "scaledSize": [
+            224,
+            328
+          ],
+          "footAnchorShift": -20
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            388,
+            471
+          ],
+          "sourceBodyHeight": 471,
+          "paste": [
+            191,
+            92
+          ],
+          "scaledSize": [
+            272,
+            331
+          ],
+          "footAnchorShift": 7
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            268,
+            480
+          ],
+          "sourceBodyHeight": 480,
+          "paste": [
+            224,
+            86
+          ],
+          "scaledSize": [
+            188,
+            337
+          ],
+          "footAnchorShift": -2
+        }
+      ],
+      "source": "art-source/roster-idle/dudley/stand-medium-kick-sheet.png",
+      "sourceSha256": "F870CCED8484E8523EC0B2B98C3A962A73E795164C4B8D7DA334D837F62759C6",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 480,
+        "uniformScale": 0.7020833333333333,
+        "footAnchorX": 323.93303964757706
+      },
+      "sourceGrid": [
+        2,
+        2
+      ],
+      "semanticProfile": "hook"
     }
   ]
 }

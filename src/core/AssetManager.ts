@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v111';
+export const GAME_CACHE_NAME = 'game-cache-v112';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -22,12 +22,12 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/attack-atlases-hd/dudley.webp', '/art/attack-atlases-hd/makoto.webp', '/art/attack-atlases-hd/ibuki.webp', '/art/attack-atlases-hd/yun.webp',
   ],
   'character-hq': [
-    '/art/animation-hq/alex/stand-light.webp', '/art/animation-hq/alex/stand-medium.webp', '/art/animation-hq/alex/stand-light-kick.webp', '/art/animation-hq/alex/stand-heavy.webp',
-    '/art/animation-hq/dudley/stand-light.webp', '/art/animation-hq/dudley/stand-medium.webp', '/art/animation-hq/dudley/stand-light-kick.webp', '/art/animation-hq/dudley/stand-heavy.webp',
-    '/art/animation-hq/makoto/stand-light.webp', '/art/animation-hq/makoto/stand-medium.webp', '/art/animation-hq/makoto/stand-light-kick.webp', '/art/animation-hq/makoto/stand-heavy.webp',
-    '/art/animation-hq/yun/stand-light.webp', '/art/animation-hq/yun/stand-medium.webp', '/art/animation-hq/yun/stand-light-kick.webp', '/art/animation-hq/yun/stand-heavy.webp',
-    '/art/animation-hq/urien/stand-light.webp', '/art/animation-hq/urien/stand-medium.webp', '/art/animation-hq/urien/stand-light-kick.webp', '/art/animation-hq/urien/stand-heavy.webp',
-    '/art/animation-hq/gill/stand-light.webp', '/art/animation-hq/gill/stand-medium.webp', '/art/animation-hq/gill/stand-light-kick.webp', '/art/animation-hq/gill/stand-heavy.webp',
+    '/art/animation-hq/alex/stand-light.webp', '/art/animation-hq/alex/stand-medium.webp', '/art/animation-hq/alex/stand-light-kick.webp', '/art/animation-hq/alex/stand-medium-kick.webp', '/art/animation-hq/alex/stand-heavy.webp',
+    '/art/animation-hq/dudley/stand-light.webp', '/art/animation-hq/dudley/stand-medium.webp', '/art/animation-hq/dudley/stand-light-kick.webp', '/art/animation-hq/dudley/stand-medium-kick.webp', '/art/animation-hq/dudley/stand-heavy.webp',
+    '/art/animation-hq/makoto/stand-light.webp', '/art/animation-hq/makoto/stand-medium.webp', '/art/animation-hq/makoto/stand-light-kick.webp', '/art/animation-hq/makoto/stand-medium-kick.webp', '/art/animation-hq/makoto/stand-heavy.webp',
+    '/art/animation-hq/yun/stand-light.webp', '/art/animation-hq/yun/stand-medium.webp', '/art/animation-hq/yun/stand-light-kick.webp', '/art/animation-hq/yun/stand-medium-kick.webp', '/art/animation-hq/yun/stand-heavy.webp',
+    '/art/animation-hq/urien/stand-light.webp', '/art/animation-hq/urien/stand-medium.webp', '/art/animation-hq/urien/stand-light-kick.webp', '/art/animation-hq/urien/stand-medium-kick.webp', '/art/animation-hq/urien/stand-heavy.webp',
+    '/art/animation-hq/gill/stand-light.webp', '/art/animation-hq/gill/stand-medium.webp', '/art/animation-hq/gill/stand-light-kick.webp', '/art/animation-hq/gill/stand-medium-kick.webp', '/art/animation-hq/gill/stand-heavy.webp',
     '/art/animation-hq/alex/guard.webp', '/art/animation-hq/alex/parry.webp',
     '/art/animation-hq/dudley/guard.webp', '/art/animation-hq/dudley/parry.webp',
     '/art/animation-hq/makoto/guard.webp', '/art/animation-hq/makoto/parry.webp',
