@@ -1,8 +1,8 @@
 {
   "character": "DUDLEY",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 18,
-  "enabledFrameTotal": 18,
+  "frameTotal": 28,
+  "enabledFrameTotal": 28,
   "records": [
     {
       "id": "idle",
@@ -465,6 +465,285 @@
       ],
       "source": "art-source/roster-idle/dudley/walk-sheet.png",
       "sourceSha256": "3BC6B6A37A858CE0936EB67FE7CDFFE6E823C2133FB648A68D33FC20350B6861"
+    },
+    {
+      "id": "walk-back",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "E00AF275C910E745ECD87DE9F27C9BBDBA406A58724A0C92F71DFB864FC1037C",
+      "bytes": 401464,
+      "poseQa": {
+        "affineResidualAverage": 0.040445,
+        "affineResidualMax": 0.073404,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "walk-back",
+        "limits": {
+          "loopIoUMin": 0.42,
+          "oppositeContactIoUMin": 0.35,
+          "oppositeContactIoUMax": 0.9,
+          "centroidXRangeMin": 6.0,
+          "centroidXRangeMax": 90.0,
+          "centroidYRangeMin": 3.0,
+          "centroidYRangeMax": 58.0,
+          "centroidStepMax": 52.0,
+          "areaCvMax": 0.17,
+          "footCenterRangeMin": 24.0,
+          "footCenterRangeMax": 145.0,
+          "footWidthCvMin": 0.05,
+          "footWidthCvMax": 0.95,
+          "residualAverageMin": 0.008,
+          "residualAverageMax": 0.13,
+          "residualMaxMin": 0.018,
+          "residualMaxMax": 0.18
+        },
+        "loopIoU": 0.477069,
+        "oppositeContactIoU": 0.621063,
+        "centroidXRange": 8.016816,
+        "centroidYRange": 33.511601,
+        "centroidStepMax": 13.67457,
+        "areaCv": 0.087112,
+        "footCenterRange": 29.800455,
+        "footWidthCv": 0.269004,
+        "residualAverage": 0.040445,
+        "residualMax": 0.073404,
+        "checks": {
+          "loopClosure": true,
+          "oppositeContactDifferent": true,
+          "retreatShapeTravelPresent": true,
+          "verticalCadencePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "footTravelPresent": true,
+          "stanceChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "walk-backToidle": {
+          "iou": 0.544068,
+          "centroidDistance": 16.255082,
+          "footCenterDelta": 0.235126,
+          "areaRatio": 0.864769,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "idleTowalk-back": {
+          "iou": 0.661711,
+          "centroidDistance": 19.844244,
+          "footCenterDelta": 21.43452,
+          "areaRatio": 1.323444,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "walk-backTowalk": {
+          "iou": 0.511122,
+          "centroidDistance": 21.497657,
+          "footCenterDelta": 8.559376,
+          "areaRatio": 0.975155,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "walkTowalk-back": {
+          "iou": 0.524002,
+          "centroidDistance": 32.096378,
+          "footCenterDelta": 1.309996,
+          "areaRatio": 0.977701,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        3,
+        3,
+        4,
+        5,
+        5,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            234,
+            504
+          ],
+          "sourceBodyHeight": 504,
+          "paste": [
+            106,
+            53
+          ],
+          "scaledSize": [
+            172,
+            370
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            339,
+            497
+          ],
+          "sourceBodyHeight": 497,
+          "paste": [
+            68,
+            58
+          ],
+          "scaledSize": [
+            249,
+            365
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            228,
+            461
+          ],
+          "sourceBodyHeight": 461,
+          "paste": [
+            108,
+            84
+          ],
+          "scaledSize": [
+            168,
+            339
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            231,
+            459
+          ],
+          "sourceBodyHeight": 459,
+          "paste": [
+            107,
+            86
+          ],
+          "scaledSize": [
+            170,
+            337
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            221,
+            429
+          ],
+          "sourceBodyHeight": 429,
+          "paste": [
+            111,
+            108
+          ],
+          "scaledSize": [
+            162,
+            315
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            309,
+            427
+          ],
+          "sourceBodyHeight": 427,
+          "paste": [
+            78,
+            109
+          ],
+          "scaledSize": [
+            227,
+            314
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/dudley/retreat-sheet.png",
+      "sourceSha256": "9B0DB61B1203FABD3C0DEDDB0555C698F8754E192D21EFFE15609E29B6BC27BB"
     }
   ]
 }

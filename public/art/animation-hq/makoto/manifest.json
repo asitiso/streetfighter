@@ -1,8 +1,8 @@
 {
   "character": "MAKOTO",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 18,
-  "enabledFrameTotal": 18,
+  "frameTotal": 28,
+  "enabledFrameTotal": 28,
   "records": [
     {
       "id": "idle",
@@ -465,6 +465,285 @@
       ],
       "source": "art-source/roster-idle/makoto/walk-sheet.png",
       "sourceSha256": "821974BECAF76FFA64FEA335F9A4EEABD0553D980AF5D29077D5BAC6CC2D4EA0"
+    },
+    {
+      "id": "walk-back",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "CC8958D18AF5A133EAC0B1BBE675DE8ED329B57135E763C376FEC5D9162D99BB",
+      "bytes": 498574,
+      "poseQa": {
+        "affineResidualAverage": 0.040422,
+        "affineResidualMax": 0.057819,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "walk-back",
+        "limits": {
+          "loopIoUMin": 0.42,
+          "oppositeContactIoUMin": 0.35,
+          "oppositeContactIoUMax": 0.9,
+          "centroidXRangeMin": 6.0,
+          "centroidXRangeMax": 90.0,
+          "centroidYRangeMin": 3.0,
+          "centroidYRangeMax": 58.0,
+          "centroidStepMax": 52.0,
+          "areaCvMax": 0.17,
+          "footCenterRangeMin": 24.0,
+          "footCenterRangeMax": 145.0,
+          "footWidthCvMin": 0.05,
+          "footWidthCvMax": 0.95,
+          "residualAverageMin": 0.008,
+          "residualAverageMax": 0.13,
+          "residualMaxMin": 0.018,
+          "residualMaxMax": 0.18
+        },
+        "loopIoU": 0.757709,
+        "oppositeContactIoU": 0.690352,
+        "centroidXRange": 12.640864,
+        "centroidYRange": 25.736038,
+        "centroidStepMax": 24.256331,
+        "areaCv": 0.059156,
+        "footCenterRange": 91.828298,
+        "footWidthCv": 0.164723,
+        "residualAverage": 0.040422,
+        "residualMax": 0.057819,
+        "checks": {
+          "loopClosure": true,
+          "oppositeContactDifferent": true,
+          "retreatShapeTravelPresent": true,
+          "verticalCadencePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "footTravelPresent": true,
+          "stanceChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "walk-backToidle": {
+          "iou": 0.578386,
+          "centroidDistance": 15.677726,
+          "footCenterDelta": 32.036581,
+          "areaRatio": 0.929553,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "idleTowalk-back": {
+          "iou": 0.595609,
+          "centroidDistance": 10.427095,
+          "footCenterDelta": 17.147013,
+          "areaRatio": 1.055722,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "walk-backTowalk": {
+          "iou": 0.581025,
+          "centroidDistance": 7.476447,
+          "footCenterDelta": 24.543893,
+          "areaRatio": 0.886059,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "walkTowalk-back": {
+          "iou": 0.730469,
+          "centroidDistance": 7.640689,
+          "footCenterDelta": 20.141221,
+          "areaRatio": 1.0375,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        4,
+        5,
+        5,
+        6,
+        6,
+        1,
+        1,
+        2,
+        3,
+        3
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            260,
+            491
+          ],
+          "sourceBodyHeight": 491,
+          "paste": [
+            98,
+            66
+          ],
+          "scaledSize": [
+            189,
+            357
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            333,
+            495
+          ],
+          "sourceBodyHeight": 495,
+          "paste": [
+            71,
+            64
+          ],
+          "scaledSize": [
+            242,
+            359
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            270,
+            470
+          ],
+          "sourceBodyHeight": 470,
+          "paste": [
+            94,
+            82
+          ],
+          "scaledSize": [
+            196,
+            341
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            254,
+            461
+          ],
+          "sourceBodyHeight": 461,
+          "paste": [
+            100,
+            88
+          ],
+          "scaledSize": [
+            184,
+            335
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            305,
+            436
+          ],
+          "sourceBodyHeight": 436,
+          "paste": [
+            82,
+            106
+          ],
+          "scaledSize": [
+            221,
+            317
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            256,
+            438
+          ],
+          "sourceBodyHeight": 438,
+          "paste": [
+            99,
+            105
+          ],
+          "scaledSize": [
+            186,
+            318
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/makoto/retreat-sheet.png",
+      "sourceSha256": "3E9405B7AA0BE0B3DB1012177F89CD955D26B2912C158AC0144D60FDC50B2695"
     }
   ]
 }

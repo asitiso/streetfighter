@@ -33,21 +33,30 @@ def main():
    assert failed
   failure('idle');assert not (runtime/'idle.webp').exists() and not manifest.exists(),'First install left partial files'
   run('idle');run('walk')
+  prior={p:p.read_bytes() for p in runtime.iterdir()}
+  failure('walk-back');assert prior=={p:p.read_bytes() for p in runtime.iterdir()},'New retreat rollback left a file or changed manifest'
+  run('walk-back')
   before={p:p.read_bytes() for p in runtime.iterdir()}
-  for kind in ['idle','walk']:
+  for kind in ['idle','walk','walk-back']:
    failure(kind);assert before=={p:p.read_bytes() for p in runtime.iterdir()},'Replacement rollback changed installed files'
    run(kind,False)
-  assert json.loads(manifest.read_text())['enabledFrameTotal']==18
-  idle=runtime/'idle.webp';idle.write_bytes(b'corrupt peer');corrupted={p:p.read_bytes() for p in runtime.iterdir()}
-  try:run('walk')
-  except ValueError:pass
-  else:raise AssertionError('Corrupt installed idle peer accepted')
-  assert corrupted=={p:p.read_bytes() for p in runtime.iterdir()}
-  idle.write_bytes(before[idle]);(source/'alex/walk-sheet.png').write_bytes(b'incomplete source')
-  try:run('walk')
+  assert json.loads(manifest.read_text())['enabledFrameTotal']==28
+  directions=0
+  for peer in ['idle','walk','walk-back']:
+   path=runtime/f'{peer}.webp'
+   for selected in ['idle','walk','walk-back']:
+    if peer==selected:continue
+    path.write_bytes(b'corrupt peer');corrupted={p:p.read_bytes() for p in runtime.iterdir()}
+    try:run(selected)
+    except ValueError:pass
+    else:raise AssertionError('Corrupt installed peer accepted')
+    assert corrupted=={p:p.read_bytes() for p in runtime.iterdir()}
+    path.write_bytes(before[path]);directions+=1
+  (source/'alex/retreat-sheet.png').write_bytes(b'incomplete source')
+  try:run('walk-back')
   except OSError:pass
   else:raise AssertionError('Incomplete source accepted')
   assert before=={p:p.read_bytes() for p in runtime.iterdir()}
- print('ROSTER_INGEST_PASS firstInstallRollback=True replacementRollback=True peerRejected=True incompleteRejected=True')
+ print(f'ROSTER_INGEST_PASS firstInstallRollback=True retreatNewFileRollback=True replacementRollback=True corruptPeerDirections={directions} incompleteRejected=True')
 
 if __name__=='__main__':main()
