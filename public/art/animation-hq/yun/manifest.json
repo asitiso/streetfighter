@@ -1,8 +1,8 @@
 {
   "character": "YUN",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 129,
-  "enabledFrameTotal": 129,
+  "frameTotal": 136,
+  "enabledFrameTotal": 136,
   "records": [
     {
       "id": "idle",
@@ -3541,6 +3541,221 @@
         "footAnchorMode": "two-foot",
         "standingReferenceFrame": 1,
         "footAnchorX": 200.68588640275388
+      },
+      "sourceGrid": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "crouch-light",
+      "frames": 7,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        4480,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "5A93B051BFE471E92AE764081A45D02304175C017F12178C80D9FD964A5B948F",
+      "bytes": 273318,
+      "poseQa": {
+        "affineResidualAverage": 0.012821,
+        "affineResidualMax": 0.023843,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "crouch-light",
+        "limits": {
+          "startEndIoUMin": 0.58,
+          "contactIoUMin": 0.32,
+          "contactIoUMax": 0.94,
+          "centroidXRangeMin": 4.0,
+          "centroidXRangeMax": 45.0,
+          "centroidYRangeMax": 28.0,
+          "reachRangeMin": 24.0,
+          "reachRangeMax": 105.0,
+          "footCenterRangeMax": 38.0,
+          "footWidthCvMax": 0.32,
+          "areaCvMax": 0.16,
+          "residualAverageMin": 0.01,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.022,
+          "residualMaxMax": 0.2,
+          "contactFrameIndex": 3
+        },
+        "startEndIoU": 0.98825,
+        "contactIoU": 0.785338,
+        "centroidXRange": 15.335471,
+        "centroidYRange": 3.763809,
+        "reachRange": 44.0,
+        "footCenterRange": 0.854135,
+        "footWidthCv": 0.0,
+        "areaCv": 0.013121,
+        "residualAverage": 0.012821,
+        "residualMax": 0.023843,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "lowPostureMaintained": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "crouchToCrouchLight": {
+          "iou": 0.885071,
+          "centroidDistance": 3.069528,
+          "footCenterDelta": 0.671844,
+          "areaRatio": 1.067715,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "crouchLightToCrouch": {
+          "iou": 0.885708,
+          "centroidDistance": 3.06379,
+          "footCenterDelta": 0.107932,
+          "areaRatio": 0.940027,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        2,
+        3,
+        2,
+        2,
+        4
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            474,
+            433
+          ],
+          "sourceBodyHeight": 433,
+          "paste": [
+            191,
+            194
+          ],
+          "scaledSize": [
+            250,
+            229
+          ],
+          "footAnchorShift": -4
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            477,
+            432
+          ],
+          "sourceBodyHeight": 432,
+          "paste": [
+            189,
+            195
+          ],
+          "scaledSize": [
+            252,
+            228
+          ],
+          "footAnchorShift": -5
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            557,
+            429
+          ],
+          "sourceBodyHeight": 429,
+          "paste": [
+            191,
+            197
+          ],
+          "scaledSize": [
+            294,
+            226
+          ],
+          "footAnchorShift": 18
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            474,
+            432
+          ],
+          "sourceBodyHeight": 432,
+          "paste": [
+            191,
+            195
+          ],
+          "scaledSize": [
+            250,
+            228
+          ],
+          "footAnchorShift": -4
+        }
+      ],
+      "source": "art-source/roster-idle/yun/crouch-light-sheet.png",
+      "sourceSha256": "F6CA24C1AC30A1B54B08D7884924D6EF6C9303D0186C6B8A727FFE458A2C5874",
+      "normalization": {
+        "reference": "crouch-recovery-height",
+        "referenceHeight": 228,
+        "sourceGuardHeight": 432,
+        "uniformScale": 0.5277777777777778,
+        "footAnchorMode": "two-foot",
+        "referenceFrame": 6,
+        "footAnchorX": 328.7747678018576
       },
       "sourceGrid": [
         2,

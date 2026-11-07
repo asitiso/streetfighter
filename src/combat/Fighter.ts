@@ -627,6 +627,8 @@ export class Fighter {
     const eligible = this.state === 'idle' || this.state === 'walk' || this.state === 'crouch'
       || (this.state === 'attack' && this.currentMove?.id.startsWith('2'));
     if (this.airborne || !eligible) { this.crouchAnimationFrame = -1; return; }
+    // Keep grounded crouching attacks low until their recovery completes.
+    if (this.state === 'attack' && this.currentMove?.id.startsWith('2')) { this.crouchAnimationFrame = 5; return; }
     this.crouchAnimationFrame = heldDown
       ? Math.min(5, this.crouchAnimationFrame + 1)
       : Math.max(-1, this.crouchAnimationFrame - 1);

@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import {Fighter} from '../dist/assets/combat/Fighter.js';
+import {getCharacter,CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
+import {normalFor} from '../dist/assets/combat/MoveLibrary.js';
+import {animationSequenceFor,animationSequencesFor} from '../dist/assets/render/AnimationSequenceLibrary.js';
+import {animationSequenceKindForAttack,animationSequenceSample} from '../dist/assets/render/AnimationTimingMapper.js';
+const quiet={held:()=>false,pressed:()=>false,released:()=>false},down={...quiet,held:k=>k==='down'};
+const rules={mode:'duel',depthMovement:false,laneTolerance:22,arenaLeft:100,arenaRight:1180,arenaTop:500,arenaBottom:500};
+const assets=new Map([...CHARACTERS,...BOSS_CHARACTERS].flatMap(c=>animationSequencesFor(c.id)).map(s=>[s.asset,s]));
+globalThis.Image=class{complete=true;set src(v){this.url=v;const s=assets.get(v);this.naturalWidth=s?s.frameWidth*s.frameCount:384;this.naturalHeight=448;this.onload?.();}get src(){return this.url;}};
+const {drawCombatFighter}=await import('../dist/assets/render/Visuals.js');
+const {runtimeQuality}=await import('../dist/assets/core/RuntimeQuality.js');runtimeQuality.setTier('high');
+const draws=[];let canvasDraws=0;
+const ctx=new Proxy({globalAlpha:1,drawImage:(...a)=>draws.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
+for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'])for(const facing of [-1,1])for(const heldAfter of [true,false]){
+ const f=new Fighter(getCharacter(id),'player',600,500,facing),seq=animationSequenceFor(id,'crouch-light');
+ assert.ok(seq?.enabled&&seq.poseAuthored,`${id} needs authored crouching LP`);assert.equal(seq.frameCount,7);
+ for(let t=0;t<6;t++)f.updatePlayer(down,rules);
+ f.updatePlayer({...down,pressed:k=>k==='lp'},rules);assert.equal(f.currentMove.id,'2LP');
+ const move=f.currentMove,seen=new Set();let ticks=0,contacts=0,frozen=false;
+ while(f.state==='attack'&&ticks<100){
+  const s=animationSequenceSample(f,0);assert.equal(s.sequence.id,seq.id);seen.add(s.frame);
+  const active=f.moveFrame>=move.startup&&f.moveFrame<move.startup+move.active;
+  assert.equal(s.contact,active);if(active){contacts++;assert.equal(s.frame,3);}
+  draws.length=0;drawCombatFighter(ctx,f,0,0);const d=draws.find(a=>a[0].src===seq.asset);assert.ok(d);canvasDraws++;
+  assert.equal(d[1],s.frame*640);assert.deepEqual(d.slice(5),[-160,-220,320,224]);
+  assert.ok(d[1]>=0&&d[1]+d[3]<=640*7);assert.deepEqual([f.x,f.y],[600,500]);
+  if(active&&!frozen){frozen=true;f.hitStop=3;const clock=f.moveFrame;
+   for(let stop=0;stop<3;stop++){f.updatePlayer(heldAfter?down:quiet,rules);assert.equal(f.moveFrame,clock);assert.equal(animationSequenceSample(f,0).frame,s.frame);ticks++;}
+  }
+  f.updatePlayer(heldAfter?down:quiet,rules);ticks++;
+ }
+ assert.equal(seen.size,7);assert.equal(contacts,move.active);assert.equal(ticks,move.startup+move.active+move.recovery+3);
+ assert.equal(animationSequenceSample(f,0).sequence.kind,'crouch');assert.equal(animationSequenceSample(f,0).frame,5);
+ if(heldAfter){for(let t=0;t<10;t++){f.updatePlayer(down,rules);assert.equal(animationSequenceSample(f,0).frame,5);}}
+ else{for(const frame of [4,3,2,1,0]){f.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(f,0).frame,frame);}f.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(f,0).sequence.kind,'idle');}
+ f.state='attack';f.currentMove=move;f.airborne=true;assert.equal(animationSequenceSample(f,0),null,'Grounded 2LP must not replace air attacks');
+ for(const button of ['mp','hp','lk','mk','hk'])assert.equal(animationSequenceKindForAttack(id,normalFor(button,true,id)),null);
+}
+console.log('ROSTER_CROUCH_LIGHT_PASS',{characters:6,facings:2,releaseDuringAttack:true,storedFrames:42,canvasDraws});

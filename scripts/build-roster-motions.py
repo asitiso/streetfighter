@@ -37,6 +37,9 @@ def module():
  motion.EXPECTED['crouch']=6
  motion.TARGET_HEIGHT['crouch']=340
  motion.GROUND_KINDS.add('crouch')
+ motion.EXPECTED['crouch-light']=7
+ motion.TARGET_HEIGHT['crouch-light']=220
+ motion.GROUND_KINDS.add('crouch-light')
  original_semantic=motion.semantic_qa
  def semantic(kind,frames,pose):
   if kind=='stand-medium':
@@ -45,6 +48,7 @@ def module():
   if kind=='stand-medium-kick':return medium_kick_semantic_qa(motion,frames,pose,motion.ROSTER_MK_PROFILE)
   if kind=='stand-heavy-kick':return heavy_kick_semantic_qa(motion,frames,pose)
   if kind=='crouch':return crouch_semantic_qa(motion,frames,pose)
+  if kind=='crouch-light':return crouch_light_semantic_qa(motion,frames,pose)
   return original_semantic(kind,frames,pose)
  motion.semantic_qa=semantic
  return motion
@@ -183,6 +187,18 @@ def crouch_semantic_qa(motion,frames,pose):
  }
  return {'kind':'crouch',**{k:round(v,6) for k,v in values.items()},'checks':checks,'semanticQaPass':all(checks.values())}
 
+def crouch_light_semantic_qa(motion,frames,pose):
+ report={**motion.stand_light_semantic_qa(frames,pose),'kind':'crouch-light'}
+ masks=[motion._binary_mask(frame) for frame in frames]
+ heights=np.asarray([frame.getbbox()[3]-frame.getbbox()[1] for frame in frames],dtype=float)
+ feet=np.asarray([motion._foot_metrics(mask) for mask in masks])
+ report['checks'].update({
+  'lowPostureMaintained':bool(np.all((heights/heights[0]>=.85)&(heights/heights[0]<=1.10))),
+  'feetStayPlanted':float(np.ptp(feet[:,0]))<=8 and float(np.ptp([np.nonzero(mask)[0].max() for mask in masks]))<=4,
+ })
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
+
 def extract(sheet,rows=2):
  arr=np.array(sheet.convert('RGBA'));labels,count=ndimage.label(arr[:,:,3]>16)
  sizes=np.bincount(labels.ravel());sizes[0]=0
@@ -226,10 +242,18 @@ def handoffs(directory,kind,frames):
  if kind=='dash':
   base=load_peer('idle')[0]
   return {'idleToDash':compare(base,frames[0],h.DASH_START_LIMITS),'dashToIdle':compare(frames[-1],base,h.DASH_END_LIMITS)}
+ if kind=='crouch-light':
+  base=load_peer('crouch')[-1]
+  return {'crouchToCrouchLight':compare(base,frames[0],h.STAND_LIGHT_BASE_LIMITS),'crouchLightToCrouch':compare(frames[-1],base,h.STAND_LIGHT_BASE_LIMITS)}
  base_limits={'crouch':h.STAND_LIGHT_BASE_LIMITS,'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS,'stand-heavy-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-light-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium':h.STAND_LIGHT_BASE_LIMITS,'stand-light':h.STAND_LIGHT_BASE_LIMITS,'stand-heavy':h.STAND_HEAVY_BASE_LIMITS}
  if kind in base_limits:
   base=load_peer('idle')[0];limits=base_limits[kind];tag=''.join(part.title() for part in kind.split('-'))
-  return {'idleTo'+tag:compare(base,frames[0],limits),tag[0].lower()+tag[1:]+'ToIdle':compare(frames[0] if kind=='crouch' else frames[-1],base,limits)}
+  bridges={'idleTo'+tag:compare(base,frames[0],limits),tag[0].lower()+tag[1:]+'ToIdle':compare(frames[0] if kind=='crouch' else frames[-1],base,limits)}
+  if kind=='crouch' and 'crouch-light' in records:
+   start,end=load_peer('crouch-light')
+   bridges['crouchToCrouchLight']=compare(frames[-1],start,h.STAND_LIGHT_BASE_LIMITS)
+   bridges['crouchLightToCrouch']=compare(end,frames[-1],h.STAND_LIGHT_BASE_LIMITS)
+  return bridges
  bridges={}
  for peer in ('idle','walk','walk-back'):
   if peer==kind or peer not in records:continue
@@ -343,11 +367,11 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch','idle','walk','walk-back','dash','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch','idle','walk','walk-back','dash','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
- width=640 if kind in ('dash','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
+ width=640 if kind in ('crouch-light','dash','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
  for entry in CONFIG:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
   profile=entry.get('attackRecipes',{}).get('stand-medium-kick',{}).get('semanticProfile','kick')
@@ -367,21 +391,23 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
+  source=SOURCE/slug/({'crouch-light':'crouch-light-sheet.png','crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
   attack_recipe=entry.get('attackRecipes',{}).get(kind) if kind in ('stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else None
-  rows=attack_recipe['rows'] if attack_recipe else {'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
+  rows=attack_recipe['rows'] if attack_recipe else {'crouch-light':2,'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
   raw=extract(Image.open(source),rows);normalization=None;overrides=[]
   if kind=='guard':
    for recipe in entry.get('guardOverrides',[]):
     extra=SOURCE/slug/recipe['source'];target=recipe['pose']-1
     raw[target]=extract(Image.open(extra),recipe['rows'])[recipe['sourcePose']-1]
     overrides.append({'frames':[i+1 for i,pose in enumerate(GUARD_ORDER) if pose==target],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['sourcePose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
-  if kind in ('crouch','dash','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
+  if kind in ('crouch-light','crouch','dash','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
    if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
     overrides.append({'frame':1,'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['pose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
-   idle=Image.open(directory/'idle.webp').convert('RGBA').crop((0,0,384,448));box=idle.getbbox();idle_height=box[3]-box[1]
+   base_kind='crouch' if kind=='crouch-light' else 'idle'
+   base_index=5 if kind=='crouch-light' else 0
+   idle=Image.open(directory/f'{base_kind}.webp').convert('RGBA').crop((base_index*384,0,(base_index+1)*384,448));box=idle.getbbox();idle_height=box[3]-box[1]
    heights=[frame.getbbox()[3]-frame.getbbox()[1] for frame in raw]
    # Use standing recovery as the anatomical scale reference. A median of
    # compressed dash poses would enlarge every limb when returning to guard.
@@ -389,15 +415,16 @@ def main():
    motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/reference_height
    normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':reference_height,'uniformScale':idle_height/reference_height}
   keys,metrics=motion.normalize_frames(kind,raw)
-  if kind in ('crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
+  if kind in ('crouch-light','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
    # Extended fists change the silhouette's bounding-box center. Anchor the
-   # support feet to idle instead, so the planted stance does not slide when
+   # support feet to the matching guard, so the planted stance does not slide when
    # the arm extends. Wide cells preserve complete fists at the same scale.
    support_anchor=kind in ('stand-light-kick','stand-heavy-kick') or (kind=='stand-medium-kick' and profile!='hook')
    foot_center=(lambda mask:support_foot(mask)[0]) if support_anchor else (lambda mask:motion._foot_metrics(mask)[0])
    target=foot_center(np.asarray(idle.getchannel('A'))>24)+(width-384)/2
    if support_anchor:normalization['footAnchorMode']='rear-support'
    if kind=='crouch':normalization.update({'reference':'idle-standing-height','footAnchorMode':'two-foot','standingReferenceFrame':1})
+   if kind=='crouch-light':normalization.update({'reference':'crouch-recovery-height','footAnchorMode':'two-foot','referenceFrame':6})
    normalization['footAnchorX']=target
    for index,frame in enumerate(keys):
     foot=foot_center(np.asarray(frame.getchannel('A'))>24);shift=round(target-foot)
@@ -406,6 +433,7 @@ def main():
   choices=[]
   gait=[0,0,1,2,2,3,4,4,5,6,6,7] if kind=='walk' else [0,0,1,2,2,3,4,4,5,5]
   orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
+  if kind=='crouch-light':orders=[[0,1,1,2,1,1,3]]
   if kind=='crouch':orders=[[0,1,1,2,2,3]]
   if kind=='dash':orders=[[0,1,2,2,3,4,5]]
   if kind=='hit':orders=[[0,1,2,2,3,4,5,5]]
@@ -438,7 +466,7 @@ def main():
   data=webp(frames)
   record={'id':kind,'frames':count,'frameSize':[width,448],'stripSize':[width*count,448],'renderMode':'full','enabled':True,'poseAuthored':True,'sha256':hashlib.sha256(data).hexdigest().upper(),'bytes':len(data),'poseQa':pose,'semanticQa':semantic,'handoffQa':bridges,'sourceOrder':[i+1 for i in order],'metrics':metrics,'source':source.relative_to(ROOT).as_posix(),'sourceSha256':hashlib.sha256(source.read_bytes()).hexdigest().upper()}
   if normalization:record['normalization']=normalization
-  if kind in ('crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
+  if kind in ('crouch-light','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
   if kind=='stand-medium-kick':record['semanticProfile']=profile
   if kind=='dash':record['facingRelativeDirection']='forward'
   if overrides:record['sourceOverrides']=overrides
