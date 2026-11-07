@@ -1,3 +1,4 @@
+import './verify-defense-animation-clock.mjs';
 import { CHARACTERS, getCharacter } from '../dist/assets/game/characters.js';
 import { Fighter } from '../dist/assets/combat/Fighter.js';
 import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
