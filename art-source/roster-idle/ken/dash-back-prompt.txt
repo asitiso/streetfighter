@@ -1,0 +1,22 @@
+Use case: stylized-concept. Asset type: production KEN backward dash source sprite sheet.
+Reference1 is exact Ken neutral guard identity/costume/anatomy and matching installed arcade sprite style. Reference2 existing forward dash is stylistic reference only, not requested movement. Match their finely shaded crisp arcade sprite look, sharp contours and compact realistic anatomy, not a new cartoon style.
+Exactly SIX complete figures TWO columns THREE rows read row-major. Every figure faces SCREEN RIGHT while retreating SCREEN LEFT. Same blonde shaggy-haired Ken with red torn sleeveless karate gi, black belt, dark brown sparring gloves and bare feet. No headband. One fixed anatomical scale/head/limb size across all6.
+Six distinct internally articulated poses:
+1 guarded launch anticipation near reference1 idle, slight knee/hip flex, both fists guarding face/chest.
+2 compressed knee/hip push-off with hips lower35px, front SCREEN-RIGHT foot pushing backward.
+3 strong BACKWARD DRIVE: low torso/hips lean SCREEN LEFT relative to lower-leg spread midpoint, front SCREEN-RIGHT leg extends naturally to push back, rear SCREEN-LEFT knee folds receiving travel. Screen-left arm counterbalances back/down beside waist, screen-right fist stays near chin.
+4 rear SCREEN-LEFT foot PLANTS to brake with knee deeply flexed, trailing SCREEN-RIGHT knee folds and bare foot lifts slightly from floor; torso still behind leg-spread center SCREEN LEFT.
+5 guarded settling with rising knees, arms recover toward chest.
+6 upright recovered neutral guard near reference1, one fist at chest/face and other near waist, slightly changed weight from1.
+At neutral body height325px compression lowers head/hips35–50px and drive torso shifts20–40px LEFT relative to lower-leg spread midpoint. Clear shoulder/elbow/knee/ankle articulation, no globally translated/rotated/scaled clones, no stretched limbs. Keep facing RIGHT, never turn toward travel. Common root; gameplay supplies world travel.
+Spacious portrait canvas, generous gutters and40px beyond every hair tip/fist/toe/heel/belt tip. Full feet and bodies fit; never shrink a drive pose to fit. Stable gi/belt volume, small cloth follow-through.
+TRUE TRANSPARENT ALPHA ZERO outside all6figures, including space between legs and arms. No background, gradient, floor, shadow, halo, effects, speed lines, blur, text, panels or extra figures.
+
+Launch/recovery refinement; exact input retained as dash-back-edit-target.png:
+Use case: precise-object-edit. Edit target is SIX-pose Ken backward dash sheet (2columns3rows). Change ONLY pose1 TOP-LEFT and pose6 BOTTOM-RIGHT; preserve other four poses, placement, anatomy, color and style exactly.
+Pose1 guarded launch: make knees/hips flex enough to lower head20px at325px body height; both brown gloves form a compact double guard before face/chest, bend both elbows visibly. Keep entire bare feet planted and stance width stable. This is a distinct anticipation, not idle copied/translated.
+Pose6 recovered guard: keep upright torso, head, legs/feet and overall height unchanged. Raise the current SCREEN-RIGHT low fist to CHIN HEIGHT beside the right face, with naturally bent elbow extending SCREEN RIGHT outside ribs, compact boxing guard. Other fist stays near chest as currently. Different arm silhouette from original idle's lowered fist, while maintaining natural fixed upper/forearm lengths. No punch.
+Both face SCREEN RIGHT, same blond hair/red torn sleeveless gi/blackbelt/brown gloves/barefeet, crisp original arcade style. Do not enlarge/scale any figure or alter poses2,3,4,5. Generous margins, complete toes and fingers. True alphaZERO outside six characters; remove background only if it has nonzero alpha; no ground/shadows/effects/text.
+
+Background extraction; exact input retained as dash-back-alpha-edit-target.png:
+Use case: background-extraction. Edit target SIX-pose Ken backward dash sheet,2columns3rows. Make ALL non-character background pixels genuinely alpha0, including all gutters, canvas perimeter and gaps between arms/legs. Current backdrop has nonzero alpha; delete it, do not paint black or another backdrop. Preserve all six Ken drawings exactly, especially crouched top-left double guard and upright bottom-right raised-chin glove. Same placement/anatomy/scale/cel shading/colors, complete bare feet/hair/fists/belt. No ground/shadow/halo/effects/text. Output a clean transparent PNG cutout sheet, alphaZERO outside six bodies.
