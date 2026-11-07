@@ -1,0 +1,13 @@
+Use case: stylized-concept. Asset type: production IBUKI backward dash source sprites.
+Reference1 exact idle character, anatomy, costume, neutral stance and clean cel-shaded rendering. Reference2 existing forward dash is STYLE ONLY; do not copy its forward run.
+Exactly SIX complete figures TWO columns THREE rows, read row-major. All face SCREEN RIGHT while retreating SCREEN LEFT. Same Ibuki face, beige ninja headwrap and mouth mask, long dark-brown high ponytail and face locks, beige sleeveless loose gi/tunic and baggy pants, dark belt/sashes, wrapped forearms, dark fingerless gloves and dark open-toed shin wraps/sandals. Preserve fixed head/torso/limb lengths and body volume.
+Six distinct internally articulated poses:
+1 guarded launch anticipation, slightly flexed knees, open ninja hands at chest/face, close to idle reference.
+2 deeper knee/hip compression, front SCREEN-RIGHT foot pushes backward.
+3 BACKWARD DRIVE: torso/hips lean SCREEN LEFT relative to lower-leg spread midpoint, low hips, front SCREEN-RIGHT leg naturally extends to push, rear SCREEN-LEFT knee bends to receive travel. Screen-left arm counterbalances down beside waist, screen-right open hand guards face.
+4 rear SCREEN-LEFT foot plants to BRAKE with deep rear-knee flex, trailing SCREEN-RIGHT knee bends and toes lift slightly above floor. Torso still visibly leaning SCREEN LEFT. Not a kick, not a jump.
+5 guarded weight settling and rising knees, hands return to chest/face.
+6 recovered upright idle-like open-hand guard matching reference1 with slightly shifted weight from1.
+At neutral body height340px compression lowers head/hips35–50px; drive upper torso lies20–40px LEFT of lower-leg spread center. Every drawing faces right, never turn toward travel. No whole-body translated/rotated/scaled copies, no stretching limbs. Common body root; gameplay code supplies world travel.
+Hair/sashes follow inertia with small controlled bends, same ponytail length/volume in all6. No huge whipping hair that dominates torso direction. Widely spaced figures, generous gutters and40px beyond every ponytail tip, finger, toe, sash and heel. Full bodies fit with room; never crop or shrink one figure to fit.
+TRUE TRANSPARENT ALPHA ZERO outside all six characters, including between limbs/hair locks. No background, gradient, floor, shadow, halo, effects, speed lines, blur, text, panels or extra figures.
