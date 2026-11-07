@@ -1,8 +1,8 @@
 {
   "character": "URIEN",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 28,
-  "enabledFrameTotal": 28,
+  "frameTotal": 35,
+  "enabledFrameTotal": 35,
   "records": [
     {
       "id": "idle",
@@ -744,6 +744,246 @@
       ],
       "source": "art-source/roster-idle/urien/retreat-sheet.png",
       "sourceSha256": "7BFC3BC1198E8BB07BD20FF1611D9BFFDC42B0A767029E01F839E9019E3C6596"
+    },
+    {
+      "id": "dash",
+      "frames": 7,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        4480,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "C4C029724A4A6CBA297BB3D6C7C596EC95CB0A1A652985C6775605D1CB5FCEF7",
+      "bytes": 564878,
+      "poseQa": {
+        "affineResidualAverage": 0.050616,
+        "affineResidualMax": 0.060601,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "dash",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.88,
+          "midpointIoUMin": 0.28,
+          "midpointIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 75.0,
+          "centroidYRangeMin": 10.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 58.0,
+          "areaCvMax": 0.18,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.2
+        },
+        "startEndIoU": 0.586593,
+        "midpointIoU": 0.334952,
+        "centroidXRange": 26.401008,
+        "centroidYRange": 38.889259,
+        "centroidStepMax": 26.27297,
+        "areaCv": 0.041963,
+        "residualAverage": 0.050616,
+        "residualMax": 0.060601,
+        "checks": {
+          "recoveryNotDuplicate": true,
+          "drivePoseDistinct": true,
+          "forwardLeanPresent": true,
+          "verticalDrivePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "idleToDash": {
+          "iou": 0.680585,
+          "centroidDistance": 4.381619,
+          "footCenterDelta": 18.878207,
+          "areaRatio": 1.284709,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.8,
+            "centroidDistanceMax": 45.0,
+            "areaRatioMin": 0.7,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true
+          },
+          "pass": true
+        },
+        "dashToIdle": {
+          "iou": 0.551102,
+          "centroidDistance": 13.788146,
+          "footCenterDelta": 9.892423,
+          "areaRatio": 0.733553,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.82,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 70.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        3,
+        3,
+        4,
+        5,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            325,
+            490
+          ],
+          "sourceBodyHeight": 490,
+          "paste": [
+            203,
+            70
+          ],
+          "scaledSize": [
+            234,
+            353
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            339,
+            410
+          ],
+          "sourceBodyHeight": 410,
+          "paste": [
+            198,
+            128
+          ],
+          "scaledSize": [
+            244,
+            295
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            558,
+            359
+          ],
+          "sourceBodyHeight": 359,
+          "paste": [
+            119,
+            164
+          ],
+          "scaledSize": [
+            402,
+            259
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            389,
+            381
+          ],
+          "sourceBodyHeight": 381,
+          "paste": [
+            180,
+            149
+          ],
+          "scaledSize": [
+            280,
+            274
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            351,
+            443
+          ],
+          "sourceBodyHeight": 443,
+          "paste": [
+            194,
+            104
+          ],
+          "scaledSize": [
+            253,
+            319
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            358,
+            468
+          ],
+          "sourceBodyHeight": 468,
+          "paste": [
+            191,
+            86
+          ],
+          "scaledSize": [
+            258,
+            337
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/urien/dash-sheet.png",
+      "sourceSha256": "15BFB9BB37FD33050AAEDC7C2D73F1DE3146AB30C72BD648DC7508625DC629D0",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 468,
+        "uniformScale": 0.7200854700854701
+      },
+      "facingRelativeDirection": "forward",
+      "sourceOverrides": [
+        {
+          "frame": 1,
+          "source": "art-source/roster-idle/urien/retreat-sheet.png",
+          "sourcePose": 1,
+          "sourceSha256": "7BFC3BC1198E8BB07BD20FF1611D9BFFDC42B0A767029E01F839E9019E3C6596"
+        }
+      ]
     }
   ]
 }

@@ -36,11 +36,14 @@ def main():
   prior={p:p.read_bytes() for p in runtime.iterdir()}
   failure('walk-back');assert prior=={p:p.read_bytes() for p in runtime.iterdir()},'New retreat rollback left a file or changed manifest'
   run('walk-back')
+  prior={p:p.read_bytes() for p in runtime.iterdir()}
+  failure('dash');assert prior=={p:p.read_bytes() for p in runtime.iterdir()},'New dash rollback left a file or changed manifest'
+  run('dash')
   before={p:p.read_bytes() for p in runtime.iterdir()}
-  for kind in ['idle','walk','walk-back']:
+  for kind in ['idle','walk','walk-back','dash']:
    failure(kind);assert before=={p:p.read_bytes() for p in runtime.iterdir()},'Replacement rollback changed installed files'
    run(kind,False)
-  assert json.loads(manifest.read_text())['enabledFrameTotal']==28
+  assert json.loads(manifest.read_text())['enabledFrameTotal']==35
   directions=0
   for peer in ['idle','walk','walk-back']:
    path=runtime/f'{peer}.webp'
@@ -52,11 +55,21 @@ def main():
     else:raise AssertionError('Corrupt installed peer accepted')
     assert corrupted=={p:p.read_bytes() for p in runtime.iterdir()}
     path.write_bytes(before[path]);directions+=1
-  (source/'alex/retreat-sheet.png').write_bytes(b'incomplete source')
-  try:run('walk-back')
-  except OSError:pass
-  else:raise AssertionError('Incomplete source accepted')
-  assert before=={p:p.read_bytes() for p in runtime.iterdir()}
- print(f'ROSTER_INGEST_PASS firstInstallRollback=True retreatNewFileRollback=True replacementRollback=True corruptPeerDirections={directions} incompleteRejected=True')
+  for selected,peer in [('idle','dash'),('dash','idle')]:
+   path=runtime/f'{peer}.webp';path.write_bytes(b'corrupt dash handoff peer');corrupted={p:p.read_bytes() for p in runtime.iterdir()}
+   try:run(selected)
+   except (ValueError,OSError):pass
+   else:raise AssertionError('Corrupt dash handoff peer accepted')
+   assert corrupted=={p:p.read_bytes() for p in runtime.iterdir()}
+   path.write_bytes(before[path]);directions+=1
+  for kind,name in [('walk-back','retreat-sheet.png'),('dash','dash-sheet.png')]:
+   path=source/'alex'/name;source_data=path.read_bytes();path.write_bytes(b'incomplete source')
+   try:
+    try:run(kind)
+    except OSError:pass
+    else:raise AssertionError('Incomplete source accepted')
+    assert before=={p:p.read_bytes() for p in runtime.iterdir()}
+   finally:path.write_bytes(source_data)
+ print(f'ROSTER_INGEST_PASS firstInstallRollback=True retreatNewFileRollback=True dashNewFileRollback=True replacementRollback=True corruptPeerDirections={directions} incompleteRejected=True')
 
 if __name__=='__main__':main()

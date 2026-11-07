@@ -45,6 +45,7 @@ export interface AnimationSequence {
   loop: boolean;
   timing: AnimationTimingCurve;
   footLock?: boolean;
+  facingRelativeDirection?: 'forward' | 'backward';
   phase?: AnimationSequencePhase;
   events?: readonly AnimationFrameEvent[];
   enabled: boolean;
@@ -124,6 +125,12 @@ const IBUKI: readonly AnimationSequence[] = [
 ] as const;
 
 const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
+  { id:'ALEX_DASH_HQ', characterId:'ALEX', kind:'dash', asset:'/art/animation-hq/alex/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_DASH_HQ', characterId:'DUDLEY', kind:'dash', asset:'/art/animation-hq/dudley/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:22, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_DASH_HQ', characterId:'MAKOTO', kind:'dash', asset:'/art/animation-hq/makoto/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:22, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_DASH_HQ', characterId:'YUN', kind:'dash', asset:'/art/animation-hq/yun/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:24, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_DASH_HQ', characterId:'URIEN', kind:'dash', asset:'/art/animation-hq/urien/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:19, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_DASH_HQ', characterId:'GILL', kind:'dash', asset:'/art/animation-hq/gill/dash.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:18, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'forward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_WALK_BACK_HQ', characterId:'ALEX', kind:'walk-back', asset:'/art/animation-hq/alex/walk-back.webp', frameCount:10, frameWidth:384, frameHeight:448, fps:10, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'DUDLEY_WALK_BACK_HQ', characterId:'DUDLEY', kind:'walk-back', asset:'/art/animation-hq/dudley/walk-back.webp', frameCount:10, frameWidth:384, frameHeight:448, fps:12, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'MAKOTO_WALK_BACK_HQ', characterId:'MAKOTO', kind:'walk-back', asset:'/art/animation-hq/makoto/walk-back.webp', frameCount:10, frameWidth:384, frameHeight:448, fps:11.5, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

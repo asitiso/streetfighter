@@ -1,8 +1,8 @@
 {
   "character": "MAKOTO",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 28,
-  "enabledFrameTotal": 28,
+  "frameTotal": 35,
+  "enabledFrameTotal": 35,
   "records": [
     {
       "id": "idle",
@@ -744,6 +744,238 @@
       ],
       "source": "art-source/roster-idle/makoto/retreat-sheet.png",
       "sourceSha256": "3E9405B7AA0BE0B3DB1012177F89CD955D26B2912C158AC0144D60FDC50B2695"
+    },
+    {
+      "id": "dash",
+      "frames": 7,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        4480,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "0220A5C58C823B87F51E12639A43D69A8B81054ABD56FD32D80ACEC5D4704D5E",
+      "bytes": 531230,
+      "poseQa": {
+        "affineResidualAverage": 0.039135,
+        "affineResidualMax": 0.058002,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "dash",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.88,
+          "midpointIoUMin": 0.28,
+          "midpointIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 75.0,
+          "centroidYRangeMin": 10.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 58.0,
+          "areaCvMax": 0.18,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.2
+        },
+        "startEndIoU": 0.681662,
+        "midpointIoU": 0.422579,
+        "centroidXRange": 21.893986,
+        "centroidYRange": 37.574101,
+        "centroidStepMax": 28.409648,
+        "areaCv": 0.019453,
+        "residualAverage": 0.039135,
+        "residualMax": 0.058002,
+        "checks": {
+          "recoveryNotDuplicate": true,
+          "drivePoseDistinct": true,
+          "forwardLeanPresent": true,
+          "verticalDrivePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "idleToDash": {
+          "iou": 0.538303,
+          "centroidDistance": 24.793363,
+          "footCenterDelta": 21.465935,
+          "areaRatio": 1.226354,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.8,
+            "centroidDistanceMax": 45.0,
+            "areaRatioMin": 0.7,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true
+          },
+          "pass": true
+        },
+        "dashToIdle": {
+          "iou": 0.693933,
+          "centroidDistance": 9.681593,
+          "footCenterDelta": 2.938827,
+          "areaRatio": 0.839396,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.82,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 70.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        3,
+        3,
+        4,
+        5,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            333,
+            470
+          ],
+          "sourceBodyHeight": 470,
+          "paste": [
+            199,
+            81
+          ],
+          "scaledSize": [
+            242,
+            342
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            314,
+            386
+          ],
+          "sourceBodyHeight": 386,
+          "paste": [
+            206,
+            142
+          ],
+          "scaledSize": [
+            229,
+            281
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            497,
+            351
+          ],
+          "sourceBodyHeight": 351,
+          "paste": [
+            139,
+            168
+          ],
+          "scaledSize": [
+            362,
+            255
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            371,
+            391
+          ],
+          "sourceBodyHeight": 391,
+          "paste": [
+            185,
+            138
+          ],
+          "scaledSize": [
+            270,
+            285
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            349,
+            439
+          ],
+          "sourceBodyHeight": 439,
+          "paste": [
+            193,
+            103
+          ],
+          "scaledSize": [
+            254,
+            320
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            326,
+            463
+          ],
+          "sourceBodyHeight": 463,
+          "paste": [
+            202,
+            86
+          ],
+          "scaledSize": [
+            237,
+            337
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/makoto/dash-sheet.png",
+      "sourceSha256": "814F5C8086EBCAC446274408CD02AB6051E4BAF48D23719B04C2E8D9FE52ED8F",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 463,
+        "uniformScale": 0.7278617710583153
+      },
+      "facingRelativeDirection": "forward"
     }
   ]
 }
