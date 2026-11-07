@@ -5,6 +5,7 @@ export type AnimationSequenceKind =
   | 'dash'
   | 'jump'
   | 'landing'
+  | 'stand-heavy-kick'
   | 'stand-medium-kick'
   | 'stand-light-kick'
   | 'stand-medium'
@@ -128,6 +129,12 @@ const IBUKI: readonly AnimationSequence[] = [
 ] as const;
 
 const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
+  { id:'ALEX_STAND_HEAVY_KICK_HQ', characterId:'ALEX', kind:'stand-heavy-kick', asset:'/art/animation-hq/alex/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_STAND_HEAVY_KICK_HQ', characterId:'DUDLEY', kind:'stand-heavy-kick', asset:'/art/animation-hq/dudley/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_STAND_HEAVY_KICK_HQ', characterId:'MAKOTO', kind:'stand-heavy-kick', asset:'/art/animation-hq/makoto/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_STAND_HEAVY_KICK_HQ', characterId:'YUN', kind:'stand-heavy-kick', asset:'/art/animation-hq/yun/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_STAND_HEAVY_KICK_HQ', characterId:'URIEN', kind:'stand-heavy-kick', asset:'/art/animation-hq/urien/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_STAND_HEAVY_KICK_HQ', characterId:'GILL', kind:'stand-heavy-kick', asset:'/art/animation-hq/gill/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_STAND_MEDIUM_KICK_HQ', characterId:'ALEX', kind:'stand-medium-kick', asset:'/art/animation-hq/alex/stand-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'DUDLEY_STAND_MEDIUM_KICK_HQ', characterId:'DUDLEY', kind:'stand-medium-kick', asset:'/art/animation-hq/dudley/stand-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'MAKOTO_STAND_MEDIUM_KICK_HQ', characterId:'MAKOTO', kind:'stand-medium-kick', asset:'/art/animation-hq/makoto/stand-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

@@ -1,8 +1,8 @@
 {
   "character": "GILL",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 111,
-  "enabledFrameTotal": 111,
+  "frameTotal": 123,
+  "enabledFrameTotal": 123,
   "records": [
     {
       "id": "idle",
@@ -3148,6 +3148,248 @@
         2
       ],
       "semanticProfile": "kick"
+    },
+    {
+      "id": "stand-heavy-kick",
+      "frames": 12,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        7680,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "C4CE8040F03FD74DE346178DC752D9CBFEC63604AC786475BB7812E9E7182C3A",
+      "bytes": 548860,
+      "poseQa": {
+        "affineResidualAverage": 0.033197,
+        "affineResidualMax": 0.050398,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-heavy-kick",
+        "startEndIoU": 0.968542,
+        "contactIoU": 0.626369,
+        "lowerContactIoU": 0.599687,
+        "legReachDelta": 109.0,
+        "contactFootHeight": 242.0,
+        "supportCenterRange": 0.609163,
+        "supportBaselineRange": 1.0,
+        "centroidXRange": 14.54324,
+        "centroidYRange": 21.936821,
+        "areaCv": 0.03573,
+        "residualAverage": 0.033197,
+        "residualMax": 0.050398,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "legArticulationPresent": true,
+          "legReachPresent": true,
+          "raisedFootPresent": true,
+          "supportRootStable": true,
+          "supportBaselineStable": true,
+          "bodyRootStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "oneSupportFoot": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "idleToStandHeavyKick": {
+          "iou": 0.848302,
+          "centroidDistance": 4.348622,
+          "footCenterDelta": 5.463402,
+          "areaRatio": 1.137643,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "standHeavyKickToIdle": {
+          "iou": 0.839613,
+          "centroidDistance": 4.278766,
+          "footCenterDelta": 12.492238,
+          "areaRatio": 0.882025,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        5,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            208,
+            336
+          ],
+          "sourceBodyHeight": 336,
+          "paste": [
+            209,
+            81
+          ],
+          "scaledSize": [
+            212,
+            342
+          ],
+          "footAnchorShift": -5
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            201,
+            336
+          ],
+          "sourceBodyHeight": 336,
+          "paste": [
+            202,
+            81
+          ],
+          "scaledSize": [
+            205,
+            342
+          ],
+          "footAnchorShift": -16
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            286,
+            333
+          ],
+          "sourceBodyHeight": 333,
+          "paste": [
+            197,
+            84
+          ],
+          "scaledSize": [
+            291,
+            339
+          ],
+          "footAnchorShift": 23
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            335,
+            333
+          ],
+          "sourceBodyHeight": 333,
+          "paste": [
+            190,
+            84
+          ],
+          "scaledSize": [
+            341,
+            339
+          ],
+          "footAnchorShift": 40
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            217,
+            333
+          ],
+          "sourceBodyHeight": 333,
+          "paste": [
+            192,
+            84
+          ],
+          "scaledSize": [
+            221,
+            339
+          ],
+          "footAnchorShift": -18
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            208,
+            333
+          ],
+          "sourceBodyHeight": 333,
+          "paste": [
+            210,
+            84
+          ],
+          "scaledSize": [
+            212,
+            339
+          ],
+          "footAnchorShift": -4
+        }
+      ],
+      "source": "art-source/roster-idle/gill/stand-heavy-kick-sheet.png",
+      "sourceSha256": "F900D8403FB55FEF1081C1CD71B59AA275EC1034C2C8C9563AD74F37103746EF",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 339,
+        "sourceGuardHeight": 333,
+        "uniformScale": 1.018018018018018,
+        "footAnchorMode": "rear-support",
+        "footAnchorX": 254.98850574712645
+      },
+      "sourceGrid": [
+        2,
+        3
+      ]
     }
   ]
 }
