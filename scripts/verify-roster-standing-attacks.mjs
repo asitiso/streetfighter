@@ -22,6 +22,14 @@ for(const id of roster) {
   assert.equal(animationSequenceKindForAttack(id,move),null,`${id} ${move.id} must not borrow standing punches`);
  }
 }
+for(const crouch of [false,true])for(const button of ['lp','mp','hp','lk','mk','hk']){
+ const move=normalFor(button,crouch,'RYU'),expected=!crouch&&button==='lp'?'stand-light':!crouch&&button==='hp'?'stand-heavy':null;
+ assert.equal(animationSequenceKindForAttack('RYU',move),expected,'Ryu '+move.id+' must keep exact presentation');
+}
+const ryuCatalog=techniqueCatalogFor('RYU');
+for(const move of [ryuCatalog.command,...ryuCatalog.air,{...normalFor('lp',false,'RYU'),id:'RYU_TARGET_TEST'}].filter(Boolean))assert.equal(animationSequenceKindForAttack('RYU',move),null,'Ryu command/air/target variants must keep fallback');
+for(const id of ['RYU_PRIMARY','RYU_EX_PRIMARY','RYU_SUPER','RYU_SA1','RYU_SA3'])assert.equal(animationSequenceKindForAttack('RYU',{id}),'hadoken');
+for(const id of ['RYU_ANTI_AIR','RYU_SA2'])assert.equal(animationSequenceKindForAttack('RYU',{id}),'shoryuken');
 const assets=new Map([...CHARACTERS,...BOSS_CHARACTERS].flatMap(c=>animationSequencesFor(c.id)).map(s=>[s.asset,s]));
 globalThis.Image=class {
  complete=true;
@@ -31,9 +39,10 @@ globalThis.Image=class {
 const {runtimeQuality}=await import('../dist/assets/core/RuntimeQuality.js');
 const {drawCombatFighter}=await import('../dist/assets/render/Visuals.js');
 runtimeQuality.setTier('high');
-const draws=[];let canvasDraws=0;
-const ctx=new Proxy({globalAlpha:1,drawImage:(...a)=>draws.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
-for(const id of roster)for(const facing of [-1,1])for(const [button,kind,count,contactFrames] of [['lp','stand-light',7,[3]],['mp','stand-medium',8,[3]],['hp','stand-heavy',10,[4,5]],['lk','stand-light-kick',8,[3]],['mk','stand-medium-kick',10,[4,5]],['hk','stand-heavy-kick',12,[5,6]]]) {
+const draws=[],translations=[];let canvasDraws=0;
+const ctx=new Proxy({globalAlpha:1,translate:(...a)=>translations.push(a),drawImage:(...a)=>draws.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
+for(const id of [...roster,'RYU'])for(const facing of [-1,1])for(const [button,kind,count,contactFrames] of [['lp','stand-light',7,[3]],['mp','stand-medium',8,[3]],['hp','stand-heavy',10,[4,5]],['lk','stand-light-kick',8,[3]],['mk','stand-medium-kick',10,[4,5]],['hk','stand-heavy-kick',12,[5,6]]]) {
+ if(id==='RYU'&&!['lp','hp'].includes(button))continue;
  const def=getCharacter(id),fighter=new Fighter(def,'player',600,460,facing),seq=animationSequenceFor(id,kind);
  assert.ok(seq?.enabled&&seq.poseAuthored,`${id} needs authored ${kind}`);assert.equal(seq.frameCount,count);
  fighter.updatePlayer({...quiet,pressed:key=>key===button},rules);
@@ -47,7 +56,8 @@ for(const id of roster)for(const facing of [-1,1])for(const [button,kind,count,c
   if(active){contacts++;assert.ok(contactFrames.includes(sample.frame));}
   if(fighter.moveFrame===0)assert.equal(sample.frame,0);
   if(fighter.moveFrame===move.startup+move.active+move.recovery-1)assert.equal(sample.frame,count-1);
-  draws.length=0;drawCombatFighter(ctx,fighter,0,0);const draw=draws.find(d=>d[0].src===seq.asset);assert.ok(draw,'Standing attack must reach Canvas');canvasDraws++;
+  draws.length=0;translations.length=0;drawCombatFighter(ctx,fighter,0,0);const draw=draws.find(d=>d[0].src===seq.asset);assert.ok(draw,'Standing attack must reach Canvas');canvasDraws++;
+  if(id==='RYU')assert.ok(translations.slice(1,3).every(([x,y])=>x===0&&y===0),'Planted Ryu punch art must not inherit staging anchor drift');
   assert.equal(draw[1],sample.frame*seq.frameWidth);assert.deepEqual(draw.slice(5),[-seq.frameWidth/4,-220,seq.frameWidth/2,224]);
   assert.ok(draw[1]>=0&&draw[1]+draw[3]<=seq.frameWidth*seq.frameCount,'Canvas source crop must stay inside the strip');
   if(active&&!frozen) {
@@ -63,8 +73,8 @@ for(const id of roster)for(const facing of [-1,1])for(const [button,kind,count,c
  assert.equal(animationSequenceSample(fighter,0),null,'Grounded normal must not replace an airborne attack');
  fighter.airborne=false;
  for(const crouch of [false,true])for(const other of ['lp','mp','hp','lk','mk','hk']) {
-  if((!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)))continue;
+  if(id==='RYU'?!crouch&&['lp','hp'].includes(other):(!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)))continue;
   fighter.currentMove=normalFor(other,crouch,id);assert.equal(animationSequenceSample(fighter,0),null);
  }
 }
-console.log('ROSTER_STANDING_ATTACKS_PASS',{characters:6,facings:2,attackStrips:36,storedFrames:330,canvasDraws});
+console.log('ROSTER_STANDING_ATTACKS_PASS',{characters:7,facings:2,attackStrips:38,storedFrames:347,canvasDraws});
