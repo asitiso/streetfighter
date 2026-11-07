@@ -162,6 +162,11 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0.000, 2.000, 3.000, 3.000, 2.000, 0.000, 2.000, 2.000, 2.000, 2.000],
     footLockStrength: 0.468,
   },
+  'KEN:dash-back': {
+    weights: [1,1,1,1,1,1,1],
+    anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0],
+    footLockStrength: 0,
+  },
   'KEN:dash': {
     weights: [1.220, 0.820, 0.720, 0.720, 0.820, 1.000, 1.340],
     anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, -10.000, 0.000],

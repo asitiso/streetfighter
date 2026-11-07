@@ -82,7 +82,7 @@ assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalB
 
 assert.equal(animationSequenceFrameTotal('RYU'), 217);
 assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 193);
-assert.equal(animationSequenceFrameTotal('KEN'), 137, 'Ken registry should include 57 movement + 11 defense + 69 staged attack frames');
+assert.equal(animationSequenceFrameTotal('KEN'), 144, 'Ken registry should include 64 movement + 11 defense + 69 attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
   const sequence = animationSequenceFor('KEN', kind, false);
@@ -168,8 +168,8 @@ assert.ok(animationFrameProfile('RYU','walk').weights[0] > animationFrameProfile
 const kenManifest = JSON.parse(await readFile(new URL('../public/art/animation-hq/ken/manifest.json', import.meta.url), 'utf8'));
 assert.equal(kenManifest.candidate, '0.0.63-rc.38');
 assert.equal(kenManifest.character, 'KEN');
-assert.equal(kenManifest.frameTotal, 137);
-assert.equal(kenManifest.records.length, 15);
+assert.equal(kenManifest.frameTotal, 144);
+assert.equal(kenManifest.records.length, 16);
 assert.match(kenManifest.pipeline, /^rc39-ken-authored-gated-v\d+$/);
 const kenEnabledFrames = kenManifest.records.filter((record) => record.enabled).reduce((sum, record) => sum + record.frames, 0);
 const kenStagingFrames = kenManifest.records.filter((record) => record.stagingOnly).reduce((sum, record) => sum + record.frames, 0);
@@ -181,7 +181,7 @@ assert.equal(kenManifest.sourceSha256, sha(kenHqSource));
 for (const rec of kenManifest.records) {
   const data = await readFile(new URL(`../public/art/animation-hq/ken/${rec.id}.webp`, import.meta.url));
   const dim = webpDimensions(data);
-  assert.equal(dim.width, 384 * rec.frames, `KEN ${rec.id} strip width mismatch`);
+  assert.equal(dim.width, rec.frameSize[0] * rec.frames, `KEN ${rec.id} strip width mismatch`);
   assert.equal(dim.height, 448, `KEN ${rec.id} strip height mismatch`);
   assert.equal(dim.alpha, true, `KEN ${rec.id} transparency missing`);
   assert.equal(rec.sha256, sha(data), `KEN ${rec.id} sha mismatch`);
@@ -394,7 +394,24 @@ try {
  assert.ok(catalogUrls.has('/art/animation-hq/ibuki/dash-back.webp'));
  console.log('IBUKI_STAGE_ENTRY_PRELOAD_BYTES',ibukiEntryBytes);
  }
-}finally{animationTextureManager.releaseCharacter('IBUKI');animationTextureManager.releaseCharacter('CHUNLI');animationTextureManager.releaseCharacter('RYU');runtimeQuality.setTier(savedTier);if(savedImage===undefined)delete globalThis.Image;else globalThis.Image=savedImage;}
+ {
+ animationTextureManager.releaseCharacter('IBUKI');requests.length=0;
+ const kenManifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/ken/manifest.json',import.meta.url),'utf8'));
+ animationTextureManager.releaseCharacter('KEN');
+ animationTextureManager.preloadCharacter('KEN','movement');
+ assert.ok(requests.includes('/art/animation-hq/ken/dash-back.webp'),'Ken backward dash must start preparation with movement');
+ animationTextureManager.preloadCharacter('KEN','combat');
+ assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('KEN',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());
+ const kenEntryBytes=kenManifest.records.filter(r=>requests.includes('/art/animation-hq/ken/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
+ assert.ok(kenEntryBytes<13_000_000,'Ken stage-entry animations exceed13MB');
+ const back=kenManifest.records.find(r=>r.id==='dash-back');
+ assert.equal(back.facingRelativeDirection,'backward');
+ assert.deepEqual(back.sourceOrder,[1,2,3,3,4,5,6]);
+ assert.equal(back.sourceSha256,sha(await readFile(new URL('../'+back.source,import.meta.url))));
+ assert.ok(catalogUrls.has('/art/animation-hq/ken/dash-back.webp'));
+ console.log('KEN_STAGE_ENTRY_PRELOAD_BYTES',kenEntryBytes);
+ }
+}finally{animationTextureManager.releaseCharacter('KEN');animationTextureManager.releaseCharacter('IBUKI');animationTextureManager.releaseCharacter('CHUNLI');animationTextureManager.releaseCharacter('RYU');runtimeQuality.setTier(savedTier);if(savedImage===undefined)delete globalThis.Image;else globalThis.Image=savedImage;}
 
 console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   candidate: manifest.candidate,

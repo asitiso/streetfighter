@@ -7,8 +7,8 @@ import importlib.util,io,json,shutil,sys,hashlib,argparse
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI'],default='CHUNLI');character=parser.parse_args().character
-slug=character.lower();prior_count=15 if character=='CHUNLI' else 14;total=157 if character=='CHUNLI' else 143
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');character=parser.parse_args().character
+slug=character.lower();prior_count=14 if character=='IBUKI' else 15;total={'CHUNLI':157,'IBUKI':143,'KEN':144}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:

@@ -162,7 +162,7 @@ def backward_dash_semantic_qa(motion,frames,pose):
  drive=torso_from_feet(masks[0])-drive_torso
  report['checks']['horizontalDrivePresent']=report['checks'].pop('forwardLeanPresent')
  report['checks']['backwardDrivePresent']=8<=drive<=100
- if getattr(motion,'ROSTER_CHARACTER',None) in ('RYU','CHUNLI','IBUKI'):
+ if getattr(motion,'ROSTER_CHARACTER',None) in ('RYU','CHUNLI','IBUKI','KEN'):
   # The older forward runner starts already leaning forward: a reduction
   # in that lean is not a backward pose. Require the drive torso itself
   # to be behind the leg-spread midpoint as well as moving backward.
@@ -560,13 +560,13 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI','KEN'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash-back'):parser.error('RYU selector supports support, backward dash, standing/crouching normals and crouch only')
- if args.character in ('CHUNLI','IBUKI') and args.kind!='dash-back':parser.error(args.character+' selector supports backward dash only')
+ if args.character in ('CHUNLI','IBUKI','KEN') and args.kind!='dash-back':parser.error(args.character+' selector supports backward dash only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
- entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'crouch-light':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6]},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else ([{'id':args.character,'slug':args.character.lower()}] if args.character in ('CHUNLI','IBUKI') else CONFIG)
+ entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'crouch-light':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6]},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else ([{'id':args.character,'slug':args.character.lower()}] if args.character in ('CHUNLI','IBUKI','KEN') else CONFIG)
  width=640 if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
  for entry in entries:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
@@ -616,7 +616,7 @@ def main():
    motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/reference_height
    normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':reference_height,'uniformScale':idle_height/reference_height}
   keys,metrics=motion.normalize_frames(kind,raw)
-  if slug in ('ryu','chunli','ibuki'):
+  if slug in ('ryu','chunli','ibuki','ken'):
    # Existing supplemental idle uses a different sole baseline from the shared atlas.
    # Align actual opaque soles to its installed guard, rather than introducing
    # a visible vertical step every time support art enters or recovers.
@@ -687,8 +687,8 @@ def main():
   if kind in ('dash','dash-back'):record['facingRelativeDirection']='backward' if kind=='dash-back' else 'forward'
   if overrides:record['sourceOverrides']=overrides
   manifest=json.loads((directory/'manifest.json').read_text()) if (directory/'manifest.json').exists() else {'character':entry['id'],'pipeline':'roster-movement-authored-v1','records':[]}
-  if slug not in ('chunli','ibuki'):manifest['pipeline']='roster-movement-authored-v1'
-  if slug not in ('ryu','chunli','ibuki'):manifest.pop('source',None);manifest.pop('sourceSha256',None)
+  if slug not in ('chunli','ibuki','ken'):manifest['pipeline']='roster-movement-authored-v1'
+  if slug not in ('ryu','chunli','ibuki','ken'):manifest.pop('source',None);manifest.pop('sourceSha256',None)
   replace_records(manifest,[record])
   update_frame_totals(manifest)
   pending[directory/f'{kind}.webp']=data
