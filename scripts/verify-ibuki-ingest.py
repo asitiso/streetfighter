@@ -11,7 +11,7 @@ def main():
   for path in ['scripts/install-authored-chunli-walk.py','scripts/install-authored-ken-sequence.py','scripts/audit-ken-handoff-semantics.py','scripts/pose_ecc_cache.py','src/render/AnimationSequenceLibrary.ts','public/art/combat-sprites-hq/ibuki.webp']:
    target=fixture/path;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/path,target)
   shutil.copytree(ROOT/'public/art/animation-hq/ibuki',fixture/'public/art/animation-hq/ibuki')
-  kinds=['idle','walk','walk-back','dash']
+  kinds=['idle','walk','walk-back','dash','hit']
   for kind in kinds:shutil.copytree(ROOT/f'art-source/ibuki/inbox/{kind}',fixture/f'art-source/ibuki/inbox/{kind}')
   for kind in ('jump','landing'):shutil.copytree(ROOT/f'art-source/ibuki/inbox/{kind}',fixture/f'art-source/ibuki/inbox/{kind}')
   runtime_dir=fixture/'public/art/animation-hq/ibuki';manifest=runtime_dir/'manifest.json';registry=fixture/'src/render/AnimationSequenceLibrary.ts'
@@ -21,7 +21,7 @@ def main():
   data=json.loads(manifest.read_text())
   for record in data['records']:record['enabled']=record['poseAuthored']=False
   manifest.write_text(json.dumps(data))
-  for kind,total in zip(kinds,[6,18,28,35]):
+  for kind,total in zip(kinds,[6,18,28,35,43]):
    result=ingest(kind);assert result.returncode==0,result.stdout+result.stderr
    assert json.loads(manifest.read_text())['enabledFrameTotal']==total
   for kind in kinds:
@@ -42,7 +42,7 @@ def main():
    assert failed and before=={p:p.read_bytes() for p in guarded},'Rollback did not restore existing runtime/manifest/registry'
    result=ingest(kind);assert result.returncode==0,result.stdout+result.stderr
    assert chunli==[line for line in registry.read_text().splitlines() if "characterId:'CHUNLI'" in line],'Ibuki promotion changed Chun-Li'
-   data=json.loads(manifest.read_text());assert data['enabledFrameTotal']==35
+   data=json.loads(manifest.read_text());assert data['enabledFrameTotal']==43
    record=next(r for r in data['records'] if r['id']==kind);assert record['sha256']==hashlib.sha256(runtime.read_bytes()).hexdigest().upper()
    line=next(line for line in registry.read_text().splitlines() if sequence_id in line);assert 'enabled:true' in line and 'poseAuthored:true' in line
    before={p:p.read_bytes() for p in guarded};source=fixture/f'art-source/ibuki/inbox/{kind}/{record["frames"]:02d}.png';source_data=source.read_bytes();source.unlink();result=ingest(kind)
@@ -58,7 +58,7 @@ def main():
     else:raise AssertionError('Expected paired write failure')
    assert failed and before=={p:p.read_bytes() for p in guarded},'Air rollback did not restore both strips'
    result=ingest(selected);assert result.returncode==0,result.stdout+result.stderr
-   data=json.loads(manifest.read_text());assert data['enabledFrameTotal']==49
+   data=json.loads(manifest.read_text());assert data['enabledFrameTotal']==57
    for air in ('jump','landing'):
     record=next(r for r in data['records'] if r['id']==air);assert record['enabled'] and record['poseAuthored']
     assert record['sha256']==hashlib.sha256((runtime_dir/f'{air}.webp').read_bytes()).hexdigest().upper()

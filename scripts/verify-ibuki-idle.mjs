@@ -13,7 +13,7 @@ for(const facing of [-1,1]) {
  assert.equal(frames.size,6,'Actual idle state clock must advance through every breathing pose');
  fighter.stateFrame=0;assert.equal(animationSequenceSample(fighter,0).frame,0);fighter.stateFrame=Math.ceil(cycle);assert.equal(animationSequenceSample(fighter,0).frame,0,'Idle cycle must wrap');
  fighter.state='walk';fighter.previousX=fighter.x;fighter.x+=facing;assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,'walk','Walking must stay distinct from idle');
- fighter.state='hit';assert.equal(animationSequenceSample(fighter,0),null);
+ fighter.state='hit';assert.equal(animationSequenceSample(fighter,0).sequence.kind,'hit');
  fighter.state='idle';fighter.airborne=false;fighter.stateFrame=0;assert.equal(animationSequenceSample(fighter,0).sequence.id,'IBUKI_IDLE_HQ');
 }
 console.log('IBUKI_IDLE_PASS');
