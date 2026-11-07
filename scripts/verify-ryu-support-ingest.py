@@ -13,7 +13,7 @@ builder=load(ROOT/'scripts/build-roster-motions.py','ryu_support_builder')
 manifest={'records':[{'frames':3,'enabled':True,'renderMode':'full'},{'frames':9,'enabled':False,'renderMode':'full'},{'frames':4,'enabled':True,'renderMode':'bridge'}]}
 builder.update_frame_totals(manifest)
 assert [manifest[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[16,7,3,4],'Disabled records counted as active'
-kinds=('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy')
+kinds=('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick')
 reference=Image.open(ROOT/'public/art/animation-hq/ryu/idle.webp').convert('RGBA').crop((0,0,384,448))
 reference_baseline=int(np.nonzero(np.asarray(reference.getchannel('A'))>=32)[0].max())
 for kind in kinds:
@@ -24,7 +24,7 @@ for kind in kinds:
 variance=load(ROOT/'scripts/measure-animation-pose-variance.py','ryu_variance')
 with TemporaryDirectory(prefix='ryu-variance-') as variance_temp:
  report=variance.measure('RYU',Path(variance_temp)/'report.json',strict_missing=True)
- for kind in ('stand-light','stand-medium','stand-heavy'):
+ for kind in ('stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
   row=next(r for r in report['records'] if r['sequence']==kind)
   assert row['poseAuthoredPass'],'Actual-width Ryu punch variance failed'
   sheet=Image.open(ROOT/f'public/art/animation-hq/ryu/{kind}.webp').convert('RGBA')
@@ -39,10 +39,10 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
  shutil.copytree(ROOT/'art-source/roster-idle/ryu',source/'ryu')
  runtime=fixture/'public/art/animation-hq/ryu';shutil.copytree(ROOT/'public/art/animation-hq/ryu',runtime)
  path=runtime/'manifest.json';data=json.loads(path.read_text())
- data['records']=[r for r in data['records'] if r['id'] not in ('guard','parry','stand-medium')]
+ data['records']=[r for r in data['records'] if r['id'] not in ('guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick')]
  for r in data['records']:
   if r['id'] in ('walk-back','hit','stand-light','stand-heavy'):r.update(enabled=False,poseAuthored=False)
- for name in ('guard','parry','stand-medium'):(runtime/f'{name}.webp').unlink()
+ for name in ('guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'):(runtime/f'{name}.webp').unlink()
  builder.update_frame_totals(data);path.write_text(json.dumps(data))
  assert data['frameTotal']==100 and data['enabledFrameTotal']==41
  binding={k:data[k] for k in ('source','sourcePath','sourceSize','sourceSha256')}
@@ -66,7 +66,7 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
   assert failed
  # Illegal selector/kind combinations must fail before reading sources/writing.
  before=snapshot()
- for kind in ('idle','dash-back','air','stand-light-kick'):
+ for kind in ('idle','dash-back','air','crouch-light'):
   try:run(kind)
   except SystemExit:pass
   else:raise AssertionError('Unsafe Ryu kind accepted')
@@ -76,18 +76,18 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
   if kind=='stand-light':
    support_snapshot={r['id']:r for r in json.loads(path.read_text())['records'] if r['id'] in ('walk-back','hit','guard','parry')}
    support_files={name:(runtime/f'{name}.webp').read_bytes() for name in support_snapshot}
-  if kind=='stand-medium':
+  if kind in ('stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
    previous_records=json.loads(path.read_text())['records']
    previous_files={r['id']:(runtime/(r['id']+'.webp')).read_bytes() for r in previous_records}
   before=snapshot();fail_write(kind);assert before==snapshot(),'First promotion rollback changed fixture'
   order=[r['id'] for r in json.loads(path.read_text())['records']]
   run(kind);current=json.loads(path.read_text())
-  if kind=='stand-medium':
-   assert previous_records==[r for r in current['records'] if r['id']!='stand-medium'],'MP changed existing records'
-   assert previous_files=={name:(runtime/(name+'.webp')).read_bytes() for name in previous_files},'MP changed existing art'
+  if kind in ('stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
+   assert previous_records==[r for r in current['records'] if r['id']!=kind],'New normal changed existing records'
+   assert previous_files=={name:(runtime/(name+'.webp')).read_bytes() for name in previous_files},'New normal changed existing art'
   assert [r['id'] for r in current['records']][:len(order)]==order,'Promotion reordered staged records'
- final=json.loads(path.read_text());assert [final[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[119,95,95,0]
- assert len(final['records'])==14
+ final=json.loads(path.read_text());assert [final[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[149,125,125,0]
+ assert len(final['records'])==17
  assert support_snapshot=={r['id']:r for r in final['records'] if r['id'] in support_snapshot},'Punch promotion changed support records'
  assert support_files=={name:(runtime/f'{name}.webp').read_bytes() for name in support_files},'Punch promotion changed support art'
  assert binding=={k:final[k] for k in binding},'Original approved-source binding changed'
@@ -99,7 +99,7 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
   run(kind);assert before==snapshot(),'Reinstallation changed order or bytes'
   sheet=Image.open(runtime/f'{kind}.webp').convert('RGBA');count=module.module().EXPECTED[kind];width=640 if kind.startswith('stand-') else 384
   frames=[sheet.crop((i*width,0,(i+1)*width,448)) for i in range(count)]
-  motion=module.module();motion.FRAME_W=width;motion.ROSTER_CHARACTER='RYU'
+  motion=module.module();motion.FRAME_W=width;motion.ROSTER_CHARACTER='RYU';motion.ROSTER_MK_PROFILE='kick'
   assert not motion.semantic_qa(kind,[frames[0]]*count,motion.pose_qa([frames[0]]*count,kind))['semanticQaPass'],'Static support pose accepted'
   if kind in ('stand-light','stand-medium','stand-heavy'):
    contact=5 if kind=='stand-heavy' else 3
@@ -107,13 +107,33 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
    substitute=Image.new('RGBA',(640,448));substitute.alpha_composite(guard,(128,0))
    wrong=frames[:contact]+[substitute]+frames[contact+1:]
    assert not motion.semantic_qa(kind,wrong,motion.pose_qa(wrong,kind))['semanticQaPass'],'Guard accepted as punch contact'
+  if kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick'):
+   contacts={'stand-light-kick':(3,),'stand-medium-kick':(4,5),'stand-heavy-kick':(5,6)}[kind]
+   for replacement in ('guard','stand-light'):
+    peer=Image.open(runtime/f'{replacement}.webp').convert('RGBA')
+    peer_width=384 if replacement=='guard' else 640
+    index=0 if replacement=='guard' else 3
+    substitute=Image.new('RGBA',(640,448));substitute.alpha_composite(peer.crop((index*peer_width,0,(index+1)*peer_width,448)),((640-peer_width)//2,0))
+    for contact in contacts:
+     wrong=frames.copy();wrong[contact]=substitute
+     assert not motion.semantic_qa(kind,wrong,motion.pose_qa(wrong,kind))['semanticQaPass'],'Guard/punch accepted as kick contact '+kind+' frame'+str(contact)
+   if kind=='stand-heavy-kick':
+    low=Image.open(runtime/'stand-light-kick.webp').convert('RGBA').crop((3*640,0,4*640,448))
+    for contact in contacts:
+     wrong=frames.copy();wrong[contact]=low
+     assert not motion.semantic_qa(kind,wrong,motion.pose_qa(wrong,kind))['semanticQaPass'],'Low kick accepted as heavy contact '+str(contact)
+   for offset,check in [((18,0),'supportRootStable'),((0,-12),'supportBaselineStable')]:
+    displaced=Image.new('RGBA',(640,448));displaced.alpha_composite(frames[contacts[0]],offset)
+    wrong=frames.copy();wrong[contacts[0]]=displaced
+    result=motion.semantic_qa(kind,wrong,motion.pose_qa(wrong,kind))
+    assert not result['checks'][check] and not result['semanticQaPass'],'Displaced support foot accepted'
   for peer in (['idle','walk'] if kind=='walk-back' else ['idle']):
    peer_path=runtime/f'{peer}.webp';saved=peer_path.read_bytes();peer_path.write_bytes(b'corrupt support peer');bad=snapshot()
    try:run(kind)
    except (ValueError,OSError):pass
    else:raise AssertionError('Corrupt support peer accepted')
    assert bad==snapshot();peer_path.write_bytes(saved)
- for kind,name in [('walk-back','retreat'),('hit','hit'),('guard','guard'),('parry','parry'),('stand-light','stand-light'),('stand-medium','stand-medium'),('stand-heavy','stand-heavy')]:
+ for kind,name in [('walk-back','retreat'),('hit','hit'),('guard','guard'),('parry','parry'),('stand-light','stand-light'),('stand-medium','stand-medium'),('stand-heavy','stand-heavy'),('stand-light-kick','stand-light-kick'),('stand-medium-kick','stand-medium-kick'),('stand-heavy-kick','stand-heavy-kick')]:
   src=source/'ryu'/f'{name}-sheet.png';saved=src.read_bytes();src.write_bytes(b'incomplete source')
   try:
    try:run(kind)

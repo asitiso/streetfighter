@@ -26,6 +26,9 @@ TARGETS = {
     'RYU': {
         'stand-light': 7,
         'stand-medium': 8,
+        'stand-light-kick': 8,
+        'stand-medium-kick': 10,
+        'stand-heavy-kick': 12,
         'stand-heavy': 10,
         'hadoken': 12,
         'shoryuken': 12,
@@ -50,7 +53,7 @@ TARGETS = {
 }
 
 
-FRAME_WIDTHS = {('RYU', kind): 640 for kind in ('stand-light', 'stand-medium', 'stand-heavy')}
+FRAME_WIDTHS = {('RYU', kind): 640 for kind in ('stand-light', 'stand-medium', 'stand-heavy', 'stand-light-kick', 'stand-medium-kick', 'stand-heavy-kick')}
 
 
 def alpha_frame(strip: Image.Image, index: int, width: int = FRAME_W) -> np.ndarray:

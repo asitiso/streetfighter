@@ -62,6 +62,7 @@ def module():
  original_semantic=motion.semantic_qa
  def semantic(kind,frames,pose):
   if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light','stand-medium','stand-heavy'):return ryu_punch_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick'):return ryu_kick_semantic_qa(motion,frames,pose,kind)
   if kind=='dash-back':return backward_dash_semantic_qa(motion,frames,pose)
   if kind=='stand-medium':
    return {**motion.stand_light_semantic_qa(frames,pose),'kind':kind}
@@ -90,6 +91,27 @@ def ryu_punch_semantic_qa(motion,frames,pose,kind):
  report['checks']['actualContactReach']=all(limits['reachRangeMin']<=v<=limits['reachRangeMax'] for v in deltas)
  report['semanticQaPass']=all(report['checks'].values())
  return report
+
+def ryu_kick_semantic_qa(motion,frames,pose,kind):
+ if kind=='stand-light-kick':
+  report=kick_semantic_qa(motion,frames,pose);contacts=(3,);fraction=.55;raised=(24,190)
+ elif kind=='stand-medium-kick':
+  report=medium_kick_semantic_qa(motion,frames,pose,'kick');contacts=(4,5);fraction=.40;raised=(48,225)
+ else:
+  report=heavy_kick_semantic_qa(motion,frames,pose);contacts=(5,6);fraction=.25;raised=(200,300)
+ contact_reports=[]
+ for contact in contacts:
+  sample=kick_semantic_qa(motion,frames,pose,contact=contact,lower_fraction=fraction,raised_min=raised[0],raised_max=raised[1],kind=kind)
+  # Apply the same existing reach/height limits to EVERY actual contact,
+  # so a second active frame cannot silently contain a guard or low kick.
+  reach=38<=sample['legReachDelta']<=190 if kind=='stand-heavy-kick' else sample['checks']['legReachPresent']
+  support=kind=='stand-light-kick' or grounded_sole_count(motion._binary_mask(frames[contact]))==1
+  contact_reports.append({'frame':contact,'legReachDelta':sample['legReachDelta'],'contactFootHeight':sample['contactFootHeight'],'pass':bool(reach and sample['checks']['raisedFootPresent'] and support)})
+ report['actualContacts']=contact_reports
+ report['checks']['actualContactPoses']=all(r['pass'] for r in contact_reports)
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
+
 
 def backward_dash_semantic_qa(motion,frames,pose):
  report=motion.dash_semantic_qa(frames,pose)
@@ -498,10 +520,10 @@ def air_batch(args):
 def main():
  parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU'],help='Supplemental Ryu motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
- if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy'):parser.error('RYU selector supports retreat, hit, defense and standing punches only')
+ if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):parser.error('RYU selector supports retreat, hit, defense and standing normals only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
- entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]}}}] if args.character=='RYU' else CONFIG
+ entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else CONFIG
  width=640 if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
  for entry in entries:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'

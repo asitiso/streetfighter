@@ -166,9 +166,9 @@ Remaining asset work: air/command normals and specials for these six characters;
 
 ## Supplemental Ryu retreat and reactions
 
-Ryu now has newly generated retreat10F, hit8F, guard5F and parry6F, matching the existing crisp cel-shaded Ryu sprite identity and neutral guard. Six-pose retreat/hit sheets and four-pose guard/parry sheets are saved under `ryu/`, alongside their exact built-in imagegen prompts. Original HQ masters and approved source binding remain unchanged. The default six-character batch remains191F per character; Ryu is selected explicitly for retreat, hit, guard, parry and all three standing punches.
+Ryu now has newly generated retreat10F, hit8F, guard5F and parry6F, matching the existing crisp cel-shaded Ryu sprite identity and neutral guard. Six-pose retreat/hit sheets and four-pose guard/parry sheets are saved under `ryu/`, alongside their exact built-in imagegen prompts. Original HQ masters and approved source binding remain unchanged. The default six-character batch remains191F per character; Ryu is selected explicitly for retreat, hit, guard, parry and all six standing normals.
 
-Ryu has95 enabled/full stored frames across12active records, including7F LP,8F MP and10F HP. The manifest total119 includes two remaining staged-disabled special strips (24frames) and fourteen records overall. Shared total accounting now distinguishes disabled, full and bridge records rather than treating every staged frame as enabled. Ryu retains its original approved-source metadata; generated support records carry their own source checksums, order and idle-referenced anatomical scale. Their opaque sole baseline also matches installed idle (433px), avoiding a roughly6rendered-pixel vertical step from the shared atlas baseline; offsets and the baseline reference are recorded. Unsupported Ryu selector kinds are rejected before sources or runtime writes.
+Ryu has125 enabled/full stored frames across15active records, including7F LP,8F MP,10F HP and8F LK/10F MK/12F HK. The manifest total149 includes two remaining staged-disabled special strips (24frames) and seventeen records overall. Shared total accounting now distinguishes disabled, full and bridge records rather than treating every staged frame as enabled. Ryu retains its original approved-source metadata; generated support records carry their own source checksums, order and idle-referenced anatomical scale. Their opaque sole baseline also matches installed idle (433px), avoiding a roughly6rendered-pixel vertical step from the shared atlas baseline; offsets and the baseline reference are recorded. Unsupported Ryu selector kinds are rejected before sources or runtime writes.
 
 All four new sheets pass the same existing retreat/hit/guard/parry semantic, pose and handoff limits. Real-input tests cover retreat direction/loop/idle switching, ground/air and repeated hits, hit-stop freeze, successful-block exclusion,6/12/24tick blocks, normal/red parries and idle return in both facings. Ryu guard uses linear playback, like the six-roster guard, so a short block shows absorption instead of skipping directly to recovery under ease-out/default weights. Gameplay timing, defense windows, damage and movement are unchanged.
 
@@ -188,7 +188,7 @@ Ryu now has dedicated six-pose jab and heavy rear-straight sheets in `ryu/stand-
 
 Only exact grounded5LP/5HP select these strips. Ryu kicks/crouch/commands/target variants and physical air keep their own presentation, while prior projectile/rising special mappings remain unchanged. Legacy Ryu punch staging anchor arrays are now zero, preventing the already-planted authored sprite from receiving a second position offset. Actual Canvas translation tests cover that root, both facings, every stored frame, both heavy contact frames, hit-stop freeze, unchanged move duration and idle return.
 
-Existing standing punch quality limits are unchanged. Ryu additionally validates reach at actual contact3 and both4/5 using the same24..105px light and38..145px heavy bounds; otherwise a different frame could supply whole-strip reach while a guard substituted for contact. The extended Ryu ingestion fixture rejects that substitution, static art, corrupt peers/missing sources and invalid selector kinds, and verifies old support art, approved binding, staged specials, partial totals, stable order and first/replacement rollback. Both new source sheets passed without relaxed gates. Cache is v124.
+Existing standing punch quality limits are unchanged. Ryu additionally validates reach at actual contact3 and both4/5 using the same24..105px light and38..145px heavy bounds; otherwise a different frame could supply whole-strip reach while a guard substituted for contact. The extended Ryu ingestion fixture rejects that substitution, static art, corrupt peers/missing sources and invalid selector kinds, and verifies old support art, approved binding, staged specials, partial totals, stable order and first/replacement rollback. Both new source sheets passed without relaxed gates. Cache is v125.
 
 ```sh
 python scripts/build-roster-motions.py --character RYU --kind stand-light --runtime
@@ -202,11 +202,30 @@ npm run verify:ryu-support-ingest
 
 Built-in imagegen adds six distinct medium-straight drawings in `ryu/stand-medium-sheet.png`; the exact generation/background-extraction prompts are in `ryu/stand-medium-prompt.txt` and the exact edit target is retained as `ryu/stand-medium-edit-target.png`. Background RGB under zero alpha is ignored; runtime contains only the character. The Ryu-only existing recipe uses [1,2,3,4,5,5,6,6],8stored frames with startup0–2/contact3/recovery4–7. Same640x448cells, idle anatomical scale, opaque433sole and planted two-foot anchor. Exact grounded5MP now has its own strip; crouch/kick/command/target/air variants retain their presentation. Gameplay timing is unchanged.
 
-The Ryu selector now accepts seven kinds. Its actual contact3 requires the same24..105px reach bounds as light strikes (measured64px). Full installed-record/file preservation, new-file/replacement rollback and static/guard-contact/source/peer negatives include MP. The old variance tool now crops Ryu LP/MP/HP at640px and aligns ECC to the actual mask dimensions, retaining384px Ken/special defaults and original numeric thresholds. Runtime source/handoff checks and real input verify all8frames, both facings, hit stop, contact and idle recovery.
+The Ryu selector now accepts ten kinds. Its actual contact3 requires the same24..105px reach bounds as light strikes (measured64px). Full installed-record/file preservation, new-file/replacement rollback and static/guard-contact/source/peer negatives include MP. The old variance tool now crops Ryu LP/MP/HP at640px and aligns ECC to the actual mask dimensions, retaining384px Ken/special defaults and original numeric thresholds. Runtime source/handoff checks and real input verify all8frames, both facings, hit stop, contact and idle recovery.
 
 ```sh
 python scripts/build-roster-motions.py --character RYU --kind stand-medium --install
 python scripts/build-roster-motions.py --character RYU --kind stand-medium --runtime
+npm run verify:ryu-support-ingest
+npm run verify:roster-standing-attacks
+```
+
+
+## Ryu standing kicks
+
+Built-in imagegen adds18independent drawings in `ryu/stand-light-kick-sheet.png`, `ryu/stand-medium-kick-sheet.png` and `ryu/stand-heavy-kick-sheet.png`. Exact prompts are alongside each sheet as `stand-*-kick-prompt.txt`; HK retains its exact original `stand-heavy-kick-edit-target.png` for the contact-angle refinement. Original HQ masters/binding and all previous runtime art are preserved.
+
+Each sheet has six distinct neutral/chamber/half-extension/full-contact/half-withdrawal/recovered drawings. LK stores [1,2,3,4,5,5,6,6] in8frames (contact3/recovery4); MK [1,1,2,3,4,4,5,5,6,6] in10frames (contact4–5/recovery6); HK [1,1,2,3,3,4,4,5,5,6,6,6] in12frames (contact5–6/recovery7). The existing recipe mechanism supplies all three; the default six-character batch is unchanged.
+
+Wide640x448cells render320x224 at the same installed-idle anatomical scale, opaque433sole and rear-support anchor. The striking leg lifts independently, so averaging both feet cannot slide the planted body. Ryu profiles contain zero additional anchor offsets. Exact grounded5LK/5MK/5HK select their own strips; crouch/command/air/target variants retain their presentation. Gameplay damage, timing, movement and hitboxes remain unchanged.
+
+All original kick, mid-kick and heavy-kick semantic/handoff thresholds remain unchanged. LK/MK sources pass first generation; HK contact was refined from insufficient14px advance to48px without lowering the original38..190px bound. Final contact heights are137/195/251px, clearly distinct low/mid/high silhouettes. All three support-root ranges are below1px with zero baseline variation. A Ryu-only actual-contact audit applies the same original reach/height/one-support limits at LK3, MK4/5 and HK5/6. A guard substituted at the second MK contact was reproduced as a false acceptance before this audit; all such contacts now reject guard/punch substitutions, and both HK contacts reject low kicks. Default six-roster semantics are unchanged. Runtime partial-ingest fixtures preserve prior records/files and staged specials while rejecting static/punch/guard contact, displaced support, source/peer corruption and failed writes.
+
+```sh
+python scripts/build-roster-motions.py --character RYU --kind stand-light-kick --runtime
+python scripts/build-roster-motions.py --character RYU --kind stand-medium-kick --runtime
+python scripts/build-roster-motions.py --character RYU --kind stand-heavy-kick --runtime
 npm run verify:ryu-support-ingest
 npm run verify:roster-standing-attacks
 ```
