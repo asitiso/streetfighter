@@ -94,8 +94,8 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 }
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
-  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 157 : 136, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 157 : 136, `${id} enabled frame total mismatch`);
+  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 157 : 143, `${id} frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 157 : 143, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -202,11 +202,11 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   const extraManifest = JSON.parse(await readFile(new URL(`../public/art/animation-hq/${slug}/manifest.json`, import.meta.url), 'utf8'));
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
-  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 157 : 136);
+  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 157 : 143);
   const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
   assert.equal(extraManifest.enabledFrameTotal, activeFrames);
   assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
-  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 16 : 14);
+  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 16 : 15);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
   for (const rec of extraManifest.records) {
@@ -377,7 +377,24 @@ try {
  assert.equal(back.sourceSha256,sha(await readFile(new URL('../'+back.source,import.meta.url))));
  assert.ok(catalogUrls.has('/art/animation-hq/chunli/dash-back.webp'));
  console.log('CHUNLI_STAGE_ENTRY_PRELOAD_BYTES',chunliEntryBytes);
-}finally{animationTextureManager.releaseCharacter('CHUNLI');animationTextureManager.releaseCharacter('RYU');runtimeQuality.setTier(savedTier);if(savedImage===undefined)delete globalThis.Image;else globalThis.Image=savedImage;}
+ animationTextureManager.releaseCharacter('CHUNLI');requests.length=0;
+ {
+ const ibukiManifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/ibuki/manifest.json',import.meta.url),'utf8'));
+ animationTextureManager.releaseCharacter('IBUKI');
+ animationTextureManager.preloadCharacter('IBUKI','movement');
+ assert.ok(requests.includes('/art/animation-hq/ibuki/dash-back.webp'),'Ibuki backward dash must start preparation with movement');
+ animationTextureManager.preloadCharacter('IBUKI','combat');
+ assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('IBUKI',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());
+ const ibukiEntryBytes=ibukiManifest.records.filter(r=>requests.includes('/art/animation-hq/ibuki/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
+ assert.ok(ibukiEntryBytes<13_000_000,'Ibuki stage-entry animations exceed13MB');
+ const back=ibukiManifest.records.find(r=>r.id==='dash-back');
+ assert.equal(back.facingRelativeDirection,'backward');
+ assert.deepEqual(back.sourceOrder,[1,2,3,3,4,5,6]);
+ assert.equal(back.sourceSha256,sha(await readFile(new URL('../'+back.source,import.meta.url))));
+ assert.ok(catalogUrls.has('/art/animation-hq/ibuki/dash-back.webp'));
+ console.log('IBUKI_STAGE_ENTRY_PRELOAD_BYTES',ibukiEntryBytes);
+ }
+}finally{animationTextureManager.releaseCharacter('IBUKI');animationTextureManager.releaseCharacter('CHUNLI');animationTextureManager.releaseCharacter('RYU');runtimeQuality.setTier(savedTier);if(savedImage===undefined)delete globalThis.Image;else globalThis.Image=savedImage;}
 
 console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   candidate: manifest.candidate,
@@ -386,8 +403,8 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   frameTotal: manifest.frameTotal,
   kenFrameTotal: kenManifest.frameTotal,
   chunliFrameTotal: 157,
-  ibukiFrameTotal: 136,
-  ibukiEnabledFrameTotal: 136,
+  ibukiFrameTotal: 143,
+  ibukiEnabledFrameTotal: 143,
   enabledFrameTotal: manifest.enabledFrameTotal,
   strips: manifest.records.length,
   payloadKb: Math.round(totalBytes / 1024),

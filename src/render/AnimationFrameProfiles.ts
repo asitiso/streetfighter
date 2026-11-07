@@ -299,6 +299,11 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.374,
   },
+  'IBUKI:dash-back': {
+    weights: [1,1,1,1,1,1,1],
+    anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0],
+    footLockStrength: 0,
+  },
   'IBUKI:dash': {
     weights: [1.220, 0.820, 0.720, 0.720, 0.820, 1.000, 1.340],
     anchorX: [0, 0, 0, 0, 0, 0, 0],

@@ -188,7 +188,7 @@ Ryu now has dedicated six-pose jab and heavy rear-straight sheets in `ryu/stand-
 
 Only exact grounded5LP/5HP select these strips. Ryu kicks/crouch/commands/target variants and physical air keep their own presentation, while prior projectile/rising special mappings remain unchanged. Legacy Ryu punch staging anchor arrays are now zero, preventing the already-planted authored sprite from receiving a second position offset. Actual Canvas translation tests cover that root, both facings, every stored frame, both heavy contact frames, hit-stop freeze, unchanged move duration and idle return.
 
-Existing standing punch quality limits are unchanged. Ryu additionally validates reach at actual contact3 and both4/5 using the same24..105px light and38..145px heavy bounds; otherwise a different frame could supply whole-strip reach while a guard substituted for contact. The extended Ryu ingestion fixture rejects that substitution, static art, corrupt peers/missing sources and invalid selector kinds, and verifies old support art, approved binding, staged specials, partial totals, stable order and first/replacement rollback. Both new source sheets passed without relaxed gates. Cache is v129.
+Existing standing punch quality limits are unchanged. Ryu additionally validates reach at actual contact3 and both4/5 using the same24..105px light and38..145px heavy bounds; otherwise a different frame could supply whole-strip reach while a guard substituted for contact. The extended Ryu ingestion fixture rejects that substitution, static art, corrupt peers/missing sources and invalid selector kinds, and verifies old support art, approved binding, staged specials, partial totals, stable order and first/replacement rollback. Both new source sheets passed without relaxed gates. Cache is v130.
 
 ```sh
 python scripts/build-roster-motions.py --character RYU --kind stand-light --runtime
@@ -279,7 +279,7 @@ Six new built-in imagegen drawings use [1,2,3,3,4,5,6] for7stored frames. Guarde
 
 The actual8tick clock reaches [0,1,3,4,5,6], every distinct drawing; skipped2 duplicates3. Fighter owns world travel; both facings preserve opponent-facing direction, exact speed/duration, hit-stop freeze and attack/jump interruption. The forward dash gains an explicit forward tag. A Ryu-only absolute rearward torso check rejects the installed forward runner that incorrectly passed the earlier delta-only semantic gate. All prior24manifest records and installed WebP bytes remain unchanged. Default six-roster limits are unchanged. Movement preparation now includes backward dashes through the existing loader.
 
-Loading correction: the previously reported prefetch number was the declared enabled catalog size, not a measurement of entry requests. CharacterTextureManager first prepares movement; Stage1Scene.enter then eagerly prepares combat. Captured Image.src requests across that sequence total 12,490,276 bytes for Ryu, including the new 523,138-byte backward dash; movement alone is 6,533,514 bytes. The stage-entry animation cap is explicitly raised from 12 MB to 13 MB for this addition. The complete stored catalog is 14,344,356 bytes, including 1,854,080 bytes of unchanged disabled specials excluded from requests. The test captures both phases without clearing cached textures between them. This is Ryu animation traffic, not whole-game startup traffic; image quality and existing eager combat loading are preserved. Cachev129.
+Loading correction: the previously reported prefetch number was the declared enabled catalog size, not a measurement of entry requests. CharacterTextureManager first prepares movement; Stage1Scene.enter then eagerly prepares combat. Captured Image.src requests across that sequence total 12,490,276 bytes for Ryu, including the new 523,138-byte backward dash; movement alone is 6,533,514 bytes. The stage-entry animation cap is explicitly raised from 12 MB to 13 MB for this addition. The complete stored catalog is 14,344,356 bytes, including 1,854,080 bytes of unchanged disabled specials excluded from requests. The test captures both phases without clearing cached textures between them. This is Ryu animation traffic, not whole-game startup traffic; image quality and existing eager combat loading are preserved. Cachev130.
 
 ```sh
 python scripts/build-roster-motions.py --character RYU --kind dash-back --runtime
@@ -296,11 +296,29 @@ Uniform anatomical scale references installed idle337px and opaque sole422px (al
 
 Exact direction metadata selects backward art while preserving opponent-facing stance, world speed/duration, hit stop and attack/jump interruption; existing forward art gets an explicit forward tag. Existing guard/parry and other unfinished actions retain fallback. Total157enabled/full stored frames,16records. All15prior manifest records and installed art remain identical; original source binding and pipeline are retained. CHUNLI selector accepts dash-back only; default six-roster batch and Ryu selector remain unchanged.
 
-New isolated ingest verification covers first-install/replacement rollback, byte-stable reinstall, prior-art/record preservation, invalid selectors, wrong direction, missing source, corrupt idle peer and forward/static/translated semantic substitutes. Movement preparation includes backward dash. Captured movement followed by combat entry requests11275864bytes for Chun-Li (new strip509070bytes), below the existing13MB stage-entry animation cap. This excludes other characters and non-animation game assets. Cachev129.
+New isolated ingest verification covers first-install/replacement rollback, byte-stable reinstall, prior-art/record preservation, invalid selectors, wrong direction, missing source, corrupt idle peer and forward/static/translated semantic substitutes. Movement preparation includes backward dash. Captured movement followed by combat entry requests11275864bytes for Chun-Li (new strip509070bytes), below the existing13MB stage-entry animation cap. This excludes other characters and non-animation game assets. Cachev130.
 
 ```sh
 python scripts/build-roster-motions.py --character CHUNLI --kind dash-back --install
 python scripts/build-roster-motions.py --character CHUNLI --kind dash-back --runtime
 python scripts/verify-chunli-backdash-ingest.py
+node scripts/verify-roster-movement.mjs
+```
+
+
+## Ibuki backward dash
+
+Six newly generated guarded-launch/compression/backward-drive/rear-foot-brake/settling/recovered-guard drawings use [1,2,3,3,4,5,6] in7stored640x448frames. Exact built-in prompt is `ibuki/dash-back-prompt.txt`; actual source is `ibuki/dash-back-sheet.png`. Only the alpha-bearing character appears at runtime; background RGB under zero alpha is ignored. All original quality/idle-handoff limits pass on first generation: residual average0.039942/peak0.059651, signed backwarddrive53.393px and drive torso offset-57.430px.
+
+One anatomical scale references installed idle342px and opaque sole429px(alpha>=32), with zero staging offsets/foot lock. Hair and sashes retain complete silhouettes. Unchanged8tick playback reaches every distinct drawing [0,1,3,4,5,6]; duplicate index2 is intentionally skipped. Fighter supplies world travel. Both facings/world directions preserve exact speed/duration, hit-stop freeze, attack/jump interruption and idle recovery. The existing forward strip gains an explicit forward tag. Guard/parry and unfinished attacks retain fallback; Ken alone retains generic bidirectional dash art.
+
+Totals143enabled/full frames and15records. All14prior records/art and original approved source binding/pipeline remain unchanged. IBUKI selector accepts dash-back only; shared Ryu/Chun-Li/default-six behavior is retained. The existing Chun-Li ingest fixture now accepts `--character IBUKI` instead of adding a duplicate test: first-install/replacement rollback, byte-stable reinstall, prior-record/art/binding preservation, invalid selector/wrong runtime direction and forward/static/translated/source/peer negatives run for each character. Both calls are included in standard verification.
+
+Captured movement followed by combat preparation requests7317686bytes for Ibuki, including499778new bytes, below the existing13MB per-character animation entry cap. This is animation traffic for one character, not total game startup traffic. Cachev130.
+
+```sh
+python scripts/build-roster-motions.py --character IBUKI --kind dash-back --install
+python scripts/build-roster-motions.py --character IBUKI --kind dash-back --runtime
+python scripts/verify-chunli-backdash-ingest.py --character IBUKI
 node scripts/verify-roster-movement.mjs
 ```
