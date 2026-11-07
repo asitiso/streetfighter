@@ -501,3 +501,17 @@ python scripts/build-roster-motions.py --character CHUNLI --kind stand-medium-ki
 python scripts/verify-chunli-backdash-ingest.py --kind stand-medium-kick
 node scripts/verify-roster-standing-attacks.mjs
 ```
+
+## Chun-Li standing heavy kick: six standing normals complete
+
+Six authored neutral/chamber/half-extension/high-contact/folded-withdrawal/recovered-guard drawings use [1,1,2,3,3,4,4,5,5,6,6,6] in12stored640x448frames: startup0–4/contact5–6/recovery7–11. Final source `chunli/stand-heavy-kick-sheet.png`, exact built-in generation/alpha-cleanup/angle-edit prompts `chunli/stand-heavy-kick-prompt.txt`, and both exact edit targets are retained. First generation had faint background alpha joining two figures; alpha cleanup restored six separate bodies. Initial steep contact failed forward reach(-14px); lowering/forward extension passed62px reach at243px foot height without relaxing numeric gates. Final residual average0.029732/peak0.053148. The final source retains faint alpha-1 haze; existing complete-body extraction removes it and composited runtime previews are clean.
+
+Idle337px/opaque422/rear-support anchoring retains uniform scale and planted foot (center range0.521687px/baseline0); profiles add zero offsets. Both contacts5/6 require high kick reach/height/one support. Guard/punch/low-kick substitutions, shifted roots/baselines, static/translated motion and runtime/source/peer errors reject; medium/high geometry ranges intentionally overlap. Actual Chun-Li foot heightsLK140/MK190.5/HK243px distinguish silhouettes. Exact grounded5HK only; existing gameplay and other mappings unchanged. Both-facing input covers all12frames/both contacts/hitstop/idle; six-button actual-input preview shows the complete set.
+
+All21prior records/art/bindings/pipeline remain unchanged. Chun-Li now206enabled/full frames,22records, all six standing normals. Shared selector/recipe/audit/fixture are reused; byte-stable reinstall and first/new-file/replacement rollback pass. Standing checks54strips/495frames across9characters/2490Canvasdraws. New strip470596bytes; Chun-Li combined movement+combat entry13698604bytes stays below the existing14MB budget, other budgets13MB unchanged. Movement-only preparation excludes normal attacks. Cachev141.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind stand-heavy-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --kind stand-heavy-kick
+node scripts/verify-roster-standing-attacks.mjs
+```

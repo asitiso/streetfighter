@@ -87,6 +87,7 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
     if (move.id === '5MP') return 'stand-medium';
     if (move.id === '5LK') return 'stand-light-kick';
     if (move.id === '5MK') return 'stand-medium-kick';
+    if (move.id === '5HK') return 'stand-heavy-kick';
     if (move.id === '5HP') return 'stand-heavy';
     return null;
   }
