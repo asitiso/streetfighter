@@ -19,7 +19,7 @@ def load_module(name, filename):
 
 def main():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush', 'kikosho', 'tensei-ranka'])
+    parser.add_argument('kind', nargs='?', default='walk', choices=['idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'tatsumaki', 'shoryuken', 'super-rush', 'kikosho', 'tensei-ranka', 'yoroi-doroshi'])
     parser.add_argument('--character', choices=['CHUNLI', 'IBUKI'], default='CHUNLI')
     parser.add_argument('--install', action='store_true')
     parser.add_argument('--runtime', action='store_true', help='Verify the installed runtime strip without modifying files.')
@@ -32,11 +32,11 @@ def main():
     slug = character.lower()
     kind = args.kind
     # Separate Super Art asset identities reuse the existing motion-family gates.
-    quality_kinds = {'kikosho': 'hadoken', 'tensei-ranka': 'shoryuken'}
+    quality_kinds = {'yoroi-doroshi': 'stand-heavy', 'kikosho': 'hadoken', 'tensei-ranka': 'shoryuken'}
     qa_kind = quality_kinds.get(kind, kind)
     for sequence_kind, quality_kind in quality_kinds.items():
         motion.EXPECTED[sequence_kind] = motion.EXPECTED[quality_kind]
-    frame_width = 640 if kind in ('tatsumaki', 'super-rush', 'kikosho') or (character == 'IBUKI' and kind == 'hadoken') else 384
+    frame_width = 640 if kind in ('tatsumaki', 'super-rush', 'kikosho', 'yoroi-doroshi') or (character == 'IBUKI' and kind == 'hadoken') else 384
     motion.FRAME_W = frame_width
     if kind == 'tatsumaki':
         # Horizontal gates use canvas pixels; retain their normalized limits
@@ -76,7 +76,7 @@ def main():
         if [p.name for p in paths] != [f'{i:02d}.png' for i in range(1, sequence_count + 1)]:
             raise SystemExit(f'{character} {sequence_kind}: provide exactly 01.png through {sequence_count:02d}.png')
         normalized, source_metrics = motion.normalize_frames(quality_kinds.get(sequence_kind, sequence_kind), [Image.open(p).convert('RGBA') for p in paths])
-        if character == 'IBUKI' and sequence_kind in ('stand-light', 'stand-heavy', 'hadoken'):
+        if character == 'IBUKI' and sequence_kind in ('stand-light', 'stand-heavy', 'hadoken', 'yoroi-doroshi'):
             # A planted jab must not slide when its extended fist widens the bbox.
             foot_centers = [motion._foot_metrics(motion._binary_mask(frame))[0] for frame in normalized]
             for index, frame in enumerate(normalized):
@@ -85,7 +85,7 @@ def main():
                 anchored.alpha_composite(frame, (offset, 0))
                 normalized[index] = anchored
                 source_metrics[index]['paste'][0] += offset
-        if character == 'IBUKI' and sequence_kind in ('idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'shoryuken', 'tatsumaki'):
+        if character == 'IBUKI' and sequence_kind in ('idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'shoryuken', 'tatsumaki', 'yoroi-doroshi'):
             # Align this character's original root rather than assuming Ken's
             # centered 423px baseline. A uniform offset preserves breathing motion.
             master_mask = handoff.alpha_mask(Image.open(ROOT / f'public/art/combat-sprites-hq/{slug}.webp').convert('RGBA'))
@@ -111,7 +111,7 @@ def main():
         return normalized, source_metrics
 
     frames, metrics = load_frames(kind)
-    if character == 'IBUKI' and kind == 'hadoken':
+    if character == 'IBUKI' and kind in ('hadoken', 'yoroi-doroshi'):
         for index, frame in enumerate(frames):
             mask = handoff.alpha_mask(frame)
             if mask[0].any() or mask[-1].any() or mask[:, 0].any() or mask[:, -1].any():
@@ -151,7 +151,7 @@ def main():
         elif kind == 'stand-light':
             start_limits = end_limits = handoff.STAND_LIGHT_BASE_LIMITS
             start_key, end_key = 'baseToAttack', 'attackToBase'
-        elif kind == 'stand-heavy':
+        elif kind in ('stand-heavy', 'yoroi-doroshi'):
             start_limits = end_limits = handoff.STAND_HEAVY_BASE_LIMITS
             start_key, end_key = 'baseToAttack', 'attackToBase'
         elif kind in ('hadoken', 'kikosho'):
