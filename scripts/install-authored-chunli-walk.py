@@ -36,7 +36,7 @@ def main():
     qa_kind = quality_kinds.get(kind, kind)
     for sequence_kind, quality_kind in quality_kinds.items():
         motion.EXPECTED[sequence_kind] = motion.EXPECTED[quality_kind]
-    frame_width = 640 if kind in ('tatsumaki', 'super-rush', 'kikosho') else 384
+    frame_width = 640 if kind in ('tatsumaki', 'super-rush', 'kikosho') or (character == 'IBUKI' and kind == 'hadoken') else 384
     motion.FRAME_W = frame_width
     if kind == 'tatsumaki':
         # Horizontal gates use canvas pixels; retain their normalized limits
@@ -76,7 +76,7 @@ def main():
         if [p.name for p in paths] != [f'{i:02d}.png' for i in range(1, sequence_count + 1)]:
             raise SystemExit(f'{character} {sequence_kind}: provide exactly 01.png through {sequence_count:02d}.png')
         normalized, source_metrics = motion.normalize_frames(quality_kinds.get(sequence_kind, sequence_kind), [Image.open(p).convert('RGBA') for p in paths])
-        if character == 'IBUKI' and sequence_kind in ('stand-light', 'stand-heavy'):
+        if character == 'IBUKI' and sequence_kind in ('stand-light', 'stand-heavy', 'hadoken'):
             # A planted jab must not slide when its extended fist widens the bbox.
             foot_centers = [motion._foot_metrics(motion._binary_mask(frame))[0] for frame in normalized]
             for index, frame in enumerate(normalized):
@@ -85,12 +85,12 @@ def main():
                 anchored.alpha_composite(frame, (offset, 0))
                 normalized[index] = anchored
                 source_metrics[index]['paste'][0] += offset
-        if character == 'IBUKI' and sequence_kind in ('idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy'):
+        if character == 'IBUKI' and sequence_kind in ('idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken'):
             # Align this character's original root rather than assuming Ken's
             # centered 423px baseline. A uniform offset preserves breathing motion.
             master_mask = handoff.alpha_mask(Image.open(ROOT / f'public/art/combat-sprites-hq/{slug}.webp').convert('RGBA'))
             master_y, master_x = motion.np.nonzero(master_mask)
-            dx = round((int(master_x.min()) + int(master_x.max()) + 1) / 2 - frame_width / 2)
+            dx = round((int(master_x.min()) + int(master_x.max()) + 1) / 2 - 384 / 2)
             dy = int(master_y.max()) + 1 - 423
             for index, frame in enumerate(normalized):
                 anchored = Image.new('RGBA', (frame_width, 448))
@@ -111,6 +111,11 @@ def main():
         return normalized, source_metrics
 
     frames, metrics = load_frames(kind)
+    if character == 'IBUKI' and kind == 'hadoken':
+        for index, frame in enumerate(frames):
+            mask = handoff.alpha_mask(frame)
+            if mask[0].any() or mask[-1].any() or mask[:, 0].any() or mask[:, -1].any():
+                raise SystemExit(f'IBUKI Kunai frame {index+1}: silhouette touches canvas edge')
     pose = motion.pose_qa(frames, qa_kind)
     semantic = motion.semantic_qa(qa_kind, frames, pose)
     master_image = Image.open(ROOT / f'public/art/combat-sprites-hq/{slug}.webp').convert('RGBA')
