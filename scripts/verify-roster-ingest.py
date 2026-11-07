@@ -39,11 +39,14 @@ def main():
   prior={p:p.read_bytes() for p in runtime.iterdir()}
   failure('dash');assert prior=={p:p.read_bytes() for p in runtime.iterdir()},'New dash rollback left a file or changed manifest'
   run('dash')
+  prior={p:p.read_bytes() for p in runtime.iterdir()}
+  failure('air');assert prior=={p:p.read_bytes() for p in runtime.iterdir()},'New air pair rollback left a file or changed manifest'
+  run('air')
   before={p:p.read_bytes() for p in runtime.iterdir()}
-  for kind in ['idle','walk','walk-back','dash']:
+  for kind in ['idle','walk','walk-back','dash','air']:
    failure(kind);assert before=={p:p.read_bytes() for p in runtime.iterdir()},'Replacement rollback changed installed files'
    run(kind,False)
-  assert json.loads(manifest.read_text())['enabledFrameTotal']==35
+  assert json.loads(manifest.read_text())['enabledFrameTotal']==49
   directions=0
   for peer in ['idle','walk','walk-back']:
    path=runtime/f'{peer}.webp'
@@ -55,14 +58,16 @@ def main():
     else:raise AssertionError('Corrupt installed peer accepted')
     assert corrupted=={p:p.read_bytes() for p in runtime.iterdir()}
     path.write_bytes(before[path]);directions+=1
-  for selected,peer in [('idle','dash'),('dash','idle')]:
+  for selected,peer in [('idle','dash'),('dash','idle'),('idle','jump'),('idle','landing')]:
    path=runtime/f'{peer}.webp';path.write_bytes(b'corrupt dash handoff peer');corrupted={p:p.read_bytes() for p in runtime.iterdir()}
    try:run(selected)
    except (ValueError,OSError):pass
    else:raise AssertionError('Corrupt dash handoff peer accepted')
    assert corrupted=={p:p.read_bytes() for p in runtime.iterdir()}
    path.write_bytes(before[path]);directions+=1
-  for kind,name in [('walk-back','retreat-sheet.png'),('dash','dash-sheet.png')]:
+  for name in ['jump','landing']:(runtime/f'{name}.webp').write_bytes(b'stale paired runtime')
+  run('air');assert before=={p:p.read_bytes() for p in runtime.iterdir()},'Air promotion did not replace both stale peers'
+  for kind,name in [('walk-back','retreat-sheet.png'),('dash','dash-sheet.png'),('air','jump-sheet.png'),('air','landing-sheet.png')]:
    path=source/'alex'/name;source_data=path.read_bytes();path.write_bytes(b'incomplete source')
    try:
     try:run(kind)
@@ -70,6 +75,6 @@ def main():
     else:raise AssertionError('Incomplete source accepted')
     assert before=={p:p.read_bytes() for p in runtime.iterdir()}
    finally:path.write_bytes(source_data)
- print(f'ROSTER_INGEST_PASS firstInstallRollback=True retreatNewFileRollback=True dashNewFileRollback=True replacementRollback=True corruptPeerDirections={directions} incompleteRejected=True')
+ print(f'ROSTER_INGEST_PASS firstInstallRollback=True retreatNewFileRollback=True dashNewFileRollback=True airPairRollback=True pairedReplacement=True replacementRollback=True corruptPeerDirections={directions} incompleteRejected=True')
 
 if __name__=='__main__':main()

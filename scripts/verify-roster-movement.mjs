@@ -19,14 +19,16 @@ const {runtimeQuality}=await import('../dist/assets/core/RuntimeQuality.js');
 const {drawCombatFighter}=await import('../dist/assets/render/Visuals.js');
 runtimeQuality.setTier('high');
 const calls=[];
+const translations=[];
 let canvasDraws=0;
-const ctx=new Proxy({globalAlpha:1,drawImage:(...a)=>calls.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
+const ctx=new Proxy({globalAlpha:1,translate:(...a)=>translations.push(a),drawImage:(...a)=>calls.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
 function checkCanvas(fighter,seq){
- calls.length=0;drawCombatFighter(ctx,fighter,0,0);
+ calls.length=0;translations.length=0;drawCombatFighter(ctx,fighter,0,0);
  const call=calls.find(c=>c[0].src===seq.asset);assert.ok(call,`${seq.id} must reach Canvas`);
  canvasDraws++;
  assert.deepEqual(call.slice(5),[-seq.frameWidth/4,-220,seq.frameWidth/2,224]);
  assert.ok(call[1]>=0&&call[1]+call[3]<=seq.frameWidth*seq.frameCount);
+ if(fighter.jumpHeight>0)assert.equal(translations.filter(([x,y])=>x===0&&y===-fighter.jumpHeight).length,1,'Airborne body must follow physical height exactly once');
 }
 for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
  const seq=animationSequenceFor(def.id,'idle');
@@ -84,6 +86,24 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     if(direction===facing)assert.deepEqual([...frames],[0,1,3,4,5,6],'Launch/drive/braking/recovery must all be reached');
     dash.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(dash,0)?.sequence.id,seq.id);
    }
+   const jumping=new Fighter(def,'player',600,460,facing),jumpSeq=animationSequenceFor(def.id,'jump'),landingSeq=animationSequenceFor(def.id,'landing');
+   assert.ok(jumpSeq?.enabled&&jumpSeq.poseAuthored,`${def.id} needs authored jump`);
+   assert.ok(landingSeq?.enabled&&landingSeq.poseAuthored,`${def.id} needs authored landing`);
+   jumping.updatePlayer({...quiet,pressed:key=>key==='jump'},rules);
+   const airFrames=new Set(),landingFrames=new Set();let rise=false,fall=false,landed=false,apex=false;
+   for(let tick=0;tick<120;tick++) {
+    const sample=animationSequenceSample(jumping,0);
+    if(jumping.airborne) {
+     assert.equal(sample?.sequence.id,jumpSeq.id);airFrames.add(sample.frame);checkCanvas(jumping,jumpSeq);
+     rise ||= jumping.jumpVelocity>0;fall ||= jumping.jumpVelocity<0;
+     if(Math.abs(jumping.jumpVelocity)<jumping.combatProfile.gravity*1.5){assert.ok([3,4,5].includes(sample.frame),'Physical apex must show tucked knees');apex=true;}
+    } else if(jumping.landingFrames>0) {
+     landed=true;assert.equal(sample?.sequence.id,landingSeq.id);landingFrames.add(sample.frame);checkCanvas(jumping,landingSeq);
+    } else if(landed){assert.equal(sample?.sequence.id,seq.id);break;}
+    jumping.updatePlayer(quiet,rules);
+   }
+   assert.ok(rise&&fall&&landed&&apex);assert.equal(airFrames.size,8);assert.equal(landingFrames.size,6);
+   assert.equal(jumping.jumpHeight,0);assert.equal(jumping.state,'idle');
   }
  }
  if(added.includes(def.id)) {
@@ -101,8 +121,15 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
      assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),input.sourceSha256,'Dash source provenance must match');
     }
    }
+   if(record.id==='jump'||record.id==='landing') {
+    const source=await readFile(new URL(`../${record.source}`,import.meta.url));
+    assert.equal(createHash('sha256').update(source).digest('hex').toUpperCase(),record.sourceSha256,'Air source provenance must match');
+    for(const metric of record.metrics)assert.ok(Math.abs(metric.scaledSize[1]-metric.sourceBodyHeight*record.normalization.uniformScale)<=1,'Air poses must preserve one anatomical scale');
+    const peer=manifest.records.find(r=>r.id===(record.id==='jump'?'landing':'jump'));
+    assert.equal(record.normalization.uniformScale,peer.normalization.uniformScale,'Jump and landing must share body scale');
+   }
   }
-  assert.equal(manifest.enabledFrameTotal,35);
+  assert.equal(manifest.enabledFrameTotal,49);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.
@@ -111,4 +138,4 @@ for(const id of ['URIEN','GILL']) {
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
 }
-console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,dashCharacters:6,dashFrames:42,canvasDraws});
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,canvasDraws});
