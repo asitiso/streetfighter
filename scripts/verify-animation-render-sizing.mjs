@@ -50,6 +50,12 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
       call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/landing.webp'));
       assert.ok(call,'Ibuki landing needs authored strip');assert.deepEqual(call.slice(5),[-96,-220,192,224]);
       fighter.landingFrames=0;
+      fighter.currentMove=specialMovesFor('IBUKI').primary;fighter.state='attack';fighter.moveFrame=fighter.currentMove.startup;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/hadoken.webp'));
+      assert.ok(call,'Kunai release uses its wide authored strip');assert.equal(call[3],640);
+      assert.deepEqual(call.slice(5),[-160,-220,320,224],'Wide Kunai preserves source pixel scale');
+      fighter.currentMove=null;fighter.state='idle';
     }
     if(id==='CHUNLI') {
       fighter.currentMove=specialMovesFor(id).mobility; fighter.state='attack'; fighter.moveFrame=fighter.currentMove.startup;
