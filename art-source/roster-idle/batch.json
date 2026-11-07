@@ -25,6 +25,19 @@
           4,
           4
         ]
+      },
+      "stand-light-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
       }
     }
   },
@@ -35,6 +48,19 @@
     "source": "sheet.png",
     "attackRecipes": {
       "stand-medium": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
+      },
+      "stand-light-kick": {
         "rows": 2,
         "sourceOrder": [
           1,
@@ -94,6 +120,19 @@
           4,
           4
         ]
+      },
+      "stand-light-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
       }
     }
   },
@@ -131,6 +170,19 @@
         ]
       },
       "stand-medium": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
+      },
+      "stand-light-kick": {
         "rows": 2,
         "sourceOrder": [
           1,
@@ -197,6 +249,19 @@
           4,
           4
         ]
+      },
+      "stand-light-kick": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
       }
     }
   },
@@ -219,6 +284,19 @@
         ]
       },
       "stand-medium": {
+        "rows": 2,
+        "sourceOrder": [
+          1,
+          2,
+          2,
+          3,
+          2,
+          2,
+          4,
+          4
+        ]
+      },
+      "stand-light-kick": {
         "rows": 2,
         "sourceOrder": [
           1,

@@ -1,8 +1,8 @@
 {
   "character": "DUDLEY",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 93,
-  "enabledFrameTotal": 93,
+  "frameTotal": 101,
+  "enabledFrameTotal": 101,
   "records": [
     {
       "id": "idle",
@@ -2778,6 +2778,205 @@
         "sourceGuardHeight": 486,
         "uniformScale": 0.6934156378600823,
         "footAnchorX": 323.93303964757706
+      },
+      "sourceGrid": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "stand-light-kick",
+      "frames": 8,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        5120,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "142A253513BD7984DE9795D22B3C17C95207FC445E5AEEFF941D20EB925DDA53",
+      "bytes": 244632,
+      "poseQa": {
+        "affineResidualAverage": 0.0265,
+        "affineResidualMax": 0.055332,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-light-kick",
+        "startEndIoU": 0.970575,
+        "contactIoU": 0.533129,
+        "lowerContactIoU": 0.427408,
+        "legReachDelta": 74.0,
+        "contactFootHeight": 148.0,
+        "supportCenterRange": 0.813951,
+        "supportBaselineRange": 0.0,
+        "centroidXRange": 8.463467,
+        "centroidYRange": 19.455197,
+        "areaCv": 0.031297,
+        "residualAverage": 0.0265,
+        "residualMax": 0.055332,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "legArticulationPresent": true,
+          "legReachPresent": true,
+          "raisedFootPresent": true,
+          "supportRootStable": true,
+          "supportBaselineStable": true,
+          "bodyRootStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "idleToStandLightKick": {
+          "iou": 0.783564,
+          "centroidDistance": 4.219378,
+          "footCenterDelta": 3.07227,
+          "areaRatio": 1.222631,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "standLightKickToIdle": {
+          "iou": 0.771027,
+          "centroidDistance": 5.013407,
+          "footCenterDelta": 2.608441,
+          "areaRatio": 0.815553,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        2,
+        3,
+        2,
+        2,
+        4,
+        4
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            271,
+            512
+          ],
+          "sourceBodyHeight": 512,
+          "paste": [
+            233,
+            85
+          ],
+          "scaledSize": [
+            179,
+            338
+          ],
+          "footAnchorShift": 3
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            266,
+            510
+          ],
+          "sourceBodyHeight": 510,
+          "paste": [
+            230,
+            87
+          ],
+          "scaledSize": [
+            175,
+            336
+          ],
+          "footAnchorShift": -2
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            419,
+            511
+          ],
+          "sourceBodyHeight": 511,
+          "paste": [
+            223,
+            86
+          ],
+          "scaledSize": [
+            276,
+            337
+          ],
+          "footAnchorShift": 41
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            271,
+            511
+          ],
+          "sourceBodyHeight": 511,
+          "paste": [
+            233,
+            86
+          ],
+          "scaledSize": [
+            179,
+            337
+          ],
+          "footAnchorShift": 3
+        }
+      ],
+      "source": "art-source/roster-idle/dudley/stand-light-kick-sheet.png",
+      "sourceSha256": "79C8298CC8E86261C23658CA844369D88958A454113A1913F2E806837ED20A62",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 511,
+        "uniformScale": 0.6594911937377691,
+        "footAnchorMode": "rear-support",
+        "footAnchorX": 256.4257206208426
       },
       "sourceGrid": [
         2,

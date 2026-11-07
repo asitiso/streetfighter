@@ -25,13 +25,67 @@ def module():
  motion.EXPECTED['stand-medium']=8
  motion.TARGET_HEIGHT['stand-medium']=340
  motion.GROUND_KINDS.add('stand-medium')
+ motion.EXPECTED['stand-light-kick']=8
+ motion.TARGET_HEIGHT['stand-light-kick']=340
+ motion.GROUND_KINDS.add('stand-light-kick')
  original_semantic=motion.semantic_qa
  def semantic(kind,frames,pose):
   if kind=='stand-medium':
    return {**motion.stand_light_semantic_qa(frames,pose),'kind':kind}
+  if kind=='stand-light-kick':return kick_semantic_qa(motion,frames,pose)
   return original_semantic(kind,frames,pose)
  motion.semantic_qa=semantic
  return motion
+
+def support_foot(mask):
+ # The rear (screen-left) sole is the planted root of a forward low kick.
+ # Do not average both feet: the leading foot deliberately leaves the floor.
+ ys,xs=np.nonzero(mask)
+ if not len(xs):raise ValueError('Missing support foot')
+ bottom=int(ys.max());band=mask[max(0,bottom-13):bottom+1]
+ labels,count=ndimage.label(band.any(axis=0))
+ columns=labels==1
+ _,pixels=np.nonzero(band&columns[None,:])
+ return float(pixels.mean()),float(bottom)
+
+def kick_semantic_qa(motion,frames,pose):
+ masks=[motion._binary_mask(frame) for frame in frames]
+ supports=np.asarray([support_foot(mask) for mask in masks])
+ ys,_=np.nonzero(masks[0]);lower_start=round(float(ys.min())+.55*float(ys.max()-ys.min()))
+ lower=[mask[lower_start:] for mask in masks]
+ reaches=[float(np.nonzero(mask)[1].max()) for mask in lower]
+ contact=3;cy,cx=np.nonzero(lower[contact])
+ tip_y=float(np.median(cy[cx>=cx.max()-9]))+lower_start
+ centroids=np.asarray([motion._mask_centroid(mask) for mask in masks])
+ areas=np.asarray([mask.sum() for mask in masks],dtype=float)
+ values={
+  'startEndIoU':motion._iou(masks[0],masks[-1]),
+  'contactIoU':motion._iou(masks[0],masks[contact]),
+  'lowerContactIoU':motion._iou(lower[0],lower[contact]),
+  'legReachDelta':reaches[contact]-reaches[0],
+  'contactFootHeight':float(supports[contact,1]-tip_y),
+  'supportCenterRange':float(np.ptp(supports[:,0])),
+  'supportBaselineRange':float(np.ptp(supports[:,1])),
+  'centroidXRange':float(np.ptp(centroids[:,0])),
+  'centroidYRange':float(np.ptp(centroids[:,1])),
+  'areaCv':float(areas.std()/areas.mean()),
+  'residualAverage':float(pose['affineResidualAverage']),
+  'residualMax':float(pose['affineResidualMax']),
+ }
+ checks={
+  'recoveryTowardNeutral':values['startEndIoU']>=.58,
+  'contactPoseDistinct':.22<=values['contactIoU']<=.94,
+  'legArticulationPresent':values['lowerContactIoU']<=.88,
+  'legReachPresent':24<=values['legReachDelta']<=160,
+  'raisedFootPresent':24<=values['contactFootHeight']<=190,
+  'supportRootStable':values['supportCenterRange']<=8,
+  'supportBaselineStable':values['supportBaselineRange']<=4,
+  'bodyRootStable':values['centroidXRange']<=62 and values['centroidYRange']<=35,
+  'bodyVolumeStable':values['areaCv']<=.18,
+  'authoredMotionAverage':.010<=values['residualAverage']<=.15,
+  'authoredMotionPeak':.022<=values['residualMax']<=.20,
+ }
+ return {'kind':'stand-light-kick',**{k:round(v,6) for k,v in values.items()},'checks':checks,'semanticQaPass':all(checks.values())}
 
 def extract(sheet,rows=2):
  arr=np.array(sheet.convert('RGBA'));labels,count=ndimage.label(arr[:,:,3]>16)
@@ -76,7 +130,7 @@ def handoffs(directory,kind,frames):
  if kind=='dash':
   base=load_peer('idle')[0]
   return {'idleToDash':compare(base,frames[0],h.DASH_START_LIMITS),'dashToIdle':compare(frames[-1],base,h.DASH_END_LIMITS)}
- base_limits={'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS,'stand-medium':h.STAND_LIGHT_BASE_LIMITS,'stand-light':h.STAND_LIGHT_BASE_LIMITS,'stand-heavy':h.STAND_HEAVY_BASE_LIMITS}
+ base_limits={'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS,'stand-light-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium':h.STAND_LIGHT_BASE_LIMITS,'stand-light':h.STAND_LIGHT_BASE_LIMITS,'stand-heavy':h.STAND_HEAVY_BASE_LIMITS}
  if kind in base_limits:
   base=load_peer('idle')[0];limits=base_limits[kind];tag=''.join(part.title() for part in kind.split('-'))
   return {'idleTo'+tag:compare(base,frames[0],limits),tag[0].lower()+tag[1:]+'ToIdle':compare(frames[-1],base,limits)}
@@ -192,11 +246,11 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back','dash','air','hit','guard','parry','stand-light','stand-medium','stand-heavy'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back','dash','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
- width=640 if kind in ('dash','stand-light','stand-medium','stand-heavy') else 384;motion.FRAME_W=width
+ width=640 if kind in ('dash','stand-light','stand-medium','stand-heavy','stand-light-kick') else 384;motion.FRAME_W=width
  for entry in CONFIG:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
   if args.runtime:
@@ -212,16 +266,16 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
-  attack_recipe=entry.get('attackRecipes',{}).get(kind) if kind in ('stand-light','stand-medium','stand-heavy') else None
-  rows=attack_recipe['rows'] if attack_recipe else {'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3}[kind]
+  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
+  attack_recipe=entry.get('attackRecipes',{}).get(kind) if kind in ('stand-light','stand-medium','stand-heavy','stand-light-kick') else None
+  rows=attack_recipe['rows'] if attack_recipe else {'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2}[kind]
   raw=extract(Image.open(source),rows);normalization=None;overrides=[]
   if kind=='guard':
    for recipe in entry.get('guardOverrides',[]):
     extra=SOURCE/slug/recipe['source'];target=recipe['pose']-1
     raw[target]=extract(Image.open(extra),recipe['rows'])[recipe['sourcePose']-1]
     overrides.append({'frames':[i+1 for i,pose in enumerate(GUARD_ORDER) if pose==target],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['sourcePose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
-  if kind in ('dash','hit','guard','parry','stand-light','stand-medium','stand-heavy'):
+  if kind in ('dash','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick'):
    if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
@@ -233,14 +287,16 @@ def main():
    motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/heights[-1]
    normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':heights[-1],'uniformScale':idle_height/heights[-1]}
   keys,metrics=motion.normalize_frames(kind,raw)
-  if kind in ('stand-light','stand-medium','stand-heavy'):
+  if kind in ('stand-light','stand-medium','stand-heavy','stand-light-kick'):
    # Extended fists change the silhouette's bounding-box center. Anchor the
    # support feet to idle instead, so the planted stance does not slide when
    # the arm extends. Wide cells preserve complete fists at the same scale.
-   target=motion._foot_metrics(np.asarray(idle.getchannel('A'))>24)[0]+(width-384)/2
+   foot_center=(lambda mask:support_foot(mask)[0]) if kind=='stand-light-kick' else (lambda mask:motion._foot_metrics(mask)[0])
+   target=foot_center(np.asarray(idle.getchannel('A'))>24)+(width-384)/2
+   if kind=='stand-light-kick':normalization['footAnchorMode']='rear-support'
    normalization['footAnchorX']=target
    for index,frame in enumerate(keys):
-    foot=motion._foot_metrics(np.asarray(frame.getchannel('A'))>24)[0];shift=round(target-foot)
+    foot=foot_center(np.asarray(frame.getchannel('A'))>24);shift=round(target-foot)
     aligned=Image.new('RGBA',(width,448));aligned.alpha_composite(frame,(shift,0));keys[index]=aligned
     metrics[index]['paste'][0]+=shift;metrics[index]['footAnchorShift']=shift
   choices=[]
@@ -253,6 +309,7 @@ def main():
   if kind=='guard':orders=[GUARD_ORDER]
   if kind=='parry':orders=[[0,1,2,2,3,3]]
   if kind=='stand-light':orders=[[0,1,2,3,4,4,5]]
+  if kind=='stand-light-kick':orders=[[0,1,1,2,1,1,3,3]]
   if kind=='stand-medium':orders=[[0,1,1,2,1,1,3,3]]
   if kind=='stand-heavy':orders=[[0,0,1,2,3,3,4,4,4,5]]
   if attack_recipe:
@@ -274,7 +331,7 @@ def main():
   data=webp(frames)
   record={'id':kind,'frames':count,'frameSize':[width,448],'stripSize':[width*count,448],'renderMode':'full','enabled':True,'poseAuthored':True,'sha256':hashlib.sha256(data).hexdigest().upper(),'bytes':len(data),'poseQa':pose,'semanticQa':semantic,'handoffQa':bridges,'sourceOrder':[i+1 for i in order],'metrics':metrics,'source':source.relative_to(ROOT).as_posix(),'sourceSha256':hashlib.sha256(source.read_bytes()).hexdigest().upper()}
   if normalization:record['normalization']=normalization
-  if kind in ('stand-light','stand-medium','stand-heavy'):record['sourceGrid']=[2,rows]
+  if kind in ('stand-light','stand-medium','stand-heavy','stand-light-kick'):record['sourceGrid']=[2,rows]
   if kind=='dash':record['facingRelativeDirection']='forward'
   if overrides:record['sourceOverrides']=overrides
   manifest=json.loads((directory/'manifest.json').read_text()) if (directory/'manifest.json').exists() else {'character':entry['id'],'pipeline':'roster-movement-authored-v1','records':[]}
