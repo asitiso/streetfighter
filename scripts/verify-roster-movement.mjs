@@ -54,7 +54,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
   }
   assert.equal(walkFrames.size,walk.frameCount);walking.updatePlayer(quiet,rules);
   assert.equal(animationSequenceSample(walking,0)?.sequence.id,seq.id,'Releasing movement returns to idle');
-  if(added.includes(def.id)) {
+  if(added.includes(def.id)||def.id==='RYU') {
    const retreat=new Fighter(def,'player',600,460,facing),back=animationSequenceFor(def.id,'walk-back'),backFrames=new Set();
    assert.ok(back?.enabled&&back.poseAuthored,`${def.id} must have an authored retreat`);
    let previous=0,wrapped=false;
@@ -69,6 +69,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    retreat.updatePlayer({...quiet,held:key=>key===(facing===1?'right':'left')},rules);
    assert.equal(animationSequenceSample(retreat,0)?.sequence.id,walk.id,'Forward switch must use forward walking');
    retreat.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(retreat,0)?.sequence.id,seq.id);
+   if(added.includes(def.id)){
    for(const direction of [-1,1]) {
     const dash=new Fighter(def,'player',600,460,facing),action=direction===1?'right':'left';
     const tap={held:key=>key===action,pressed:key=>key===action,released:()=>false};
@@ -118,6 +119,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    }
    assert.ok(rise&&fall&&landed&&apex);assert.equal(airFrames.size,8);assert.equal(landingFrames.size,6);
    assert.equal(jumping.jumpHeight,0);assert.equal(jumping.state,'idle');
+   }
    const hitSeq=animationSequenceFor(def.id,'hit');assert.ok(hitSeq?.enabled&&hitSeq.poseAuthored);
    for(const air of [false,true]) {
     const victim=new Fighter(def,'player',600,460,facing),attacker=new Fighter(getCharacter('RYU'),'enemy',600+facing*60,460,-facing);
@@ -199,4 +201,4 @@ for(const id of ['RYU','KEN','CHUNLI','IBUKI'])for(const facing of [-1,1])for(co
  for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){f.captureInput(input,tick);f.updatePlayer(input,rules);}
  assert.equal(animationSequenceFor(id,'dash-back'),null);assert.equal(animationSequenceSample(f,0).sequence.kind,'dash','Existing four retain generic dash in both directions');
 }
-console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:6,hitFrames:48,defenseCharacters:6,defenseFrames:66,canvasDraws});
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:7,hitFrames:56,defenseCharacters:7,defenseFrames:77,canvasDraws});
