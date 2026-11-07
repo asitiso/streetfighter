@@ -18,6 +18,8 @@ export class Fighter {
   facing: 1 | -1;
   state: FighterState = 'idle';
   stateFrame = 0;
+  // Visual-only crouch transition: -1 is inactive, 0–5 lower into the hold.
+  crouchAnimationFrame = -1;
   hp = 1000;
   maxHp = 1000;
   superGauge = 0;
@@ -119,6 +121,7 @@ export class Fighter {
     this.previousY = this.y;
     if (this.hitStop > 0) { this.hitStop -= 1; return; }
     this.updateAir();
+    this.tickCrouchAnimation(!rules.depthMovement && input.held('down'));
     this.tickWindows();
 
     const forwardAction = this.facing === 1 ? 'right' : 'left';
@@ -205,6 +208,7 @@ export class Fighter {
     this.previousY = this.y;
     if (this.hitStop > 0) { this.hitStop -= 1; return; }
     this.updateAir();
+    this.tickCrouchAnimation(false);
     this.tickWindows();
     if (this.aiCooldown > 0) this.aiCooldown -= 1;
     if (this.state === 'hit' || this.state === 'block' || this.state === 'parry' || this.state === 'knockdown' || this.state === 'victory' || this.state === 'ko') {
@@ -617,6 +621,15 @@ export class Fighter {
         this.stateFrame = 0;
       }
     }
+  }
+
+  private tickCrouchAnimation(heldDown: boolean): void {
+    const eligible = this.state === 'idle' || this.state === 'walk' || this.state === 'crouch'
+      || (this.state === 'attack' && this.currentMove?.id.startsWith('2'));
+    if (this.airborne || !eligible) { this.crouchAnimationFrame = -1; return; }
+    this.crouchAnimationFrame = heldDown
+      ? Math.min(5, this.crouchAnimationFrame + 1)
+      : Math.max(-1, this.crouchAnimationFrame - 1);
   }
 
   private tickWindows(): void {

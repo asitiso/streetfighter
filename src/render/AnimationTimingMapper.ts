@@ -55,6 +55,9 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
   if (!fighter.airborne && fighter.landingFrames > 0 && (fighter.state === 'idle' || fighter.state === 'walk')) return 'landing';
   if (fighter.state === 'jump') return 'jump';
   if (fighter.dashFrames > 0 && !fighter.airborne && (fighter.state === 'walk' || fighter.state === 'idle')) return 'dash';
+  if (!fighter.airborne && (fighter.state === 'crouch'
+    || (fighter.crouchAnimationFrame >= 0 && (fighter.state === 'idle' || fighter.state === 'walk')
+      && animationSequenceFor(fighter.character.id, 'crouch', true)?.poseAuthored))) return 'crouch';
   if (fighter.state === 'walk') {
     const velocity = fighter.x - fighter.previousX;
     return Math.sign(velocity || fighter.facing) === fighter.facing ? 'walk' : 'walk-back';
@@ -169,6 +172,10 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
   const sequence = animationSequenceFor(characterId, kind, true);
   if (!sequence || !sequence.poseAuthored) return null;
 
+  if (kind === 'crouch') {
+    const frame = Math.max(0, Math.min(sequence.frameCount - 1, fighter.crouchAnimationFrame));
+    return { sequence, frame, progress:frame / Math.max(1, sequence.frameCount - 1), contact:false };
+  }
   if (kind === 'jump') {
     const rise = Math.max(-1, Math.min(1, fighter.jumpVelocity / Math.max(1, fighter.combatProfile.jumpVelocity)));
     const apex = clamp01(1 - Math.abs(rise));

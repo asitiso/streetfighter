@@ -34,6 +34,9 @@ def module():
  motion.EXPECTED['stand-heavy-kick']=12
  motion.TARGET_HEIGHT['stand-heavy-kick']=340
  motion.GROUND_KINDS.add('stand-heavy-kick')
+ motion.EXPECTED['crouch']=6
+ motion.TARGET_HEIGHT['crouch']=340
+ motion.GROUND_KINDS.add('crouch')
  original_semantic=motion.semantic_qa
  def semantic(kind,frames,pose):
   if kind=='stand-medium':
@@ -41,6 +44,7 @@ def module():
   if kind=='stand-light-kick':return kick_semantic_qa(motion,frames,pose)
   if kind=='stand-medium-kick':return medium_kick_semantic_qa(motion,frames,pose,motion.ROSTER_MK_PROFILE)
   if kind=='stand-heavy-kick':return heavy_kick_semantic_qa(motion,frames,pose)
+  if kind=='crouch':return crouch_semantic_qa(motion,frames,pose)
   return original_semantic(kind,frames,pose)
  motion.semantic_qa=semantic
  return motion
@@ -147,6 +151,38 @@ def heavy_kick_semantic_qa(motion,frames,pose):
  report['semanticQaPass']=all(report['checks'].values())
  return report
 
+def crouch_semantic_qa(motion,frames,pose):
+ masks=[motion._binary_mask(frame) for frame in frames]
+ heights=np.asarray([frame.getbbox()[3]-frame.getbbox()[1] for frame in frames],dtype=float)
+ centers=np.asarray([motion._mask_centroid(mask) for mask in masks])
+ feet=np.asarray([motion._foot_metrics(mask) for mask in masks])
+ baselines=np.asarray([np.nonzero(mask)[0].max() for mask in masks],dtype=float)
+ areas=np.asarray([mask.sum() for mask in masks],dtype=float)
+ values={
+  'heightRatio':float(heights[-1]/heights[0]),
+  'maxHeightRise':float(np.diff(heights).max()),
+  'centroidDrop':float(centers[-1,1]-centers[0,1]),
+  'centroidXRange':float(np.ptp(centers[:,0])),
+  'footCenterRange':float(np.ptp(feet[:,0])),
+  'footWidthCv':float(feet[:,1].std()/feet[:,1].mean()),
+  'footBaselineRange':float(np.ptp(baselines)),
+  'areaCv':float(areas.std()/areas.mean()),
+  'residualAverage':float(pose['affineResidualAverage']),
+  'residualMax':float(pose['affineResidualMax']),
+ }
+ checks={
+  'crouchCompression':.48<=values['heightRatio']<=.78,
+  'progressiveLowering':values['maxHeightRise']<=8,
+  'bodyLowers':26<=values['centroidDrop']<=120,
+  'horizontalRootStable':values['centroidXRange']<=45,
+  'feetStayPlanted':values['footCenterRange']<=8 and values['footBaselineRange']<=4,
+  'stanceWidthStable':values['footWidthCv']<=.22,
+  'bodyVolumeStable':values['areaCv']<=.24,
+  'authoredMotionAverage':.010<=values['residualAverage']<=.18,
+  'authoredMotionPeak':.022<=values['residualMax']<=.25,
+ }
+ return {'kind':'crouch',**{k:round(v,6) for k,v in values.items()},'checks':checks,'semanticQaPass':all(checks.values())}
+
 def extract(sheet,rows=2):
  arr=np.array(sheet.convert('RGBA'));labels,count=ndimage.label(arr[:,:,3]>16)
  sizes=np.bincount(labels.ravel());sizes[0]=0
@@ -190,10 +226,10 @@ def handoffs(directory,kind,frames):
  if kind=='dash':
   base=load_peer('idle')[0]
   return {'idleToDash':compare(base,frames[0],h.DASH_START_LIMITS),'dashToIdle':compare(frames[-1],base,h.DASH_END_LIMITS)}
- base_limits={'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS,'stand-heavy-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-light-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium':h.STAND_LIGHT_BASE_LIMITS,'stand-light':h.STAND_LIGHT_BASE_LIMITS,'stand-heavy':h.STAND_HEAVY_BASE_LIMITS}
+ base_limits={'crouch':h.STAND_LIGHT_BASE_LIMITS,'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS,'stand-heavy-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-light-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium':h.STAND_LIGHT_BASE_LIMITS,'stand-light':h.STAND_LIGHT_BASE_LIMITS,'stand-heavy':h.STAND_HEAVY_BASE_LIMITS}
  if kind in base_limits:
   base=load_peer('idle')[0];limits=base_limits[kind];tag=''.join(part.title() for part in kind.split('-'))
-  return {'idleTo'+tag:compare(base,frames[0],limits),tag[0].lower()+tag[1:]+'ToIdle':compare(frames[-1],base,limits)}
+  return {'idleTo'+tag:compare(base,frames[0],limits),tag[0].lower()+tag[1:]+'ToIdle':compare(frames[0] if kind=='crouch' else frames[-1],base,limits)}
  bridges={}
  for peer in ('idle','walk','walk-back'):
   if peer==kind or peer not in records:continue
@@ -214,6 +250,7 @@ def handoffs(directory,kind,frames):
   for peer,limits in base_limits.items():
    if peer in records:
     start,end=load_peer(peer)
+    if peer=='crouch':end=start # Release reverses the strip back to standing.
     tag=''.join(part.title() for part in peer.split('-'))
     bridges['idleTo'+tag]=compare(frames[0],start,limits)
     bridges[tag[0].lower()+tag[1:]+'ToIdle']=compare(end,frames[0],limits)
@@ -306,7 +343,7 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back','dash','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch','idle','walk','walk-back','dash','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
@@ -330,16 +367,16 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
+  source=SOURCE/slug/({'crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
   attack_recipe=entry.get('attackRecipes',{}).get(kind) if kind in ('stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else None
-  rows=attack_recipe['rows'] if attack_recipe else {'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
+  rows=attack_recipe['rows'] if attack_recipe else {'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
   raw=extract(Image.open(source),rows);normalization=None;overrides=[]
   if kind=='guard':
    for recipe in entry.get('guardOverrides',[]):
     extra=SOURCE/slug/recipe['source'];target=recipe['pose']-1
     raw[target]=extract(Image.open(extra),recipe['rows'])[recipe['sourcePose']-1]
     overrides.append({'frames':[i+1 for i,pose in enumerate(GUARD_ORDER) if pose==target],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['sourcePose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
-  if kind in ('dash','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
+  if kind in ('crouch','dash','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
    if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
@@ -348,10 +385,11 @@ def main():
    heights=[frame.getbbox()[3]-frame.getbbox()[1] for frame in raw]
    # Use standing recovery as the anatomical scale reference. A median of
    # compressed dash poses would enlarge every limb when returning to guard.
-   motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/heights[-1]
-   normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':heights[-1],'uniformScale':idle_height/heights[-1]}
+   reference_height=heights[0] if kind=='crouch' else heights[-1]
+   motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/reference_height
+   normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':reference_height,'uniformScale':idle_height/reference_height}
   keys,metrics=motion.normalize_frames(kind,raw)
-  if kind in ('stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
+  if kind in ('crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
    # Extended fists change the silhouette's bounding-box center. Anchor the
    # support feet to idle instead, so the planted stance does not slide when
    # the arm extends. Wide cells preserve complete fists at the same scale.
@@ -359,6 +397,7 @@ def main():
    foot_center=(lambda mask:support_foot(mask)[0]) if support_anchor else (lambda mask:motion._foot_metrics(mask)[0])
    target=foot_center(np.asarray(idle.getchannel('A'))>24)+(width-384)/2
    if support_anchor:normalization['footAnchorMode']='rear-support'
+   if kind=='crouch':normalization.update({'reference':'idle-standing-height','footAnchorMode':'two-foot','standingReferenceFrame':1})
    normalization['footAnchorX']=target
    for index,frame in enumerate(keys):
     foot=foot_center(np.asarray(frame.getchannel('A'))>24);shift=round(target-foot)
@@ -367,6 +406,7 @@ def main():
   choices=[]
   gait=[0,0,1,2,2,3,4,4,5,6,6,7] if kind=='walk' else [0,0,1,2,2,3,4,4,5,5]
   orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
+  if kind=='crouch':orders=[[0,1,1,2,2,3]]
   if kind=='dash':orders=[[0,1,2,2,3,4,5]]
   if kind=='hit':orders=[[0,1,2,2,3,4,5,5]]
   # A long block holds its initial frame. Start already shielding instead of
@@ -398,7 +438,7 @@ def main():
   data=webp(frames)
   record={'id':kind,'frames':count,'frameSize':[width,448],'stripSize':[width*count,448],'renderMode':'full','enabled':True,'poseAuthored':True,'sha256':hashlib.sha256(data).hexdigest().upper(),'bytes':len(data),'poseQa':pose,'semanticQa':semantic,'handoffQa':bridges,'sourceOrder':[i+1 for i in order],'metrics':metrics,'source':source.relative_to(ROOT).as_posix(),'sourceSha256':hashlib.sha256(source.read_bytes()).hexdigest().upper()}
   if normalization:record['normalization']=normalization
-  if kind in ('stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
+  if kind in ('crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
   if kind=='stand-medium-kick':record['semanticProfile']=profile
   if kind=='dash':record['facingRelativeDirection']='forward'
   if overrides:record['sourceOverrides']=overrides

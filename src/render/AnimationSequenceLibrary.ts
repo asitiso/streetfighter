@@ -5,6 +5,7 @@ export type AnimationSequenceKind =
   | 'dash'
   | 'jump'
   | 'landing'
+  | 'crouch'
   | 'stand-heavy-kick'
   | 'stand-medium-kick'
   | 'stand-light-kick'
@@ -129,6 +130,12 @@ const IBUKI: readonly AnimationSequence[] = [
 ] as const;
 
 const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
+  { id:'ALEX_CROUCH_HQ', characterId:'ALEX', kind:'crouch', asset:'/art/animation-hq/alex/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_CROUCH_HQ', characterId:'DUDLEY', kind:'crouch', asset:'/art/animation-hq/dudley/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_CROUCH_HQ', characterId:'MAKOTO', kind:'crouch', asset:'/art/animation-hq/makoto/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_CROUCH_HQ', characterId:'YUN', kind:'crouch', asset:'/art/animation-hq/yun/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_CROUCH_HQ', characterId:'URIEN', kind:'crouch', asset:'/art/animation-hq/urien/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_CROUCH_HQ', characterId:'GILL', kind:'crouch', asset:'/art/animation-hq/gill/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_STAND_HEAVY_KICK_HQ', characterId:'ALEX', kind:'stand-heavy-kick', asset:'/art/animation-hq/alex/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'DUDLEY_STAND_HEAVY_KICK_HQ', characterId:'DUDLEY', kind:'stand-heavy-kick', asset:'/art/animation-hq/dudley/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'MAKOTO_STAND_HEAVY_KICK_HQ', characterId:'MAKOTO', kind:'stand-heavy-kick', asset:'/art/animation-hq/makoto/stand-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
