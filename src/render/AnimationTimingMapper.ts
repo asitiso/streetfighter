@@ -85,6 +85,7 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
     if (move.id === 'CHUNLI_PRIMARY' || move.id === 'CHUNLI_EX_PRIMARY') return 'hadoken';
     if (move.id === '5LP') return 'stand-light';
     if (move.id === '5MP') return 'stand-medium';
+    if (move.id === '5LK') return 'stand-light-kick';
     if (move.id === '5HP') return 'stand-heavy';
     return null;
   }
