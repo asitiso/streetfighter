@@ -163,7 +163,12 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
     return { sequence, frame: frameAt(sequence, progress), progress, contact: false };
   }
   if (kind === 'hit') {
-    const progress = clamp01(fighter.stateFrame / Math.max(1, sequence.frameCount + 2));
+    // Gameplay counts hit stun upward from a negative value. Keep the visual
+    // clock on that same counter so hit stop and repeated hits remain in sync.
+    const duration = fighter.hitAnimationDuration;
+    const progress = fighter.stateFrame < 0 && duration > 0
+      ? clamp01((duration + fighter.stateFrame) / Math.max(1, duration - 1))
+      : clamp01(fighter.stateFrame / Math.max(1, sequence.frameCount + 2));
     return { sequence, frame: frameAt(sequence, progress), progress, contact: false };
   }
   if (kind === 'guard') {

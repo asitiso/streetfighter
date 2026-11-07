@@ -59,6 +59,7 @@ export class Fighter {
   lastHitReaction: 'high' | 'mid' | 'low' | 'launch' | 'throw' = 'mid';
   lastHitZone: HitZone = 'torso';
   lastHitPower = 0;
+  hitAnimationDuration = 0;
   throwSyncFrames = 0;
   throwSyncTotal = 0;
   throwSyncRole: 'attacker' | 'victim' | null = null;
@@ -396,6 +397,7 @@ export class Fighter {
     } else {
       this.state = 'hit';
       this.stateFrame = -(move.hitStun + (counter ? 3 : 0));
+      this.hitAnimationDuration = -this.stateFrame;
     }
     return 'hit';
   }
