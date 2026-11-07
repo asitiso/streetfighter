@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import './verify-ken-normal-mapping.mjs';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import {
@@ -247,7 +248,8 @@ assert.equal(animationSequenceKindForAttack('KEN', specials.antiAir), 'shoryuken
 assert.equal(animationSequenceKindForAttack('KEN', specials.mobility), 'tatsumaki');
 assert.equal(animationSequenceKindForAttack('KEN', specials.super), 'super-rush');
 assert.equal(animationSequenceKindForAttack('KEN', normalFor('lp', false, 'KEN')), 'stand-light');
-assert.equal(animationSequenceKindForAttack('KEN', normalFor('hk', false, 'KEN')), 'stand-heavy');
+assert.equal(animationSequenceKindForAttack('KEN', normalFor('hp', false, 'KEN')), 'stand-heavy');
+assert.equal(animationSequenceKindForAttack('KEN', normalFor('hk', false, 'KEN')), null, 'Heavy kick must not use a heavy punch strip');
 getCharacter('KEN');
 assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 1)), 'shoryuken');
 assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 2)), 'shoryuken');

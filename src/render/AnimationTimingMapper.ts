@@ -90,6 +90,9 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
     if (move.id === 'KEN_ANTI_AIR' || move.id === 'KEN_SA1' || move.id === 'KEN_SA2') return 'shoryuken';
     if (move.id === 'KEN_MOBILITY') return 'tatsumaki';
     if (move.id === 'KEN_SUPER' || move.id === 'KEN_SA3') return 'super-rush';
+    // These authored strips depict standing punches, not every attack that
+    // shares their button strength (crouching, kicking, or command normals).
+    return move.id === '5LP' ? 'stand-light' : move.id === '5HP' ? 'stand-heavy' : null;
   }
   if (!move.button) return null;
   if (move.button === 'hp' || move.button === 'hk') return 'stand-heavy';
@@ -142,6 +145,7 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
     if (characterId === 'CHUNLI' && fighter.airborne && fighter.currentMove.id !== 'CHUNLI_ANTI_AIR' && fighter.currentMove.id !== 'CHUNLI_SA3') return null;
     const kind = animationSequenceKindForAttack(characterId, fighter.currentMove);
     if (!kind) return null;
+    if (characterId === 'KEN' && fighter.airborne && (kind === 'stand-light' || kind === 'stand-heavy')) return null;
     const sequence = animationSequenceFor(characterId, kind, true);
     if (!sequence || !sequence.poseAuthored) return null;
     const sample = attackFrame(sequence, fighter, fighter.currentMove);
