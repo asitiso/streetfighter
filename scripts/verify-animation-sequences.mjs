@@ -4,6 +4,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { animationSequenceFor, animationSequenceFrameTotal, enabledAnimationSequenceFrameTotal } from '../dist/assets/render/AnimationSequenceLibrary.js';
 import { animationSequenceSample } from '../dist/assets/render/AnimationTimingMapper.js';
 import { animationFrameProfile, animationFrameProfileDigest } from '../dist/assets/render/AnimationFrameProfiles.js';
+import { ASSET_GROUPS } from '../dist/assets/core/AssetManager.js';
 import { Fighter } from '../dist/assets/combat/Fighter.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
 
@@ -41,11 +42,11 @@ assert.equal(manifest.candidate, '0.0.63-rc.38');
 assert.equal(manifest.character, 'RYU');
 assert.equal(manifest.pipeline, 'roster-movement-authored-v1');
 assert.deepEqual(manifest.sourceSize, [384,448]);
-assert.equal(manifest.frameTotal, 149);
-assert.equal(manifest.enabledFrameTotal, 125);
-assert.equal(manifest.fullFrameTotal, 125);
+assert.equal(manifest.frameTotal, 180);
+assert.equal(manifest.enabledFrameTotal, 156);
+assert.equal(manifest.fullFrameTotal, 156);
 assert.equal(manifest.bridgeFrameTotal, 0);
-assert.equal(manifest.records.length, 17);
+assert.equal(manifest.records.length, 21);
 
 const hqSource = await readFile(new URL('../public/art/combat-sprites-hq/ryu.webp', import.meta.url));
 const hdSource = await readFile(new URL('../public/art/combat-sprites-hd/ryu.webp', import.meta.url));
@@ -58,25 +59,29 @@ assert.deepEqual({width:hdDim.width,height:hdDim.height}, {width:384,height:448}
 assert.deepEqual({width:liteDim.width,height:liteDim.height}, {width:192,height:224});
 assert.equal(manifest.sourceSha256, sha(hqSource), 'animation pilot must remain bound to approved HQ source');
 
-let totalBytes = 0;
+let totalBytes = 0, prefetchedBytes = 0;
+const prefetchedUrls=new Set(Object.values(ASSET_GROUPS).flat());
 for (const rec of manifest.records) {
   const data = await readFile(new URL(`../public/art/animation-hq/ryu/${rec.id}.webp`, import.meta.url));
   const dim = webpDimensions(data);
   assert.equal(dim.width, rec.frameSize[0] * rec.frames, `${rec.id} strip width mismatch`);
   assert.equal(dim.height, 448, `${rec.id} strip height mismatch`);
   assert.equal(dim.alpha, true, `${rec.id} should preserve transparency`);
-  assert.equal(rec.frameSize[0], ['stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'].includes(rec.id)?640:384);
+  assert.equal(rec.frameSize[0], ['stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy'].includes(rec.id)?640:384);
   assert.equal(rec.frameSize[1], 448);
   assert.deepEqual(rec.stripSize, [rec.frameSize[0] * rec.frames, 448]);
   assert.equal(rec.sha256, sha(data), `${rec.id} sha mismatch`);
   assert.ok(data.byteLength > rec.frames * 18_000, `${rec.id} suspiciously small for HQ frames`);
+  const url=`/art/animation-hq/ryu/${rec.id}.webp`;
+  assert.equal(prefetchedUrls.has(url),rec.enabled,`${rec.id}: prefetch must include enabled art and skip staged-disabled art`);
+  if(prefetchedUrls.has(url))prefetchedBytes+=data.byteLength;
   totalBytes += data.byteLength;
 }
 assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalBytes}`);
-assert.ok(totalBytes < 12_000_000, `HQ pilot payload too large: ${totalBytes}`);
+assert.ok(prefetchedBytes < 12_000_000, `Ryu prefetched payload too large: ${prefetchedBytes}`);
 
-assert.equal(animationSequenceFrameTotal('RYU'), 149);
-assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 125);
+assert.equal(animationSequenceFrameTotal('RYU'), 180);
+assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 156);
 assert.equal(animationSequenceFrameTotal('KEN'), 137, 'Ken registry should include 57 movement + 11 defense + 69 staged attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
@@ -124,12 +129,13 @@ for (const kind of ['hadoken','shoryuken']) {
   assert.equal(seq.enabled, false, `${kind} must stay disabled until pose-authored art is available`);
   assert.equal(seq.poseAuthored, false, `${kind} must not be marked pose-authored`);
 }
-for(const [kind,count] of [['walk-back',10],['hit',8],['guard',5],['parry',6],['stand-light',7],['stand-medium',8],['stand-heavy',10],['stand-light-kick',8],['stand-medium-kick',10],['stand-heavy-kick',12]]){
+for(const [kind,count] of [['walk-back',10],['hit',8],['guard',5],['parry',6],['stand-light',7],['stand-medium',8],['stand-heavy',10],['stand-light-kick',8],['stand-medium-kick',10],['stand-heavy-kick',12],['crouch',6],['crouch-light',7],['crouch-medium',8],['crouch-heavy',10]]){
  const seq=animationSequenceFor('RYU',kind),rec=manifest.records.find(r=>r.id===kind);
  assert.ok(seq?.enabled&&seq.poseAuthored&&rec.enabled&&rec.poseAuthored);assert.equal(seq.frameCount,count);
  assert.equal(rec.poseQa.poseAuthoredPass,true);assert.equal(rec.semanticQa.semanticQaPass,true);
  assert.equal(rec.sourceSha256,sha(await readFile(new URL('../'+rec.source,import.meta.url))),'Ryu authored source provenance mismatch');
- assert.equal(rec.normalization.reference,'idle-recovery-height');
+ assert.equal(rec.normalization.reference,kind==='crouch'?'idle-standing-height':kind.startsWith('crouch-')?'crouch-recovery-height':'idle-recovery-height');
+ assert.equal(rec.normalization.footBaselineReference,kind.startsWith('crouch-')?'installed-crouch':'installed-idle');
 }
 assert.equal(animationSequenceFor('RYU','walk')?.enabled, true);
 assert.equal(animationSequenceFor('RYU','walk')?.poseAuthored, true);
@@ -146,7 +152,7 @@ assert.equal(animationSequenceFor('RYU','landing')?.enabled, true);
 assert.equal(animationSequenceFor('RYU','landing')?.poseAuthored, true);
 assert.equal(animationSequenceFor('RYU','landing')?.source, 'authored-hq');
 
-for (const kind of ['idle','walk','walk-back','dash','jump','landing','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','hit','hadoken','shoryuken']) {
+for (const kind of ['idle','walk','walk-back','dash','jump','landing','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','hit','hadoken','shoryuken']) {
   const sequence = animationSequenceFor('RYU', kind, false);
   assert.ok(sequence, `missing Ryu sequence ${kind}`);
   const profile = animationFrameProfile('RYU', kind);
@@ -348,6 +354,7 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   enabledFrameTotal: manifest.enabledFrameTotal,
   strips: manifest.records.length,
   payloadKb: Math.round(totalBytes / 1024),
+  prefetchPayloadKb: Math.round(prefetchedBytes / 1024),
   alpha: true,
   verdict: 'HQ_ANIMATION_ASSET_QUALITY_PASS',
 });

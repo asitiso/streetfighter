@@ -24,6 +24,10 @@ POSE_THRESHOLDS = {
 
 TARGETS = {
     'RYU': {
+        'crouch': 6,
+        'crouch-light': 7,
+        'crouch-medium': 8,
+        'crouch-heavy': 10,
         'stand-light': 7,
         'stand-medium': 8,
         'stand-light-kick': 8,
@@ -53,7 +57,7 @@ TARGETS = {
 }
 
 
-FRAME_WIDTHS = {('RYU', kind): 640 for kind in ('stand-light', 'stand-medium', 'stand-heavy', 'stand-light-kick', 'stand-medium-kick', 'stand-heavy-kick')}
+FRAME_WIDTHS = {('RYU', kind): 640 for kind in ('stand-light', 'stand-medium', 'stand-heavy', 'stand-light-kick', 'stand-medium-kick', 'stand-heavy-kick', 'crouch-light', 'crouch-medium', 'crouch-heavy')}
 
 
 def alpha_frame(strip: Image.Image, index: int, width: int = FRAME_W) -> np.ndarray:

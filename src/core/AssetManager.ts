@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v125';
+export const GAME_CACHE_NAME = 'game-cache-v126';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -28,6 +28,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/animation-hq/yun/crouch.webp', '/art/animation-hq/yun/crouch-light.webp', '/art/animation-hq/yun/crouch-medium.webp', '/art/animation-hq/yun/crouch-heavy.webp', '/art/animation-hq/yun/crouch-light-kick.webp', '/art/animation-hq/yun/crouch-medium-kick.webp', '/art/animation-hq/yun/crouch-heavy-kick.webp', '/art/animation-hq/yun/stand-light.webp', '/art/animation-hq/yun/stand-medium.webp', '/art/animation-hq/yun/stand-light-kick.webp', '/art/animation-hq/yun/stand-medium-kick.webp', '/art/animation-hq/yun/stand-heavy-kick.webp', '/art/animation-hq/yun/stand-heavy.webp',
     '/art/animation-hq/urien/crouch.webp', '/art/animation-hq/urien/crouch-light.webp', '/art/animation-hq/urien/crouch-medium.webp', '/art/animation-hq/urien/crouch-heavy.webp', '/art/animation-hq/urien/crouch-light-kick.webp', '/art/animation-hq/urien/crouch-medium-kick.webp', '/art/animation-hq/urien/crouch-heavy-kick.webp', '/art/animation-hq/urien/stand-light.webp', '/art/animation-hq/urien/stand-medium.webp', '/art/animation-hq/urien/stand-light-kick.webp', '/art/animation-hq/urien/stand-medium-kick.webp', '/art/animation-hq/urien/stand-heavy-kick.webp', '/art/animation-hq/urien/stand-heavy.webp',
     '/art/animation-hq/gill/crouch.webp', '/art/animation-hq/gill/crouch-light.webp', '/art/animation-hq/gill/crouch-medium.webp', '/art/animation-hq/gill/crouch-heavy.webp', '/art/animation-hq/gill/crouch-light-kick.webp', '/art/animation-hq/gill/crouch-medium-kick.webp', '/art/animation-hq/gill/crouch-heavy-kick.webp', '/art/animation-hq/gill/stand-light.webp', '/art/animation-hq/gill/stand-medium.webp', '/art/animation-hq/gill/stand-light-kick.webp', '/art/animation-hq/gill/stand-medium-kick.webp', '/art/animation-hq/gill/stand-heavy-kick.webp', '/art/animation-hq/gill/stand-heavy.webp',
+    '/art/animation-hq/ryu/crouch.webp', '/art/animation-hq/ryu/crouch-light.webp', '/art/animation-hq/ryu/crouch-medium.webp', '/art/animation-hq/ryu/crouch-heavy.webp',
     '/art/animation-hq/ryu/guard.webp', '/art/animation-hq/ryu/parry.webp',
     '/art/animation-hq/alex/guard.webp', '/art/animation-hq/alex/parry.webp',
     '/art/animation-hq/dudley/guard.webp', '/art/animation-hq/dudley/parry.webp',
@@ -66,7 +67,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/animation-hq/ryu/idle.webp', '/art/animation-hq/ryu/walk.webp', '/art/animation-hq/ryu/walk-back.webp',
     '/art/animation-hq/ryu/dash.webp', '/art/animation-hq/ryu/jump.webp', '/art/animation-hq/ryu/landing.webp',
     '/art/animation-hq/ryu/hit.webp', '/art/animation-hq/ryu/stand-light.webp', '/art/animation-hq/ryu/stand-medium.webp', '/art/animation-hq/ryu/stand-light-kick.webp', '/art/animation-hq/ryu/stand-medium-kick.webp', '/art/animation-hq/ryu/stand-heavy-kick.webp', '/art/animation-hq/ryu/stand-heavy.webp',
-    '/art/animation-hq/ryu/hadoken.webp', '/art/animation-hq/ryu/shoryuken.webp',
+    // Staged-disabled Ryu specials stay on disk until their authored art is ready.
     '/art/animation-hq/ken/manifest.json',
     '/art/animation-hq/ken/idle.webp', '/art/animation-hq/ken/walk.webp', '/art/animation-hq/ken/walk-back.webp',
     '/art/animation-hq/ken/dash.webp', '/art/animation-hq/ken/jump.webp', '/art/animation-hq/ken/landing.webp', '/art/animation-hq/ken/hit.webp',

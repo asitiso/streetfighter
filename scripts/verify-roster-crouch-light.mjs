@@ -13,7 +13,8 @@ const {runtimeQuality}=await import('../dist/assets/core/RuntimeQuality.js');run
 const draws=[];let canvasDraws=0;
 const ctx=new Proxy({globalAlpha:1,drawImage:(...a)=>draws.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
 for(const [button,kind,count,contactStart,contactEnd] of [['lp','crouch-light',7,3,3],['mp','crouch-medium',8,3,3],['hp','crouch-heavy',10,4,5],['lk','crouch-light-kick',8,3,3],['mk','crouch-medium-kick',10,4,5],['hk','crouch-heavy-kick',12,5,6]])
-for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'])for(const facing of [-1,1])for(const heldAfter of [true,false]){
+for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL','RYU'])for(const facing of [-1,1])for(const heldAfter of [true,false]){
+ if(id==='RYU'&&!['lp','mp','hp'].includes(button))continue;
  const f=new Fighter(getCharacter(id),'player',600,500,facing),seq=animationSequenceFor(id,kind);
  assert.ok(seq?.enabled&&seq.poseAuthored,`${id} needs authored crouching ${button.toUpperCase()}`);assert.equal(seq.frameCount,count);
  for(let t=0;t<6;t++)f.updatePlayer(down,rules);
@@ -40,4 +41,4 @@ for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'])for(const facing
  f.state='attack';f.currentMove=move;f.airborne=true;assert.equal(animationSequenceSample(f,0),null,'Grounded crouching art must not replace air attacks');
  assert.equal(animationSequenceKindForAttack(id,{...normalFor('hk',true,id),id:id+'_COMMAND_2HK'}),null,'Command moves keep their own presentation');
 }
-console.log('ROSTER_CROUCH_ATTACKS_PASS',{characters:6,facings:2,releaseDuringAttack:true,storedFrames:330,canvasDraws});
+console.log('ROSTER_CROUCH_ATTACKS_PASS',{characters:7,facings:2,releaseDuringAttack:true,storedFrames:355,canvasDraws});
