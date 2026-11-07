@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {CHARACTERS,BOSS_CHARACTERS,getCharacter} from '../dist/assets/game/characters.js';
 import {Fighter} from '../dist/assets/combat/Fighter.js';
+import {normalFor} from '../dist/assets/combat/MoveLibrary.js';
 import {animationSequenceFor,animationSequencesFor} from '../dist/assets/render/AnimationSequenceLibrary.js';
 import {animationSequenceSample} from '../dist/assets/render/AnimationTimingMapper.js';
 const added=['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'];
@@ -104,6 +105,21 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    }
    assert.ok(rise&&fall&&landed&&apex);assert.equal(airFrames.size,8);assert.equal(landingFrames.size,6);
    assert.equal(jumping.jumpHeight,0);assert.equal(jumping.state,'idle');
+   const hitSeq=animationSequenceFor(def.id,'hit');assert.ok(hitSeq?.enabled&&hitSeq.poseAuthored);
+   for(const air of [false,true]) {
+    const victim=new Fighter(def,'player',600,460,facing),attacker=new Fighter(getCharacter('RYU'),'enemy',600+facing*60,460,-facing);
+    if(air){victim.updatePlayer({...quiet,pressed:k=>k==='jump'},rules);for(let t=0;t<10;t++)victim.updatePlayer(quiet,rules);assert.ok(victim.jumpHeight>0);}
+    assert.equal(victim.receiveHit({...normalFor('lp'),hitStun:24},attacker,false),'hit');
+    const frames=new Set();let tick=0,airDraw=false;
+    while(victim.state==='hit'&&tick++<120) {
+     const sample=animationSequenceSample(victim,0);assert.equal(sample?.sequence.id,hitSeq.id);frames.add(sample.frame);checkCanvas(victim,hitSeq);
+     if(victim.hitStop>0)assert.equal(sample.frame,0,'Impact must freeze during hit stop');
+     airDraw ||= victim.jumpHeight>0;victim.updatePlayer(quiet,rules);
+    }
+    assert.equal(frames.size,8);assert.notEqual(victim.state,'hit');if(air)assert.ok(airDraw,'Air hit must render above ground');
+   }
+   const defender=new Fighter(def,'player',600,460,facing),opponent=new Fighter(getCharacter('RYU'),'enemy',600+facing*60,460,-facing);
+   assert.equal(defender.receiveHit(normalFor('lp'),opponent,true),'block');assert.notEqual(animationSequenceSample(defender,0)?.sequence.id,hitSeq.id,'Blocking must not play hit recoil');
   }
  }
  if(added.includes(def.id)) {
@@ -121,15 +137,17 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
      assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),input.sourceSha256,'Dash source provenance must match');
     }
    }
-   if(record.id==='jump'||record.id==='landing') {
+   if(record.id==='jump'||record.id==='landing'||record.id==='hit') {
     const source=await readFile(new URL(`../${record.source}`,import.meta.url));
-    assert.equal(createHash('sha256').update(source).digest('hex').toUpperCase(),record.sourceSha256,'Air source provenance must match');
-    for(const metric of record.metrics)assert.ok(Math.abs(metric.scaledSize[1]-metric.sourceBodyHeight*record.normalization.uniformScale)<=1,'Air poses must preserve one anatomical scale');
-    const peer=manifest.records.find(r=>r.id===(record.id==='jump'?'landing':'jump'));
-    assert.equal(record.normalization.uniformScale,peer.normalization.uniformScale,'Jump and landing must share body scale');
+    assert.equal(createHash('sha256').update(source).digest('hex').toUpperCase(),record.sourceSha256,'Source provenance must match');
+    for(const metric of record.metrics)assert.ok(Math.abs(metric.scaledSize[1]-metric.sourceBodyHeight*record.normalization.uniformScale)<=1,'Poses must preserve one anatomical scale');
+    if(record.id!=='hit') {
+     const peer=manifest.records.find(r=>r.id===(record.id==='jump'?'landing':'jump'));
+     assert.equal(record.normalization.uniformScale,peer.normalization.uniformScale,'Jump and landing must share body scale');
+    }
    }
   }
-  assert.equal(manifest.enabledFrameTotal,49);
+  assert.equal(manifest.enabledFrameTotal,57);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.
@@ -138,4 +156,4 @@ for(const id of ['URIEN','GILL']) {
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
 }
-console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,canvasDraws});
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:6,hitFrames:48,canvasDraws});

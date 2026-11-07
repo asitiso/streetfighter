@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v106';
+export const GAME_CACHE_NAME = 'game-cache-v107';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -22,6 +22,12 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/attack-atlases-hd/dudley.webp', '/art/attack-atlases-hd/makoto.webp', '/art/attack-atlases-hd/ibuki.webp', '/art/attack-atlases-hd/yun.webp',
   ],
   'character-hq': [
+    '/art/animation-hq/alex/hit.webp',
+    '/art/animation-hq/dudley/hit.webp',
+    '/art/animation-hq/makoto/hit.webp',
+    '/art/animation-hq/yun/hit.webp',
+    '/art/animation-hq/urien/hit.webp',
+    '/art/animation-hq/gill/hit.webp',
     '/art/animation-hq/alex/jump.webp', '/art/animation-hq/alex/landing.webp',
     '/art/animation-hq/dudley/jump.webp', '/art/animation-hq/dudley/landing.webp',
     '/art/animation-hq/makoto/jump.webp', '/art/animation-hq/makoto/landing.webp',
