@@ -94,6 +94,9 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
     // shares their button strength (crouching, kicking, or command normals).
     return move.id === '5LP' ? 'stand-light' : move.id === '5HP' ? 'stand-heavy' : null;
   }
+  if (['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'].includes(characterId)) {
+    return move.id === '5LP' ? 'stand-light' : move.id === '5HP' ? 'stand-heavy' : null;
+  }
   if (!move.button) return null;
   if (move.button === 'hp' || move.button === 'hk') return 'stand-heavy';
   return 'stand-light';
@@ -145,7 +148,7 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
     if (characterId === 'CHUNLI' && fighter.airborne && fighter.currentMove.id !== 'CHUNLI_ANTI_AIR' && fighter.currentMove.id !== 'CHUNLI_SA3') return null;
     const kind = animationSequenceKindForAttack(characterId, fighter.currentMove);
     if (!kind) return null;
-    if (characterId === 'KEN' && fighter.airborne && (kind === 'stand-light' || kind === 'stand-heavy')) return null;
+    if (fighter.airborne && (kind === 'stand-light' || kind === 'stand-heavy')) return null;
     const sequence = animationSequenceFor(characterId, kind, true);
     if (!sequence || !sequence.poseAuthored) return null;
     const sample = attackFrame(sequence, fighter, fighter.currentMove);
