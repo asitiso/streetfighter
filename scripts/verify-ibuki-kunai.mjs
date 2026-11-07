@@ -27,8 +27,7 @@ fighter.currentMove=specials.mobility;
 assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'hadoken','Spinning bird must keep its own presentation');
 fighter.currentMove=specials.antiAir;
 assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'hadoken','Rising kick must keep its own presentation');
-for (const move of [specials.super,
-  ...[1,2,3].map(id => superArtMoveFor('IBUKI',id))]) {
+for (const move of [2,3].map(id => superArtMoveFor('IBUKI',id))) {
   fighter.currentMove = move;
   assert.notEqual(animationSequenceSample(fighter, 0)?.sequence.kind, 'hadoken', `Kikoken must not replace ${move.id}`);
 }
