@@ -1,8 +1,8 @@
 {
   "character": "URIEN",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 18,
-  "enabledFrameTotal": 18,
+  "frameTotal": 28,
+  "enabledFrameTotal": 28,
   "records": [
     {
       "id": "idle",
@@ -465,6 +465,285 @@
       ],
       "source": "art-source/roster-idle/urien/walk-sheet.png",
       "sourceSha256": "82C2D33F27CB14F4770F49F4BEF76D8785586C32F1A8B375CBE9ED1E37EC6DEA"
+    },
+    {
+      "id": "walk-back",
+      "frames": 10,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        3840,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "DC57DF7930CB4979C37EE47605ED25BFEE2BDB8F5E8C230CDECA72DED982EFE7",
+      "bytes": 555816,
+      "poseQa": {
+        "affineResidualAverage": 0.046603,
+        "affineResidualMax": 0.066355,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "walk-back",
+        "limits": {
+          "loopIoUMin": 0.42,
+          "oppositeContactIoUMin": 0.35,
+          "oppositeContactIoUMax": 0.9,
+          "centroidXRangeMin": 6.0,
+          "centroidXRangeMax": 90.0,
+          "centroidYRangeMin": 3.0,
+          "centroidYRangeMax": 58.0,
+          "centroidStepMax": 52.0,
+          "areaCvMax": 0.17,
+          "footCenterRangeMin": 24.0,
+          "footCenterRangeMax": 145.0,
+          "footWidthCvMin": 0.05,
+          "footWidthCvMax": 0.95,
+          "residualAverageMin": 0.008,
+          "residualAverageMax": 0.13,
+          "residualMaxMin": 0.018,
+          "residualMaxMax": 0.18
+        },
+        "loopIoU": 0.594359,
+        "oppositeContactIoU": 0.701903,
+        "centroidXRange": 9.840524,
+        "centroidYRange": 18.112068,
+        "centroidStepMax": 11.940778,
+        "areaCv": 0.032031,
+        "footCenterRange": 74.4274,
+        "footWidthCv": 0.13923,
+        "residualAverage": 0.046603,
+        "residualMax": 0.066355,
+        "checks": {
+          "loopClosure": true,
+          "oppositeContactDifferent": true,
+          "retreatShapeTravelPresent": true,
+          "verticalCadencePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "footTravelPresent": true,
+          "stanceChanges": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "walk-backToidle": {
+          "iou": 0.546861,
+          "centroidDistance": 16.308459,
+          "footCenterDelta": 11.979007,
+          "areaRatio": 0.745617,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "idleTowalk-back": {
+          "iou": 0.665868,
+          "centroidDistance": 7.380891,
+          "footCenterDelta": 18.309887,
+          "areaRatio": 1.339824,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "walk-backTowalk": {
+          "iou": 0.558771,
+          "centroidDistance": 17.530036,
+          "footCenterDelta": 28.097596,
+          "areaRatio": 0.909018,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "walkTowalk-back": {
+          "iou": 0.604631,
+          "centroidDistance": 15.141031,
+          "footCenterDelta": 18.880251,
+          "areaRatio": 1.062462,
+          "limits": {
+            "iouMin": 0.38,
+            "iouMax": 0.93,
+            "centroidDistanceMax": 38.0,
+            "footCenterDeltaMax": 58.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        3,
+        3,
+        4,
+        5,
+        5,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            325,
+            490
+          ],
+          "sourceBodyHeight": 490,
+          "paste": [
+            72,
+            62
+          ],
+          "scaledSize": [
+            240,
+            361
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            360,
+            480
+          ],
+          "sourceBodyHeight": 480,
+          "paste": [
+            60,
+            69
+          ],
+          "scaledSize": [
+            265,
+            354
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            331,
+            461
+          ],
+          "sourceBodyHeight": 461,
+          "paste": [
+            70,
+            83
+          ],
+          "scaledSize": [
+            244,
+            340
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            324,
+            455
+          ],
+          "sourceBodyHeight": 455,
+          "paste": [
+            72,
+            88
+          ],
+          "scaledSize": [
+            239,
+            335
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            324,
+            456
+          ],
+          "sourceBodyHeight": 456,
+          "paste": [
+            72,
+            87
+          ],
+          "scaledSize": [
+            239,
+            336
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            349,
+            456
+          ],
+          "sourceBodyHeight": 456,
+          "paste": [
+            64,
+            87
+          ],
+          "scaledSize": [
+            257,
+            336
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/urien/retreat-sheet.png",
+      "sourceSha256": "7BFC3BC1198E8BB07BD20FF1611D9BFFDC42B0A767029E01F839E9019E3C6596"
     }
   ]
 }

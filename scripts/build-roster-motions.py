@@ -1,6 +1,6 @@
 """Build the six missing roster movement strips using existing quality gates.
 
-Source sheets are generated key poses (2x2 idle, 2x4 walk), not runtime frames.
+Source sheets are generated key poses (2x2 idle, 2x4 walk, 2x3 retreat).
 Default is read-only QA; --install writes all six only after every gate passes.
 """
 from pathlib import Path
@@ -44,20 +44,24 @@ def extract(sheet,rows=2):
  return frames
 
 def handoffs(directory,kind,frames):
- peer='walk' if kind=='idle' else 'idle';path=directory/f'{peer}.webp'
- if not path.exists():
-  if kind=='walk':raise ValueError('Install idle before walk')
-  return {}
- manifest=json.loads((directory/'manifest.json').read_text());record=next(r for r in manifest['records'] if r['id']==peer)
- if not record['enabled'] or not record['poseAuthored']:raise ValueError('Installed peer is not authored and enabled')
- data=path.read_bytes()
- if hashlib.sha256(data).hexdigest().upper()!=record['sha256']:raise ValueError('Installed peer checksum mismatch')
- strip=Image.open(BytesIO(data)).convert('RGBA')
- if strip.size!=(record['frames']*384,448):raise ValueError('Installed peer dimensions mismatch')
+ manifest_path=directory/'manifest.json'
+ manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {'records':[]}
+ records={r['id']:r for r in manifest['records']}
+ if kind!='idle' and 'idle' not in records:raise ValueError('Install idle before locomotion')
  spec=importlib.util.spec_from_file_location('roster_handoff',ROOT/'scripts/audit-ken-handoff-semantics.py');h=importlib.util.module_from_spec(spec);spec.loader.exec_module(h)
- peer_first=strip.crop((0,0,384,448));peer_last=strip.crop(((record['frames']-1)*384,0,record['frames']*384,448))
- idle=frames if kind=='idle' else [peer_first,peer_last];walk=frames if kind=='walk' else [peer_first,peer_last]
- return {'idleToWalk':h.compare_motion_bridge(h.alpha_mask(idle[0]),h.alpha_mask(walk[0]),h.WALK_BACK_BASE_LIMITS),'walkToIdle':h.compare_motion_bridge(h.alpha_mask(walk[-1]),h.alpha_mask(idle[0]),h.WALK_BACK_BASE_LIMITS)}
+ bridges={}
+ for peer in ('idle','walk','walk-back'):
+  if peer==kind or peer not in records:continue
+  record=records[peer];path=directory/f'{peer}.webp'
+  if not record['enabled'] or not record['poseAuthored']:raise ValueError('Installed peer is not authored and enabled')
+  data=path.read_bytes()
+  if hashlib.sha256(data).hexdigest().upper()!=record['sha256']:raise ValueError('Installed peer checksum mismatch')
+  strip=Image.open(BytesIO(data)).convert('RGBA')
+  if strip.size!=(record['frames']*384,448):raise ValueError('Installed peer dimensions mismatch')
+  peer_first=strip.crop((0,0,384,448));peer_last=strip.crop(((record['frames']-1)*384,0,record['frames']*384,448))
+  bridges[f'{kind}To{peer}']=h.compare_motion_bridge(h.alpha_mask(frames[-1]),h.alpha_mask(peer_first),h.WALK_BACK_BASE_LIMITS)
+  bridges[f'{peer}To{kind}']=h.compare_motion_bridge(h.alpha_mask(peer_last),h.alpha_mask(frames[0]),h.WALK_BACK_BASE_LIMITS)
+ return bridges
 
 def webp(frames):
  strip=Image.new('RGBA',(384*len(frames),448))
@@ -66,9 +70,9 @@ def webp(frames):
  return data.getvalue()
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
- motion=module();pending={};results=[];kind=args.kind;count=6 if kind=='idle' else 12
+ motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
  for entry in CONFIG:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
   if args.runtime:
@@ -82,11 +86,11 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/('sheet.png' if kind=='idle' else 'walk-sheet.png')
-  keys,metrics=motion.normalize_frames(kind,extract(Image.open(source),2 if kind=='idle' else 4))
+  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png'}[kind])
+  keys,metrics=motion.normalize_frames(kind,extract(Image.open(source),{'idle':2,'walk':4,'walk-back':3}[kind]))
   choices=[]
-  gait=[0,0,1,2,2,3,4,4,5,6,6,7]
-  orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(12)]
+  gait=[0,0,1,2,2,3,4,4,5,6,6,7] if kind=='walk' else [0,0,1,2,2,3,4,4,5,5]
+  orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
   for order in orders:
    frames=[keys[i] for i in order]
    pose=motion.pose_qa(frames,kind);semantic=motion.semantic_qa(kind,frames,pose)

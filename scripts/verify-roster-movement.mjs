@@ -7,7 +7,8 @@ import {animationSequenceFor,animationSequencesFor} from '../dist/assets/render/
 import {animationSequenceSample} from '../dist/assets/render/AnimationTimingMapper.js';
 const added=['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'];
 const quiet={held:()=>false,pressed:()=>false,released:()=>false};
-const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arenaRight:1180,arenaTop:380,arenaBottom:590};
+// Keep repeated cycle sampling away from arena clamping, including fast Yun.
+const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:-10000,arenaRight:10000,arenaTop:380,arenaBottom:590};
 const sequences=new Map([...CHARACTERS,...BOSS_CHARACTERS].flatMap(c=>animationSequencesFor(c.id)).map(s=>[s.asset,s]));
 globalThis.Image=class {
  complete=true;
@@ -50,6 +51,22 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
   }
   assert.equal(walkFrames.size,walk.frameCount);walking.updatePlayer(quiet,rules);
   assert.equal(animationSequenceSample(walking,0)?.sequence.id,seq.id,'Releasing movement returns to idle');
+  if(added.includes(def.id)) {
+   const retreat=new Fighter(def,'player',600,460,facing),back=animationSequenceFor(def.id,'walk-back'),backFrames=new Set();
+   assert.ok(back?.enabled&&back.poseAuthored,`${def.id} must have an authored retreat`);
+   let previous=0,wrapped=false;
+   for(let tick=0;tick<100;tick++) {
+    const before=retreat.x;
+    retreat.updatePlayer({...quiet,held:key=>key===(facing===1?'left':'right')},rules);
+    assert.ok((retreat.x-before)*facing<0,'Retreat must move away without turning');assert.equal(retreat.facing,facing);
+    const sample=animationSequenceSample(retreat,0);assert.equal(sample?.sequence.id,back.id);backFrames.add(sample.frame);checkCanvas(retreat,back);
+    if(sample.frame<previous)wrapped=true;previous=sample.frame;
+   }
+   assert.equal(backFrames.size,10);assert.ok(wrapped);
+   retreat.updatePlayer({...quiet,held:key=>key===(facing===1?'right':'left')},rules);
+   assert.equal(animationSequenceSample(retreat,0)?.sequence.id,walk.id,'Forward switch must use forward walking');
+   retreat.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(retreat,0)?.sequence.id,seq.id);
+  }
  }
  if(added.includes(def.id)) {
   const manifest=JSON.parse(await readFile(new URL(`../public/art/animation-hq/${def.id.toLowerCase()}/manifest.json`,import.meta.url),'utf8'));
@@ -59,7 +76,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    assert.equal(record.enabled,true);assert.equal(record.poseAuthored,true);
    assert.equal(record.poseQa.poseAuthoredPass,true);assert.equal(record.semanticQa.semanticQaPass,true);
   }
-  assert.equal(manifest.enabledFrameTotal,18);
+  assert.equal(manifest.enabledFrameTotal,28);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.
@@ -68,4 +85,4 @@ for(const id of ['URIEN','GILL']) {
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
 }
-console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,newSequences:12,newFrames:108,canvasDraws});
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,retreatCharacters:6,retreatFrames:60,canvasDraws});
