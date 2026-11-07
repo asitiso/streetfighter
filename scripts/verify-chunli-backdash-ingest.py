@@ -8,9 +8,10 @@ import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-if (character=='KEN' and selected_kind not in ('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (character!='KEN' and selected_kind in ('stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick')):parser.error('Unsupported supplemental character/kind')
+supported={'CHUNLI':('dash-back','guard','parry','stand-medium'),'IBUKI':('dash-back','guard','parry'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick')}
+if selected_kind not in supported[character]:parser.error('Unsupported supplemental character/kind')
 count,width,order={'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
-slug=character.lower();prior_count={'CHUNLI':17,'IBUKI':16,'KEN':19}[character];total={'CHUNLI':168,'IBUKI':154,'KEN':182}[character]
+slug=character.lower();prior_count={'CHUNLI':18,'IBUKI':16,'KEN':19}[character];total={'CHUNLI':176,'IBUKI':154,'KEN':182}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -72,7 +73,7 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
  if selected_kind=='stand-medium':
   wrong=frames.copy();wrong[1]=frames[3];wrong[3]=pad
   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
-  assert not report['checks']['actualContactReach'] and not report['semanticQaPass'],'Guard at actual Ken contact accepted despite compensating startup punch'
+  assert not report['checks']['actualContactReach'] and not report['semanticQaPass'],'Guard at actual strike contact accepted despite compensating startup attack'
  if selected_kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick'):
   contacts={'stand-light-kick':(3,),'stand-medium-kick':(4,5),'stand-heavy-kick':(5,6)}[selected_kind]
   punch=Image.open(runtime/'stand-medium.webp').convert('RGBA').crop((3*width,0,4*width,448))

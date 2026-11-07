@@ -121,6 +121,7 @@ const KEN: readonly AnimationSequence[] = [
 ] as const;
 
 const CHUNLI: readonly AnimationSequence[] = [
+  { id:'CHUNLI_STAND_MEDIUM_HQ', characterId:'CHUNLI', kind:'stand-medium', asset:'/art/animation-hq/chunli/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_GUARD_HQ', characterId:'CHUNLI', kind:'guard', asset:'/art/animation-hq/chunli/guard.webp', frameCount:5, frameWidth:384, frameHeight:448, fps:18, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_PARRY_HQ', characterId:'CHUNLI', kind:'parry', asset:'/art/animation-hq/chunli/parry.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:22, loop:false, timing:'snap', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_DASH_BACK_HQ', characterId:'CHUNLI', kind:'dash-back', asset:'/art/animation-hq/chunli/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
