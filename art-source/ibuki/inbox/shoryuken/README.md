@@ -1,0 +1,9 @@
+# Ibuki Kazekiri (12F)
+
+Built-in imagegen generated four complete compression, knee-drive, rising-kick and withdrawal poses with the authored character reference. Order [guard,1,1,2,2,3,3,3,4,4,guard,guard] deliberately holds preparation/contact/recovery. IBUKI_KAZEKIRI_HQ reuses the generic shoryuken motion kind and existing unchanged pose/semantic/master gates. Only IBUKI_ANTI_AIR maps. Source/candidate/runtime/preview/QA are retained; hashes match. Active total98F/11records, cachev093/preload.
+
+Shared original-root correction now includes this airborne motion. Only this ground-initiated Ibuki attack retains its own mapping through gameplay flight; other air attacks stay excluded. Canvas rendering follows actual jumpHeight. Combat timing, launch, damage and input data are unchanged.
+
+Regression failed before promotion and passes both facing directions, phase boundaries, actual Fighter rise/flight/ground return and exclusions. Renderer regression covers actual height translation and384-to192 pixel scaling. Existing Kunai, Chun-Li rising, combat, registry/assets and build/offline checks pass. Isolated first-install rollback removes a newly written rising runtime and restores registry/manifest, then promotes98F. Browser bothfacings renders12/12 without failures or console warning/error entries. Screenshots inspected. Read-only review found no actionable issues or clipping. Clean production builds remove the fixture. No manual command-input playthrough claimed.
+
+Generation brief: four separated transparent full-body adult beige masked ninja rising-kick poses facing right: deep planted compression, airborne knee drive, upward-right extended kick, descending knee withdrawal; consistent anatomy/scale, full hair/fingers/toes with generous overhead margin; no effects, text, shadow, opponent or background.
