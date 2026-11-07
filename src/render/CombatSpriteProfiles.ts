@@ -98,7 +98,8 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
       break;
     }
     case 'parry': {
-      const pulse = Math.min(1, fighter.stateFrame / 6);
+      // Locked defense states count from negative remaining frames toward zero.
+      const pulse = Math.max(0, Math.min(1, 1 - Math.abs(fighter.stateFrame) / 10));
       offsetX = -fighter.facing * (3 + pulse * 2.4);
       offsetY -= 1.5 + pulse;
       rotation = -.055 * fighter.facing * polish.lean;
@@ -108,7 +109,7 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
       break;
     }
     case 'block': {
-      const recoil = Math.max(0, 1 - fighter.stateFrame / 12) * polish.hitRecoil;
+      const recoil = Math.max(0, Math.min(1, -fighter.stateFrame / 12)) * polish.hitRecoil;
       offsetX = -fighter.facing * (4 + recoil * 4.5);
       offsetY += 1.5 + recoil;
       rotation = -.045 * fighter.facing * polish.lean;
