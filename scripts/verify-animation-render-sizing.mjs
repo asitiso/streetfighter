@@ -62,6 +62,11 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
       assert.ok(call,'Kazekiri retains authored art during flight');assert.deepEqual(call.slice(5),[-96,-220,192,224]);
       assert.ok(translations.some(([x,y])=>x===0&&y===-61),'Kazekiri follows gameplay height');
       fighter.currentMove=null;fighter.state='idle';fighter.airborne=false;fighter.jumpHeight=0;
+      fighter.currentMove=specialMovesFor('IBUKI').mobility;fighter.state='attack';fighter.moveFrame=fighter.currentMove.startup;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/tatsumaki.webp'));
+      assert.ok(call,'Tsumuji uses its wide rotation strip');assert.deepEqual(call.slice(5),[-160,-220,320,224]);
+      fighter.currentMove=null;fighter.state='idle';
     }
     if(id==='CHUNLI') {
       fighter.currentMove=specialMovesFor(id).mobility; fighter.state='attack'; fighter.moveFrame=fighter.currentMove.startup;

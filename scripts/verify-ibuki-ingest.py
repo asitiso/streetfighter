@@ -69,7 +69,8 @@ def main():
   # A failed first attack install must remove its newly written runtime file.
   shutil.copytree(ROOT/'art-source/ibuki/inbox/hadoken',fixture/'art-source/ibuki/inbox/hadoken')
   shutil.copytree(ROOT/'art-source/ibuki/inbox/shoryuken',fixture/'art-source/ibuki/inbox/shoryuken')
-  for attack_kind in ('stand-light','stand-heavy','hadoken','shoryuken'):
+  shutil.copytree(ROOT/'art-source/ibuki/inbox/tatsumaki',fixture/'art-source/ibuki/inbox/tatsumaki')
+  for attack_kind in ('stand-light','stand-heavy','hadoken','shoryuken','tatsumaki'):
    attack=runtime_dir/f'{attack_kind}.webp';attack.unlink(missing_ok=True)
    data=json.loads(manifest.read_text());data['records']=[r for r in data['records'] if r['id']!=attack_kind];manifest.write_text(json.dumps(data))
    guarded=[manifest,registry];before={p:p.read_bytes() for p in guarded};failed=False
@@ -79,7 +80,7 @@ def main():
     else:raise AssertionError('Expected attack write failure')
    assert failed and not attack.exists() and before=={p:p.read_bytes() for p in guarded}
    result=ingest(attack_kind);assert result.returncode==0,result.stdout+result.stderr
-   assert json.loads(manifest.read_text())['enabledFrameTotal']==({'stand-light':64,'stand-heavy':74,'hadoken':86,'shoryuken':98}[attack_kind])
+   assert json.loads(manifest.read_text())['enabledFrameTotal']==({'stand-light':64,'stand-heavy':74,'hadoken':86,'shoryuken':98,'tatsumaki':110}[attack_kind])
   # Every replacement direction validates installed peers, not uninstalled source.
   for kind in kinds[:3]:
    for peer in kinds[:3]:

@@ -1,0 +1,9 @@
+# Ibuki Tsumuji (12F)
+
+Built-in imagegen drew four full-body chamber, low kick, opposite back-turn and higher kick poses from the authored character reference. Order [jabguard,1,1,2,3,3,4,4,2,1,idle,idle] uses intentional holds. Three unchanged hit opportunities sample frames3/4/6 with distinct low/back-turn/high drawn poses. Only IBUKI_MOBILITY maps to IBUKI_TSUMUJI_HQ under generic tatsumaki motion kind. Air attacks and Super Arts stay distinct. Combat timing/movement/damage/multi-hit data are unchanged.
+
+640x448 cells preserve complete extended legs at unchanged source pixel scale, rendering320x224. Existing wide-spin horizontal gate conversion and all other pose/semantic/master handoff limits remain unchanged. Original Ibuki root alignment applies. Candidate/runtime hashes match. Active total110F/12records, cachev094/preload. Source/candidate/runtime/preview/QA retained.
+
+Regression failed before promotion then passed phase boundaries, three distinct hit samples, both facings, all12 actual Fighter update samples and idle return. Existing Kazekiri/Kunai/Chun-Li spin, actual Canvas sizing, registry/assets, combat and build/offline checks pass. First-install rollback removes a newly written spin runtime and restores registry/manifest, then promotes110F. Browser bothfacings renders12/12 with correct scale and no failures or console warning/error entries. Read-only review found no actionable issues or clipping. Clean production builds remove fixture. No manual motion-command playthrough claimed.
+
+Generation brief: four separate transparent full-body adult beige masked ninja spinning kicks toward right, same scale: knee chamber, low roundhouse right, back-three-quarter rotation with leg left, higher roundhouse right. Natural proportions, full hair/fingers/toes, generous margins; no inverted pose, text, shadows, effects, floor or opponent.
