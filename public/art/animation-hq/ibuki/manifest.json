@@ -9,9 +9,9 @@
     448
   ],
   "sourceSha256": "76BE49783ADBF49DDC537AEB1CF8E4C18436DDB4F5A12E8188FA11DC6012AC36",
-  "frameTotal": 154,
-  "enabledFrameTotal": 154,
-  "fullFrameTotal": 154,
+  "frameTotal": 162,
+  "enabledFrameTotal": 162,
+  "fullFrameTotal": 162,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -2450,6 +2450,274 @@
         ],
         "footAnchorX": 198.64209401709402
       }
+    },
+    {
+      "id": "stand-medium",
+      "frames": 8,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        5120,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "444A7BA4326BA372CF5E7D88530974E43D912730937439697512FDA415CA4B82",
+      "bytes": 524784,
+      "poseQa": {
+        "affineResidualAverage": 0.019806,
+        "affineResidualMax": 0.032528,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-medium",
+        "limits": {
+          "startEndIoUMin": 0.58,
+          "contactIoUMin": 0.32,
+          "contactIoUMax": 0.94,
+          "centroidXRangeMin": 4.0,
+          "centroidXRangeMax": 45.0,
+          "centroidYRangeMax": 28.0,
+          "reachRangeMin": 24.0,
+          "reachRangeMax": 105.0,
+          "footCenterRangeMax": 38.0,
+          "footWidthCvMax": 0.32,
+          "areaCvMax": 0.16,
+          "residualAverageMin": 0.01,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.022,
+          "residualMaxMax": 0.2,
+          "contactFrameIndex": 3
+        },
+        "startEndIoU": 0.804468,
+        "contactIoU": 0.728998,
+        "centroidXRange": 6.953254,
+        "centroidYRange": 6.059297,
+        "reachRange": 46.0,
+        "footCenterRange": 0.665751,
+        "footWidthCv": 0.003629,
+        "areaCv": 0.022489,
+        "residualAverage": 0.019806,
+        "residualMax": 0.032528,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "actualContactReach": true
+        },
+        "semanticQaPass": true,
+        "contactReachFrames": [
+          3
+        ],
+        "contactReachDeltas": [
+          37.0
+        ]
+      },
+      "handoffQa": {
+        "idleToStandMedium": {
+          "iou": 0.738104,
+          "centroidDistance": 6.543547,
+          "footCenterDelta": 0.299525,
+          "areaRatio": 1.003096,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "standMediumToIdle": {
+          "iou": 0.711144,
+          "centroidDistance": 10.550629,
+          "footCenterDelta": 0.037087,
+          "areaRatio": 0.972763,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        5,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            319,
+            458
+          ],
+          "sourceBodyHeight": 458,
+          "paste": [
+            208,
+            85
+          ],
+          "scaledSize": [
+            235,
+            338
+          ],
+          "footAnchorShift": 6
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            313,
+            458
+          ],
+          "sourceBodyHeight": 458,
+          "paste": [
+            202,
+            85
+          ],
+          "scaledSize": [
+            231,
+            338
+          ],
+          "footAnchorShift": -2
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            314,
+            463
+          ],
+          "sourceBodyHeight": 463,
+          "paste": [
+            202,
+            82
+          ],
+          "scaledSize": [
+            231,
+            341
+          ],
+          "footAnchorShift": -2
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            385,
+            463
+          ],
+          "sourceBodyHeight": 463,
+          "paste": [
+            195,
+            82
+          ],
+          "scaledSize": [
+            284,
+            341
+          ],
+          "footAnchorShift": 17
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            327,
+            465
+          ],
+          "sourceBodyHeight": 465,
+          "paste": [
+            193,
+            80
+          ],
+          "scaledSize": [
+            241,
+            343
+          ],
+          "footAnchorShift": -7
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            333,
+            464
+          ],
+          "sourceBodyHeight": 464,
+          "paste": [
+            196,
+            81
+          ],
+          "scaledSize": [
+            245,
+            342
+          ],
+          "footAnchorShift": -2
+        }
+      ],
+      "source": "art-source/roster-idle/ibuki/stand-medium-sheet.png",
+      "sourceSha256": "A555F337A8AD48E939DB1D53803DAD866832DEED93438D036ECD2607267287A6",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 342,
+        "sourceGuardHeight": 464,
+        "uniformScale": 0.7370689655172413,
+        "footBaselineReference": "installed-idle",
+        "footBaseline": 429,
+        "sourceBaselineOffsets": [
+          9,
+          9,
+          8,
+          8,
+          8,
+          8
+        ],
+        "footAnchorX": 326.642094017094
+      },
+      "sourceGrid": [
+        2,
+        3
+      ]
     }
   ]
 }
