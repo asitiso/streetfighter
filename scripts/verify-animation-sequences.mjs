@@ -94,8 +94,8 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 }
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
-  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 136, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 136, `${id} enabled frame total mismatch`);
+  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 157 : 136, `${id} frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 157 : 136, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -202,11 +202,11 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   const extraManifest = JSON.parse(await readFile(new URL(`../public/art/animation-hq/${slug}/manifest.json`, import.meta.url), 'utf8'));
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
-  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 150 : 136);
+  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 157 : 136);
   const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
   assert.equal(extraManifest.enabledFrameTotal, activeFrames);
   assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
-  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 15 : 14);
+  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 16 : 14);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
   for (const rec of extraManifest.records) {
@@ -257,11 +257,11 @@ sampled = animationSequenceSample(chunli, .5);
 assert.equal(sampled?.sequence.kind, 'walk-back', 'Retreat must follow facing when Chun-Li faces left');
 chunli.dashFrames = 8;
 sampled = animationSequenceSample(chunli, 0);
-assert.equal(sampled?.sequence.kind, 'dash', 'Chun-Li dash must use its authored motion instead of walking');
+assert.equal(sampled?.sequence.kind, 'dash-back', 'Chun-Li backward dash must use its directional authored motion');
 assert.equal(sampled.frame, 0);
 chunli.dashFrames = 1;
 sampled = animationSequenceSample(chunli, .1);
-assert.equal(sampled?.sequence.kind, 'dash');
+assert.equal(sampled?.sequence.kind, 'dash-back');
 assert.ok(sampled.frame > 0 && sampled.frame < 7, 'Dash must advance toward recovery');
 chunli.dashFrames = 0;
 sampled = animationSequenceSample(chunli, .2);
@@ -350,7 +350,7 @@ let movementPreloadBytes=0,stageEntryPreloadBytes=0;
 try {
  runtimeQuality.setTier('high');animationTextureManager.releaseCharacter('RYU');
  animationTextureManager.preloadCharacter('RYU','movement');
- assert.ok(requests.includes('/art/animation-hq/ryu/dash-back.webp'),'Backward dash must decode before first double tap');
+ assert.ok(requests.includes('/art/animation-hq/ryu/dash-back.webp'),'Backward dash preparation must start with movement');
  const movementKinds=new Set(['idle','crouch','walk','walk-back','dash','dash-back','jump','landing','hit','guard','parry']);
  const expected=animationSequencesFor('RYU',true).filter(s=>s.poseAuthored&&movementKinds.has(s.kind)).map(s=>s.asset);
  assert.deepEqual([...new Set(requests)].sort(),expected.sort(),'Movement preload must include all movement and no attack art');
@@ -362,7 +362,22 @@ try {
  assert.equal(stageEntryPreloadBytes,catalogBytes,'Stage entry must cover the complete enabled Ryu catalog');
  // Increased explicitly from12MB to13MB for the new523138-byte backward dash; no image-quality reduction.
  assert.ok(stageEntryPreloadBytes<13_000_000,`Ryu stage-entry animation preload exceeds13MB: ${stageEntryPreloadBytes}`);
-}finally{animationTextureManager.releaseCharacter('RYU');runtimeQuality.setTier(savedTier);if(savedImage===undefined)delete globalThis.Image;else globalThis.Image=savedImage;}
+ animationTextureManager.releaseCharacter('RYU');requests.length=0;
+ const chunliManifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/chunli/manifest.json',import.meta.url),'utf8'));
+ animationTextureManager.releaseCharacter('CHUNLI');
+ animationTextureManager.preloadCharacter('CHUNLI','movement');
+ assert.ok(requests.includes('/art/animation-hq/chunli/dash-back.webp'),'Chun-Li backward dash must start preparation with movement');
+ animationTextureManager.preloadCharacter('CHUNLI','combat');
+ assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('CHUNLI',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());
+ const chunliEntryBytes=chunliManifest.records.filter(r=>requests.includes('/art/animation-hq/chunli/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
+ assert.ok(chunliEntryBytes<13_000_000,'Chun-Li stage-entry animations exceed13MB');
+ const back=chunliManifest.records.find(r=>r.id==='dash-back');
+ assert.equal(back.facingRelativeDirection,'backward');
+ assert.deepEqual(back.sourceOrder,[1,2,3,3,4,5,6]);
+ assert.equal(back.sourceSha256,sha(await readFile(new URL('../'+back.source,import.meta.url))));
+ assert.ok(catalogUrls.has('/art/animation-hq/chunli/dash-back.webp'));
+ console.log('CHUNLI_STAGE_ENTRY_PRELOAD_BYTES',chunliEntryBytes);
+}finally{animationTextureManager.releaseCharacter('CHUNLI');animationTextureManager.releaseCharacter('RYU');runtimeQuality.setTier(savedTier);if(savedImage===undefined)delete globalThis.Image;else globalThis.Image=savedImage;}
 
 console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   candidate: manifest.candidate,
@@ -370,7 +385,7 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   lite: `${liteDim.width}x${liteDim.height}`,
   frameTotal: manifest.frameTotal,
   kenFrameTotal: kenManifest.frameTotal,
-  chunliFrameTotal: 150,
+  chunliFrameTotal: 157,
   ibukiFrameTotal: 136,
   ibukiEnabledFrameTotal: 136,
   enabledFrameTotal: manifest.enabledFrameTotal,
