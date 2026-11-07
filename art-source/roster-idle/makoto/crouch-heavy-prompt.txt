@@ -1,0 +1,14 @@
+Use case: stylized-concept. Production painted 2D fighting-game CROUCHING HEAVY attack (2HP) key-pose sprite sheet for MAKOTO.
+Input image is an identity/style/full LOW CROUCH reference only. Create a NEW six-pose heavy attack, preserving face, costume, head size, anatomy, palette and same screen-RIGHT three-quarter view.
+CHARACTER ACTION: MAKOTO / FIERCE KARATE THRUST: deep coil with wrapped fist at hip/ribs, then fierce low karate thrust screen RIGHT with full elbow extension, forceful shoulder and waist torque, rear fist drawn back. No rising uppercut above head.
+EXACTLY SIX separate complete full-body crouched figures, TWO columns by THREE rows, in a WIDE LANDSCAPE image. Wide equal cells, figures about 250–300px tall; leave at least 50px clear side gutters even at full extension, plus empty space above/below. No figures touching edges or each other.
+Read left-right/top-bottom:
+1 original low crouch guard matching reference first pose.
+2 strong windup: elbows deeply bent, arms coiled near ribs/face, torso twisted back. Both arms change, not just one hand.
+3 halfway drive: shoulder/torso rotating forward, arm midway through described action, clearly between windup and contact.
+4 full heavy CONTACT exactly as character action above. Strong readable upper-body silhouette change, visible torso/waist twist and modest forward hinge; complete striking tip and rear guarding hand. Contact extends beyond the original guard hand by roughly one forearm, with natural limb proportions. Modest forward shoulder drive, NOT a full-body lunge.
+5 halfway withdrawal: different articulated retraction pose between contact and guard, torso recentering.
+6 recovered original FULL LOW guard, near-identical to pose1.
+Both knees/pelvis remain DEEPLY LOW at same height and exact same planted foot positions/stance width/baseline in ALL six poses. No standing, rise, step, slide, jumping, crouch-to-stand, kneeling or ground translation. Head height stays approximately constant; do not raise striking hand above head. Dramatic true shoulder/arm/cloth articulation is needed, not translating/rotating one static sprite.
+ONE identical anatomical scale across all poses: never shrink extended contact, stretch forearms or enlarge torso. Same head size, muscle/cloth volume and limb lengths. All complete hair/limbs/feet/hand tips surrounded by transparent pixels.
+TRUE TRANSPARENT ALPHA: all non-body pixels fully transparent. No background, gradients, floor, shadows, halos, glow, paper, text, labels, cells, effects, blur, speed lines or extra figures.

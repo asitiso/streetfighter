@@ -1,0 +1,10 @@
+Use case: stylized-concept. Create NEW ALEX crouching HEAVY LARIAT six-keypose game sprite sheet. Reference is identity/costume AND LOW GUARD: use ONLY BOTTOM-RIGHT FULL LOW CROUCH of reference, never standing poses. Same painted style, anatomy/head size, red bandanna/blond hair, green pants/gloves/boots and screen-RIGHT view.
+EXACTLY SIX complete disconnected full-body LOW crouch figures, 2 columns x3 rows on WIDE landscape canvas, each about270–300px tall, locked scale, wide gutters.
+1 low guard identical to reference bottom-right.
+2 windup: pull leading arm across chest toward opposite shoulder; twist torso BACK, rear arm coils near ribs.
+3 halfway lariat: leading elbow unfolding and chest beginning to hinge forward, forearm sweep clearly midway.
+4 powerful FULL LARIAT: hinge the entire torso/head FORCEFULLY FORWARD about ONE AND A HALF HEAD WIDTHS from guard, while hips and both feet remain fixed low. Chest rotates strongly side-on/back facing viewer. Leading arm sweeps fully extended horizontally RIGHT at upper chest height, open hand/forearm leading, not a fist jab. Other elbow/arm draws BACK behind the waist for counterbalance, changing BOTH arm silhouettes. Head and shoulders must visibly advance, not remain centered over hips. A dramatic but anatomically natural bent-waist lariat with deeply squatting knees; no arm stretching. Keep striking hand just below chin, never above head. Keep both full arms complete and at least50px inside sheet edges.
+5 halfway retraction: leading elbow bends back, torso partially recentered, counterarm returning.
+6 recovered original full LOW guard identical to1.
+All six EXACT same anatomical pixel scale/head size/limb lengths. Both soles and pelvis height/stance width/root remain identical: no step, slide, stand/rise, knee change or whole-body translation. Torso hinges/twists at waist only. Contact must show unmistakable real articulation, not a translated static sprite or a gentle arm extension.
+Every outline complete with empty gutters. TRUE TRANSPARENT ALPHA, every non-body pixel transparent. No background, gradients, floor/shadows, glow, halos, text, panels, effects, blur or extra figures.
