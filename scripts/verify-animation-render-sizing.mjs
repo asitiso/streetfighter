@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { animationSequencesFor } from '../dist/assets/render/AnimationSequenceLibrary.js';
 import { Fighter } from '../dist/assets/combat/Fighter.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
-import { specialMovesFor, superArtMoveFor } from '../dist/assets/combat/MoveLibrary.js';
+import { normalFor, specialMovesFor, superArtMoveFor } from '../dist/assets/combat/MoveLibrary.js';
 const sequences=new Map(['CHUNLI','KEN','IBUKI'].flatMap(id=>animationSequencesFor(id,false)).map(s=>[s.asset,s]));
 globalThis.Image=class {
   complete=true;
@@ -22,6 +22,38 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
     let call=calls.findLast(c=>c[0].src?.includes(`/animation-hq/${id.toLowerCase()}/idle.webp`));
     assert.ok(call,`${id} idle must use authored strip`);
     assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+    for(const scenario of ['ground-hit','air-hit','launch-hit']) {
+      const victim=new Fighter(def,'player',600,460,facing,def.superArts[0]);
+      const attacker=new Fighter(getCharacter('RYU'),'enemy',650,460,-facing);
+      const quiet={held:()=>false,pressed:()=>false,released:()=>false};
+      const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arenaRight:1180,arenaTop:380,arenaBottom:590};
+      if(scenario==='air-hit') {
+        victim.updatePlayer({...quiet,pressed:key=>key==='jump'},rules);
+        for(let tick=0;tick<5;tick++)victim.updatePlayer(quiet,rules);
+        assert.ok(victim.airborne&&victim.jumpHeight>0,'Fixture must jump before getting hit');
+      }
+      const move={...normalFor('lp'),hitStun:24,...(scenario==='launch-hit'?{launch:82}:{})};
+      assert.equal(victim.receiveHit(move,attacker,false),'hit');
+      let hitDraws=0,airDraws=0;
+      for(let tick=0;tick<160;tick++) {
+        calls.length=0;translations.length=0;
+        drawCombatFighter(ctx,victim,0,0);
+        if(victim.state==='hit') {
+          const strip=calls.find(c=>c[0].src?.endsWith(`/${id.toLowerCase()}/hit.webp`));
+          assert.ok(strip,`${id} ${scenario} must use its authored hit strip`);
+          assert.deepEqual(strip.slice(5),[-96,-220,192,224]);hitDraws++;
+          if(victim.jumpHeight>0) {
+            airDraws++;
+            assert.equal(translations.filter(([x,y])=>x===0&&y===-victim.jumpHeight).length,1,`${id} ${scenario} body must follow gameplay height exactly once`);
+          }
+        }
+        if(victim.state==='idle'&&!victim.airborne&&victim.landingFrames===0)break;
+        victim.updatePlayer(quiet,rules);
+      }
+      assert.ok(hitDraws>0);assert.equal(airDraws>0,scenario!=='ground-hit');
+      assert.equal(victim.state,'idle');assert.equal(victim.jumpHeight,0);
+      console.log('HIT_RENDER_HEIGHT_PASS',{id,facing,scenario,hitDraws,airDraws});
+    }
     if(id==='KEN') {
       const quiet={held:()=>false,pressed:()=>false,released:()=>false};
       const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arenaRight:1180,arenaTop:380,arenaBottom:590};
