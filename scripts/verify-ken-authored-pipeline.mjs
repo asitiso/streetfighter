@@ -45,13 +45,13 @@ function webpDimensions(buffer) {
 assert.equal(KEN_RC39_ATTACK_FRAME_TOTAL, 69);
 assert.equal(KEN_RC39_DEFENSE_FRAME_TOTAL, 11);
 assert.equal(KEN_RC39_TARGET_FRAME_TOTAL, 137);
-assert.equal(animationSequenceFrameTotal('KEN'), 170);
+assert.equal(animationSequenceFrameTotal('KEN'), 182);
 
 const manifest = JSON.parse(await readFile(new URL('../public/art/animation-hq/ken/manifest.json', import.meta.url), 'utf8'));
 assert.equal(manifest.character, 'KEN');
 assert.match(manifest.pipeline, /^rc39-ken-authored-gated-v\d+$/);
-assert.equal(manifest.frameTotal, 170);
-assert.equal(manifest.records.length, 19);
+assert.equal(manifest.frameTotal, 182);
+assert.equal(manifest.records.length, 20);
 
 const enabledFrames = manifest.records.filter(r=>r.enabled).reduce((sum,r)=>sum+r.frames,0);
 const stagingFrames = manifest.records.filter(r=>r.stagingOnly).reduce((sum,r)=>sum+r.frames,0);
@@ -62,7 +62,7 @@ assert.equal(manifest.fullFrameTotal, fullFrames, 'manifest fullFrameTotal drift
 assert.equal(enabledAnimationSequenceFrameTotal('KEN'), enabledFrames, 'registry enabled total must match manifest');
 
 const attackExpected = new Map([
-  ['stand-light', 7], ['stand-medium', 8], ['stand-light-kick', 8], ['stand-medium-kick', 10], ['stand-heavy', 10], ['hadoken', 12], ['shoryuken', 12], ['tatsumaki', 12], ['super-rush', 16],
+  ['stand-light', 7], ['stand-medium', 8], ['stand-light-kick', 8], ['stand-medium-kick', 10], ['stand-heavy-kick', 12], ['stand-heavy', 10], ['hadoken', 12], ['shoryuken', 12], ['tatsumaki', 12], ['super-rush', 16],
 ]);
 for (const record of manifest.records) {
   const seq = animationSequenceFor('KEN', record.id, false);
@@ -83,7 +83,7 @@ for (const record of manifest.records) {
     assert.notEqual(record.stagingOnly, true, `${record.id}: enabled sequence cannot remain stagingOnly`);
     assert.equal(seq.source, 'authored-hq', `${record.id}: active source must be authored-hq`);
     assert.ok(record.poseQa?.poseAuthoredPass, `${record.id}: active record requires passing pose QA`);
-    if (['idle','walk','walk-back','dash','dash-back','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy','hadoken','shoryuken','tatsumaki','super-rush'].includes(record.id)) {
+    if (['idle','walk','walk-back','dash','dash-back','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','stand-heavy','hadoken','shoryuken','tatsumaki','super-rush'].includes(record.id)) {
       assert.ok(record.semanticQa?.semanticQaPass, `${record.id}: active record requires passing semantic QA`);
     }
     if (record.id === 'idle') {
@@ -249,14 +249,14 @@ assert.equal(animationSequenceKindForAttack('KEN', specials.mobility), 'tatsumak
 assert.equal(animationSequenceKindForAttack('KEN', specials.super), 'super-rush');
 assert.equal(animationSequenceKindForAttack('KEN', normalFor('lp', false, 'KEN')), 'stand-light');
 assert.equal(animationSequenceKindForAttack('KEN', normalFor('hp', false, 'KEN')), 'stand-heavy');
-assert.equal(animationSequenceKindForAttack('KEN', normalFor('hk', false, 'KEN')), null, 'Heavy kick must not use a heavy punch strip');
+assert.equal(animationSequenceKindForAttack('KEN', normalFor('hk', false, 'KEN')), 'stand-heavy-kick', 'Heavy kick must use its own authored strip');
 getCharacter('KEN');
 assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 1)), 'shoryuken');
 assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 2)), 'shoryuken');
 assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 3)), 'super-rush');
 
 console.log('KEN_AUTHORED_PIPELINE_VERIFY_PASS', {
-  frameTotal:170,
+  frameTotal:182,
   attackFrames:manifest.records.filter(r=>r.enabled&&attackExpected.has(r.id)).reduce((sum,r)=>sum+r.frames,0),
   legacyRc39AttackFrames:69,
   enabledFrames,

@@ -188,7 +188,7 @@ Ryu now has dedicated six-pose jab and heavy rear-straight sheets in `ryu/stand-
 
 Only exact grounded5LP/5HP select these strips. Ryu kicks/crouch/commands/target variants and physical air keep their own presentation, while prior projectile/rising special mappings remain unchanged. Legacy Ryu punch staging anchor arrays are now zero, preventing the already-planted authored sprite from receiving a second position offset. Actual Canvas translation tests cover that root, both facings, every stored frame, both heavy contact frames, hit-stop freeze, unchanged move duration and idle return.
 
-Existing standing punch quality limits are unchanged. Ryu additionally validates reach at actual contact3 and both4/5 using the same24..105px light and38..145px heavy bounds; otherwise a different frame could supply whole-strip reach while a guard substituted for contact. The extended Ryu ingestion fixture rejects that substitution, static art, corrupt peers/missing sources and invalid selector kinds, and verifies old support art, approved binding, staged specials, partial totals, stable order and first/replacement rollback. Both new source sheets passed without relaxed gates. Cache is v136.
+Existing standing punch quality limits are unchanged. Ryu additionally validates reach at actual contact3 and both4/5 using the same24..105px light and38..145px heavy bounds; otherwise a different frame could supply whole-strip reach while a guard substituted for contact. The extended Ryu ingestion fixture rejects that substitution, static art, corrupt peers/missing sources and invalid selector kinds, and verifies old support art, approved binding, staged specials, partial totals, stable order and first/replacement rollback. Both new source sheets passed without relaxed gates. Cache is v137.
 
 ```sh
 python scripts/build-roster-motions.py --character RYU --kind stand-light --runtime
@@ -279,7 +279,7 @@ Six new built-in imagegen drawings use [1,2,3,3,4,5,6] for7stored frames. Guarde
 
 The actual8tick clock reaches [0,1,3,4,5,6], every distinct drawing; skipped2 duplicates3. Fighter owns world travel; both facings preserve opponent-facing direction, exact speed/duration, hit-stop freeze and attack/jump interruption. The forward dash gains an explicit forward tag. A Ryu-only absolute rearward torso check rejects the installed forward runner that incorrectly passed the earlier delta-only semantic gate. All prior24manifest records and installed WebP bytes remain unchanged. Default six-roster limits are unchanged. Movement preparation now includes backward dashes through the existing loader.
 
-Loading correction: the previously reported prefetch number was the declared enabled catalog size, not a measurement of entry requests. CharacterTextureManager first prepares movement; Stage1Scene.enter then eagerly prepares combat. Captured Image.src requests across that sequence total 12,490,276 bytes for Ryu, including the new 523,138-byte backward dash; movement alone is 6,533,514 bytes. The stage-entry animation cap is explicitly raised from 12 MB to 13 MB for this addition. The complete stored catalog is 14,344,356 bytes, including 1,854,080 bytes of unchanged disabled specials excluded from requests. The test captures both phases without clearing cached textures between them. This is Ryu animation traffic, not whole-game startup traffic; image quality and existing eager combat loading are preserved. Cachev136.
+Loading correction: the previously reported prefetch number was the declared enabled catalog size, not a measurement of entry requests. CharacterTextureManager first prepares movement; Stage1Scene.enter then eagerly prepares combat. Captured Image.src requests across that sequence total 12,490,276 bytes for Ryu, including the new 523,138-byte backward dash; movement alone is 6,533,514 bytes. The stage-entry animation cap is explicitly raised from 12 MB to 13 MB for this addition. The complete stored catalog is 14,344,356 bytes, including 1,854,080 bytes of unchanged disabled specials excluded from requests. The test captures both phases without clearing cached textures between them. This is Ryu animation traffic, not whole-game startup traffic; image quality and existing eager combat loading are preserved. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character RYU --kind dash-back --runtime
@@ -296,7 +296,7 @@ Uniform anatomical scale references installed idle337px and opaque sole422px (al
 
 Exact direction metadata selects backward art while preserving opponent-facing stance, world speed/duration, hit stop and attack/jump interruption; existing forward art gets an explicit forward tag. Guard/parry are now authored (see below); other unfinished actions retain fallback. Total157enabled/full stored frames,16records. All15prior manifest records and installed art remain identical; original source binding and pipeline are retained. CHUNLI selector accepts dash-back only; default six-roster batch and Ryu selector remain unchanged.
 
-New isolated ingest verification covers first-install/replacement rollback, byte-stable reinstall, prior-art/record preservation, invalid selectors, wrong direction, missing source, corrupt idle peer and forward/static/translated semantic substitutes. Movement preparation includes backward dash. Captured movement followed by combat entry requests11275864bytes for Chun-Li (new strip509070bytes), below the existing13MB stage-entry animation cap. This excludes other characters and non-animation game assets. Cachev136.
+New isolated ingest verification covers first-install/replacement rollback, byte-stable reinstall, prior-art/record preservation, invalid selectors, wrong direction, missing source, corrupt idle peer and forward/static/translated semantic substitutes. Movement preparation includes backward dash. Captured movement followed by combat entry requests11275864bytes for Chun-Li (new strip509070bytes), below the existing13MB stage-entry animation cap. This excludes other characters and non-animation game assets. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character CHUNLI --kind dash-back --install
@@ -314,7 +314,7 @@ One anatomical scale references installed idle342px and opaque sole429px(alpha>=
 
 Totals143enabled/full frames and15records. All14prior records/art and original approved source binding/pipeline remain unchanged. IBUKI selector accepts dash-back only; shared Ryu/Chun-Li/default-six behavior is retained. The existing Chun-Li ingest fixture now accepts `--character IBUKI` instead of adding a duplicate test: first-install/replacement rollback, byte-stable reinstall, prior-record/art/binding preservation, invalid selector/wrong runtime direction and forward/static/translated/source/peer negatives run for each character. Both calls are included in standard verification.
 
-Captured movement followed by combat preparation requests7317686bytes for Ibuki, including499778new bytes, below the existing13MB per-character animation entry cap. This is animation traffic for one character, not total game startup traffic. Cachev136.
+Captured movement followed by combat preparation requests7317686bytes for Ibuki, including499778new bytes, below the existing13MB per-character animation entry cap. This is animation traffic for one character, not total game startup traffic. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character IBUKI --kind dash-back --install
@@ -334,7 +334,7 @@ Ken totals144enabled/full frames and16records; all15prior records/art and origin
 
 Expanding the existing real-input defense test to Ken exposed its short6tick block skipping absorption under ease-out. Ken guard now uses the same linear playback as Ryu and six-roster guards;6/12/24tick and repeated-block/parry tests pass. Guard art, weights, hitboxes, blockstun and parry windows are unchanged.
 
-Captured movement+combat preparation requests10693986bytes for Ken including468476newbytes, below existing13MB per-character animation cap. Not a whole-game startup measure. Cachev136.
+Captured movement+combat preparation requests10693986bytes for Ken including468476newbytes, below existing13MB per-character animation cap. Not a whole-game startup measure. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character KEN --kind dash-back --install
@@ -354,7 +354,7 @@ Guard uses linear playback to retain absorption in6tick blocks; parry uses exist
 
 Totals168enabled/full frames,18records; all16previous records/art and original source bindings/pipeline remain unchanged. CHUNLI selector now accepts dash-back/guard/parry; Ken/Ibuki remain dash-back only and Ryu/default-six selectors are unchanged. The existing supplemental ingest fixture gains `--kind guard`/`--kind parry` with default dash-back compatibility, width/count-specific semantic negatives, metadata rejection, missing source/corrupt idle peer and first-install/replacement rollback. It preserves all other installed records/art, including the other defense action.
 
-Movement preparation now includes guard/parry through their existing kind membership. Combined movement+combat requests11827492bytes for Chun-Li (guard232936/parry318692newbytes), under existing13MB animation cap. Not total game startup traffic. Cachev136.
+Movement preparation now includes guard/parry through their existing kind membership. Combined movement+combat requests11827492bytes for Chun-Li (guard232936/parry318692newbytes), under existing13MB animation cap. Not total game startup traffic. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character CHUNLI --kind guard --runtime
@@ -375,7 +375,7 @@ Totals154enabled/full frames,17records. All15prior records/art and source bindin
 
 Actual input covers all ten characters defense, both facings,6/12/24tick/repeated blocks, normal/red parries, hitstop and idle recovery. New four-panel preview uses actual Fighter clocks and shows guard/parry in both facings. All ten now have authored guard/parry as well as distinct forward/backward dashes; remaining normal/air/command/special work is not claimed complete.
 
-Combined movement+combat preparation for Ibuki requests7874926bytes including232722guard+324518parrynewbytes, under existing13MB animation cap. Movement kind membership prepares both strips. This excludes other characters and non-animation game assets. Cachev136.
+Combined movement+combat preparation for Ibuki requests7874926bytes including232722guard+324518parrynewbytes, under existing13MB animation cap. Movement kind membership prepares both strips. This excludes other characters and non-animation game assets. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character IBUKI --kind guard --runtime
@@ -394,7 +394,7 @@ Only exact grounded5MP uses the new strip; Ken standingLP/HP and all special map
 
 Reuse the existing actual-contact audit (same24..105px light/medium reach limits) for KenMP. Actualcontact advances54px, overallreach57px; residual average0.016521/peak0.027594. Guard substituted at actualcontact3 is rejected even with the real punch moved into startup1. Shared supplementalfixture adds Ken stand-medium without duplicating importer/testcode, checks8frame/640cell/order/provenance/runtime mismatch, static/translated/source/peer rejection, byte-stable reinstall and first/replacement rollback.
 
-Totals152enabled/full frames,17records; all16prior records/art and approved source binding/pipeline remain unchanged. HistoricalRC39target137/attack69 are preserved as historical; actual totals include supplementalbackdash7+MP8. KENselector accepts dash-back/stand-medium only. Newstrip507852bytes; combinedKenmovement+combatpreparation11201838bytes, underexisting13MBcap. Movement alone excludes normal attack art. Cachev136.
+Totals152enabled/full frames,17records; all16prior records/art and approved source binding/pipeline remain unchanged. HistoricalRC39target137/attack69 are preserved as historical; actual totals include supplementalbackdash7+MP8. KENselector accepts dash-back/stand-medium only. Newstrip507852bytes; combinedKenmovement+combatpreparation11201838bytes, underexisting13MBcap. Movement alone excludes normal attack art. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character KEN --kind stand-medium --runtime
@@ -412,7 +412,7 @@ One idle337px anatomical scale, opaque419sole and rear-support foot anchoring ke
 
 The shared supplementalfixture addsKenLK ratherthan a duplicateimporter/test. Existing actual-contact kickQA rejectsguard/punchsubstitutions atcontact3 and displaced supportroot/baseline. Static/translated, metadata/source/peer rejection, byte-stable reinstall and first/newfile/replacement rollback remain covered.
 
-Totals160enabled/full frames,18records; all17prior records/art and source bindings/pipeline remainunchanged. KENselector accepts dash-back/stand-medium/stand-light-kick only. HistoricalRC39constantsremain; currentattack frame count derives fromenabledmanifestrecords. Newstrip483216bytes;Kencombinedmovement+combatentry11685054underexisting13MBcap, movementaloneexcludesnormalattackart. Cachev136.
+Totals160enabled/full frames,18records; all17prior records/art and source bindings/pipeline remainunchanged. KENselector accepts dash-back/stand-medium/stand-light-kick only. HistoricalRC39constantsremain; currentattack frame count derives fromenabledmanifestrecords. Newstrip483216bytes;Kencombinedmovement+combatentry11685054underexisting13MBcap, movementaloneexcludesnormalattackart. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character KEN --kind stand-light-kick --runtime
@@ -430,11 +430,29 @@ Idle337px/opaque419/rearsupportanchor retainsoneanatomicalscale and stableplante
 
 SharedfixtureaddsMKwithoutduplicateimporter/tests. Guard/punchsubstitutionsatboth4/5 anddisplacedsupportroot/baseline reject;wrongruntimeMKprofilehookrejects againstkickrecipe. Static/translated/source/peer/metadata rejection,byte-stablereinstallandfirstnewfile/replacementrollbackremaincovered.
 
-Totals170enabled/full frames,19records;all18priorrecords/art/sourcebindings/pipelineunchanged. KENselectoracceptsdash-back/stand-medium/stand-light-kick/stand-medium-kickonly. Newstrip465624bytes;Kencombinedmovement+combatentry12150678underexisting13MBcap;movementaloneexcludesnormalattackart. Cachev136.
+Totals170enabled/full frames,19records;all18priorrecords/art/sourcebindings/pipelineunchanged. KENselectoracceptsdash-back/stand-medium/stand-light-kick/stand-medium-kickonly. Newstrip465624bytes;Kencombinedmovement+combatentry12150678underexisting13MBcap;movementaloneexcludesnormalattackart. Cachev137.
 
 ```sh
 python scripts/build-roster-motions.py --character KEN --kind stand-medium-kick --runtime
 python scripts/verify-chunli-backdash-ingest.py --character KEN --kind stand-medium-kick
+node scripts/verify-roster-standing-attacks.mjs
+node scripts/verify-ken-normal-mapping.mjs
+```
+
+
+## Ken standing heavy kick: all6standingnormals
+
+Sixnewneutral/loadedchamber/half-upwardextension/highcontact/foldedwithdrawal/recoveredguarddrawingsuse [1,1,2,3,3,4,4,5,5,6,6,6] in12stored640x448frames,startup0–4/contact5–6/recovery7–11. Finalsource `ken/stand-heavy-kick-sheet.png`,exactgeneration/refinementprompts `ken/stand-heavy-kick-prompt.txt` andexacteditinput `ken/stand-heavy-kick-edit-target.png` retained. Firstcontactfailedforwardreach30pxbelow38minimum;contactangleeditpassed99pxat245pxheightwithoutrelaxinglimits. Finalresidualavg.034362/peak.068362.
+
+Idle337px/opaque419/rearsupportanchor retainsuniformscale andplantedfoot (center range.598px/baseline0);profileaddsnooffsets. Bothcontact5/6requireoriginalhigh-kickreach/height/onesupportlimits. Guard/punch/lowkicksubstitutionanddisplacedsupportreject. Medium/highgeometryrangesoverlapbydesign;wedonotclaimallmediumposesareinvalidhighposesoraddpeerrequirementssolelytomaketheclassesdisjoint. ActualKenfootheightsLK146/MK191/HK245pxshowdistinctsilhouettes.
+
+Exactgrounded5HKonly;existingdamage/timing/input/special/air/crouch/command/targetbehaviorpreserved. All6Kenstandingbuttonsnowhaveauthoredstrips. ExpandedinputchecksrevealedexistingLP/HPfirstwithdrawalframes4/6wereskippedbyrecoveryStart5/7;fixedregistryto4/6onlywithoriginalassets/profiles/gameplaydurationsunchanged. All8charactersstandingnormalsnow48strips/440frames,2228Canvasdraws,bothfacings/allframes/activecontacts/hitstop/idle;Ken36stance/buttonmappingcasesremaincovered.
+
+Totals182enabled/full frames,20records;all19priorrecords/art/sourcebindings/pipelineunchanged. KENselectoracceptsdash-back/MP/LK/MK/HKonly. Sharedfixturecovers12frame/order/provenance,actualcontact5/6,static/translated/wrongaction/support/runtime/source/peerrejection,byte-stablereinstallandfirst/newfile/replacementrollback. Newstrip492990bytes;Kencombinedmovement+combatentry12643668underexisting13MBcap,movementaloneexcludesnormalart. Cachev137.
+
+```sh
+python scripts/build-roster-motions.py --character KEN --kind stand-heavy-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character KEN --kind stand-heavy-kick
 node scripts/verify-roster-standing-attacks.mjs
 node scripts/verify-ken-normal-mapping.mjs
 ```
