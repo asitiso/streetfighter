@@ -5,6 +5,7 @@ export type AnimationSequenceKind =
   | 'dash'
   | 'jump'
   | 'landing'
+  | 'crouch-medium-kick'
   | 'crouch-light-kick'
   | 'crouch-heavy'
   | 'crouch-medium'
@@ -134,6 +135,12 @@ const IBUKI: readonly AnimationSequence[] = [
 ] as const;
 
 const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
+  { id:'ALEX_CROUCH_MEDIUM_KICK_HQ', characterId:'ALEX', kind:'crouch-medium-kick', asset:'/art/animation-hq/alex/crouch-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_CROUCH_MEDIUM_KICK_HQ', characterId:'DUDLEY', kind:'crouch-medium-kick', asset:'/art/animation-hq/dudley/crouch-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_CROUCH_MEDIUM_KICK_HQ', characterId:'MAKOTO', kind:'crouch-medium-kick', asset:'/art/animation-hq/makoto/crouch-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_CROUCH_MEDIUM_KICK_HQ', characterId:'YUN', kind:'crouch-medium-kick', asset:'/art/animation-hq/yun/crouch-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_CROUCH_MEDIUM_KICK_HQ', characterId:'URIEN', kind:'crouch-medium-kick', asset:'/art/animation-hq/urien/crouch-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_CROUCH_MEDIUM_KICK_HQ', characterId:'GILL', kind:'crouch-medium-kick', asset:'/art/animation-hq/gill/crouch-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:4,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_CROUCH_LIGHT_KICK_HQ', characterId:'ALEX', kind:'crouch-light-kick', asset:'/art/animation-hq/alex/crouch-light-kick.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'DUDLEY_CROUCH_LIGHT_KICK_HQ', characterId:'DUDLEY', kind:'crouch-light-kick', asset:'/art/animation-hq/dudley/crouch-light-kick.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'MAKOTO_CROUCH_LIGHT_KICK_HQ', characterId:'MAKOTO', kind:'crouch-light-kick', asset:'/art/animation-hq/makoto/crouch-light-kick.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
