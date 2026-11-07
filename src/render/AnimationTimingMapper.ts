@@ -64,6 +64,7 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 }
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
+  if (characterId === 'IBUKI' && move.id === 'IBUKI_SA3') return 'super-rush';
   if (characterId === 'IBUKI' && move.id === 'IBUKI_SA2') return 'yoroi-doroshi';
   if (characterId === 'IBUKI' && move.id === 'IBUKI_MOBILITY') return 'tatsumaki';
   if (characterId === 'IBUKI' && move.id === 'IBUKI_ANTI_AIR') return 'shoryuken';
