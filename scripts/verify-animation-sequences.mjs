@@ -82,7 +82,7 @@ assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalB
 
 assert.equal(animationSequenceFrameTotal('RYU'), 217);
 assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 193);
-assert.equal(animationSequenceFrameTotal('KEN'), 144, 'Ken registry should include 64 movement + 11 defense + 69 attack frames');
+assert.equal(animationSequenceFrameTotal('KEN'), 152, 'Ken registry should include 64 movement + 11 defense + 77 attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
   const sequence = animationSequenceFor('KEN', kind, false);
@@ -168,8 +168,8 @@ assert.ok(animationFrameProfile('RYU','walk').weights[0] > animationFrameProfile
 const kenManifest = JSON.parse(await readFile(new URL('../public/art/animation-hq/ken/manifest.json', import.meta.url), 'utf8'));
 assert.equal(kenManifest.candidate, '0.0.63-rc.38');
 assert.equal(kenManifest.character, 'KEN');
-assert.equal(kenManifest.frameTotal, 144);
-assert.equal(kenManifest.records.length, 16);
+assert.equal(kenManifest.frameTotal, 152);
+assert.equal(kenManifest.records.length, 17);
 assert.match(kenManifest.pipeline, /^rc39-ken-authored-gated-v\d+$/);
 const kenEnabledFrames = kenManifest.records.filter((record) => record.enabled).reduce((sum, record) => sum + record.frames, 0);
 const kenStagingFrames = kenManifest.records.filter((record) => record.stagingOnly).reduce((sum, record) => sum + record.frames, 0);
@@ -402,6 +402,7 @@ try {
  animationTextureManager.releaseCharacter('KEN');
  animationTextureManager.preloadCharacter('KEN','movement');
  assert.ok(requests.includes('/art/animation-hq/ken/dash-back.webp'),'Ken backward dash must start preparation with movement');
+ assert.ok(!requests.includes('/art/animation-hq/ken/stand-medium.webp'),'Movement preparation must not load normal attacks');
  animationTextureManager.preloadCharacter('KEN','combat');
  assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('KEN',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());
  const kenEntryBytes=kenManifest.records.filter(r=>requests.includes('/art/animation-hq/ken/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);

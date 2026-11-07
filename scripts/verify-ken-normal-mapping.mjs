@@ -30,7 +30,7 @@ for(const facing of [-1,1]) {
    fighter.updatePlayer({held:key=>stance==='crouching'&&key==='down',pressed:key=>key===button,released:()=>false},rules);
    assert.equal(fighter.state,'attack');
    const move=fighter.currentMove;
-   const expected=stance==='standing'?(button==='lp'?'stand-light':button==='hp'?'stand-heavy':null):null;
+   const expected=stance==='standing'?(button==='lp'?'stand-light':button==='mp'?'stand-medium':button==='hp'?'stand-heavy':null):null;
    let contact=false;
    while(fighter.state==='attack') {
     const sample=animationSequenceSample(fighter,0);

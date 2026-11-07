@@ -105,7 +105,7 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
     if (move.id === 'KEN_SUPER' || move.id === 'KEN_SA3') return 'super-rush';
     // These authored strips depict standing punches, not every attack that
     // shares their button strength (crouching, kicking, or command normals).
-    return move.id === '5LP' ? 'stand-light' : move.id === '5HP' ? 'stand-heavy' : null;
+    return move.id === '5LP' ? 'stand-light' : move.id === '5MP' ? 'stand-medium' : move.id === '5HP' ? 'stand-heavy' : null;
   }
   if (['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'].includes(characterId)) {
     switch (move.id) {
