@@ -97,6 +97,7 @@ const RYU: readonly AnimationSequence[] = [
 ] as const;
 
 const KEN: readonly AnimationSequence[] = [
+  { id:'KEN_STAND_LIGHT_KICK_HQ', characterId:'KEN', kind:'stand-light-kick', asset:'/art/animation-hq/ken/stand-light-kick.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'KEN_STAND_MEDIUM_HQ', characterId:'KEN', kind:'stand-medium', asset:'/art/animation-hq/ken/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'KEN_DASH_BACK_HQ', characterId:'KEN', kind:'dash-back', asset:'/art/animation-hq/ken/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'KEN_IDLE_HQ', characterId:'KEN', kind:'idle', asset:'/art/animation-hq/ken/idle.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:8.2, loop:true, timing:'ease-in', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
