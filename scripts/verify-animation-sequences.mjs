@@ -89,8 +89,8 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 }
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
-  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 98, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 98, `${id} enabled frame total mismatch`);
+  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 110, `${id} frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 150 : 110, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -189,11 +189,11 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   const extraManifest = JSON.parse(await readFile(new URL(`../public/art/animation-hq/${slug}/manifest.json`, import.meta.url), 'utf8'));
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
-  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 150 : 98);
+  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 150 : 110);
   const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
   assert.equal(extraManifest.enabledFrameTotal, activeFrames);
   assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
-  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 15 : 11);
+  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 15 : 12);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
   for (const rec of extraManifest.records) {
@@ -336,8 +336,8 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   frameTotal: manifest.frameTotal,
   kenFrameTotal: kenManifest.frameTotal,
   chunliFrameTotal: 150,
-  ibukiFrameTotal: 98,
-  ibukiEnabledFrameTotal: 98,
+  ibukiFrameTotal: 110,
+  ibukiEnabledFrameTotal: 110,
   enabledFrameTotal: manifest.enabledFrameTotal,
   strips: manifest.records.length,
   payloadKb: Math.round(totalBytes / 1024),

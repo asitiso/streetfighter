@@ -64,6 +64,7 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 }
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
+  if (characterId === 'IBUKI' && move.id === 'IBUKI_MOBILITY') return 'tatsumaki';
   if (characterId === 'IBUKI' && move.id === 'IBUKI_ANTI_AIR') return 'shoryuken';
   if (characterId === 'IBUKI' && (move.id === 'IBUKI_PRIMARY' || move.id === 'IBUKI_EX_PRIMARY')) return 'hadoken';
   if (characterId === 'IBUKI') return move.id === '5LP' ? 'stand-light' : move.id === '5HP' ? 'stand-heavy' : null;

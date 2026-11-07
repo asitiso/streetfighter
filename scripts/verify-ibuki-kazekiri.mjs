@@ -24,7 +24,7 @@ for(const facing of [-1,1]) {
   fighter.updatePlayer(input,rules); if(airborneSamples&& !fighter.airborne)reachedLanding=true;
  }
  assert.ok(airborneSamples>0,'Must exercise airborne rise');assert.ok(reachedLanding,'Must exercise return to ground');
- for(const [other,kind] of [[specials.primary,'hadoken'],[specials.exPrimary,'hadoken'],[specials.mobility,undefined],[normalFor('lp',false,'IBUKI'),'stand-light'],[normalFor('hp',false,'IBUKI'),'stand-heavy']]) {
+ for(const [other,kind] of [[specials.primary,'hadoken'],[specials.exPrimary,'hadoken'],[specials.mobility,'tatsumaki'],[normalFor('lp',false,'IBUKI'),'stand-light'],[normalFor('hp',false,'IBUKI'),'stand-heavy']]) {
   fighter.startMove(other);fighter.airborne=false;assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,kind);
  }
  for(const other of [specials.super,...[1,2,3].map(id=>superArtMoveFor('IBUKI',id))]){fighter.currentMove=other;fighter.state='attack';assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'shoryuken');}
