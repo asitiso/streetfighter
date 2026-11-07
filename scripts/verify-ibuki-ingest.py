@@ -65,17 +65,19 @@ def main():
     assert record['sha256']==hashlib.sha256((runtime_dir/f'{air}.webp').read_bytes()).hexdigest().upper()
    before={p:p.read_bytes() for p in guarded};source=fixture/f'art-source/ibuki/inbox/{peer}/01.png';source_data=source.read_bytes();source.unlink();result=ingest(selected)
    assert result.returncode!=0,'Incomplete air peer accepted';assert before=={p:p.read_bytes() for p in guarded};source.write_bytes(source_data)
+  shutil.copytree(ROOT/'art-source/ibuki/inbox/stand-heavy',fixture/'art-source/ibuki/inbox/stand-heavy')
   # A failed first attack install must remove its newly written runtime file.
-  attack=runtime_dir/'stand-light.webp';attack.unlink(missing_ok=True)
-  data=json.loads(manifest.read_text());data['records']=[r for r in data['records'] if r['id']!='stand-light'];manifest.write_text(json.dumps(data))
-  guarded=[manifest,registry];before={p:p.read_bytes() for p in guarded};failed=False
-  with patch.object(sys,'argv',['installer','stand-light','--character','IBUKI','--install']),patch.object(Path,'write_bytes',fail_once),redirect_stdout(io.StringIO()):
-   try:installer.main()
-   except OSError:pass
-   else:raise AssertionError('Expected attack write failure')
-  assert failed and not attack.exists() and before=={p:p.read_bytes() for p in guarded}
-  result=ingest('stand-light');assert result.returncode==0,result.stdout+result.stderr
-  assert json.loads(manifest.read_text())['enabledFrameTotal']==64
+  for attack_kind in ('stand-light','stand-heavy'):
+   attack=runtime_dir/f'{attack_kind}.webp';attack.unlink(missing_ok=True)
+   data=json.loads(manifest.read_text());data['records']=[r for r in data['records'] if r['id']!=attack_kind];manifest.write_text(json.dumps(data))
+   guarded=[manifest,registry];before={p:p.read_bytes() for p in guarded};failed=False
+   with patch.object(sys,'argv',['installer',attack_kind,'--character','IBUKI','--install']),patch.object(Path,'write_bytes',fail_once),redirect_stdout(io.StringIO()):
+    try:installer.main()
+    except OSError:pass
+    else:raise AssertionError('Expected attack write failure')
+   assert failed and not attack.exists() and before=={p:p.read_bytes() for p in guarded}
+   result=ingest(attack_kind);assert result.returncode==0,result.stdout+result.stderr
+   assert json.loads(manifest.read_text())['enabledFrameTotal']==(64 if attack_kind=='stand-light' else 74)
   # Every replacement direction validates installed peers, not uninstalled source.
   for kind in kinds[:3]:
    for peer in kinds[:3]:
