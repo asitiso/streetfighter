@@ -1,8 +1,8 @@
 {
   "character": "MAKOTO",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 111,
-  "enabledFrameTotal": 111,
+  "frameTotal": 123,
+  "enabledFrameTotal": 123,
   "records": [
     {
       "id": "idle",
@@ -3110,6 +3110,248 @@
         2
       ],
       "semanticProfile": "kick"
+    },
+    {
+      "id": "stand-heavy-kick",
+      "frames": 12,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        7680,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "E4715DCF26C2E13D93FE6D1FFC8853B4F913F47BDB923997D526362A308F098F",
+      "bytes": 549210,
+      "poseQa": {
+        "affineResidualAverage": 0.046284,
+        "affineResidualMax": 0.086662,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-heavy-kick",
+        "startEndIoU": 0.908695,
+        "contactIoU": 0.467818,
+        "lowerContactIoU": 0.465646,
+        "legReachDelta": 82.0,
+        "contactFootHeight": 239.0,
+        "supportCenterRange": 0.913418,
+        "supportBaselineRange": 2.0,
+        "centroidXRange": 31.531339,
+        "centroidYRange": 29.494441,
+        "areaCv": 0.048908,
+        "residualAverage": 0.046284,
+        "residualMax": 0.086662,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "legArticulationPresent": true,
+          "legReachPresent": true,
+          "raisedFootPresent": true,
+          "supportRootStable": true,
+          "supportBaselineStable": true,
+          "bodyRootStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "oneSupportFoot": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "idleToStandHeavyKick": {
+          "iou": 0.745379,
+          "centroidDistance": 2.774456,
+          "footCenterDelta": 29.955354,
+          "areaRatio": 1.252024,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "standHeavyKickToIdle": {
+          "iou": 0.746826,
+          "centroidDistance": 4.334647,
+          "footCenterDelta": 26.664724,
+          "areaRatio": 0.808905,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        5,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            265,
+            356
+          ],
+          "sourceBodyHeight": 356,
+          "paste": [
+            199,
+            84
+          ],
+          "scaledSize": [
+            252,
+            339
+          ],
+          "footAnchorShift": 5
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            212,
+            355
+          ],
+          "sourceBodyHeight": 355,
+          "paste": [
+            185,
+            85
+          ],
+          "scaledSize": [
+            202,
+            338
+          ],
+          "footAnchorShift": -34
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            335,
+            355
+          ],
+          "sourceBodyHeight": 355,
+          "paste": [
+            180,
+            85
+          ],
+          "scaledSize": [
+            319,
+            338
+          ],
+          "footAnchorShift": 20
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            379,
+            354
+          ],
+          "sourceBodyHeight": 354,
+          "paste": [
+            172,
+            86
+          ],
+          "scaledSize": [
+            361,
+            337
+          ],
+          "footAnchorShift": 32
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            254,
+            354
+          ],
+          "sourceBodyHeight": 354,
+          "paste": [
+            183,
+            86
+          ],
+          "scaledSize": [
+            242,
+            337
+          ],
+          "footAnchorShift": -16
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            269,
+            354
+          ],
+          "sourceBodyHeight": 354,
+          "paste": [
+            197,
+            86
+          ],
+          "scaledSize": [
+            256,
+            337
+          ],
+          "footAnchorShift": 5
+        }
+      ],
+      "source": "art-source/roster-idle/makoto/stand-heavy-kick-sheet.png",
+      "sourceSha256": "00F354038B47CDA4845B0EBCF8D3A14C59E1FF8AA0858259E5D362311C49A6F2",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 354,
+        "uniformScale": 0.9519774011299436,
+        "footAnchorMode": "rear-support",
+        "footAnchorX": 231.80492813141683
+      },
+      "sourceGrid": [
+        2,
+        3
+      ]
     }
   ]
 }

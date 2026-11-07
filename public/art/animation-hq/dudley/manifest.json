@@ -1,8 +1,8 @@
 {
   "character": "DUDLEY",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 111,
-  "enabledFrameTotal": 111,
+  "frameTotal": 123,
+  "enabledFrameTotal": 123,
   "records": [
     {
       "id": "idle",
@@ -3202,6 +3202,248 @@
         2
       ],
       "semanticProfile": "hook"
+    },
+    {
+      "id": "stand-heavy-kick",
+      "frames": 12,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        7680,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "2AB2D59749ECB5048C1DF2884F3226D4FD725CEFB35B93251E8CF0747014BF5B",
+      "bytes": 395894,
+      "poseQa": {
+        "affineResidualAverage": 0.035399,
+        "affineResidualMax": 0.067971,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-heavy-kick",
+        "startEndIoU": 0.961529,
+        "contactIoU": 0.290121,
+        "lowerContactIoU": 0.323096,
+        "legReachDelta": 99.0,
+        "contactFootHeight": 235.0,
+        "supportCenterRange": 0.435912,
+        "supportBaselineRange": 1.0,
+        "centroidXRange": 43.533058,
+        "centroidYRange": 27.496823,
+        "areaCv": 0.048884,
+        "residualAverage": 0.035399,
+        "residualMax": 0.067971,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "legArticulationPresent": true,
+          "legReachPresent": true,
+          "raisedFootPresent": true,
+          "supportRootStable": true,
+          "supportBaselineStable": true,
+          "bodyRootStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "oneSupportFoot": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "idleToStandHeavyKick": {
+          "iou": 0.738624,
+          "centroidDistance": 3.734682,
+          "footCenterDelta": 9.301816,
+          "areaRatio": 1.25732,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "standHeavyKickToIdle": {
+          "iou": 0.741107,
+          "centroidDistance": 4.646809,
+          "footCenterDelta": 9.979061,
+          "areaRatio": 0.796181,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        5,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            182,
+            327
+          ],
+          "sourceBodyHeight": 327,
+          "paste": [
+            234,
+            86
+          ],
+          "scaledSize": [
+            188,
+            337
+          ],
+          "footAnchorShift": 8
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            170,
+            324
+          ],
+          "sourceBodyHeight": 324,
+          "paste": [
+            186,
+            89
+          ],
+          "scaledSize": [
+            175,
+            334
+          ],
+          "footAnchorShift": -46
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            263,
+            328
+          ],
+          "sourceBodyHeight": 328,
+          "paste": [
+            182,
+            85
+          ],
+          "scaledSize": [
+            271,
+            338
+          ],
+          "footAnchorShift": -2
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            344,
+            328
+          ],
+          "sourceBodyHeight": 328,
+          "paste": [
+            165,
+            85
+          ],
+          "scaledSize": [
+            355,
+            338
+          ],
+          "footAnchorShift": 23
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            195,
+            326
+          ],
+          "sourceBodyHeight": 326,
+          "paste": [
+            180,
+            87
+          ],
+          "scaledSize": [
+            201,
+            336
+          ],
+          "footAnchorShift": -40
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            182,
+            327
+          ],
+          "sourceBodyHeight": 327,
+          "paste": [
+            233,
+            86
+          ],
+          "scaledSize": [
+            188,
+            337
+          ],
+          "footAnchorShift": 7
+        }
+      ],
+      "source": "art-source/roster-idle/dudley/stand-heavy-kick-sheet.png",
+      "sourceSha256": "59746F2CF2EC395CE653E8C97241222B355C968EFC02230F14E398D257E60578",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 327,
+        "uniformScale": 1.0305810397553516,
+        "footAnchorMode": "rear-support",
+        "footAnchorX": 256.4257206208426
+      },
+      "sourceGrid": [
+        2,
+        3
+      ]
     }
   ]
 }
