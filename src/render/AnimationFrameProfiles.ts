@@ -260,6 +260,9 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   'CHUNLI:stand-medium': {
     weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
+  'IBUKI:stand-medium': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'CHUNLI:stand-light-kick': {
     weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
   },

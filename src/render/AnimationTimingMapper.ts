@@ -75,7 +75,7 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
   if (characterId === 'IBUKI' && move.id === 'IBUKI_MOBILITY') return 'tatsumaki';
   if (characterId === 'IBUKI' && move.id === 'IBUKI_ANTI_AIR') return 'shoryuken';
   if (characterId === 'IBUKI' && ['IBUKI_PRIMARY','IBUKI_EX_PRIMARY','IBUKI_SUPER','IBUKI_SA1'].includes(move.id)) return 'hadoken';
-  if (characterId === 'IBUKI') return move.id === '5LP' ? 'stand-light' : move.id === '5HP' ? 'stand-heavy' : null;
+  if (characterId === 'IBUKI') return move.id === '5LP' ? 'stand-light' : move.id === '5MP' ? 'stand-medium' : move.id === '5HP' ? 'stand-heavy' : null;
   if (characterId === 'CHUNLI') {
     if (move.id === 'CHUNLI_SA3') return 'tensei-ranka';
     if (move.id === 'CHUNLI_SA1') return 'kikosho';

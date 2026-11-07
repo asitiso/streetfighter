@@ -515,3 +515,19 @@ python scripts/build-roster-motions.py --character CHUNLI --kind stand-heavy-kic
 python scripts/verify-chunli-backdash-ingest.py --kind stand-heavy-kick
 node scripts/verify-roster-standing-attacks.mjs
 ```
+
+## Ibuki standing medium palm
+
+Six new neutral/preparation/half-extension/palm-heel contact/half-withdrawal/recovered-guard drawings follow the existing5MP PALM label. Built-in source `ibuki/stand-medium-sheet.png` and exact prompt `ibuki/stand-medium-prompt.txt` are retained. Order [1,2,3,4,5,5,6,6] supplies8stored640x448frames,startup0–2/contact3/recovery4–7. First-generation original pose/action/handoff gates pass: residual average0.019806/peak0.032528, actual contact reach37px within24..105 bounds.
+
+Installed idle342px/opaque429 and two-foot anchoring retain scale/planted stance (center range0.665751px); profile offsets are zero. Exact grounded5MP only. Existing LP/HP, crouch/kicks/air/command/target/special/Super Art mappings and gameplay remain unchanged. Both-facing actual input reaches all8/contact3/hitstop/idle; existing Ibuki LP/HP also receive complete frame coverage. Standing checks now57strips/520frames across10characters,2606Canvasdraws.
+
+Shared recipe/selector/actual-contact standing audit and supplemental fixture are reused. Guard substituted at actual contact with compensating startup palm rejects, as do static/translated/runtime/source/peer errors. Byte-stable reinstall and first/new-file/replacement rollback preserve all17prior records/art/bindings/pipeline. IBUKI selector now accepts dash-back/guard/parry/stand-medium only.
+
+Totals162enabled/full frames,18records. New strip524784bytes raises combined movement+combat entry to8399710bytes, below the unchanged13MB budget. Movement-only preparation excludes it. Other loading budgets unchanged. Cachev142.
+
+```sh
+python scripts/build-roster-motions.py --character IBUKI --kind stand-medium --runtime
+python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind stand-medium
+node scripts/verify-roster-standing-attacks.mjs
+```

@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v141';
+export const GAME_CACHE_NAME = 'game-cache-v142';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -81,6 +81,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/animation-hq/chunli/stand-heavy-kick.webp',
     '/art/animation-hq/chunli/dash-back.webp', '/art/animation-hq/chunli/dash.webp', '/art/animation-hq/chunli/jump.webp', '/art/animation-hq/chunli/landing.webp', '/art/animation-hq/chunli/hit.webp', '/art/animation-hq/chunli/stand-light.webp', '/art/animation-hq/chunli/stand-heavy.webp', '/art/animation-hq/chunli/hadoken.webp', '/art/animation-hq/chunli/tatsumaki.webp', '/art/animation-hq/chunli/shoryuken.webp', '/art/animation-hq/chunli/super-rush.webp', '/art/animation-hq/chunli/kikosho.webp', '/art/animation-hq/chunli/tensei-ranka.webp',
     '/art/animation-hq/ibuki/manifest.json',
+    '/art/animation-hq/ibuki/stand-medium.webp',
     '/art/animation-hq/ibuki/guard.webp', '/art/animation-hq/ibuki/parry.webp', '/art/animation-hq/ibuki/idle.webp', '/art/animation-hq/ibuki/walk.webp', '/art/animation-hq/ibuki/walk-back.webp',
     '/art/animation-hq/ibuki/dash-back.webp', '/art/animation-hq/ibuki/dash.webp', '/art/animation-hq/ibuki/jump.webp', '/art/animation-hq/ibuki/landing.webp', '/art/animation-hq/ibuki/hit.webp', '/art/animation-hq/ibuki/stand-light.webp', '/art/animation-hq/ibuki/stand-heavy.webp', '/art/animation-hq/ibuki/hadoken.webp', '/art/animation-hq/ibuki/shoryuken.webp', '/art/animation-hq/ibuki/tatsumaki.webp', '/art/animation-hq/ibuki/yoroi-doroshi.webp', '/art/animation-hq/ibuki/super-rush.webp',
   ],
