@@ -2,6 +2,7 @@
   {
     "id": "ALEX",
     "slug": "alex",
+    "guardOverrides": [{"pose":3,"source":"parry-sheet.png","rows":2,"sourcePose":3}],
     "fps": 8,
     "source": "sheet.png"
   },
@@ -26,6 +27,7 @@
   {
     "id": "URIEN",
     "slug": "urien",
+    "guardOverrides": [{"pose":2,"source":"parry-sheet.png","rows":2,"sourcePose":2},{"pose":4,"source":"parry-sheet.png","rows":2,"sourcePose":2}],
     "dashEntry": {"source":"retreat-sheet.png","rows":3,"pose":1},
     "fps": 7.6,
     "source": "sheet.png"

@@ -118,8 +118,30 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     }
     assert.equal(frames.size,8);assert.notEqual(victim.state,'hit');if(air)assert.ok(airDraw,'Air hit must render above ground');
    }
-   const defender=new Fighter(def,'player',600,460,facing),opponent=new Fighter(getCharacter('RYU'),'enemy',600+facing*60,460,-facing);
-   assert.equal(defender.receiveHit(normalFor('lp'),opponent,true),'block');assert.notEqual(animationSequenceSample(defender,0)?.sequence.id,hitSeq.id,'Blocking must not play hit recoil');
+   const guardSeq=animationSequenceFor(def.id,'guard'),parrySeq=animationSequenceFor(def.id,'parry');
+   assert.ok(guardSeq?.enabled&&guardSeq.poseAuthored,`${def.id} needs authored guard`);
+   assert.ok(parrySeq?.enabled&&parrySeq.poseAuthored,`${def.id} needs authored parry`);
+   const create=()=>new Fighter(def,'player',600,460,facing),opponent=new Fighter(getCharacter('RYU'),'enemy',600+facing*60,460,-facing);
+   const drainStop=(fighter,sequence)=>{const initial=animationSequenceSample(fighter,0).frame;while(fighter.hitStop>0){checkCanvas(fighter,sequence);fighter.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(fighter,0).frame,initial,'Hit stop must freeze defense');}};
+   for(const duration of [6,12,24]) {
+    const defender=create(),move={...normalFor('lp'),blockStun:duration};assert.equal(defender.receiveHit(move,opponent,true),'block');
+    const initial=animationSequenceSample(defender,0);assert.equal(initial?.sequence.id,guardSeq.id);drainStop(defender,guardSeq);
+    let ticks=0;const frames=new Set();
+    while(defender.state==='block'&&ticks<60){const sample=animationSequenceSample(defender,0);assert.equal(sample?.sequence.id,guardSeq.id);frames.add(sample.frame);checkCanvas(defender,guardSeq);
+     if(duration===24&&ticks===2){assert.equal(defender.receiveHit(move,opponent,true),'block');assert.equal(animationSequenceSample(defender,0).frame,initial.frame,'Repeated block must restart brace');drainStop(defender,guardSeq);}
+     defender.updatePlayer(quiet,rules);ticks++;}
+    assert.equal(ticks,duration+(duration===24?2:0));assert.equal(defender.hp,defender.maxHp);assert.equal(defender.state,'idle');assert.equal(animationSequenceSample(defender,0)?.sequence.id,seq.id);
+    assert.ok(frames.has(2)||frames.has(3),'Even short block stun must show impact absorption');assert.ok(frames.has(4),'Guard must settle before returning to idle');if(duration===24)assert.equal(frames.size,5);
+   }
+   for(const red of [false,true]) {
+    const defender=create();if(red){assert.equal(defender.receiveHit(normalFor('lp'),opponent,true),'block');drainStop(defender,guardSeq);}
+    defender.updatePlayer({...quiet,pressed:k=>k===(facing===1?'right':'left')},rules);
+    assert.equal(defender.receiveHit(normalFor('lp'),opponent,false),red?'red-parry':'parry');
+    assert.equal(animationSequenceSample(defender,0)?.sequence.id,parrySeq.id);drainStop(defender,parrySeq);
+    let ticks=0;const frames=new Set();while(defender.state==='parry'&&ticks<30){const sample=animationSequenceSample(defender,0);assert.equal(sample?.sequence.id,parrySeq.id);frames.add(sample.frame);checkCanvas(defender,parrySeq);defender.updatePlayer(quiet,rules);ticks++;}
+    assert.equal(ticks,red?10:8);assert.equal(defender.hp,defender.maxHp);assert.equal(defender.state,'idle');assert.equal(animationSequenceSample(defender,0)?.sequence.id,seq.id);
+    assert.ok(frames.has(2)||frames.has(3),'Parry contact must be visible');assert.ok(frames.has(5));if(red)assert.equal(frames.size,6);
+   }
   }
  }
  if(added.includes(def.id)) {
@@ -137,17 +159,20 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
      assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),input.sourceSha256,'Dash source provenance must match');
     }
    }
-   if(record.id==='jump'||record.id==='landing'||record.id==='hit') {
+   if(['jump','landing','hit','guard','parry'].includes(record.id)) {
     const source=await readFile(new URL(`../${record.source}`,import.meta.url));
     assert.equal(createHash('sha256').update(source).digest('hex').toUpperCase(),record.sourceSha256,'Source provenance must match');
+    for(const override of record.sourceOverrides??[]) {
+     const bytes=await readFile(new URL(`../${override.source}`,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),override.sourceSha256,'Shared defense pose provenance must match');
+    }
     for(const metric of record.metrics)assert.ok(Math.abs(metric.scaledSize[1]-metric.sourceBodyHeight*record.normalization.uniformScale)<=1,'Poses must preserve one anatomical scale');
-    if(record.id!=='hit') {
+    if(record.id==='jump'||record.id==='landing') {
      const peer=manifest.records.find(r=>r.id===(record.id==='jump'?'landing':'jump'));
      assert.equal(record.normalization.uniformScale,peer.normalization.uniformScale,'Jump and landing must share body scale');
     }
    }
   }
-  assert.equal(manifest.enabledFrameTotal,57);
+  assert.equal(manifest.enabledFrameTotal,68);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.
@@ -156,4 +181,4 @@ for(const id of ['URIEN','GILL']) {
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
 }
-console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:6,hitFrames:48,canvasDraws});
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:6,hitFrames:48,defenseCharacters:6,defenseFrames:66,canvasDraws});
