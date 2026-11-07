@@ -1,0 +1,284 @@
+{
+  "character": "IBUKI",
+  "sequence": "yoroi-doroshi",
+  "source": "art-source/ibuki/inbox/yoroi-doroshi",
+  "poseQa": {
+    "affineResidualAverage": 0.0187,
+    "affineResidualMax": 0.033709,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "stand-heavy",
+    "limits": {
+      "startEndIoUMin": 0.5,
+      "contactIoUMin": 0.22,
+      "contactIoUMax": 0.75,
+      "centroidXRangeMin": 7.0,
+      "centroidXRangeMax": 62.0,
+      "centroidYRangeMin": 0.75,
+      "centroidYRangeMax": 42.0,
+      "reachRangeMin": 38.0,
+      "reachRangeMax": 145.0,
+      "footCenterRangeMax": 58.0,
+      "footWidthCvMax": 0.55,
+      "areaCvMax": 0.2,
+      "residualAverageMin": 0.014,
+      "residualAverageMax": 0.18,
+      "residualMaxMin": 0.03,
+      "residualMaxMax": 0.24,
+      "contactFrameIndex": 5
+    },
+    "startEndIoU": 1.0,
+    "contactIoU": 0.374665,
+    "centroidXRange": 13.78059,
+    "centroidYRange": 27.588155,
+    "reachRange": 63.0,
+    "footCenterRange": 0.499422,
+    "footWidthCv": 0.116061,
+    "areaCv": 0.148721,
+    "residualAverage": 0.0187,
+    "residualMax": 0.033709,
+    "checks": {
+      "recoveryTowardNeutral": true,
+      "contactPoseDistinct": true,
+      "bodyDrivePresent": true,
+      "verticalRootStable": true,
+      "attackReachPresent": true,
+      "feetStayPlanted": true,
+      "stanceWidthStable": true,
+      "bodyVolumeStable": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true,
+      "bodyTorquePresent": true
+    },
+    "semanticQaPass": true
+  },
+  "gateProfile": "stand-heavy",
+  "baseToAttack": {
+    "iou": 0.486477,
+    "centroidDistance": 17.181756,
+    "footCenterDelta": 27.703094,
+    "areaRatio": 0.876662,
+    "limits": {
+      "iouMin": 0.42,
+      "iouMax": 1.0,
+      "centroidDistanceMax": 46.0,
+      "footCenterDeltaMax": 55.0,
+      "areaRatioMin": 0.68,
+      "areaRatioMax": 1.4
+    },
+    "checks": {
+      "silhouetteCue": true,
+      "scaleContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true
+    },
+    "pass": true
+  },
+  "attackToBase": {
+    "iou": 0.486477,
+    "centroidDistance": 17.181756,
+    "footCenterDelta": 27.703094,
+    "areaRatio": 1.14069,
+    "limits": {
+      "iouMin": 0.42,
+      "iouMax": 1.0,
+      "centroidDistanceMax": 46.0,
+      "footCenterDeltaMax": 55.0,
+      "areaRatioMin": 0.68,
+      "areaRatioMax": 1.4
+    },
+    "checks": {
+      "silhouetteCue": true,
+      "scaleContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true
+    },
+    "pass": true
+  },
+  "pass": true,
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        5,
+        5,
+        383,
+        547
+      ],
+      "sourceBodyHeight": 542,
+      "paste": [
+        226,
+        122
+      ],
+      "scaledSize": [
+        215,
+        308
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        5,
+        5,
+        449,
+        607
+      ],
+      "sourceBodyHeight": 602,
+      "paste": [
+        200,
+        88
+      ],
+      "scaledSize": [
+        252,
+        342
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        5,
+        5,
+        449,
+        607
+      ],
+      "sourceBodyHeight": 602,
+      "paste": [
+        200,
+        88
+      ],
+      "scaledSize": [
+        252,
+        342
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        5,
+        5,
+        519,
+        606
+      ],
+      "sourceBodyHeight": 601,
+      "paste": [
+        194,
+        89
+      ],
+      "scaledSize": [
+        292,
+        341
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        5,
+        5,
+        553,
+        628
+      ],
+      "sourceBodyHeight": 623,
+      "paste": [
+        193,
+        76
+      ],
+      "scaledSize": [
+        311,
+        354
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        5,
+        5,
+        553,
+        628
+      ],
+      "sourceBodyHeight": 623,
+      "paste": [
+        193,
+        76
+      ],
+      "scaledSize": [
+        311,
+        354
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        5,
+        5,
+        485,
+        628
+      ],
+      "sourceBodyHeight": 623,
+      "paste": [
+        195,
+        76
+      ],
+      "scaledSize": [
+        273,
+        354
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        5,
+        5,
+        485,
+        628
+      ],
+      "sourceBodyHeight": 623,
+      "paste": [
+        195,
+        76
+      ],
+      "scaledSize": [
+        273,
+        354
+      ]
+    },
+    {
+      "frame": 9,
+      "sourceBBox": [
+        5,
+        5,
+        383,
+        547
+      ],
+      "sourceBodyHeight": 542,
+      "paste": [
+        226,
+        122
+      ],
+      "scaledSize": [
+        215,
+        308
+      ]
+    },
+    {
+      "frame": 10,
+      "sourceBBox": [
+        5,
+        5,
+        383,
+        547
+      ],
+      "sourceBodyHeight": 542,
+      "paste": [
+        226,
+        122
+      ],
+      "scaledSize": [
+        215,
+        308
+      ]
+    }
+  ]
+}
