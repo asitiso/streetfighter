@@ -403,6 +403,13 @@ def write_pending(pending):
    else:path.write_bytes(data)
   raise
 
+def update_frame_totals(manifest):
+ records=manifest['records'];enabled=[r for r in records if r['enabled']]
+ manifest['frameTotal']=sum(r['frames'] for r in records)
+ manifest['enabledFrameTotal']=sum(r['frames'] for r in enabled)
+ manifest['fullFrameTotal']=sum(r['frames'] for r in enabled if r['renderMode']=='full')
+ manifest['bridgeFrameTotal']=sum(r['frames'] for r in enabled if r['renderMode']=='bridge')
+
 def replace_records(manifest,records):
  # Preserve installed order when replacing a motion after newer motions were
  # added. Only first-time records append; reinstallation stays reviewable.
@@ -467,19 +474,21 @@ def air_batch(args):
    for record in records:
     record.update({'poseQa':quality[record['id']]['pose'],'semanticQa':quality[record['id']]['semantic'],'handoffQa':bridges})
    replace_records(manifest,records)
-   manifest['frameTotal']=manifest['enabledFrameTotal']=sum(r['frames'] for r in manifest['records'])
+   update_frame_totals(manifest)
    pending[manifest_path]=(json.dumps(manifest,indent=2)+'\n').encode()
   reports.append({'character':slug,'quality':quality,'handoffs':bridges})
  if args.install:write_pending(pending)
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU'],help='Supplemental Ryu support motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
+ if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry'):parser.error('RYU selector supports walk-back, hit, guard and parry only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
+ entries=[{'id':'RYU','slug':'ryu'}] if args.character=='RYU' else CONFIG
  width=640 if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
- for entry in CONFIG:
+ for entry in entries:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
   profile=entry.get('attackRecipes',{}).get('stand-medium-kick',{}).get('semanticProfile','kick')
   if kind in ('stand-medium-kick','crouch-medium-kick') and profile not in ('kick','knee','hook'):raise ValueError('Invalid MK semantic profile')
@@ -511,7 +520,7 @@ def main():
     extra=SOURCE/slug/recipe['source'];target=recipe['pose']-1
     raw[target]=extract(Image.open(extra),recipe['rows'])[recipe['sourcePose']-1]
     overrides.append({'frames':[i+1 for i,pose in enumerate(GUARD_ORDER) if pose==target],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['sourcePose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
-  if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash','dash-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
+  if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash','dash-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ryu' and kind=='walk-back'):
    if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
@@ -526,6 +535,15 @@ def main():
    motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/reference_height
    normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':reference_height,'uniformScale':idle_height/reference_height}
   keys,metrics=motion.normalize_frames(kind,raw)
+  if slug=='ryu':
+   # Existing Ryu idle uses a different sole baseline from the shared atlas.
+   # Align actual opaque soles to its installed guard, rather than introducing
+   # a visible vertical step every time support art enters or recovers.
+   target=int(np.nonzero(motion._binary_mask(idle))[0].max());offsets=[]
+   for index,frame in enumerate(keys):
+    offset=target-int(np.nonzero(motion._binary_mask(frame))[0].max());offsets.append(offset)
+    aligned=Image.new('RGBA',(width,448));aligned.alpha_composite(frame,(0,offset));keys[index]=aligned
+   normalization.update({'footBaselineReference':'installed-idle','footBaseline':target,'sourceBaselineOffsets':offsets})
   if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
    # Extended fists change the silhouette's bounding-box center. Anchor the
    # support feet to the matching guard, so the planted stance does not slide when
@@ -589,9 +607,9 @@ def main():
   if overrides:record['sourceOverrides']=overrides
   manifest=json.loads((directory/'manifest.json').read_text()) if (directory/'manifest.json').exists() else {'character':entry['id'],'pipeline':'roster-movement-authored-v1','records':[]}
   manifest['pipeline']='roster-movement-authored-v1'
-  manifest.pop('source',None);manifest.pop('sourceSha256',None)
+  if slug!='ryu':manifest.pop('source',None);manifest.pop('sourceSha256',None)
   replace_records(manifest,[record])
-  manifest['frameTotal']=manifest['enabledFrameTotal']=sum(r['frames'] for r in manifest['records'])
+  update_frame_totals(manifest)
   pending[directory/f'{kind}.webp']=data
   pending[directory/'manifest.json']=(json.dumps(manifest,indent=2)+'\n').encode()
   results.append({'character':entry['id'],'order':record['sourceOrder'],'pose':pose,'semantic':semantic})

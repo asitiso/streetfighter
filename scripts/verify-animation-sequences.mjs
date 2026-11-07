@@ -39,13 +39,13 @@ const manifestUrl = new URL('../public/art/animation-hq/ryu/manifest.json', impo
 const manifest = JSON.parse(await readFile(manifestUrl, 'utf8'));
 assert.equal(manifest.candidate, '0.0.63-rc.38');
 assert.equal(manifest.character, 'RYU');
-assert.equal(manifest.pipeline, 'rc37-authored-gated-v3');
+assert.equal(manifest.pipeline, 'roster-movement-authored-v1');
 assert.deepEqual(manifest.sourceSize, [384,448]);
-assert.equal(manifest.frameTotal, 100);
-assert.equal(manifest.enabledFrameTotal, 41);
-assert.equal(manifest.fullFrameTotal, 41);
+assert.equal(manifest.frameTotal, 111);
+assert.equal(manifest.enabledFrameTotal, 70);
+assert.equal(manifest.fullFrameTotal, 70);
 assert.equal(manifest.bridgeFrameTotal, 0);
-assert.equal(manifest.records.length, 11);
+assert.equal(manifest.records.length, 13);
 
 const hqSource = await readFile(new URL('../public/art/combat-sprites-hq/ryu.webp', import.meta.url));
 const hdSource = await readFile(new URL('../public/art/combat-sprites-hd/ryu.webp', import.meta.url));
@@ -75,8 +75,8 @@ for (const rec of manifest.records) {
 assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalBytes}`);
 assert.ok(totalBytes < 12_000_000, `HQ pilot payload too large: ${totalBytes}`);
 
-assert.equal(animationSequenceFrameTotal('RYU'), 100);
-assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 41);
+assert.equal(animationSequenceFrameTotal('RYU'), 111);
+assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 70);
 assert.equal(animationSequenceFrameTotal('KEN'), 137, 'Ken registry should include 57 movement + 11 defense + 69 staged attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
@@ -118,11 +118,18 @@ assert.equal(animationSequenceFor('RYU','hit', false)?.frameCount, 8);
 assert.equal(animationSequenceFor('RYU','hadoken', false)?.renderMode, 'bridge');
 assert.equal(animationSequenceFor('RYU','shoryuken', false)?.renderMode, 'bridge');
 
-for (const kind of ['walk-back','stand-light','stand-heavy','hit','hadoken','shoryuken']) {
+for (const kind of ['stand-light','stand-heavy','hadoken','shoryuken']) {
   const seq = animationSequenceFor('RYU', kind, false);
   assert.ok(seq, `missing Ryu staging sequence ${kind}`);
   assert.equal(seq.enabled, false, `${kind} must stay disabled until pose-authored art is available`);
   assert.equal(seq.poseAuthored, false, `${kind} must not be marked pose-authored`);
+}
+for(const [kind,count] of [['walk-back',10],['hit',8],['guard',5],['parry',6]]){
+ const seq=animationSequenceFor('RYU',kind),rec=manifest.records.find(r=>r.id===kind);
+ assert.ok(seq?.enabled&&seq.poseAuthored&&rec.enabled&&rec.poseAuthored);assert.equal(seq.frameCount,count);
+ assert.equal(rec.poseQa.poseAuthoredPass,true);assert.equal(rec.semanticQa.semanticQaPass,true);
+ assert.equal(rec.sourceSha256,sha(await readFile(new URL('../'+rec.source,import.meta.url))),'Ryu authored source provenance mismatch');
+ assert.equal(rec.normalization.reference,'idle-recovery-height');
 }
 assert.equal(animationSequenceFor('RYU','walk')?.enabled, true);
 assert.equal(animationSequenceFor('RYU','walk')?.poseAuthored, true);

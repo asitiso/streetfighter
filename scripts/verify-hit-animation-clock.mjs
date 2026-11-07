@@ -5,7 +5,7 @@ import { normalFor } from '../dist/assets/combat/MoveLibrary.js';
 import { animationSequenceSample } from '../dist/assets/render/AnimationTimingMapper.js';
 const input={held:()=>false,pressed:()=>false,released:()=>false};
 const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arenaRight:1180,arenaTop:380,arenaBottom:590};
-for(const id of ['KEN','CHUNLI','IBUKI','ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL']) for(const facing of [-1,1]) for(const counter of [false,true]) {
+for(const id of ['RYU','KEN','CHUNLI','IBUKI','ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL']) for(const facing of [-1,1]) for(const counter of [false,true]) {
  const victim=new Fighter(getCharacter(id),'player',600,460,facing);
  const attacker=new Fighter(getCharacter('RYU'),'enemy',650,460,-facing);
  const move={...normalFor('lp'),hitStun:24};
