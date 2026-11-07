@@ -135,7 +135,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     }
     assert.equal(frames.size,8);assert.notEqual(victim.state,'hit');if(air)assert.ok(airDraw,'Air hit must render above ground');
    }
-   if(def.id!=='IBUKI'){
+   {
    const guardSeq=animationSequenceFor(def.id,'guard'),parrySeq=animationSequenceFor(def.id,'parry');
    assert.ok(guardSeq?.enabled&&guardSeq.poseAuthored,`${def.id} needs authored guard`);
    assert.ok(parrySeq?.enabled&&parrySeq.poseAuthored,`${def.id} needs authored parry`);
@@ -200,4 +200,4 @@ for(const id of ['URIEN','GILL']) {
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
 }
-console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:10,hitFrames:80,defenseCharacters:9,defenseFrames:99,canvasDraws});
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:10,hitFrames:80,defenseCharacters:10,defenseFrames:110,canvasDraws});

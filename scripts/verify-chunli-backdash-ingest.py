@@ -8,9 +8,9 @@ import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['dash-back','guard','parry'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-if character!='CHUNLI' and selected_kind!='dash-back':parser.error('Defense is currently supported only for Chun-Li')
+if character=='KEN' and selected_kind!='dash-back':parser.error('Ken uses its existing defense importer')
 count,width,order={'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4])}[selected_kind]
-slug=character.lower();prior_count={'CHUNLI':17,'IBUKI':14,'KEN':15}[character];total={'CHUNLI':168,'IBUKI':143,'KEN':144}[character]
+slug=character.lower();prior_count={'CHUNLI':17,'IBUKI':16,'KEN':15}[character];total={'CHUNLI':168,'IBUKI':154,'KEN':144}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -64,6 +64,9 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
  baseline=int(np.nonzero(np.asarray(guard.getchannel('A'))>=32)[0].max())
  for frame in frames:assert int(np.nonzero(np.asarray(frame.getchannel('A'))>=32)[0].max())==baseline
  motion=module.module();motion.FRAME_W=width;motion.ROSTER_CHARACTER=character
+ if character=='IBUKI' and selected_kind in ('guard','parry'):
+  roots=[motion._foot_metrics(motion._binary_mask(f))[0] for f in frames]
+  assert max(roots)-min(roots)<1,'Planted Ibuki defense root slides with changing arm silhouette'
  def negative(frames,label):assert not motion.semantic_qa(selected_kind,frames,motion.pose_qa(frames,selected_kind))['semanticQaPass'],label
  pad=Image.new('RGBA',(width,448));pad.alpha_composite(guard,((width-384)//2,0))
  negative([pad]*count,'Static guard accepted')

@@ -563,8 +563,8 @@ def main():
  parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI','KEN'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash-back'):parser.error('RYU selector supports support, backward dash, standing/crouching normals and crouch only')
- if args.character=='CHUNLI' and args.kind not in ('dash-back','guard','parry'):parser.error('CHUNLI selector supports backward dash and defense only')
- if args.character in ('IBUKI','KEN') and args.kind!='dash-back':parser.error(args.character+' selector supports backward dash only')
+ if args.character in ('CHUNLI','IBUKI') and args.kind not in ('dash-back','guard','parry'):parser.error(args.character+' selector supports backward dash and defense only')
+ if args.character=='KEN' and args.kind!='dash-back':parser.error(args.character+' selector supports backward dash only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
  entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'crouch-light':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6]},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else ([{'id':args.character,'slug':args.character.lower()}] if args.character in ('CHUNLI','IBUKI','KEN') else CONFIG)
@@ -626,7 +626,7 @@ def main():
     offset=target-int(np.nonzero(motion._binary_mask(frame))[0].max());offsets.append(offset)
     aligned=Image.new('RGBA',(width,448));aligned.alpha_composite(frame,(0,offset));keys[index]=aligned
    normalization.update({'footBaselineReference':'installed-'+base_kind,'footBaseline':target,'sourceBaselineOffsets':offsets})
-  if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):
+  if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ibuki' and kind in ('guard','parry')):
    # Extended fists change the silhouette's bounding-box center. Anchor the
    # support feet to the matching guard, so the planted stance does not slide when
    # the arm extends. Wide cells preserve complete fists at the same scale.
