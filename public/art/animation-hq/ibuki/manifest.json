@@ -9,9 +9,9 @@
     448
   ],
   "sourceSha256": "76BE49783ADBF49DDC537AEB1CF8E4C18436DDB4F5A12E8188FA11DC6012AC36",
-  "frameTotal": 57,
-  "enabledFrameTotal": 57,
-  "fullFrameTotal": 57,
+  "frameTotal": 64,
+  "enabledFrameTotal": 64,
+  "fullFrameTotal": 64,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -936,6 +936,120 @@
             "footCenterDeltaMax": 48.0,
             "areaRatioMin": 0.7,
             "areaRatioMax": 1.35
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      }
+    },
+    {
+      "id": "stand-light",
+      "frames": 7,
+      "frameSize": [
+        384,
+        448
+      ],
+      "stripSize": [
+        2688,
+        448
+      ],
+      "renderMode": "full",
+      "bytes": 334284,
+      "sha256": "A0808CC502B6FC97FB7CDF27FF819F4A82398F6EB809A0322D3C94B86D7ACCFA",
+      "enabled": true,
+      "poseAuthored": true,
+      "stagingOnly": false,
+      "authoredSource": "art-source/ibuki/inbox/stand-light",
+      "poseQa": {
+        "affineResidualAverage": 0.020099,
+        "affineResidualMax": 0.036385,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "stand-light",
+        "limits": {
+          "startEndIoUMin": 0.58,
+          "contactIoUMin": 0.32,
+          "contactIoUMax": 0.94,
+          "centroidXRangeMin": 4.0,
+          "centroidXRangeMax": 45.0,
+          "centroidYRangeMax": 28.0,
+          "reachRangeMin": 24.0,
+          "reachRangeMax": 105.0,
+          "footCenterRangeMax": 38.0,
+          "footWidthCvMax": 0.32,
+          "areaCvMax": 0.16,
+          "residualAverageMin": 0.01,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.022,
+          "residualMaxMax": 0.2,
+          "contactFrameIndex": 3
+        },
+        "startEndIoU": 1.0,
+        "contactIoU": 0.816201,
+        "centroidXRange": 5.219391,
+        "centroidYRange": 4.741936,
+        "reachRange": 35.0,
+        "footCenterRange": 0.315191,
+        "footWidthCv": 0.0,
+        "areaCv": 0.01821,
+        "residualAverage": 0.020099,
+        "residualMax": 0.036385,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "baseToAttack": {
+          "iou": 0.587656,
+          "centroidDistance": 5.401818,
+          "footCenterDelta": 28.55896,
+          "areaRatio": 1.065601,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "attackToBase": {
+          "iou": 0.587656,
+          "centroidDistance": 5.401818,
+          "footCenterDelta": 28.55896,
+          "areaRatio": 0.938438,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
           },
           "checks": {
             "silhouetteCue": true,
