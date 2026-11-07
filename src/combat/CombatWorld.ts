@@ -433,7 +433,7 @@ export class CombatWorld {
         const type = outcome === 'hit' && counter ? 'counter' : outcome === 'hit' ? this.impactType(projectile.move) : outcome;
         this.events.push({ type, x: projectile.x, y: projectile.y, power: projectile.move.damage, ttl: type.includes('parry') ? 24 : 16, color: projectile.move.color, hitIndex: projectile.burstIndex || 1, hitTotal: projectile.burstTotal || 1, attackerSide: projectile.owner.side, moveId: projectile.move.id });
         if (outcome === 'hit' && projectile.move.superCost) this.events.push({ type: 'super-impact', x: projectile.x, y: projectile.y, power: projectile.move.damage, ttl: 34, label: projectile.move.label, color: projectile.move.color, style: projectile.move.superPresentation?.motif, accent: projectile.move.superPresentation?.accent, hitIndex: projectile.burstIndex || 1, hitTotal: projectile.burstTotal || 1, attackerSide: projectile.owner.side, moveId: projectile.move.id });
-        this.resolveWallImpact(defender, projectile.move);
+        if (outcome === 'hit') this.resolveWallImpact(defender, projectile.move);
         if (defender.hp <= 0) this.events.push({ type: 'ko', x: defender.x, y: defender.y - 130, power: 999, ttl: 90 });
         projectile.hitVictims.add(defender.uid);
         collided = true;
