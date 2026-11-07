@@ -45,15 +45,15 @@ def main():
   prior={p:p.read_bytes() for p in runtime.iterdir()}
   failure('hit');assert prior=={p:p.read_bytes() for p in runtime.iterdir()},'New hit rollback left a file or changed manifest'
   run('hit')
-  for kind in ['guard','parry','stand-light','stand-heavy']:
+  for kind in ['guard','parry','stand-light','stand-medium','stand-heavy']:
    prior={p:p.read_bytes() for p in runtime.iterdir()}
    failure(kind);assert prior=={p:p.read_bytes() for p in runtime.iterdir()},f'New {kind} rollback changed runtime'
    run(kind)
   before={p:p.read_bytes() for p in runtime.iterdir()}
-  for kind in ['idle','walk','walk-back','dash','air','hit','guard','parry','stand-light','stand-heavy']:
+  for kind in ['idle','walk','walk-back','dash','air','hit','guard','parry','stand-light','stand-medium','stand-heavy']:
    failure(kind);assert before=={p:p.read_bytes() for p in runtime.iterdir()},'Replacement rollback changed installed files'
    run(kind,False)
-  assert json.loads(manifest.read_text())['enabledFrameTotal']==85
+  assert json.loads(manifest.read_text())['enabledFrameTotal']==93
   directions=0
   for peer in ['idle','walk','walk-back']:
    path=runtime/f'{peer}.webp'
@@ -65,7 +65,7 @@ def main():
     else:raise AssertionError('Corrupt installed peer accepted')
     assert corrupted=={p:p.read_bytes() for p in runtime.iterdir()}
     path.write_bytes(before[path]);directions+=1
-  for selected,peer in [('idle','dash'),('dash','idle'),('idle','jump'),('idle','landing'),('idle','hit'),('hit','idle'),('idle','guard'),('guard','idle'),('idle','parry'),('parry','idle'),('idle','stand-light'),('stand-light','idle'),('idle','stand-heavy'),('stand-heavy','idle')]:
+  for selected,peer in [('idle','dash'),('dash','idle'),('idle','jump'),('idle','landing'),('idle','hit'),('hit','idle'),('idle','guard'),('guard','idle'),('idle','parry'),('parry','idle'),('idle','stand-light'),('stand-light','idle'),('idle','stand-heavy'),('stand-heavy','idle'),('idle','stand-medium'),('stand-medium','idle')]:
    path=runtime/f'{peer}.webp';path.write_bytes(b'corrupt handoff peer');corrupted={p:p.read_bytes() for p in runtime.iterdir()}
    try:run(selected)
    except (ValueError,OSError):pass
@@ -74,7 +74,7 @@ def main():
    path.write_bytes(before[path]);directions+=1
   for name in ['jump','landing']:(runtime/f'{name}.webp').write_bytes(b'stale paired runtime')
   run('air');assert before=={p:p.read_bytes() for p in runtime.iterdir()},'Air promotion did not replace both stale peers'
-  for kind,name in [('walk-back','retreat-sheet.png'),('dash','dash-sheet.png'),('air','jump-sheet.png'),('air','landing-sheet.png'),('hit','hit-sheet.png'),('guard','guard-sheet.png'),('guard','parry-sheet.png'),('parry','parry-sheet.png'),('stand-light','stand-light-sheet.png'),('stand-heavy','stand-heavy-sheet.png')]:
+  for kind,name in [('walk-back','retreat-sheet.png'),('dash','dash-sheet.png'),('air','jump-sheet.png'),('air','landing-sheet.png'),('hit','hit-sheet.png'),('guard','guard-sheet.png'),('guard','parry-sheet.png'),('parry','parry-sheet.png'),('stand-light','stand-light-sheet.png'),('stand-heavy','stand-heavy-sheet.png'),('stand-medium','stand-medium-sheet.png')]:
    path=source/'alex'/name;source_data=path.read_bytes();path.write_bytes(b'incomplete source')
    try:
     try:run(kind)
