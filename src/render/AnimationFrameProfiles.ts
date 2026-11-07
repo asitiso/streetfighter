@@ -249,9 +249,11 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
 };
 
 const DEFAULT: AnimationFrameProfile = { weights:[1], anchorX:[0], anchorY:[0], footLockStrength:0 };
+// New six-frame breathing loops are already planted in their authored cells.
+const DEFAULT_IDLE: AnimationFrameProfile = { weights:[1.2,1,1,1.2,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 };
 
 export function animationFrameProfile(characterId: string, kind: string): AnimationFrameProfile {
-  return PROFILES[`${characterId}:${kind}`] ?? DEFAULT;
+  return PROFILES[`${characterId}:${kind}`] ?? (kind === 'idle' ? DEFAULT_IDLE : DEFAULT);
 }
 
 export function animationFrameProfileDigest(characterId: string, kind: string): string {

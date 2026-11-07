@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v102';
+export const GAME_CACHE_NAME = 'game-cache-v103';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -22,6 +22,14 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/attack-atlases-hd/dudley.webp', '/art/attack-atlases-hd/makoto.webp', '/art/attack-atlases-hd/ibuki.webp', '/art/attack-atlases-hd/yun.webp',
   ],
   'character-hq': [
+    '/art/animation-hq/alex/walk.webp', '/art/animation-hq/dudley/walk.webp', '/art/animation-hq/makoto/walk.webp',
+    '/art/animation-hq/yun/walk.webp', '/art/animation-hq/urien/walk.webp', '/art/animation-hq/gill/walk.webp',
+    '/art/animation-hq/alex/manifest.json', '/art/animation-hq/alex/idle.webp',
+    '/art/animation-hq/dudley/manifest.json', '/art/animation-hq/dudley/idle.webp',
+    '/art/animation-hq/makoto/manifest.json', '/art/animation-hq/makoto/idle.webp',
+    '/art/animation-hq/yun/manifest.json', '/art/animation-hq/yun/idle.webp',
+    '/art/animation-hq/urien/manifest.json', '/art/animation-hq/urien/idle.webp',
+    '/art/animation-hq/gill/manifest.json', '/art/animation-hq/gill/idle.webp',
     '/art/hq-character-master-manifest.json',
     '/art/combat-sprites-hq/ryu.webp', '/art/combat-sprites-hq/chunli.webp',
     '/art/combat-sprites-hq/ken.webp', '/art/combat-sprites-hq/ibuki.webp',

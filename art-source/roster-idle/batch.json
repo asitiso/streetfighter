@@ -1,0 +1,38 @@
+[
+  {
+    "id": "ALEX",
+    "slug": "alex",
+    "fps": 8,
+    "source": "sheet.png"
+  },
+  {
+    "id": "DUDLEY",
+    "slug": "dudley",
+    "fps": 10,
+    "source": "sheet.png"
+  },
+  {
+    "id": "MAKOTO",
+    "slug": "makoto",
+    "fps": 9,
+    "source": "sheet.png"
+  },
+  {
+    "id": "YUN",
+    "slug": "yun",
+    "fps": 11,
+    "source": "sheet.png"
+  },
+  {
+    "id": "URIEN",
+    "slug": "urien",
+    "fps": 7.6,
+    "source": "sheet.png"
+  },
+  {
+    "id": "GILL",
+    "slug": "gill",
+    "fps": 7.2,
+    "source": "sheet.png"
+  }
+]
