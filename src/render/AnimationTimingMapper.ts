@@ -64,6 +64,7 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 }
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
+  if (characterId === 'IBUKI' && move.id === 'IBUKI_ANTI_AIR') return 'shoryuken';
   if (characterId === 'IBUKI' && (move.id === 'IBUKI_PRIMARY' || move.id === 'IBUKI_EX_PRIMARY')) return 'hadoken';
   if (characterId === 'IBUKI') return move.id === '5LP' ? 'stand-light' : move.id === '5HP' ? 'stand-heavy' : null;
   if (characterId === 'CHUNLI') {
@@ -132,7 +133,7 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
   if (fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0 || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0 || fighter.state === 'knockdown' || fighter.state === 'ko' || fighter.state === 'victory') return null;
 
   if (fighter.state === 'attack' && fighter.currentMove) {
-    if (characterId === 'IBUKI' && fighter.airborne) return null;
+    if (characterId === 'IBUKI' && fighter.airborne && fighter.currentMove.id !== 'IBUKI_ANTI_AIR') return null;
     // These ground-initiated rising attacks own their launch and keep their
     // strips during flight. Other Chun-Li attacks still use their air visuals.
     if (characterId === 'CHUNLI' && fighter.airborne && fighter.currentMove.id !== 'CHUNLI_ANTI_AIR' && fighter.currentMove.id !== 'CHUNLI_SA3') return null;

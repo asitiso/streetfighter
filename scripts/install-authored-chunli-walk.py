@@ -85,7 +85,7 @@ def main():
                 anchored.alpha_composite(frame, (offset, 0))
                 normalized[index] = anchored
                 source_metrics[index]['paste'][0] += offset
-        if character == 'IBUKI' and sequence_kind in ('idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken'):
+        if character == 'IBUKI' and sequence_kind in ('idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy', 'hadoken', 'shoryuken'):
             # Align this character's original root rather than assuming Ken's
             # centered 423px baseline. A uniform offset preserves breathing motion.
             master_mask = handoff.alpha_mask(Image.open(ROOT / f'public/art/combat-sprites-hq/{slug}.webp').convert('RGBA'))

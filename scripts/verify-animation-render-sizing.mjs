@@ -56,6 +56,12 @@ for(const id of ['CHUNLI','KEN','IBUKI']) {
       assert.ok(call,'Kunai release uses its wide authored strip');assert.equal(call[3],640);
       assert.deepEqual(call.slice(5),[-160,-220,320,224],'Wide Kunai preserves source pixel scale');
       fighter.currentMove=null;fighter.state='idle';
+      fighter.currentMove=specialMovesFor('IBUKI').antiAir;fighter.state='attack';fighter.moveFrame=fighter.currentMove.startup;fighter.airborne=true;fighter.jumpHeight=61;translations.length=0;
+      drawCombatFighter(ctx,fighter,0,0);
+      call=calls.findLast(c=>c[0].src?.endsWith('/ibuki/shoryuken.webp'));
+      assert.ok(call,'Kazekiri retains authored art during flight');assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+      assert.ok(translations.some(([x,y])=>x===0&&y===-61),'Kazekiri follows gameplay height');
+      fighter.currentMove=null;fighter.state='idle';fighter.airborne=false;fighter.jumpHeight=0;
     }
     if(id==='CHUNLI') {
       fighter.currentMove=specialMovesFor(id).mobility; fighter.state='attack'; fighter.moveFrame=fighter.currentMove.startup;
