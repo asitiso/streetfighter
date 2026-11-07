@@ -76,7 +76,7 @@ def main():
         if [p.name for p in paths] != [f'{i:02d}.png' for i in range(1, sequence_count + 1)]:
             raise SystemExit(f'{character} {sequence_kind}: provide exactly 01.png through {sequence_count:02d}.png')
         normalized, source_metrics = motion.normalize_frames(quality_kinds.get(sequence_kind, sequence_kind), [Image.open(p).convert('RGBA') for p in paths])
-        if character == 'IBUKI' and sequence_kind == 'stand-light':
+        if character == 'IBUKI' and sequence_kind in ('stand-light', 'stand-heavy'):
             # A planted jab must not slide when its extended fist widens the bbox.
             foot_centers = [motion._foot_metrics(motion._binary_mask(frame))[0] for frame in normalized]
             for index, frame in enumerate(normalized):
@@ -85,7 +85,7 @@ def main():
                 anchored.alpha_composite(frame, (offset, 0))
                 normalized[index] = anchored
                 source_metrics[index]['paste'][0] += offset
-        if character == 'IBUKI' and sequence_kind in ('idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light'):
+        if character == 'IBUKI' and sequence_kind in ('idle', 'walk', 'walk-back', 'dash', 'jump', 'landing', 'hit', 'stand-light', 'stand-heavy'):
             # Align this character's original root rather than assuming Ken's
             # centered 423px baseline. A uniform offset preserves breathing motion.
             master_mask = handoff.alpha_mask(Image.open(ROOT / f'public/art/combat-sprites-hq/{slug}.webp').convert('RGBA'))
