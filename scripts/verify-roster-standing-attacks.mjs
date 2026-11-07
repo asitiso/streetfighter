@@ -13,7 +13,7 @@ const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arena
 // crouching punches, command normals, air attacks and target-combo variants.
 for(const id of roster) {
  for(const crouch of [false,true])for(const button of ['lp','mp','hp','lk','mk','hk']) {
-  const move=normalFor(button,crouch,id),expected=!crouch&&button==='lp'?'stand-light':!crouch&&button==='hp'?'stand-heavy':null;
+  const move=normalFor(button,crouch,id),expected=!crouch&&button==='lp'?'stand-light':!crouch&&button==='mp'?'stand-medium':!crouch&&button==='hp'?'stand-heavy':null;
   assert.equal(animationSequenceKindForAttack(id,move),expected,`${id} ${move.id} must keep its own presentation`);
  }
  const catalog=techniqueCatalogFor(id);
@@ -32,11 +32,11 @@ const {drawCombatFighter}=await import('../dist/assets/render/Visuals.js');
 runtimeQuality.setTier('high');
 const draws=[];let canvasDraws=0;
 const ctx=new Proxy({globalAlpha:1,drawImage:(...a)=>draws.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
-for(const id of roster)for(const facing of [-1,1])for(const [button,kind,count,contactFrames] of [['lp','stand-light',7,[3]],['hp','stand-heavy',10,[4,5]]]) {
+for(const id of roster)for(const facing of [-1,1])for(const [button,kind,count,contactFrames] of [['lp','stand-light',7,[3]],['mp','stand-medium',8,[3]],['hp','stand-heavy',10,[4,5]]]) {
  const def=getCharacter(id),fighter=new Fighter(def,'player',600,460,facing),seq=animationSequenceFor(id,kind);
  assert.ok(seq?.enabled&&seq.poseAuthored,`${id} needs authored ${kind}`);assert.equal(seq.frameCount,count);
  fighter.updatePlayer({...quiet,pressed:key=>key===button},rules);
- assert.equal(fighter.currentMove?.id,button==='lp'?'5LP':'5HP');
+ assert.equal(fighter.currentMove?.id,button==='lp'?'5LP':button==='mp'?'5MP':'5HP');
  const move=fighter.currentMove,frames=new Set();let ticks=0,contacts=0,frozen=false;
  while(fighter.state==='attack'&&ticks<150) {
   const sample=animationSequenceSample(fighter,0);assert.equal(sample?.sequence.id,seq.id);frames.add(sample.frame);
@@ -62,8 +62,8 @@ for(const id of roster)for(const facing of [-1,1])for(const [button,kind,count,c
  assert.equal(animationSequenceSample(fighter,0),null,'Grounded punch must not replace an airborne attack');
  fighter.airborne=false;
  for(const crouch of [false,true])for(const other of ['lp','mp','hp','lk','mk','hk']) {
-  if(!crouch&&(other==='lp'||other==='hp'))continue;
+  if(!crouch&&['lp','mp','hp'].includes(other))continue;
   fighter.currentMove=normalFor(other,crouch,id);assert.equal(animationSequenceSample(fighter,0),null);
  }
 }
-console.log('ROSTER_STANDING_ATTACKS_PASS',{characters:6,facings:2,attackStrips:12,storedFrames:102,canvasDraws});
+console.log('ROSTER_STANDING_ATTACKS_PASS',{characters:6,facings:2,attackStrips:18,storedFrames:150,canvasDraws});

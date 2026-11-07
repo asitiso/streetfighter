@@ -5,6 +5,7 @@ export type AnimationSequenceKind =
   | 'dash'
   | 'jump'
   | 'landing'
+  | 'stand-medium'
   | 'stand-light'
   | 'stand-heavy'
   | 'hit'
@@ -125,6 +126,12 @@ const IBUKI: readonly AnimationSequence[] = [
 ] as const;
 
 const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
+  { id:'ALEX_STAND_MEDIUM_HQ', characterId:'ALEX', kind:'stand-medium', asset:'/art/animation-hq/alex/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'DUDLEY_STAND_MEDIUM_HQ', characterId:'DUDLEY', kind:'stand-medium', asset:'/art/animation-hq/dudley/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'MAKOTO_STAND_MEDIUM_HQ', characterId:'MAKOTO', kind:'stand-medium', asset:'/art/animation-hq/makoto/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'YUN_STAND_MEDIUM_HQ', characterId:'YUN', kind:'stand-medium', asset:'/art/animation-hq/yun/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'URIEN_STAND_MEDIUM_HQ', characterId:'URIEN', kind:'stand-medium', asset:'/art/animation-hq/urien/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
+  { id:'GILL_STAND_MEDIUM_HQ', characterId:'GILL', kind:'stand-medium', asset:'/art/animation-hq/gill/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_STAND_LIGHT_HQ', characterId:'ALEX', kind:'stand-light', asset:'/art/animation-hq/alex/stand-light.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_STAND_HEAVY_HQ', characterId:'ALEX', kind:'stand-heavy', asset:'/art/animation-hq/alex/stand-heavy.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'DUDLEY_STAND_LIGHT_HQ', characterId:'DUDLEY', kind:'stand-light', asset:'/art/animation-hq/dudley/stand-light.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, events:[{frame:3,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
