@@ -547,3 +547,19 @@ python scripts/build-roster-motions.py --character IBUKI --kind stand-light-kick
 python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind stand-light-kick
 node scripts/verify-roster-standing-attacks.mjs
 ```
+
+## Ibuki standing medium kick
+
+Six new neutral/knee-chamber/half-extension/waist-height contact/half-withdrawal/recovered-guard drawings use the built-in image tool. Source `ibuki/stand-medium-kick-sheet.png` and exact prompt `ibuki/stand-medium-kick-prompt.txt` retained. Order [1,1,2,3,4,4,5,5,6,6] supplies10stored640x448frames,startup0–3/contact4–5/recovery6–9. Source has faint low-alpha residue (gutter maximum alpha2, corners alpha0); existing extraction removes it and runtime composites are clean. First-generation unchanged pose/action/handoff gates pass: residual average0.039569/peak0.063126, contact reach58px, foot height192px (versus LK144px), support center range0.993948px/baseline0. Both actual contacts require kick geometry and one planted support.
+
+Installed idle342px/opaque429/rear-support anchoring retain one scale/plantedroot; profiles add zero offsets. Exact grounded5MK only. Existing punches/LK,crouch/otherkicks/air/command/target/special/Super Art mappings and gameplay unchanged, including existing target-combo behavior. Both-facing actual input reaches all10frames/both contacts/hitstop/idle. Standing checks now59strips/538frames across10characters,2674Canvasdraws.
+
+Shared recipe/selector/actual-contact audit/parameterized fixture reused. Guard/punch substitution at either contact and shifted support roots/baselines reject, along with static/translated/wrong runtime profile/source/peer errors. Byte-stable reinstall and first/new-file/replacement rollback preserve all19prior records/art/bindings/pipeline. IBUKI selector permits dash-back/guard/parry/stand-medium/stand-light-kick/stand-medium-kick only.
+
+Ibuki now180enabled/full frames,20records, standing LP/MP/HP/LK/MK authored; HK remains fallback. New strip523692bytes raises combined movement+combat entry to9440734bytes below unchanged13MB budget. Movement-only preparation excludes normals, other budgets unchanged. Cachev144.
+
+```sh
+python scripts/build-roster-motions.py --character IBUKI --kind stand-medium-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind stand-medium-kick
+node scripts/verify-roster-standing-attacks.mjs
+```
