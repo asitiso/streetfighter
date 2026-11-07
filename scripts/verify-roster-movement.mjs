@@ -159,7 +159,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
      assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),input.sourceSha256,'Dash source provenance must match');
     }
    }
-   if(['crouch','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'].includes(record.id)) {
+   if(['crouch-light','crouch','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'].includes(record.id)) {
     const source=await readFile(new URL(`../${record.source}`,import.meta.url));
     assert.equal(createHash('sha256').update(source).digest('hex').toUpperCase(),record.sourceSha256,'Source provenance must match');
     for(const override of record.sourceOverrides??[]) {
@@ -172,7 +172,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     }
    }
   }
-  assert.equal(manifest.enabledFrameTotal,129);
+  assert.equal(manifest.enabledFrameTotal,136);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.

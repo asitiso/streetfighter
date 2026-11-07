@@ -1,8 +1,8 @@
 {
   "character": "MAKOTO",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 129,
-  "enabledFrameTotal": 129,
+  "frameTotal": 136,
+  "enabledFrameTotal": 136,
   "records": [
     {
       "id": "idle",
@@ -3541,6 +3541,221 @@
         "footAnchorMode": "two-foot",
         "standingReferenceFrame": 1,
         "footAnchorX": 176.43990665110852
+      },
+      "sourceGrid": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "crouch-light",
+      "frames": 7,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        4480,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "B42F0B38DFD461E57CC2F6DF0A995C486ECB175A050717E3457F8341DC01AB7E",
+      "bytes": 264210,
+      "poseQa": {
+        "affineResidualAverage": 0.012463,
+        "affineResidualMax": 0.028889,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "crouch-light",
+        "limits": {
+          "startEndIoUMin": 0.58,
+          "contactIoUMin": 0.32,
+          "contactIoUMax": 0.94,
+          "centroidXRangeMin": 4.0,
+          "centroidXRangeMax": 45.0,
+          "centroidYRangeMax": 28.0,
+          "reachRangeMin": 24.0,
+          "reachRangeMax": 105.0,
+          "footCenterRangeMax": 38.0,
+          "footWidthCvMax": 0.32,
+          "areaCvMax": 0.16,
+          "residualAverageMin": 0.01,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.022,
+          "residualMaxMax": 0.2,
+          "contactFrameIndex": 3
+        },
+        "startEndIoU": 0.953867,
+        "contactIoU": 0.731131,
+        "centroidXRange": 13.603876,
+        "centroidYRange": 4.235809,
+        "reachRange": 60.0,
+        "footCenterRange": 0.870874,
+        "footWidthCv": 0.0,
+        "areaCv": 0.031509,
+        "residualAverage": 0.012463,
+        "residualMax": 0.028889,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "lowPostureMaintained": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "crouchToCrouchLight": {
+          "iou": 0.9072,
+          "centroidDistance": 1.015422,
+          "footCenterDelta": 0.621264,
+          "areaRatio": 1.033689,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "crouchLightToCrouch": {
+          "iou": 0.904572,
+          "centroidDistance": 2.659129,
+          "footCenterDelta": 0.24961,
+          "areaRatio": 0.971507,
+          "limits": {
+            "iouMin": 0.48,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 36.0,
+            "footCenterDeltaMax": 42.0,
+            "areaRatioMin": 0.72,
+            "areaRatioMax": 1.34
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        2,
+        3,
+        2,
+        2,
+        4
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            449,
+            447
+          ],
+          "sourceBodyHeight": 447,
+          "paste": [
+            189,
+            193
+          ],
+          "scaledSize": [
+            231,
+            230
+          ],
+          "footAnchorShift": -15
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            449,
+            441
+          ],
+          "sourceBodyHeight": 441,
+          "paste": [
+            188,
+            197
+          ],
+          "scaledSize": [
+            231,
+            226
+          ],
+          "footAnchorShift": -16
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            564,
+            433
+          ],
+          "sourceBodyHeight": 433,
+          "paste": [
+            188,
+            201
+          ],
+          "scaledSize": [
+            290,
+            222
+          ],
+          "footAnchorShift": 13
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            449,
+            446
+          ],
+          "sourceBodyHeight": 446,
+          "paste": [
+            187,
+            194
+          ],
+          "scaledSize": [
+            231,
+            229
+          ],
+          "footAnchorShift": -17
+        }
+      ],
+      "source": "art-source/roster-idle/makoto/crouch-light-sheet.png",
+      "sourceSha256": "E680BF499B6DE5F5212753993F278AE62F06E185E563193C290DBF45F976C767",
+      "normalization": {
+        "reference": "crouch-recovery-height",
+        "referenceHeight": 229,
+        "sourceGuardHeight": 446,
+        "uniformScale": 0.5134529147982063,
+        "footAnchorMode": "two-foot",
+        "referenceFrame": 6,
+        "footAnchorX": 304.6025067144136
       },
       "sourceGrid": [
         2,
