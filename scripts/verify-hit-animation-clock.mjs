@@ -5,12 +5,12 @@ import { normalFor } from '../dist/assets/combat/MoveLibrary.js';
 import { animationSequenceSample } from '../dist/assets/render/AnimationTimingMapper.js';
 const input={held:()=>false,pressed:()=>false,released:()=>false};
 const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arenaRight:1180,arenaTop:380,arenaBottom:590};
-for(const id of ['KEN','CHUNLI']) for(const facing of [-1,1]) for(const counter of [false,true]) {
+for(const id of ['KEN','CHUNLI','IBUKI']) for(const facing of [-1,1]) for(const counter of [false,true]) {
  const victim=new Fighter(getCharacter(id),'player',600,460,facing);
  const attacker=new Fighter(getCharacter('RYU'),'enemy',650,460,-facing);
  const move={...normalFor('lp'),hitStun:24};
  const strike=()=>victim.receiveHit(move,attacker,false,counter);
- strike();const initial=animationSequenceSample(victim,0);assert.equal(initial.sequence.kind,'hit');assert.equal(initial.frame,0);
+ strike();const initial=animationSequenceSample(victim,0);assert.equal(initial?.sequence.kind,'hit',id+' requires authored hit reaction');assert.equal(initial.frame,0);
  while(victim.hitStop>0){victim.updatePlayer(input,rules);assert.equal(animationSequenceSample(victim,0).frame,0,'Hit stop freezes impact');}
  const frames=new Set();let ticks=0;
  while(victim.state==='hit'){frames.add(animationSequenceSample(victim,0).frame);victim.updatePlayer(input,rules);ticks++;}

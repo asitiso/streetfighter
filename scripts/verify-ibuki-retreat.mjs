@@ -27,6 +27,6 @@ for(const facing of [-1,1]) {
  assert.equal(animationSequenceSample(fighter,0).sequence.kind,'idle');
  const forward=facing===1?'right':'left';fighter.updatePlayer({held:key=>key===forward,pressed:()=>false,released:()=>false},rules);
  assert.equal(animationSequenceSample(fighter,0).sequence.kind,'walk','Forward gait stays distinct');
- fighter.state='hit';fighter.stateFrame=0;assert.equal(animationSequenceSample(fighter,0),null,'Unfinished hit remains fallback');
+ fighter.state='hit';fighter.stateFrame=0;assert.equal(animationSequenceSample(fighter,0).sequence.kind,'hit','Hit stays distinct');
 }
 console.log('IBUKI_RETREAT_PASS');

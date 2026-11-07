@@ -112,7 +112,7 @@ const IBUKI: readonly AnimationSequence[] = [
   { id:'IBUKI_DASH_HQ', characterId:'IBUKI', kind:'dash', asset:'/art/animation-hq/ibuki/dash.webp', frameCount:7, frameWidth:384, frameHeight:448, fps:21, loop:false, timing:'ease-out', footLock:false, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_JUMP_HQ', characterId:'IBUKI', kind:'jump', asset:'/art/animation-hq/ibuki/jump.webp', frameCount:8, frameWidth:384, frameHeight:448, fps:14.8, loop:false, timing:'ease-out', footLock:false, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_LANDING_HQ', characterId:'IBUKI', kind:'landing', asset:'/art/animation-hq/ibuki/landing.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
-  { id:'IBUKI_HIT_HQ', characterId:'IBUKI', kind:'hit', asset:'/art/animation-hq/ibuki/hit.webp', frameCount:8, frameWidth:384, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, enabled:false, renderMode:'full', poseAuthored:false, quality:'hq', source:'approved-hq-pilot' },
+  { id:'IBUKI_HIT_HQ', characterId:'IBUKI', kind:'hit', asset:'/art/animation-hq/ibuki/hit.webp', frameCount:8, frameWidth:384, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
 ] as const;
 
 const ALL: readonly AnimationSequence[] = [...RYU, ...KEN, ...CHUNLI, ...IBUKI];
