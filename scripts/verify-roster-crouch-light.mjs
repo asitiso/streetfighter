@@ -12,17 +12,17 @@ const {drawCombatFighter}=await import('../dist/assets/render/Visuals.js');
 const {runtimeQuality}=await import('../dist/assets/core/RuntimeQuality.js');runtimeQuality.setTier('high');
 const draws=[];let canvasDraws=0;
 const ctx=new Proxy({globalAlpha:1,drawImage:(...a)=>draws.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
-for(const [button,kind,count] of [['lp','crouch-light',7],['mp','crouch-medium',8]])
+for(const [button,kind,count,contactStart,contactEnd] of [['lp','crouch-light',7,3,3],['mp','crouch-medium',8,3,3],['hp','crouch-heavy',10,4,5]])
 for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'])for(const facing of [-1,1])for(const heldAfter of [true,false]){
  const f=new Fighter(getCharacter(id),'player',600,500,facing),seq=animationSequenceFor(id,kind);
  assert.ok(seq?.enabled&&seq.poseAuthored,`${id} needs authored crouching ${button.toUpperCase()}`);assert.equal(seq.frameCount,count);
  for(let t=0;t<6;t++)f.updatePlayer(down,rules);
  f.updatePlayer({...down,pressed:k=>k===button},rules);assert.equal(f.currentMove.id,'2'+button.toUpperCase());
- const move=f.currentMove,seen=new Set();let ticks=0,contacts=0,frozen=false;
+ const move=f.currentMove,seen=new Set(),contactFrames=new Set();let ticks=0,contacts=0,frozen=false;
  while(f.state==='attack'&&ticks<100){
   const s=animationSequenceSample(f,0);assert.equal(s.sequence.id,seq.id);seen.add(s.frame);
   const active=f.moveFrame>=move.startup&&f.moveFrame<move.startup+move.active;
-  assert.equal(s.contact,active);if(active){contacts++;assert.equal(s.frame,3);}
+  assert.equal(s.contact,active);if(active){contacts++;assert.ok(s.frame>=contactStart&&s.frame<=contactEnd);contactFrames.add(s.frame);}
   draws.length=0;drawCombatFighter(ctx,f,0,0);const d=draws.find(a=>a[0].src===seq.asset);assert.ok(d);canvasDraws++;
   assert.equal(d[1],s.frame*640);assert.deepEqual(d.slice(5),[-160,-220,320,224]);
   assert.ok(d[1]>=0&&d[1]+d[3]<=640*count);assert.deepEqual([f.x,f.y],[600,500]);
@@ -31,11 +31,12 @@ for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'])for(const facing
   }
   f.updatePlayer(heldAfter?down:quiet,rules);ticks++;
  }
+ assert.deepEqual([...contactFrames].sort((a,b)=>a-b),Array.from({length:contactEnd-contactStart+1},(_,n)=>n+contactStart));
  assert.equal(seen.size,count);assert.equal(contacts,move.active);assert.equal(ticks,move.startup+move.active+move.recovery+3);
  assert.equal(animationSequenceSample(f,0).sequence.kind,'crouch');assert.equal(animationSequenceSample(f,0).frame,5);
  if(heldAfter){for(let t=0;t<10;t++){f.updatePlayer(down,rules);assert.equal(animationSequenceSample(f,0).frame,5);}}
  else{for(const frame of [4,3,2,1,0]){f.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(f,0).frame,frame);}f.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(f,0).sequence.kind,'idle');}
  f.state='attack';f.currentMove=move;f.airborne=true;assert.equal(animationSequenceSample(f,0),null,'Grounded crouching art must not replace air attacks');
- for(const button of ['hp','lk','mk','hk'])assert.equal(animationSequenceKindForAttack(id,normalFor(button,true,id)),null);
+ for(const button of ['lk','mk','hk'])assert.equal(animationSequenceKindForAttack(id,normalFor(button,true,id)),null);
 }
-console.log('ROSTER_CROUCH_ATTACKS_PASS',{characters:6,facings:2,releaseDuringAttack:true,storedFrames:90,canvasDraws});
+console.log('ROSTER_CROUCH_ATTACKS_PASS',{characters:6,facings:2,releaseDuringAttack:true,storedFrames:150,canvasDraws});

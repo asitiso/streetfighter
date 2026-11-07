@@ -14,7 +14,7 @@ const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:100,arena
 // crouching punches, command normals, air attacks and target-combo variants.
 for(const id of roster) {
  for(const crouch of [false,true])for(const button of ['lp','mp','hp','lk','mk','hk']) {
-  const move=normalFor(button,crouch,id),expected=crouch?(button==='lp'?'crouch-light':button==='mp'?'crouch-medium':null):normalKinds[button];
+  const move=normalFor(button,crouch,id),expected=crouch?(button==='lp'?'crouch-light':button==='mp'?'crouch-medium':button==='hp'?'crouch-heavy':null):normalKinds[button];
   assert.equal(animationSequenceKindForAttack(id,move),expected,`${id} ${move.id} must keep its own presentation`);
  }
  const catalog=techniqueCatalogFor(id);
@@ -63,7 +63,7 @@ for(const id of roster)for(const facing of [-1,1])for(const [button,kind,count,c
  assert.equal(animationSequenceSample(fighter,0),null,'Grounded normal must not replace an airborne attack');
  fighter.airborne=false;
  for(const crouch of [false,true])for(const other of ['lp','mp','hp','lk','mk','hk']) {
-  if((!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp'].includes(other)))continue;
+  if((!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp'].includes(other)))continue;
   fighter.currentMove=normalFor(other,crouch,id);assert.equal(animationSequenceSample(fighter,0),null);
  }
 }
