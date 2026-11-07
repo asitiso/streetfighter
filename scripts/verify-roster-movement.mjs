@@ -25,7 +25,7 @@ function checkCanvas(fighter,seq){
  calls.length=0;drawCombatFighter(ctx,fighter,0,0);
  const call=calls.find(c=>c[0].src===seq.asset);assert.ok(call,`${seq.id} must reach Canvas`);
  canvasDraws++;
- assert.deepEqual(call.slice(5),[-96,-220,192,224]);
+ assert.deepEqual(call.slice(5),[-seq.frameWidth/4,-220,seq.frameWidth/2,224]);
  assert.ok(call[1]>=0&&call[1]+call[3]<=seq.frameWidth*seq.frameCount);
 }
 for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
@@ -66,6 +66,24 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    retreat.updatePlayer({...quiet,held:key=>key===(facing===1?'right':'left')},rules);
    assert.equal(animationSequenceSample(retreat,0)?.sequence.id,walk.id,'Forward switch must use forward walking');
    retreat.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(retreat,0)?.sequence.id,seq.id);
+   for(const direction of [-1,1]) {
+    const dash=new Fighter(def,'player',600,460,facing),action=direction===1?'right':'left';
+    const tap={held:key=>key===action,pressed:key=>key===action,released:()=>false};
+    for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){dash.captureInput(input,tick);dash.updatePlayer(input,rules);}
+    assert.equal(dash.dashFrames,8,'Double tap must start the unchanged eight-tick dash');
+    const dashSeq=animationSequenceFor(def.id,'dash');assert.ok(dashSeq?.enabled&&dashSeq.poseAuthored,`${def.id} needs authored forward dash`);
+    const frames=new Set();let ticks=0;
+    while(dash.dashFrames>0) {
+     const sample=animationSequenceSample(dash,0);
+     if(direction===facing){assert.equal(sample?.sequence.id,dashSeq.id);frames.add(sample.frame);checkCanvas(dash,dashSeq);}
+     else {assert.equal(sample,null,'Forward drive art must not replace a backward dash');calls.length=0;drawCombatFighter(ctx,dash,0,0);assert.ok(!calls.some(c=>c[0].src===dashSeq.asset));}
+     const before=dash.x;dash.captureInput(quiet,3+ticks);dash.updatePlayer(quiet,rules);
+     assert.ok((dash.x-before)*direction>0);assert.equal(dash.facing,facing);ticks++;
+    }
+    assert.equal(ticks,8);
+    if(direction===facing)assert.deepEqual([...frames],[0,1,3,4,5,6],'Launch/drive/braking/recovery must all be reached');
+    dash.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(dash,0)?.sequence.id,seq.id);
+   }
   }
  }
  if(added.includes(def.id)) {
@@ -75,8 +93,16 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
    assert.equal(record.sha256,createHash('sha256').update(data).digest('hex').toUpperCase());
    assert.equal(record.enabled,true);assert.equal(record.poseAuthored,true);
    assert.equal(record.poseQa.poseAuthoredPass,true);assert.equal(record.semanticQa.semanticQaPass,true);
+   if(record.id==='dash') {
+    assert.deepEqual(record.frameSize,[640,448]);assert.equal(record.facingRelativeDirection,'forward');
+    for(const metric of record.metrics)assert.ok(Math.abs(metric.scaledSize[1]-metric.sourceBodyHeight*record.normalization.uniformScale)<=1,'Dash must use one body scale without per-frame fit shrinkage');
+    for(const input of [{source:record.source,sourceSha256:record.sourceSha256},...(record.sourceOverrides??[])]) {
+     const bytes=await readFile(new URL(`../${input.source}`,import.meta.url));
+     assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),input.sourceSha256,'Dash source provenance must match');
+    }
+   }
   }
-  assert.equal(manifest.enabledFrameTotal,28);
+  assert.equal(manifest.enabledFrameTotal,35);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.
@@ -85,4 +111,4 @@ for(const id of ['URIEN','GILL']) {
  for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
  assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
 }
-console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,retreatCharacters:6,retreatFrames:60,canvasDraws});
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,dashCharacters:6,dashFrames:42,canvasDraws});

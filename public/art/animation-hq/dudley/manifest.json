@@ -1,8 +1,8 @@
 {
   "character": "DUDLEY",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 28,
-  "enabledFrameTotal": 28,
+  "frameTotal": 35,
+  "enabledFrameTotal": 35,
   "records": [
     {
       "id": "idle",
@@ -744,6 +744,238 @@
       ],
       "source": "art-source/roster-idle/dudley/retreat-sheet.png",
       "sourceSha256": "9B0DB61B1203FABD3C0DEDDB0555C698F8754E192D21EFFE15609E29B6BC27BB"
+    },
+    {
+      "id": "dash",
+      "frames": 7,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        4480,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "C6404679E867D6122CE9EE81252895D4011BAFB4D8F8C9D1BBE4069258C23194",
+      "bytes": 408482,
+      "poseQa": {
+        "affineResidualAverage": 0.033447,
+        "affineResidualMax": 0.04612,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "dash",
+        "limits": {
+          "startEndIoUMin": 0.3,
+          "startEndIoUMax": 0.88,
+          "midpointIoUMin": 0.28,
+          "midpointIoUMax": 0.82,
+          "centroidXRangeMin": 10.0,
+          "centroidXRangeMax": 75.0,
+          "centroidYRangeMin": 10.0,
+          "centroidYRangeMax": 75.0,
+          "centroidStepMax": 58.0,
+          "areaCvMax": 0.18,
+          "residualAverageMin": 0.02,
+          "residualAverageMax": 0.15,
+          "residualMaxMin": 0.04,
+          "residualMaxMax": 0.2
+        },
+        "startEndIoU": 0.683815,
+        "midpointIoU": 0.372143,
+        "centroidXRange": 15.328378,
+        "centroidYRange": 38.493862,
+        "centroidStepMax": 22.77436,
+        "areaCv": 0.026765,
+        "residualAverage": 0.033447,
+        "residualMax": 0.04612,
+        "checks": {
+          "recoveryNotDuplicate": true,
+          "drivePoseDistinct": true,
+          "forwardLeanPresent": true,
+          "verticalDrivePresent": true,
+          "noFrameJump": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true
+        },
+        "semanticQaPass": true
+      },
+      "handoffQa": {
+        "idleToDash": {
+          "iou": 0.369562,
+          "centroidDistance": 28.404718,
+          "footCenterDelta": 19.723985,
+          "areaRatio": 1.378495,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.8,
+            "centroidDistanceMax": 45.0,
+            "areaRatioMin": 0.7,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true
+          },
+          "pass": true
+        },
+        "dashToIdle": {
+          "iou": 0.519082,
+          "centroidDistance": 13.673321,
+          "footCenterDelta": 7.338949,
+          "areaRatio": 0.719629,
+          "limits": {
+            "iouMin": 0.3,
+            "iouMax": 0.82,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 70.0,
+            "areaRatioMin": 0.65,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        2,
+        3,
+        3,
+        4,
+        5,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            365,
+            467
+          ],
+          "sourceBodyHeight": 467,
+          "paste": [
+            192,
+            96
+          ],
+          "scaledSize": [
+            256,
+            327
+          ]
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            344,
+            411
+          ],
+          "sourceBodyHeight": 411,
+          "paste": [
+            200,
+            135
+          ],
+          "scaledSize": [
+            241,
+            288
+          ]
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            565,
+            363
+          ],
+          "sourceBodyHeight": 363,
+          "paste": [
+            122,
+            169
+          ],
+          "scaledSize": [
+            396,
+            254
+          ]
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            372,
+            402
+          ],
+          "sourceBodyHeight": 402,
+          "paste": [
+            190,
+            141
+          ],
+          "scaledSize": [
+            261,
+            282
+          ]
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            356,
+            454
+          ],
+          "sourceBodyHeight": 454,
+          "paste": [
+            196,
+            105
+          ],
+          "scaledSize": [
+            249,
+            318
+          ]
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            330,
+            481
+          ],
+          "sourceBodyHeight": 481,
+          "paste": [
+            204,
+            86
+          ],
+          "scaledSize": [
+            231,
+            337
+          ]
+        }
+      ],
+      "source": "art-source/roster-idle/dudley/dash-sheet.png",
+      "sourceSha256": "9435359B6269A5AAEEFDA3380A90A337F5D4073677FE956C54E377A653B71D89",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 481,
+        "uniformScale": 0.7006237006237006
+      },
+      "facingRelativeDirection": "forward"
     }
   ]
 }

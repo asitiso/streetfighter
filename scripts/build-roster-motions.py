@@ -1,6 +1,6 @@
 """Build the six missing roster movement strips using existing quality gates.
 
-Source sheets are generated key poses (2x2 idle, 2x4 walk, 2x3 retreat).
+Source sheets are generated key poses (2x2 idle, 2x4 walk, 2x3 retreat/dash).
 Default is read-only QA; --install writes all six only after every gate passes.
 """
 from pathlib import Path
@@ -49,48 +49,77 @@ def handoffs(directory,kind,frames):
  records={r['id']:r for r in manifest['records']}
  if kind!='idle' and 'idle' not in records:raise ValueError('Install idle before locomotion')
  spec=importlib.util.spec_from_file_location('roster_handoff',ROOT/'scripts/audit-ken-handoff-semantics.py');h=importlib.util.module_from_spec(spec);spec.loader.exec_module(h)
+ def load_peer(peer):
+  record=records[peer];data=(directory/f'{peer}.webp').read_bytes()
+  if not record['enabled'] or not record['poseAuthored']:raise ValueError('Installed peer is not authored and enabled')
+  if hashlib.sha256(data).hexdigest().upper()!=record['sha256']:raise ValueError('Installed peer checksum mismatch')
+  strip=Image.open(BytesIO(data)).convert('RGBA');width=record['frameSize'][0]
+  if strip.size!=(record['frames']*width,448):raise ValueError('Installed peer dimensions mismatch')
+  return [strip.crop((i*width,0,(i+1)*width,448)) for i in (0,record['frames']-1)]
+ def compare(a,b,limits):
+  width=max(a.width,b.width)
+  def pad(frame):
+   image=Image.new('RGBA',(width,448));image.alpha_composite(frame,((width-frame.width)//2,0));return image
+  return h.compare_motion_bridge(h.alpha_mask(pad(a)),h.alpha_mask(pad(b)),limits)
+ if kind=='dash':
+  base=load_peer('idle')[0]
+  return {'idleToDash':compare(base,frames[0],h.DASH_START_LIMITS),'dashToIdle':compare(frames[-1],base,h.DASH_END_LIMITS)}
  bridges={}
  for peer in ('idle','walk','walk-back'):
   if peer==kind or peer not in records:continue
-  record=records[peer];path=directory/f'{peer}.webp'
-  if not record['enabled'] or not record['poseAuthored']:raise ValueError('Installed peer is not authored and enabled')
-  data=path.read_bytes()
-  if hashlib.sha256(data).hexdigest().upper()!=record['sha256']:raise ValueError('Installed peer checksum mismatch')
-  strip=Image.open(BytesIO(data)).convert('RGBA')
-  if strip.size!=(record['frames']*384,448):raise ValueError('Installed peer dimensions mismatch')
-  peer_first=strip.crop((0,0,384,448));peer_last=strip.crop(((record['frames']-1)*384,0,record['frames']*384,448))
-  bridges[f'{kind}To{peer}']=h.compare_motion_bridge(h.alpha_mask(frames[-1]),h.alpha_mask(peer_first),h.WALK_BACK_BASE_LIMITS)
-  bridges[f'{peer}To{kind}']=h.compare_motion_bridge(h.alpha_mask(peer_last),h.alpha_mask(frames[0]),h.WALK_BACK_BASE_LIMITS)
+  peer_first,peer_last=load_peer(peer)
+  bridges[f'{kind}To{peer}']=compare(frames[-1],peer_first,h.WALK_BACK_BASE_LIMITS)
+  bridges[f'{peer}To{kind}']=compare(peer_last,frames[0],h.WALK_BACK_BASE_LIMITS)
+ if kind=='idle' and 'dash' in records:
+  start,end=load_peer('dash')
+  bridges['idleToDash']=compare(frames[0],start,h.DASH_START_LIMITS)
+  bridges['dashToIdle']=compare(end,frames[0],h.DASH_END_LIMITS)
  return bridges
 
 def webp(frames):
- strip=Image.new('RGBA',(384*len(frames),448))
- for index,frame in enumerate(frames):strip.alpha_composite(frame,(384*index,0))
+ width=frames[0].width;strip=Image.new('RGBA',(width*len(frames),448))
+ for index,frame in enumerate(frames):strip.alpha_composite(frame,(width*index,0))
  data=BytesIO();strip.save(data,'WEBP',lossless=True,method=4)
  return data.getvalue()
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['idle','walk','walk-back','dash'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
+ width=640 if kind=='dash' else 384;motion.FRAME_W=width
  for entry in CONFIG:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
   if args.runtime:
    manifest=json.loads((directory/'manifest.json').read_text());record=next(r for r in manifest['records'] if r['id']==kind)
    if not record['enabled'] or not record['poseAuthored'] or record['frames']!=count:raise ValueError(f'{slug}: runtime record mismatch')
+   if record['frameSize']!=[width,448] or record['stripSize']!=[width*count,448]:raise ValueError(f'{slug}: runtime cell metadata mismatch')
+   if kind=='dash' and record.get('facingRelativeDirection')!='forward':raise ValueError(f'{slug}: dash direction metadata mismatch')
    data=(directory/f'{kind}.webp').read_bytes();sheet=Image.open(BytesIO(data)).convert('RGBA')
-   if sheet.size!=(384*count,448):raise ValueError(f'{slug}: invalid runtime dimensions')
+   if sheet.size!=(width*count,448):raise ValueError(f'{slug}: invalid runtime dimensions')
    if hashlib.sha256(data).hexdigest().upper()!=record['sha256']:raise ValueError(f'{slug}: checksum mismatch')
-   frames=[sheet.crop((i*384,0,(i+1)*384,448)) for i in range(count)]
+   frames=[sheet.crop((i*width,0,(i+1)*width,448)) for i in range(count)]
    pose=motion.pose_qa(frames,kind);semantic=motion.semantic_qa(kind,frames,pose)
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png'}[kind])
-  keys,metrics=motion.normalize_frames(kind,extract(Image.open(source),{'idle':2,'walk':4,'walk-back':3}[kind]))
+  source=SOURCE/slug/({'idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png'}[kind])
+  raw=extract(Image.open(source),{'idle':2,'walk':4,'walk-back':3,'dash':3}[kind]);normalization=None;overrides=[]
+  if kind=='dash':
+   if 'dashEntry' in entry:
+    recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
+    raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
+    overrides.append({'frame':1,'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['pose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
+   idle=Image.open(directory/'idle.webp').convert('RGBA').crop((0,0,384,448));box=idle.getbbox();idle_height=box[3]-box[1]
+   heights=[frame.getbbox()[3]-frame.getbbox()[1] for frame in raw]
+   # Use standing recovery as the anatomical scale reference. A median of
+   # compressed dash poses would enlarge every limb when returning to guard.
+   motion.TARGET_HEIGHT['dash']=idle_height*float(np.median(heights))/heights[-1]
+   normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':heights[-1],'uniformScale':idle_height/heights[-1]}
+  keys,metrics=motion.normalize_frames(kind,raw)
   choices=[]
   gait=[0,0,1,2,2,3,4,4,5,6,6,7] if kind=='walk' else [0,0,1,2,2,3,4,4,5,5]
   orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
+  if kind=='dash':orders=[[0,1,2,2,3,4,5]]
   for order in orders:
    frames=[keys[i] for i in order]
    pose=motion.pose_qa(frames,kind);semantic=motion.semantic_qa(kind,frames,pose)
@@ -98,13 +127,16 @@ def main():
    if pose['poseAuthoredPass'] and semantic['semanticQaPass'] and all(r['pass'] for r in bridges.values()):
     choices.append((semantic['centroidStepMax'],order,frames,pose,semantic,bridges))
   if not choices:
-   print(json.dumps({'character':slug,'lastPose':pose,'lastSemantic':semantic},indent=2));raise ValueError(f'{slug}: no loop passes unchanged {kind} gates')
+   print(json.dumps({'character':slug,'lastPose':pose,'lastSemantic':semantic,'handoffs':bridges},indent=2));raise ValueError(f'{slug}: no candidate passes unchanged {kind} gates')
   _,order,frames,pose,semantic,bridges=min(choices,key=lambda value:value[0])
   for frame in frames:
    mask=np.asarray(frame.getchannel('A'))>32
    if mask[0].any() or mask[-1].any() or mask[:,0].any() or mask[:,-1].any():raise ValueError(f'{slug}: clipped body')
   data=webp(frames)
-  record={'id':kind,'frames':count,'frameSize':[384,448],'stripSize':[384*count,448],'renderMode':'full','enabled':True,'poseAuthored':True,'sha256':hashlib.sha256(data).hexdigest().upper(),'bytes':len(data),'poseQa':pose,'semanticQa':semantic,'handoffQa':bridges,'sourceOrder':[i+1 for i in order],'metrics':metrics,'source':source.relative_to(ROOT).as_posix(),'sourceSha256':hashlib.sha256(source.read_bytes()).hexdigest().upper()}
+  record={'id':kind,'frames':count,'frameSize':[width,448],'stripSize':[width*count,448],'renderMode':'full','enabled':True,'poseAuthored':True,'sha256':hashlib.sha256(data).hexdigest().upper(),'bytes':len(data),'poseQa':pose,'semanticQa':semantic,'handoffQa':bridges,'sourceOrder':[i+1 for i in order],'metrics':metrics,'source':source.relative_to(ROOT).as_posix(),'sourceSha256':hashlib.sha256(source.read_bytes()).hexdigest().upper()}
+  if normalization:record['normalization']=normalization
+  if kind=='dash':record['facingRelativeDirection']='forward'
+  if overrides:record['sourceOverrides']=overrides
   manifest=json.loads((directory/'manifest.json').read_text()) if (directory/'manifest.json').exists() else {'character':entry['id'],'pipeline':'roster-movement-authored-v1','records':[]}
   manifest['pipeline']='roster-movement-authored-v1'
   manifest.pop('source',None);manifest.pop('sourceSha256',None)

@@ -170,6 +170,8 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
     return { sequence, frame: frameAt(sequence, progress), progress, contact: false };
   }
   if (kind === 'dash') {
+    const direction = fighter.dashDirection === fighter.facing ? 'forward' : 'backward';
+    if (sequence.facingRelativeDirection && sequence.facingRelativeDirection !== direction) return null;
     const progress = clamp01(1 - fighter.dashFrames / 8);
     return { sequence, frame: frameAt(sequence, progress), progress, contact: false };
   }
