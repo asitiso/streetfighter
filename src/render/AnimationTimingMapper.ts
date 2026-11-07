@@ -100,6 +100,7 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
   if (['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'].includes(characterId)) {
     switch (move.id) {
       case '2LP': return 'crouch-light';
+      case '2MP': return 'crouch-medium';
       case '5LP': return 'stand-light';
       case '5MP': return 'stand-medium';
       case '5HP': return 'stand-heavy';
@@ -160,7 +161,7 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
     if (characterId === 'CHUNLI' && fighter.airborne && fighter.currentMove.id !== 'CHUNLI_ANTI_AIR' && fighter.currentMove.id !== 'CHUNLI_SA3') return null;
     const kind = animationSequenceKindForAttack(characterId, fighter.currentMove);
     if (!kind) return null;
-    if (fighter.airborne && (kind === 'crouch-light' || kind === 'stand-light' || kind === 'stand-medium' || kind === 'stand-heavy' || kind === 'stand-light-kick' || kind === 'stand-medium-kick' || kind === 'stand-heavy-kick')) return null;
+    if (fighter.airborne && (kind === 'crouch-light' || kind === 'crouch-medium' || kind === 'stand-light' || kind === 'stand-medium' || kind === 'stand-heavy' || kind === 'stand-light-kick' || kind === 'stand-medium-kick' || kind === 'stand-heavy-kick')) return null;
     const sequence = animationSequenceFor(characterId, kind, true);
     if (!sequence || !sequence.poseAuthored) return null;
     const sample = attackFrame(sequence, fighter, fighter.currentMove);
