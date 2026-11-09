@@ -4,6 +4,7 @@ import {getCharacter,CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/chara
 import {normalFor} from '../dist/assets/combat/MoveLibrary.js';
 import {animationSequenceFor,animationSequencesFor} from '../dist/assets/render/AnimationSequenceLibrary.js';
 import {animationSequenceKindForAttack,animationSequenceSample} from '../dist/assets/render/AnimationTimingMapper.js';
+assert.equal(animationSequenceKindForAttack('CHUNLI',normalFor('mk',true,'CHUNLI')),'crouch-medium-kick','Chun-Li2MK needs its own low medium kick');
 assert.equal(animationSequenceKindForAttack('CHUNLI',normalFor('lk',true,'CHUNLI')),'crouch-light-kick','Chun-Li2LK needs its own low kick');
 assert.equal(animationSequenceKindForAttack('CHUNLI',normalFor('hp',true,'CHUNLI')),'crouch-heavy','Chun-Li2HP needs its own low heavy punch');
 assert.equal(animationSequenceKindForAttack('CHUNLI',normalFor('mp',true,'CHUNLI')),'crouch-medium','Chun-Li2MP needs its own low medium punch');
@@ -24,7 +25,7 @@ const draws=[];let canvasDraws=0;
 const ctx=new Proxy({globalAlpha:1,drawImage:(...a)=>draws.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
 for(const [button,kind,count,contactStart,contactEnd] of [['lp','crouch-light',7,3,3],['mp','crouch-medium',8,3,3],['hp','crouch-heavy',10,4,5],['lk','crouch-light-kick',8,3,3],['mk','crouch-medium-kick',10,4,5],['hk','crouch-heavy-kick',12,5,6]])
 for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL','RYU','KEN','CHUNLI'])for(const facing of [-1,1])for(const heldAfter of [true,false]){
- if(id==='CHUNLI'&&!['lp','mp','hp','lk'].includes(button))continue;
+ if(id==='CHUNLI'&&!['lp','mp','hp','lk','mk'].includes(button))continue;
  const f=new Fighter(getCharacter(id),'player',600,500,facing),seq=animationSequenceFor(id,kind);
  assert.ok(seq?.enabled&&seq.poseAuthored,`${id} needs authored crouching ${button.toUpperCase()}`);assert.equal(seq.frameCount,count);
  for(let t=0;t<6;t++)f.updatePlayer(down,rules);
@@ -51,4 +52,4 @@ for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL','RYU','KEN','CHUN
  f.state='attack';f.currentMove=move;f.airborne=true;assert.equal(animationSequenceSample(f,0),null,'Grounded crouching art must not replace air attacks');
  assert.equal(animationSequenceKindForAttack(id,{...normalFor('hk',true,id),id:id+'_COMMAND_2HK'}),null,'Command moves keep their own presentation');
 }
-console.log('ROSTER_CROUCH_ATTACKS_PASS',{characters:9,completeSets:8,facings:2,releaseDuringAttack:true,storedFrames:473,canvasDraws});
+console.log('ROSTER_CROUCH_ATTACKS_PASS',{characters:9,completeSets:8,facings:2,releaseDuringAttack:true,storedFrames:483,canvasDraws});

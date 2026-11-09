@@ -774,3 +774,19 @@ python scripts/build-roster-motions.py --character CHUNLI --kind crouch-light-ki
 python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-light-kick
 node scripts/verify-roster-crouch-light.mjs
 ```
+
+## Chun-Li crouching medium kick
+
+Six new lowguard/loadedchamber/halfextension/mediumlowcontact/foldedwithdrawal/recoveredguard drawings use defaultorder[1,1,2,3,4,4,5,5,6,6] in10stored640x448frames,startup0–3/contact4–5/recovery6–9. Finalsource `chunli/crouch-medium-kick-sheet.png` andexactbuilt-inprompt `chunli/crouch-medium-kick-prompt.txt` retained; originalcrouchbottom-rightlowguardisreference. Firstgeneration passesunchangedoriginalnumericpose/action/handoffgates0.021271/0.039061,bothcontactsreach94px/footheight73px,supportcenter0.950633px/baseline0. Kickprofile/installedcrouchreference/rearsupport/opaque422/zerooffsetsretained. Cleanruntimecompositeinspected.
+
+Onlyexactgrounded2MKselectsnewstrip. Both-facingactualinputcoversall10frames/contacts4–5/hitstop/heldlowguard/releasedrecoverybefore rising. Existinglowpunch3set/2LK/remaining2HKfallback/standing/special/SA/command/air/target/gameplayunchanged. Loadedchamber/counterleanandextensiondistinguishmediumkick; numericlowkickenvelopesintentionallyoverlap. Lowattackchecks9characters(8complete sets plusChun-LiLP/MP/HP/LK/MK),483storedframes/4840Canvasdraws.
+
+Sharedselector/defaultkickprofile/Ryuactualcontactaudit/parameterizedfixture reused. Eachactualcontactindependentlyrejectsguard/standingpunch/lowpunch/highkickwithvalidkickatstartup;displacedroot/baseline/static/translated/runtimeprofile/source/crouch-peererrorsreject. Byte-stablereinstallandfirst/new-file/replacementrollbackpreserve27priorrecords/art/bindings/pipeline.
+
+Chun-Linow255enabled/fullframes/28records. New431110bytesraisesentry15844246→16275356bytes,requiringexplicitChun-Lionly16→17MBcap;otherbudgets/originalquality/eagerloadingunchanged. Movementpreparationexcludeslowattacks. Cachev158.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind crouch-medium-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-medium-kick
+node scripts/verify-roster-crouch-light.mjs
+```
