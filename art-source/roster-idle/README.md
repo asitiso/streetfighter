@@ -836,3 +836,19 @@ python scripts/build-roster-motions.py --character IBUKI --kind crouch-light --r
 python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-light
 node scripts/verify-roster-crouch-light.mjs
 ```
+
+## Ibuki crouching medium punch
+
+Six authored lowguard/rotatedcompacttwo-fistpreparation/halfextension/mediumcontact/withdrawal/recoveredguard drawings use defaultorder[1,2,3,4,5,5,6,6] in8stored640x448frames,startup0–2/contact3/recovery4–7. Finalsource `ibuki/crouch-medium-sheet.png`,exactbuilt-ingeneration/editprompts `ibuki/crouch-medium-prompt.txt` andexacteditinput retained;Ibuki2LPsheetisguard/anatomy/armcontinuityreference. Firstsourcepassed0.016068/0.025412;strongershoulderrotationandforwarddrive refinesmediumactionwithoutarmroleswap. Finalunchangedoriginalnumericpose/action/handoffgates0.016896/0.028735,contact3reach77pxinfixedband256–337,footcenter1.290645pxpass. Installedcrouchreference/twofoot/opaque429/zerooffsetsretained. Compositedruntimepreviewclean.
+
+Onlyexactgrounded2MPselectsnewstrip. Compacttwo-fistguardkeepsfront/rightarmconsistentthroughhalfextension/contact/withdrawal. Both-facingactualinputall8frames/contact3/hitstop/heldlowguard/releasedrecoveryverified. Existing2LP/fourremaininglowattacks/standingMPpalm/special/SA/command/air/target/gameplayunchanged. Lowattackchecks10characters(9complete sets plusIbukiLP/MP),510storedframes/5100Canvasdraws.
+
+Sharedselector/defaultmediumrecipe/Ryuactualcontactaudit/parameterizedfixture reused. Guardatactualcontactwithvalidcrossatstartup,static/translated/runtime/source/crouch-peererrorsreject. Byte-stablereinstallandfirst/new-file/replacementrollbackpreserve23priorrecords/art/bindings/pipeline.
+
+Ibukinow213enabled/fullframes/24records. New529638bytesraisesentry10763378→11293016underunchanged13MBcap;otherbudgets/originalquality/eagerloadingunchanged. Movementpreparationexcludeslowattacks. Cachev162.
+
+```sh
+python scripts/build-roster-motions.py --character IBUKI --kind crouch-medium --runtime
+python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-medium
+node scripts/verify-roster-crouch-light.mjs
+```
