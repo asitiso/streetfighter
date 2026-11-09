@@ -7,11 +7,11 @@ import importlib.util,io,json,shutil,sys,hashlib,argparse
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-supported={'CHUNLI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')}
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN','RYU'],default='CHUNLI');parser.add_argument('--kind',choices=['hadoken','crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
+supported={'RYU':('hadoken',),'CHUNLI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')}
 if selected_kind not in supported[character]:parser.error('Unsupported supplemental character/kind')
-count,width,order={'crouch-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6]),'crouch-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'crouch-heavy':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
-slug=character.lower();prior_count={'CHUNLI':28,'IBUKI':27,'KEN':26}[character];total={'CHUNLI':267,'IBUKI':253,'KEN':243}[character]
+count,width,order={'hadoken':(12,640,[1,1,2,2,3,4,4,5,5,6,6,6]),'crouch-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6]),'crouch-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'crouch-heavy':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
+slug=character.lower();prior_count={'RYU':24,'CHUNLI':28,'IBUKI':27,'KEN':26}[character];total={'RYU':217,'CHUNLI':267,'IBUKI':253,'KEN':243}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -37,7 +37,7 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
   except errors:pass
   else:raise AssertionError('Invalid input accepted')
   assert snapshot()==before,'Rejected input modified runtime'
- for kind in ('idle','air','dash','stand-light'):rejected(lambda:run(kind),(SystemExit,))
+ for kind in (('idle','air','dash') if character=='RYU' else ('idle','air','dash','stand-light')):rejected(lambda:run(kind),(SystemExit,))
  def rollback():
   before=snapshot();write=Path.write_bytes;failed=False
   def fail(p,payload):
@@ -50,7 +50,7 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
    else:raise AssertionError('Write error swallowed')
   assert failed and before==snapshot(),'Failed install did not roll back'
  rollback();run();current=json.loads(path.read_text())
- assert [current[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[total,total,total,0]
+ assert [current[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[total,205 if character=='RYU' else total,205 if character=='RYU' else total,0]
  assert len(current['records'])==prior_count+1
  assert prior==current['records'][:-1] and current['records'][-1]['id']==selected_kind
  assert binding=={k:current[k] for k in binding}
@@ -75,6 +75,11 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
   assert max(roots)-min(roots)<1,'Planted Ibuki defense root slides with changing arm silhouette'
  def negative(frames,label):assert not motion.semantic_qa(selected_kind,frames,motion.pose_qa(frames,selected_kind))['semanticQaPass'],label
  pad=Image.new('RGBA',(width,448));pad.alpha_composite(guard,((width-384)//2,0))
+ if selected_kind=='hadoken':
+  for contact in (5,6):
+   wrong=frames.copy();wrong[1]=frames[5];wrong[contact]=pad
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks']['actualReleasePoses'] and not report['semanticQaPass'],'Guard at actual release accepted'
  if selected_kind=='crouch-heavy':
   assert rec['semanticProfile']=='strike'
   for contact in (4,5):

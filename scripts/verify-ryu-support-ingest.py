@@ -24,7 +24,7 @@ for kind in kinds:
 variance=load(ROOT/'scripts/measure-animation-pose-variance.py','ryu_variance')
 with TemporaryDirectory(prefix='ryu-variance-') as variance_temp:
  report=variance.measure('RYU',Path(variance_temp)/'report.json',strict_missing=True)
- for kind in ('dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):
+ for kind in ('hadoken','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):
   row=next(r for r in report['records'] if r['sequence']==kind)
   assert row['poseAuthoredPass'],'Actual-width Ryu punch variance failed'
   sheet=Image.open(ROOT/f'public/art/animation-hq/ryu/{kind}.webp').convert('RGBA')
@@ -44,7 +44,7 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
   if r['id'] in ('walk-back','hit','stand-light','stand-heavy'):r.update(enabled=False,poseAuthored=False)
  for name in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):(runtime/f'{name}.webp').unlink()
  builder.update_frame_totals(data);path.write_text(json.dumps(data))
- assert data['frameTotal']==100 and data['enabledFrameTotal']==41
+ assert data['frameTotal']==100 and data['enabledFrameTotal']==53
  binding={k:data[k] for k in ('source','sourcePath','sourceSize','sourceSha256')}
  staged={r['id']:r.copy() for r in data['records'] if r['id'] in ('hadoken','shoryuken')}
  staged_files={name:(runtime/f'{name}.webp').read_bytes() for name in staged}
@@ -88,7 +88,7 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
   assert [r['id'] for r in current['records']][:len(order)]==order,'Promotion reordered staged records'
  # Refresh the new low-guard record after its new attack peers exist.
  run('crouch')
- final=json.loads(path.read_text());assert [final[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[217,193,193,0]
+ final=json.loads(path.read_text());assert [final[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[217,205,205,0]
  assert len(final['records'])==25
  assert support_snapshot=={r['id']:r for r in final['records'] if r['id'] in support_snapshot},'Punch promotion changed support records'
  assert support_files=={name:(runtime/f'{name}.webp').read_bytes() for name in support_files},'Punch promotion changed support art'

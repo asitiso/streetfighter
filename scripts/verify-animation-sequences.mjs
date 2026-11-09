@@ -43,8 +43,8 @@ assert.equal(manifest.character, 'RYU');
 assert.equal(manifest.pipeline, 'roster-movement-authored-v1');
 assert.deepEqual(manifest.sourceSize, [384,448]);
 assert.equal(manifest.frameTotal, 217);
-assert.equal(manifest.enabledFrameTotal, 193);
-assert.equal(manifest.fullFrameTotal, 193);
+assert.equal(manifest.enabledFrameTotal, 205);
+assert.equal(manifest.fullFrameTotal, 205);
 assert.equal(manifest.bridgeFrameTotal, 0);
 assert.equal(manifest.records.length, 25);
 
@@ -67,7 +67,7 @@ for (const rec of manifest.records) {
   assert.equal(dim.width, rec.frameSize[0] * rec.frames, `${rec.id} strip width mismatch`);
   assert.equal(dim.height, 448, `${rec.id} strip height mismatch`);
   assert.equal(dim.alpha, true, `${rec.id} should preserve transparency`);
-  assert.equal(rec.frameSize[0], ['dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'].includes(rec.id)?640:384);
+  assert.equal(rec.frameSize[0], ['hadoken','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'].includes(rec.id)?640:384);
   assert.equal(rec.frameSize[1], 448);
   assert.deepEqual(rec.stripSize, [rec.frameSize[0] * rec.frames, 448]);
   assert.equal(rec.sha256, sha(data), `${rec.id} sha mismatch`);
@@ -81,7 +81,7 @@ assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalB
 
 
 assert.equal(animationSequenceFrameTotal('RYU'), 217);
-assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 193);
+assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 205);
 assert.equal(animationSequenceFrameTotal('KEN'), 243, 'Ken registry should include 70 movement + 11 defense + 162 attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
@@ -120,10 +120,10 @@ assert.equal(animationSequenceFor('RYU','dash', false)?.frameCount, 7);
 assert.equal(animationSequenceFor('RYU','jump', false)?.frameCount, 8);
 assert.equal(animationSequenceFor('RYU','landing', false)?.frameCount, 6);
 assert.equal(animationSequenceFor('RYU','hit', false)?.frameCount, 8);
-assert.equal(animationSequenceFor('RYU','hadoken', false)?.renderMode, 'bridge');
+assert.equal(animationSequenceFor('RYU','hadoken', false)?.renderMode, 'full');
 assert.equal(animationSequenceFor('RYU','shoryuken', false)?.renderMode, 'bridge');
 
-for (const kind of ['hadoken','shoryuken']) {
+for (const kind of ['shoryuken']) {
   const seq = animationSequenceFor('RYU', kind, false);
   assert.ok(seq, `missing Ryu staging sequence ${kind}`);
   assert.equal(seq.enabled, false, `${kind} must stay disabled until pose-authored art is available`);
@@ -360,8 +360,8 @@ try {
  assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('RYU',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort(),'Stage entry movement + combat preload must exclude staged-disabled art');
  for(const url of new Set(requests)){const rec=manifest.records.find(r=>url===`/art/animation-hq/ryu/${r.id}.webp`);assert.ok(rec?.enabled);stageEntryPreloadBytes+=rec.bytes;}
  assert.equal(stageEntryPreloadBytes,catalogBytes,'Stage entry must cover the complete enabled Ryu catalog');
- // Increased explicitly from12MB to13MB for the new523138-byte backward dash; no image-quality reduction.
- assert.ok(stageEntryPreloadBytes<13_000_000,`Ryu stage-entry animation preload exceeds13MB: ${stageEntryPreloadBytes}`);
+ // Previously12->13MB for backward dash; now13->14MB for592340-byte authored hadoken; preserve image quality.
+ assert.ok(stageEntryPreloadBytes<14_000_000,`Ryu stage-entry animation preload exceeds14MB: ${stageEntryPreloadBytes}`);
  animationTextureManager.releaseCharacter('RYU');requests.length=0;
  const chunliManifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/chunli/manifest.json',import.meta.url),'utf8'));
  animationTextureManager.releaseCharacter('CHUNLI');

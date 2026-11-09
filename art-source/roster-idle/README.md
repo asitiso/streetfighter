@@ -898,3 +898,17 @@ Alltencharacters now have authored sixstanding and sixcrouching normals. Exact2H
 Verification: fouraffectedfixtures IBUKI2HK/2MK/5HK CHUNLI2HK pass;cleanTypeScript/build/release446files hash1CE46AC20B9ABA6F plus12focusedchecks pass. Both-facing160tickinputpreview all12frames/contact5/6/hitstop/heldlowguard/releasedrise checked. All10low-normal sets:550storedframes/5492Canvasdraws;standing60strips550frames unchanged. FreshknownPWA v025network2vs0/v028removedpinCurrentShell/v063pinned065vscurrent166 fail;no fullsuiteclaim.
 
 Complete six-button both-facing actual-input preview covers every storedframe/contact/hitstop/heldlowguard/releasedrise. Independent readonly review review_ibuki_crouch_heavy_kick found no actionable P1/P2,confirmed leg/armcontinuity/2MKdistinction and27previousrecords/WebPbytes preserved.
+
+## Ryu pose-authored hadoken promotion (2026-11-09)
+
+Built-in imagegen source ryu/hadoken-sheet.png and exactprompt ryu/hadoken-prompt.txt; reference existing ryu/stand-medium-sheet.png. Six new poses:guard,twohandhipgather,halfpush,bothpalmsrelease,withdrawal,guard. No baked energy orb;existing gameplay owns projectile. Same two hands continuous,feet planted. Firstgeneration passes originalKenhadoken numeric gates and originalHADOKEN_BASE handofflimits,plus actualrelease5/6 audit.
+
+Twelve640x448frames [1,1,2,2,3,4,4,5,5,6,6,6],startup0–4/release5–6/recovery7–11,snap24,installedidle349px/twofoot/opaque433/zerooffsets. Residual.019614/.042919,reachrange59px,releasepastgather27px at5/6,footcenter1.025334px;handoffIoU.695191/.653412. New592340bytes replaces969404-byte disabled384widepilot. Ryu217totalframes/205active-full,25records;24otherrecords/art unchanged,12-frame884676-byteuppercut remainsdisabled. Activeentry12490276→13082616;Ryu-only13→14MBbudget preservesquality/eagerloading. Diskpilotbytesdecrease377064. Cacheclient+SW167.
+
+Exactexisting primary/EX/super/SA1/SA3 bindings retained. Grounded-onlystrip preserves aerialfallback. New test covers realquartercircle/EXinputs,bothfacings,5mappedvariants,realCombatWorldprojectilegeneration atrelease5,Canvascropping/zerooffsets,hitstop,completeprimary12frames/recovery. FasterEX/superstartups sample fewer preparationframes per unchanged gameplay duration. Allstanding/crouching normals and other specials unchanged.
+
+Commands: python scripts/build-roster-motions.py --character RYU --kind hadoken [--install|--runtime]; python scripts/verify-chunli-backdash-ingest.py --character RYU --kind hadoken; node scripts/verify-ryu-hadoken.mjs.
+
+Fresh verification: RYUhadoken fixture,Ryu supportpromotion/variance fixture,Ken specialsemantics andIbuki2HK fixture pass. CleanTypeScript/build/release446files hash2AE6BEA66F46D2F5 and13focusedchecks pass. Actual5variants/bothfacings396Canvasdraws,projectile release5/count/hitstop/airfallback/idle verified. Diagnosticpreview corrected to.88*halfsource art and unscaled worldprojectile coordinates,not a browsercapture. KnownPWA v025network2vs0/v028pinCurrentShell/v063065vs167 remain;fullsuite not rerun. Generated trackedposecache restored.
+
+Independent readonly review review_ryu_hadoken found no actionable P1/P2; independently verified24priorrecords/art and396runtimeCanvasdraws. Corrected diagnostic preview shows palms meet shot upperedge; gameplaycoordinates unchanged.

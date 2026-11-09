@@ -10,8 +10,8 @@
   ],
   "sourceSha256": "5E21EA786BF59F73A684DC416487766F5672134FD75BCB6F8C66CBBA27D6AA23",
   "frameTotal": 217,
-  "enabledFrameTotal": 193,
-  "fullFrameTotal": 193,
+  "enabledFrameTotal": 205,
+  "fullFrameTotal": 205,
   "bridgeFrameTotal": 0,
   "records": [
     {
@@ -1189,18 +1189,282 @@
       "id": "hadoken",
       "frames": 12,
       "frameSize": [
-        384,
+        640,
         448
       ],
       "stripSize": [
-        4608,
+        7680,
         448
       ],
-      "bytes": 969404,
-      "sha256": "0C99917E3865238EC2EDE9EF03A1915655CEE3E8B4659DA853E2584A01670F03",
-      "enabled": false,
-      "renderMode": "bridge",
-      "poseAuthored": false
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "A4E6112BA2E96E8A06DB7D535B0F90EC4470B82FC118F619BEEE9D67D48A9F6E",
+      "bytes": 592340,
+      "poseQa": {
+        "affineResidualAverage": 0.019614,
+        "affineResidualMax": 0.042919,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "hadoken",
+        "limits": {
+          "startEndIoUMin": 0.48,
+          "releaseIoUMin": 0.22,
+          "releaseIoUMax": 0.92,
+          "centroidXRangeMin": 6.0,
+          "centroidXRangeMax": 68.0,
+          "centroidYRangeMax": 44.0,
+          "reachRangeMin": 34.0,
+          "reachRangeMax": 155.0,
+          "releaseReachDeltaMin": 24.0,
+          "footCenterRangeMax": 62.0,
+          "footWidthCvMax": 0.58,
+          "areaCvMax": 0.22,
+          "residualAverageMin": 0.014,
+          "residualAverageMax": 0.19,
+          "residualMaxMin": 0.03,
+          "residualMaxMax": 0.25,
+          "releaseFrameIndex": 5
+        },
+        "startEndIoU": 0.922062,
+        "releaseIoU": 0.587064,
+        "centroidXRange": 30.301107,
+        "centroidYRange": 6.595195,
+        "reachRange": 59.0,
+        "releaseReachDelta": 27.0,
+        "footCenterRange": 1.025334,
+        "footWidthCv": 0.060958,
+        "areaCv": 0.039853,
+        "residualAverage": 0.019614,
+        "residualMax": 0.042919,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "releasePoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "handExtensionPresent": true,
+          "releaseExtendsPastGather": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "actualReleasePoses": true
+        },
+        "semanticQaPass": true,
+        "actualReleases": [
+          {
+            "frame": 5,
+            "releaseReachDelta": 27.0,
+            "pass": true
+          },
+          {
+            "frame": 6,
+            "releaseReachDelta": 27.0,
+            "pass": true
+          }
+        ]
+      },
+      "handoffQa": {
+        "idleToHadoken": {
+          "iou": 0.695191,
+          "centroidDistance": 17.780865,
+          "footCenterDelta": 0.108284,
+          "areaRatio": 1.003779,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 60.0,
+            "areaRatioMin": 0.66,
+            "areaRatioMax": 1.42
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "hadokenToIdle": {
+          "iou": 0.653412,
+          "centroidDistance": 20.60328,
+          "footCenterDelta": 0.666337,
+          "areaRatio": 0.96724,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 48.0,
+            "footCenterDeltaMax": 60.0,
+            "areaRatioMin": 0.66,
+            "areaRatioMax": 1.42
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        2,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            232,
+            314
+          ],
+          "sourceBodyHeight": 314,
+          "paste": [
+            189,
+            77
+          ],
+          "scaledSize": [
+            255,
+            346
+          ],
+          "footAnchorShift": -3
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            264,
+            317
+          ],
+          "sourceBodyHeight": 317,
+          "paste": [
+            183,
+            74
+          ],
+          "scaledSize": [
+            291,
+            349
+          ],
+          "footAnchorShift": 9
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            248,
+            316
+          ],
+          "sourceBodyHeight": 316,
+          "paste": [
+            180,
+            75
+          ],
+          "scaledSize": [
+            273,
+            348
+          ],
+          "footAnchorShift": -4
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            301,
+            311
+          ],
+          "sourceBodyHeight": 311,
+          "paste": [
+            171,
+            81
+          ],
+          "scaledSize": [
+            331,
+            342
+          ],
+          "footAnchorShift": 17
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            249,
+            317
+          ],
+          "sourceBodyHeight": 317,
+          "paste": [
+            178,
+            74
+          ],
+          "scaledSize": [
+            274,
+            349
+          ],
+          "footAnchorShift": -5
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            235,
+            317
+          ],
+          "sourceBodyHeight": 317,
+          "paste": [
+            184,
+            74
+          ],
+          "scaledSize": [
+            259,
+            349
+          ],
+          "footAnchorShift": -6
+        }
+      ],
+      "source": "art-source/roster-idle/ryu/hadoken-sheet.png",
+      "sourceSha256": "8586D3F122C3706496951C16EEFBEE1CF5C4783D4E6018580F7751FF1AC865BC",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 349,
+        "sourceGuardHeight": 317,
+        "uniformScale": 1.1009463722397477,
+        "footBaselineReference": "installed-idle",
+        "footBaseline": 433,
+        "sourceBaselineOffsets": [
+          13,
+          14,
+          13,
+          13,
+          13,
+          14
+        ],
+        "footAnchorX": 320.2231821454284
+      },
+      "sourceGrid": [
+        2,
+        3
+      ]
     },
     {
       "id": "shoryuken",
