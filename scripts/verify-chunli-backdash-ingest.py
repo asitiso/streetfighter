@@ -7,11 +7,11 @@ import importlib.util,io,json,shutil,sys,hashlib,argparse
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-supported={'CHUNLI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick')}
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
+supported={'CHUNLI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch')}
 if selected_kind not in supported[character]:parser.error('Unsupported supplemental character/kind')
-count,width,order={'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
-slug=character.lower();prior_count={'CHUNLI':21,'IBUKI':20,'KEN':19}[character];total={'CHUNLI':206,'IBUKI':192,'KEN':182}[character]
+count,width,order={'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
+slug=character.lower();prior_count={'CHUNLI':21,'IBUKI':20,'KEN':20}[character];total={'CHUNLI':206,'IBUKI':192,'KEN':188}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -65,6 +65,10 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
  baseline=int(np.nonzero(np.asarray(guard.getchannel('A'))>=32)[0].max())
  for frame in frames:assert int(np.nonzero(np.asarray(frame.getchannel('A'))>=32)[0].max())==baseline
  motion=module.module();motion.FRAME_W=width;motion.ROSTER_CHARACTER=character
+ if selected_kind=='crouch':
+  assert rec['sourceGrid']==[2,2]
+  assert rec['normalization']['reference']=='idle-standing-height' and rec['normalization']['standingReferenceFrame']==1
+  assert rec['normalization']['footAnchorMode']=='two-foot'
  if character=='IBUKI' and selected_kind in ('guard','parry'):
   roots=[motion._foot_metrics(motion._binary_mask(f))[0] for f in frames]
   assert max(roots)-min(roots)<1,'Planted Ibuki defense root slides with changing arm silhouette'
@@ -90,6 +94,7 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
    shifted=Image.new('RGBA',(width,448));shifted.alpha_composite(frames[contacts[0]],offset);wrong=frames.copy();wrong[contacts[0]]=shifted
    report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
    assert not report['checks'][check] and not report['semanticQaPass'],'Displaced support sole accepted'
+ if selected_kind=='crouch':negative(list(reversed(frames)),'Rising strip accepted as crouch entry')
  negative([pad]*count,'Static guard accepted')
  translated=[]
  for dx in {5:(0,-8,-16,-8,0),6:(0,-8,-16,-16,-8,0),7:(0,-8,-16,-16,-8,-4,0),8:(0,-8,-16,-16,-8,-4,0,0),10:(0,-8,-16,-16,-8,-4,0,0,0,0),12:(0,-8,-16,-16,-8,-4,0,0,0,0,0,0)}[count]:

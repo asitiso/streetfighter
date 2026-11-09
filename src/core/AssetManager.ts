@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v145';
+export const GAME_CACHE_NAME = 'game-cache-v146';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -69,6 +69,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/animation-hq/ryu/hit.webp', '/art/animation-hq/ryu/stand-light.webp', '/art/animation-hq/ryu/stand-medium.webp', '/art/animation-hq/ryu/stand-light-kick.webp', '/art/animation-hq/ryu/stand-medium-kick.webp', '/art/animation-hq/ryu/stand-heavy-kick.webp', '/art/animation-hq/ryu/stand-heavy.webp',
     // Staged-disabled Ryu specials stay on disk until their authored art is ready.
     '/art/animation-hq/ken/manifest.json',
+    '/art/animation-hq/ken/crouch.webp',
     '/art/animation-hq/ken/idle.webp', '/art/animation-hq/ken/walk.webp', '/art/animation-hq/ken/walk-back.webp',
     '/art/animation-hq/ken/dash-back.webp', '/art/animation-hq/ken/dash.webp', '/art/animation-hq/ken/jump.webp', '/art/animation-hq/ken/landing.webp', '/art/animation-hq/ken/hit.webp',
     '/art/special-keyposes/ken/hadoken.webp', '/art/special-keyposes/ken/shoryuken.webp',
