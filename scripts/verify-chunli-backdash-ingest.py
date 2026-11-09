@@ -7,11 +7,11 @@ import importlib.util,io,json,shutil,sys,hashlib,argparse
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN','RYU','ALEX'],default='CHUNLI');parser.add_argument('--kind',choices=['slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-supported={'ALEX':('flash-chop','slash-elbow'),'RYU':('hadoken','shoryuken','tatsumaki'),'CHUNLI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')}
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN','RYU','ALEX','DUDLEY'],default='CHUNLI');parser.add_argument('--kind',choices=['ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
+supported={'DUDLEY':('ducking-straight',),'ALEX':('flash-chop','slash-elbow'),'RYU':('hadoken','shoryuken','tatsumaki'),'CHUNLI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')}
 if selected_kind not in supported[character]:parser.error('Unsupported supplemental character/kind')
-count,width,order={'slash-elbow':(12,640,[1,1,2,3,4,4,5,5,6,6,6,6]),'flash-chop':(12,640,[1,1,2,3,4,4,5,5,6,6,6,6]),'tatsumaki':(12,640,[1,2,3,3,4,4,5,5,6,7,8,8]),'shoryuken':(12,640,[1,2,2,3,3,4,4,5,6,7,7,8]),'hadoken':(12,640,[1,1,2,2,3,4,4,5,5,6,6,6]),'crouch-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6]),'crouch-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'crouch-heavy':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
-slug=character.lower();prior_count={'ALEX':24,'RYU':25,'CHUNLI':28,'IBUKI':27,'KEN':26}[character];total={'ALEX':215,'RYU':229,'CHUNLI':267,'IBUKI':253,'KEN':243}[character]
+count,width,order={'ducking-straight':(12,640,[1,1,2,3,4,4,5,5,6,6,6,6]),'slash-elbow':(12,640,[1,1,2,3,4,4,5,5,6,6,6,6]),'flash-chop':(12,640,[1,1,2,3,4,4,5,5,6,6,6,6]),'tatsumaki':(12,640,[1,2,3,3,4,4,5,5,6,7,8,8]),'shoryuken':(12,640,[1,2,2,3,3,4,4,5,6,7,7,8]),'hadoken':(12,640,[1,1,2,2,3,4,4,5,5,6,6,6]),'crouch-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6]),'crouch-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'crouch-heavy':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
+slug=character.lower();prior_count={'DUDLEY':23,'ALEX':24,'RYU':25,'CHUNLI':28,'IBUKI':27,'KEN':26}[character];total={'DUDLEY':203,'ALEX':215,'RYU':229,'CHUNLI':267,'IBUKI':253,'KEN':243}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -94,11 +94,17 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
     wrong=frames.copy();wrong[contact]=substitute
     report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
     assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Wrong action accepted at spinning contact'
- if selected_kind in ('flash-chop','slash-elbow'):
+ if selected_kind in ('ducking-straight','flash-chop','slash-elbow'):
   for contact in (4,5):
    wrong=frames.copy();wrong[1]=frames[4];wrong[contact]=pad
    report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
    assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Guard at grounded special contact accepted despite compensating startup'
+ if selected_kind=='ducking-straight':
+  standing=Image.open(runtime/'stand-heavy.webp').convert('RGBA').crop((5*width,0,6*width,448))
+  for contact in (4,5):
+   wrong=frames.copy();wrong[contact]=standing
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks'].get('duckedContact',True) and not report['semanticQaPass'],'Standing punch accepted as ducking contact'
  if selected_kind=='slash-elbow':
   chop=Image.open(runtime/'flash-chop.webp').convert('RGBA').crop((4*width,0,5*width,448))
   for contact in (4,5):

@@ -6,6 +6,9 @@ export interface AnimationFrameProfile {
 }
 
 const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
+  'DUDLEY:ducking-straight': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'ALEX:slash-elbow': {
     weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },

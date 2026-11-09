@@ -1,8 +1,8 @@
 {
   "character": "DUDLEY",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 191,
-  "enabledFrameTotal": 191,
+  "frameTotal": 203,
+  "enabledFrameTotal": 203,
   "records": [
     {
       "id": "idle",
@@ -5369,6 +5369,295 @@
         "uniformScale": 0.689161554192229
       },
       "facingRelativeDirection": "backward"
+    },
+    {
+      "id": "ducking-straight",
+      "frames": 12,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        7680,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "7A44031CCA1531EA84CDE6890ED754D73C4A6C3C64558839B28747FACE4A93AD",
+      "bytes": 389382,
+      "poseQa": {
+        "affineResidualAverage": 0.020492,
+        "affineResidualMax": 0.050927,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "ducking-straight",
+        "limits": {
+          "startEndIoUMin": 0.5,
+          "contactIoUMin": 0.22,
+          "contactIoUMax": 0.75,
+          "centroidXRangeMin": 7.0,
+          "centroidXRangeMax": 62.0,
+          "centroidYRangeMin": 0.75,
+          "centroidYRangeMax": 42.0,
+          "reachRangeMin": 38.0,
+          "reachRangeMax": 145.0,
+          "footCenterRangeMax": 58.0,
+          "footWidthCvMax": 0.55,
+          "areaCvMax": 0.2,
+          "residualAverageMin": 0.014,
+          "residualAverageMax": 0.18,
+          "residualMaxMin": 0.03,
+          "residualMaxMax": 0.24,
+          "contactFrameIndex": 5
+        },
+        "startEndIoU": 0.941407,
+        "contactIoU": 0.537221,
+        "centroidXRange": 12.005321,
+        "centroidYRange": 22.385644,
+        "reachRange": 94.0,
+        "footCenterRange": 1.041336,
+        "footWidthCv": 0.046156,
+        "areaCv": 0.026336,
+        "residualAverage": 0.020492,
+        "residualMax": 0.050927,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "bodyTorquePresent": true,
+          "actualContactPoses": true,
+          "duckedContact": true
+        },
+        "semanticQaPass": true,
+        "actualContacts": [
+          {
+            "frame": 4,
+            "reach": 94.0,
+            "pass": true,
+            "headDrop": 48
+          },
+          {
+            "frame": 5,
+            "reach": 94.0,
+            "pass": true,
+            "headDrop": 48
+          }
+        ],
+        "headDropLimits": [
+          30,
+          75
+        ]
+      },
+      "handoffQa": {
+        "idleToDuckingStraight": {
+          "iou": 0.732921,
+          "centroidDistance": 5.325978,
+          "footCenterDelta": 0.708336,
+          "areaRatio": 1.245071,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 46.0,
+            "footCenterDeltaMax": 55.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "duckingStraightToIdle": {
+          "iou": 0.735268,
+          "centroidDistance": 3.882357,
+          "footCenterDelta": 0.333,
+          "areaRatio": 0.800024,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 46.0,
+            "footCenterDeltaMax": 55.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            269,
+            485
+          ],
+          "sourceBodyHeight": 485,
+          "paste": [
+            226,
+            85
+          ],
+          "scaledSize": [
+            187,
+            338
+          ],
+          "footAnchorShift": 0
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            275,
+            421
+          ],
+          "sourceBodyHeight": 421,
+          "paste": [
+            226,
+            130
+          ],
+          "scaledSize": [
+            191,
+            293
+          ],
+          "footAnchorShift": 2
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            306,
+            422
+          ],
+          "sourceBodyHeight": 422,
+          "paste": [
+            220,
+            129
+          ],
+          "scaledSize": [
+            213,
+            294
+          ],
+          "footAnchorShift": 6
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            421,
+            415
+          ],
+          "sourceBodyHeight": 415,
+          "paste": [
+            215,
+            134
+          ],
+          "scaledSize": [
+            293,
+            289
+          ],
+          "footAnchorShift": 41
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            288,
+            444
+          ],
+          "sourceBodyHeight": 444,
+          "paste": [
+            219,
+            114
+          ],
+          "scaledSize": [
+            201,
+            309
+          ],
+          "footAnchorShift": -1
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            266,
+            484
+          ],
+          "sourceBodyHeight": 484,
+          "paste": [
+            229,
+            86
+          ],
+          "scaledSize": [
+            185,
+            337
+          ],
+          "footAnchorShift": 1
+        }
+      ],
+      "source": "art-source/roster-idle/dudley/ducking-straight-sheet.png",
+      "sourceSha256": "0F9761918AFC81D48FEEBAEB36FEE8F62E357484DE82FB0718507B63AC69D8B7",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 337,
+        "sourceGuardHeight": 484,
+        "uniformScale": 0.6962809917355371,
+        "footBaselineReference": "installed-idle",
+        "footBaseline": 421,
+        "sourceBaselineOffsets": [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "footAnchorX": 323.93303964757706
+      },
+      "sourceGrid": [
+        2,
+        3
+      ]
     }
-  ]
+  ],
+  "fullFrameTotal": 203,
+  "bridgeFrameTotal": 0
 }
