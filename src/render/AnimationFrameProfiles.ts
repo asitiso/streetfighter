@@ -206,6 +206,9 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   'KEN:crouch-light': {
     weights: [1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0], footLockStrength: 0,
   },
+  'IBUKI:crouch-light': {
+    weights: [1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'CHUNLI:crouch-light': {
     weights: [1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0], footLockStrength: 0,
   },

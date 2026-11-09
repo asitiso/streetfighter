@@ -1,0 +1,52 @@
+Create production animation art for an arcade martial arts game. Ninja fighter Ibuki performs a crouching light closed-fist punch. Match the attached reference's beige ninja tunic and loose trousers, dark waist sash, brown arm and ankle wraps, open-toed ninja footwear, face scarf, long dark tied ponytail, face and crisp shaded illustration style. Use ONLY the bottom-right fully crouching guard as the pose/anatomy reference.
+Transparent RGBA landscape sheet, exactly SIX separate complete full-body drawings, TWO columns THREE rows, row-major. Same three-quarter side camera facing RIGHT, fixed head size and natural limb lengths. Spacious wide cells with40pixels clear transparent margin beyond all hair, hands, sash and complete feet. No text, grid borders, effects, floor, shadows or background.
+All six remain in the same full low crouch. Both soles, heels and toes stay planted at exactly the same horizontal positions, stance width and baseline. The body does not stand, step, jump, translate or resize. Head-to-ground height stays within0.90–1.08 of the reference low guard, about251pixels when installed. Hands guard the face and chest unless performing the jab.
+Six genuinely articulated poses:
+1. Original compact low defensive guard matching reference bottom-right, with its natural defensive hand shape.
+2. Short loaded chamber: front punching hand closes into a fist and draws back beside the ribs; chest and shoulders counterrotate BACKLEFT around the low fixed stance. Rear elbow projects visibly beyond the torso outline with transparent gap. Other hand guards the face.
+3. Half-extension: punching elbow opens toward RIGHT, closed fist halfway toward the target. Shoulder starts driving forward and down, with real chest rotation and slight forward torso fold. Other arm guards/counterbalances.
+4. Full quick LOW JAB contact: front arm nearly straight at natural fixed length, closed knuckles drive RIGHT toward opponent midsection about135–155pixels above the sole baseline at installed251pixel low-body height. Fist below own face and advances70–95pixels beyond the neutral front guarding fingertips. Strong real shoulder/chest drive around fixed low stance, opposite bent elbow counterbalances back-left outside ribs. Feet unchanged. Not a rigid torso with only forearm extension, not a palm strike.
+5. Clear withdrawal: punching elbow folds back and fist returns halfway toward ribs, shoulder rolls back and torso unwinds. The opposite guarding elbow changes its bend; a distinct upper-body outline from load/contact/guard.
+6. Recovered original low defensive guard matching pose1.
+Keep the ponytail tied consistently and following real shoulder/head motion without extra upward height; preserve the complete hair in every cell. Consistent anatomy and clothing scale, no copied/transformed guard cutouts, elongated arms or extra limbs. No kick, stand, step or jump. Present the athletic combat action neutrally at the same side view. Absolute alpha0 blank space and gutters.
+
+Reference: art-source/roster-idle/ibuki/crouch-sheet.png (bottom-right lowguard).
+
+Exact edit target: art-source/roster-idle/ibuki/crouch-light-edit-target.png
+
+Edit this exact six-pose Ibuki low-punch sprite sheet to fix arm continuity. Transparent RGBA, two columns three rows, same complete figures, identity, beige ninja uniform, face scarf, wraps, ponytail, low stance and fixed feet. Do not resize or translate the body. Keep pose1 TOPLEFT andpose6 BOTTOMRIGHT original low guards unchanged.
+In ALL action poses2,3,4,5, it must be the SAME FRONT/RIGHT-SIDE ARM (the arm reaching toward RIGHT in the middle-right full-contact drawing) that punches. The other BACK/LEFT-SIDE ARM guards or counterbalances and never becomes the punching arm. Trace that same shoulder through the sequence.
+Pose2 TOPRIGHT: close the FRONT/RIGHT hand and chamber THAT fist close beside the right ribs, with its elbow pulled back. The BACK/LEFT hand stays guarding near face/chest, not closed down at the waist. Chest counterturns slightly.
+Pose3 MIDDLELEFT: that SAME FRONT/RIGHT arm extends halfway toward RIGHT with a closed fist, elbow bent about90–120degrees, shoulder driving. Rear/left hand guards near face/chest. This is halfway to pose4, not another chamber with the front hand still open.
+Pose4 MIDDLERIGHT: keep the current extended FRONT/RIGHT punching arm, its full extension, target height and knuckles unchanged. Redraw only BACK/LEFT arm as a bent compact guard near chest/face so it is consistent with poses2/3, rather than a second chambered punch at the waist.
+Pose5 BOTTOMLEFT: SAME FRONT/RIGHT fist retracts halfway toward right ribs, elbow visibly bending, and rear/left hand stays in guard near face/chest. Its front fist must lie between pose4 contact and pose2 chamber.
+Maintain genuine shoulder/chest rotation with small forward drive and unwind, low body height, fixed head/anatomy scale, complete hair and identical planted soles/baseline in all poses. No extra hands, arm switching, palm strike, detached limbs, kick, stand, step or jump. Neutral athletic combat animation, no effects/text/borders/floor/shadows/background. Absolute alpha0 gutters.
+
+Exact refine target: art-source/roster-idle/ibuki/crouch-light-refine-target.png
+
+Correct the arm animation in this exact six-cell transparent Ibuki sheet. This correction is essential: the hand on the RIGHT side of the image currently stays OPEN in the top-right, middle-left and bottom-left cells, then suddenly becomes the punching fist in middle-right. Redraw that RIGHT-SIDE arm through a continuous jab. Keep the feet, legs, head, hair and costume unchanged.
+Leave top-left and bottom-right original guard cells unchanged.
+In the FOUR action cells (top-right, middle-left, middle-right, bottom-left), BOTH hands must be CLOSED FISTS. NO open claw hands in those four cells.
+- TOP-RIGHT: RIGHT-SIDE fist chambers beside the RIGHT ribs, right elbow bent back. LEFT-SIDE fist guards beside the cheek.
+- MIDDLE-LEFT: RIGHT-SIDE fist extends HALFWAY to the right, clearly outside the right knee edge, elbow still bent. LEFT-SIDE fist guards beside the cheek.
+- MIDDLE-RIGHT: keep the existing fully extended RIGHT punching arm. LEFT-SIDE fist guards beside the cheek.
+- BOTTOM-LEFT: RIGHT-SIDE fist withdraws to a halfway position between the full punch and chamber, clearly showing a bent elbow. LEFT-SIDE fist guards beside the cheek.
+Draw two arms and two fists per figure with natural anatomy. Same right-side shoulder must connect to the punching arm in every action cell. Preserve the same crouch and anchored feet, character size, six-cell layout and transparent background. No other changes or effects.
+
+Exact chamber-edit target: art-source/roster-idle/ibuki/crouch-light-chamber-target.png
+
+Edit ONLY the arms of the TOP-RIGHT figure in this exact transparent six-cell Ibuki sheet. Keep all five other figures completely unchanged.
+TOP-RIGHT FIGURE: SWAP ITS TWO ARM POSES.
+The arm on IMAGE LEFT must bend UP, with its CLOSED FIST beside the LEFT CHEEK in defensive guard. It must NOT be chambered down at the waist.
+The arm on IMAGE RIGHT must bend DOWN AND BACK, with its CLOSED FIST beside the RIGHT WAIST/RIBS in punching chamber. It must NOT guard beside the right cheek.
+This IMAGE RIGHT arm is the SAME punching arm seen extended in the middle-right figure. The top-right pose is its loaded preparation. Keep two arms, two closed fists, natural connected shoulders/elbows and the original torso rotation.
+Do not change her head, ponytail, body, low stance, feet, costume, anatomical scale, transparency, layout or other five cells. No added elements.
+
+This edit did not resolve the arm role and was not selected.
+
+Exact compact-guard edit target: art-source/roster-idle/ibuki/crouch-light-chamber-target.png
+
+Edit ONLY the TOP-RIGHT figure's IMAGE-LEFT ARM in this exact six-cell transparent Ibuki sprite sheet.
+The image-left fist is currently down at the waist. LIFT THAT FIST UP beside her face into a compact boxing guard. Bend that elbow up naturally. Both closed fists of the top-right figure must now be held together near her FACE/CHEST in defensive guard: image-left fist near left cheek, image-right fist stays near right cheek.
+No fist at the waist in the top-right figure. This is a short preparatory guard before a light jab, not a chambered body punch.
+Keep the image-right arm exactly as it is, already bent with fist beside the face. Keep her head, torso, hair, crouching legs and planted feet unchanged. Keep the other FIVE FIGURES completely unchanged. Same size, six-cell layout, costume and transparent background. No extra hands or effects.
