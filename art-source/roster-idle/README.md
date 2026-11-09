@@ -579,3 +579,20 @@ python scripts/build-roster-motions.py --character IBUKI --kind stand-heavy-kick
 python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind stand-heavy-kick
 node scripts/verify-roster-standing-attacks.mjs
 ```
+
+## Ken crouch transition
+
+Four new standing/slightly-lowered/mid-crouch/low-guard drawings in `ken/crouch-sheet.png` use built-in imagegen; exact prompt retained in `ken/crouch-prompt.txt`. Order [1,2,2,3,3,4] gives6stored384x448frames. First-generation original crouch/handoff limits pass: final/standing height ratio0.643917, centroid drop64.170164px, foot center range0.636073px/baseline0, residual average0.040933/peak0.061788. One anatomical scale uses standing source frame1 and installed idle337px/opaque419, with two-foot anchoring/zero profile offsets. Low poses are articulated, not resized to fill cells.
+
+Existing Fighter/mapper crouch clock plays entry, holdsframe5 and reverses4→0 on release. Early release/repress resumes current pose; hitstop freezes the frame. Both-facing actual-input/Canvas checks cover all6frames, long idle/hold, quick toggle, reversal, jump and unchanged belt depth movement. Ken low attacks retain fallback; held/released low attacks recover into low guard before standing, without authored standing flashes. Existing specials and six standing normals unchanged.
+
+All20prior records/art/bindings/pipeline preserved. Shared selector/fixture extended to crouch for KEN only. Source grid/order/standing-reference normalization, reversed-rising/static/translated negatives, runtime/source/peer errors, byte-stable reinstall and first/new-file/replacement rollback pass. No new gameplay/clock implementation or dependencies.
+
+Ken now188enabled/full frames,21records; eight characters have authored crouch transitions, seven have all six low attacks. New strip271446bytes raises combined movement+combat entry to12915114bytes below unchanged13MBcap. Crouch loads with movement before first down input; other budgets unchanged. Cachev146.
+
+```sh
+python scripts/build-roster-motions.py --character KEN --kind crouch --runtime
+python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch
+node scripts/verify-roster-crouch.mjs
+node scripts/verify-ken-authored-pipeline.mjs
+```

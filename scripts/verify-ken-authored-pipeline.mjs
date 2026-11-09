@@ -45,13 +45,13 @@ function webpDimensions(buffer) {
 assert.equal(KEN_RC39_ATTACK_FRAME_TOTAL, 69);
 assert.equal(KEN_RC39_DEFENSE_FRAME_TOTAL, 11);
 assert.equal(KEN_RC39_TARGET_FRAME_TOTAL, 137);
-assert.equal(animationSequenceFrameTotal('KEN'), 182);
+assert.equal(animationSequenceFrameTotal('KEN'), 188);
 
 const manifest = JSON.parse(await readFile(new URL('../public/art/animation-hq/ken/manifest.json', import.meta.url), 'utf8'));
 assert.equal(manifest.character, 'KEN');
 assert.match(manifest.pipeline, /^rc39-ken-authored-gated-v\d+$/);
-assert.equal(manifest.frameTotal, 182);
-assert.equal(manifest.records.length, 20);
+assert.equal(manifest.frameTotal, 188);
+assert.equal(manifest.records.length, 21);
 
 const enabledFrames = manifest.records.filter(r=>r.enabled).reduce((sum,r)=>sum+r.frames,0);
 const stagingFrames = manifest.records.filter(r=>r.stagingOnly).reduce((sum,r)=>sum+r.frames,0);
@@ -256,7 +256,7 @@ assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 2)), '
 assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 3)), 'super-rush');
 
 console.log('KEN_AUTHORED_PIPELINE_VERIFY_PASS', {
-  frameTotal:182,
+  frameTotal:188,
   attackFrames:manifest.records.filter(r=>r.enabled&&attackExpected.has(r.id)).reduce((sum,r)=>sum+r.frames,0),
   legacyRc39AttackFrames:69,
   enabledFrames,
