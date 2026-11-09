@@ -45,13 +45,13 @@ function webpDimensions(buffer) {
 assert.equal(KEN_RC39_ATTACK_FRAME_TOTAL, 69);
 assert.equal(KEN_RC39_DEFENSE_FRAME_TOTAL, 11);
 assert.equal(KEN_RC39_TARGET_FRAME_TOTAL, 137);
-assert.equal(animationSequenceFrameTotal('KEN'), 213);
+assert.equal(animationSequenceFrameTotal('KEN'), 221);
 
 const manifest = JSON.parse(await readFile(new URL('../public/art/animation-hq/ken/manifest.json', import.meta.url), 'utf8'));
 assert.equal(manifest.character, 'KEN');
 assert.match(manifest.pipeline, /^rc39-ken-authored-gated-v\d+$/);
-assert.equal(manifest.frameTotal, 213);
-assert.equal(manifest.records.length, 24);
+assert.equal(manifest.frameTotal, 221);
+assert.equal(manifest.records.length, 25);
 
 const enabledFrames = manifest.records.filter(r=>r.enabled).reduce((sum,r)=>sum+r.frames,0);
 const stagingFrames = manifest.records.filter(r=>r.stagingOnly).reduce((sum,r)=>sum+r.frames,0);
@@ -62,7 +62,7 @@ assert.equal(manifest.fullFrameTotal, fullFrames, 'manifest fullFrameTotal drift
 assert.equal(enabledAnimationSequenceFrameTotal('KEN'), enabledFrames, 'registry enabled total must match manifest');
 
 const attackExpected = new Map([
-  ['crouch-light',7], ['crouch-medium',8], ['crouch-heavy',10],
+  ['crouch-light',7], ['crouch-medium',8], ['crouch-heavy',10], ['crouch-light-kick',8],
   ['stand-light', 7], ['stand-medium', 8], ['stand-light-kick', 8], ['stand-medium-kick', 10], ['stand-heavy-kick', 12], ['stand-heavy', 10], ['hadoken', 12], ['shoryuken', 12], ['tatsumaki', 12], ['super-rush', 16],
 ]);
 for (const record of manifest.records) {
@@ -257,7 +257,7 @@ assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 2)), '
 assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 3)), 'super-rush');
 
 console.log('KEN_AUTHORED_PIPELINE_VERIFY_PASS', {
-  frameTotal:213,
+  frameTotal:221,
   attackFrames:manifest.records.filter(r=>r.enabled&&attackExpected.has(r.id)).reduce((sum,r)=>sum+r.frames,0),
   legacyRc39AttackFrames:69,
   enabledFrames,

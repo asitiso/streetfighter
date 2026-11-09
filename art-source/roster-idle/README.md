@@ -645,3 +645,20 @@ python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-he
 node scripts/verify-roster-crouch-light.mjs
 node scripts/verify-ken-normal-mapping.mjs
 ```
+
+## Ken crouching light kick
+
+Six new authored lowguard/chamber/half-extension/lowcontact/foldedwithdrawal/recovered-lowguard drawings use defaultorder [1,2,3,4,5,5,6,6] in8stored640x448frames, startup0–2/contact3/recovery4–7. Final source `ken/crouch-light-kick-sheet.png` and exact built-in prompt `ken/crouch-light-kick-prompt.txt` retained; original crouch source bottom-right guard is the reference. Original numeric pose/action/handoff gates pass unchanged on first generation: residualaverage0.013449/peak0.027789, contactlegreach99px/footheight66px, supportcenter range0.783128px/baseline0. Installed crouch217px/opaque419, rear-support anchoring and zero profile offsets retain low posture/root. Clean runtime composite inspected.
+
+Only exact grounded2LK selects this strip. Both-facing actual input covers all8frames/contact3/hitstop and held lowguard/released recovery before rising. Ken low medium/heavy kicks retain fallback; other mappings and gameplay unchanged. Low attacks now418storedframes/4224Canvasdraws across8characters (seven complete sets plusKenLP/MP/HP/LK).
+
+Shared defaultrecipe/selector/Ryu actual-contact low-kick audit/parameterized fixture reused. At contact3 guard/standingpunch/lowpunch/highkick substitutes reject even with validkick placed at startup; displaced supportroot/baseline, static/translated/runtime/source/crouch-peer errors reject. Byte-stable reinstall and first/new-file/replacement rollback preserve all24prior records/art/bindings/pipeline.
+
+Ken now221enabled/full frames,25records,140attackframes; historical RC39target69 remains historical. New359584byte strip raises eagerentry14129030→14488614bytes below unchanged15MBKen cap. Other budgets/loading unchanged; movement preparation excludes low attacks. Cachev150.
+
+```sh
+python scripts/build-roster-motions.py --character KEN --kind crouch-light-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-light-kick
+node scripts/verify-roster-crouch-light.mjs
+node scripts/verify-ken-normal-mapping.mjs
+```
