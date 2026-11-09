@@ -191,7 +191,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     }
    }
   }
-  assert.equal(manifest.enabledFrameTotal,def.id==='ALEX'?203:191);
+  assert.equal(manifest.enabledFrameTotal,def.id==='ALEX'?215:191);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.

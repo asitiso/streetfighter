@@ -6,6 +6,9 @@ export interface AnimationFrameProfile {
 }
 
 const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
+  'ALEX:slash-elbow': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'ALEX:flash-chop': {
     weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },

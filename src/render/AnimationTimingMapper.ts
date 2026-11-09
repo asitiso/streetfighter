@@ -70,6 +70,7 @@ function movementKind(fighter: Fighter): AnimationSequenceKind | null {
 }
 
 export function animationSequenceKindForAttack(characterId: string, move: MoveData): AnimationSequenceKind | null {
+  if (characterId === 'ALEX' && move.id === 'ALEX_MOBILITY') return 'slash-elbow';
   if (characterId === 'ALEX' && (move.id === 'ALEX_PRIMARY' || move.id === 'ALEX_EX_PRIMARY')) return 'flash-chop';
   if (characterId === 'IBUKI' && move.id === 'IBUKI_SA3') return 'super-rush';
   if (characterId === 'IBUKI' && move.id === 'IBUKI_SA2') return 'yoroi-doroshi';
@@ -199,7 +200,7 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
     if (characterId === 'CHUNLI' && fighter.airborne && fighter.currentMove.id !== 'CHUNLI_ANTI_AIR' && fighter.currentMove.id !== 'CHUNLI_SA3') return null;
     const kind = animationSequenceKindForAttack(characterId, fighter.currentMove);
     if (!kind) return null;
-    if (characterId === 'ALEX' && fighter.airborne && kind === 'flash-chop') return null;
+    if (characterId === 'ALEX' && fighter.airborne && (kind === 'flash-chop' || kind === 'slash-elbow')) return null;
     if (characterId === 'RYU' && fighter.airborne && (kind === 'hadoken' || kind === 'tatsumaki')) return null;
     if (fighter.airborne && (kind === 'crouch-light' || kind === 'crouch-medium' || kind === 'crouch-heavy' || kind === 'crouch-light-kick' || kind === 'crouch-medium-kick' || kind === 'crouch-heavy-kick' || kind === 'stand-light' || kind === 'stand-medium' || kind === 'stand-heavy' || kind === 'stand-light-kick' || kind === 'stand-medium-kick' || kind === 'stand-heavy-kick')) return null;
     const sequence = animationSequenceFor(characterId, kind, true);
