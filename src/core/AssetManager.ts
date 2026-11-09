@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v156';
+export const GAME_CACHE_NAME = 'game-cache-v157';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -82,7 +82,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/special-keyposes/ken/tatsumaki.webp', '/art/special-keyposes/ken/super-rush.webp',
     '/art/special-keyposes/chunli/kikoken.webp', '/art/special-keyposes/chunli/spinning-bird-kick.webp',
     '/art/animation-hq/chunli/manifest.json',
-    '/art/animation-hq/chunli/stand-medium.webp', '/art/animation-hq/chunli/guard.webp', '/art/animation-hq/chunli/parry.webp', '/art/animation-hq/chunli/crouch-heavy.webp', '/art/animation-hq/chunli/crouch-medium.webp', '/art/animation-hq/chunli/crouch-light.webp', '/art/animation-hq/chunli/crouch.webp', '/art/animation-hq/chunli/idle.webp', '/art/animation-hq/chunli/walk.webp', '/art/animation-hq/chunli/walk-back.webp',
+    '/art/animation-hq/chunli/stand-medium.webp', '/art/animation-hq/chunli/guard.webp', '/art/animation-hq/chunli/parry.webp', '/art/animation-hq/chunli/crouch-light-kick.webp', '/art/animation-hq/chunli/crouch-heavy.webp', '/art/animation-hq/chunli/crouch-medium.webp', '/art/animation-hq/chunli/crouch-light.webp', '/art/animation-hq/chunli/crouch.webp', '/art/animation-hq/chunli/idle.webp', '/art/animation-hq/chunli/walk.webp', '/art/animation-hq/chunli/walk-back.webp',
     '/art/animation-hq/chunli/stand-light-kick.webp',
     '/art/animation-hq/chunli/stand-medium-kick.webp',
     '/art/animation-hq/chunli/stand-heavy-kick.webp',

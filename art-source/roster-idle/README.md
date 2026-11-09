@@ -758,3 +758,19 @@ python scripts/build-roster-motions.py --character CHUNLI --kind crouch-heavy --
 python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-heavy
 node scripts/verify-roster-crouch-light.mjs
 ```
+
+## Chun-Li crouching light kick
+
+Six new lowguard/chamber/halfextension/lowcontact/foldedwithdrawal/recoveredguard drawings use defaultorder[1,2,3,4,5,5,6,6] in8stored640x448frames,startup0–2/contact3/recovery4–7. Final source `chunli/crouch-light-kick-sheet.png`, exact built-in generation/edit prompts `chunli/crouch-light-kick-prompt.txt` and exact edit target retained. Initial request was output-moderation rejected withoutsavedimage; clarifiedneutraladultcombat prompt generatedsource. Initialsource footheight89px exceeded original80pxmaximum; downward joint rotation fixescontact without changinglimits. Final numeric pose/action/handoff gates0.020108/0.036195,actualcontactreach86px/footheight62px,supportcenter range0.590441px/baseline0 pass. Installedcrouchreference/rear-support/opaque422/zerooffsets retained. Runtimecomposite inspectedclean.
+
+Only exactgrounded2LK selects newstrip. Both-facingactualinput verifiesall8frames/contact3/hitstop/heldlowguard/releasedrecoverybefore rising. Existingthree lowpunches andtworemaininglowkicks/standing/special/SA/command/air/target/gameplay unchanged. Lowattackchecks9characters(8complete sets plusChun-LiLP/MP/HP/LK),473storedframes/4748Canvasdraws.
+
+Sharedselector/defaultrecipe/Ryuactualcontactlowkick audit/parameterizedfixture reused. Guard/standingpunch/lowpunch/highkick atactualcontact reject with validkickatstartup; displaced supportroot/baseline/static/translated/runtime/source/crouch-peer errors reject. Byte-stablereinstall andfirst/new-file/replacementrollback preserve26priorrecords/art/bindings/pipeline. Fouraffectedfixtures(CHUNLI2LK/2HP/5LK,KEN2LK)pass.
+
+Chun-Li now245enabled/fullframes/27records. New415370bytes raisesentry15428876→15844246bytes underunchanged16MBcap;otherbudgets/originalquality/eagerloading unchanged. Movementpreparation excludeslowattacks. Cachev157.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind crouch-light-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-light-kick
+node scripts/verify-roster-crouch-light.mjs
+```
