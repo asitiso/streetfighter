@@ -874,3 +874,15 @@ Commands: python scripts/build-roster-motions.py --character IBUKI --kind crouch
 Verification: four affected fixtures IBUKI2LK/2HP/5LK andCHUNLI2LK pass, clean TypeScript/build/release444files hash33A44CA4E7665085 plus twelve focused checks pass. Both-facing160tick input preview reaches all8frames/contact3/hitstop/heldlowguard/releasedrise;528stored lowattackframes/5264Canvasdraws. Fresh knownPWA v025/v028/v063 fail same network2vs0/pinCurrentShell/cache065vs164 expectations; full suite not rerun.
 
 Independent readonly review review_ibuki_crouch_light_kick found no actionable P1/P2; confirmed coherent leg continuity, guarded arms, grounded-only mapping and all25previousrecords/WebPbytes unchanged.
+
+## Ibuki crouching medium kick (2026-11-09)
+
+Built-in imagegen source: ibuki/crouch-medium-kick-sheet.png; exact generation/edit prompts: ibuki/crouch-medium-kick-prompt.txt; exact original edit target: ibuki/crouch-medium-kick-edit-target.png. Existing2LK supplies identity/anatomy/style. First generation passed original QA but contact resembled2LK; one targeted edit adds open-hip drive, backward torso counterbalance and residual recovery rotation. Same front/right leg throughout; rear/left sole planted and both arms guard.
+
+Six original poses become ten640x448frames [1,1,2,3,4,4,5,5,6,6],startup0–3/contact4–5/recovery6–9,snap28,zero offsets,rear-support anchor,opaque429. Final unchanged numeric gates pass affine residual average.027523/peak.05948,actualcontacts4/5legreach105px/footheight67px,supportcenter.722301/baseline0,lowheight ratio.976285–1,both guardhandoffs pass. Medium reach105px differs from prior2LK89px with visibly stronger hip/torso rotation. All26priorrecords/art preserved;241active/fullframes27records,new509244bytes,entry12780770below unchanged13MB;client+SWcache165.
+
+Commands: python scripts/build-roster-motions.py --character IBUKI --kind crouch-medium-kick [--install|--runtime]; python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-medium-kick.
+
+Verification: fouraffectedfixtures IBUKI2MK/2LK/5MK CHUNLI2MK pass,cleanTypeScript/build/release445files hashCF3FC942B7389368 plus12focusedchecks pass. Bothfacing160tickinputpreview all10frames/contact4/5/hitstop/heldlowguard/releasedrise checked;538stored lowattackframes/5352Canvasdraws. FreshknownPWA v025/v028/v063 same network2vs0/pinCurrentShell/cache065vs165 failures;no fullsuiteclaim.
+
+Independent readonly review review_ibuki_crouch_medium_kick found no actionable P1/P2; confirmed distinct2MKhip/torso motion,legcontinuity/guardedarms/exactgroundmapping and26priorrecords/WebPbytes preserved.
