@@ -37,6 +37,6 @@ for(const facing of [-1,1])for(const variant of ['PRIMARY','EX','SUPER','SA1','S
  f.startMove(move);f.airborne=true;assert.equal(animationSequenceSample(f,0),null,'Grounded projectile art must preserve aerial fallback');
  timelines[variant+' '+(facing===1?'RIGHT':'LEFT')]=rows;
 }
-assert.equal(animationSequenceFor('RYU','shoryuken',true),null,'Staged uppercut remains disabled');
+assert.ok(animationSequenceFor('RYU','shoryuken',true)?.poseAuthored,'Uppercut promotion retains projectile behavior');
 assert.equal(animationSequenceKindForAttack('RYU',{id:'RYU_CMD_MP'}),null);
 console.log('RYU_HADOKEN_PASS',{variants:5,facings:2,canvasDraws,projectileReleaseFrame:5,airRejected:true});

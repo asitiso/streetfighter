@@ -43,8 +43,8 @@ assert.equal(manifest.character, 'RYU');
 assert.equal(manifest.pipeline, 'roster-movement-authored-v1');
 assert.deepEqual(manifest.sourceSize, [384,448]);
 assert.equal(manifest.frameTotal, 217);
-assert.equal(manifest.enabledFrameTotal, 205);
-assert.equal(manifest.fullFrameTotal, 205);
+assert.equal(manifest.enabledFrameTotal, 217);
+assert.equal(manifest.fullFrameTotal, 217);
 assert.equal(manifest.bridgeFrameTotal, 0);
 assert.equal(manifest.records.length, 25);
 
@@ -67,7 +67,7 @@ for (const rec of manifest.records) {
   assert.equal(dim.width, rec.frameSize[0] * rec.frames, `${rec.id} strip width mismatch`);
   assert.equal(dim.height, 448, `${rec.id} strip height mismatch`);
   assert.equal(dim.alpha, true, `${rec.id} should preserve transparency`);
-  assert.equal(rec.frameSize[0], ['hadoken','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'].includes(rec.id)?640:384);
+  assert.equal(rec.frameSize[0], ['shoryuken','hadoken','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'].includes(rec.id)?640:384);
   assert.equal(rec.frameSize[1], 448);
   assert.deepEqual(rec.stripSize, [rec.frameSize[0] * rec.frames, 448]);
   assert.equal(rec.sha256, sha(data), `${rec.id} sha mismatch`);
@@ -81,7 +81,7 @@ assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalB
 
 
 assert.equal(animationSequenceFrameTotal('RYU'), 217);
-assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 205);
+assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 217);
 assert.equal(animationSequenceFrameTotal('KEN'), 243, 'Ken registry should include 70 movement + 11 defense + 162 attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
@@ -121,13 +121,13 @@ assert.equal(animationSequenceFor('RYU','jump', false)?.frameCount, 8);
 assert.equal(animationSequenceFor('RYU','landing', false)?.frameCount, 6);
 assert.equal(animationSequenceFor('RYU','hit', false)?.frameCount, 8);
 assert.equal(animationSequenceFor('RYU','hadoken', false)?.renderMode, 'full');
-assert.equal(animationSequenceFor('RYU','shoryuken', false)?.renderMode, 'bridge');
+assert.equal(animationSequenceFor('RYU','shoryuken', false)?.renderMode, 'full');
 
 for (const kind of ['shoryuken']) {
   const seq = animationSequenceFor('RYU', kind, false);
   assert.ok(seq, `missing Ryu staging sequence ${kind}`);
-  assert.equal(seq.enabled, false, `${kind} must stay disabled until pose-authored art is available`);
-  assert.equal(seq.poseAuthored, false, `${kind} must not be marked pose-authored`);
+  assert.equal(seq.enabled, true, `${kind} now has authored action art`);
+  assert.equal(seq.poseAuthored, true, `${kind} must use original authored poses`);
 }
 for(const [kind,count] of [['dash-back',7],['walk-back',10],['hit',8],['guard',5],['parry',6],['stand-light',7],['stand-medium',8],['stand-heavy',10],['stand-light-kick',8],['stand-medium-kick',10],['stand-heavy-kick',12],['crouch',6],['crouch-light',7],['crouch-medium',8],['crouch-heavy',10],['crouch-light-kick',8],['crouch-medium-kick',10],['crouch-heavy-kick',12]]){
  const seq=animationSequenceFor('RYU',kind),rec=manifest.records.find(r=>r.id===kind);

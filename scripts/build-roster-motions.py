@@ -61,6 +61,7 @@ def module():
  motion.GROUND_KINDS.add('crouch-light')
  original_semantic=motion.semantic_qa
  def semantic(kind,frames,pose):
+  if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind=='shoryuken':return ryu_shoryuken_semantic_qa(motion,frames,pose)
   if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind=='hadoken':return ryu_hadoken_semantic_qa(motion,frames,pose)
   if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light','stand-medium','stand-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None) in ('KEN','CHUNLI','IBUKI') and kind=='stand-medium'):return ryu_punch_semantic_qa(motion,frames,pose,kind)
   if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='KEN' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='CHUNLI' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='IBUKI' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')):return ryu_kick_semantic_qa(motion,frames,pose,kind)
@@ -80,6 +81,23 @@ def module():
   return original_semantic(kind,frames,pose)
  motion.semantic_qa=semantic
  return motion
+
+def ryu_shoryuken_semantic_qa(motion,frames,pose):
+ report=motion.shoryuken_semantic_qa(frames,pose)
+ actual=[]
+ for contact in (4,5,6,7):
+  sample=frames.copy();sample[4]=frames[contact]
+  check=motion.shoryuken_semantic_qa(sample,pose)
+  base_y=motion._mask_centroid(motion._binary_mask(frames[0]))[1]
+  lift=base_y-motion._mask_centroid(motion._binary_mask(frames[contact]))[1]
+  limits=motion.SHORYUKEN_SEMANTIC_LIMITS
+  risen=limits['centroidYRangeMin']<=lift<=limits['centroidYRangeMax']
+  actual.append({'frame':contact,'contactIoU':check['contactIoU'],'centroidLift':round(lift,6),'pass':bool(check['semanticQaPass'] and risen)})
+ report['actualContacts']=actual
+ report['checks']['actualContactPoses']=all(row['pass'] for row in actual)
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
+
 
 def ryu_hadoken_semantic_qa(motion,frames,pose):
  report=motion.hadoken_semantic_qa(frames,pose)
@@ -442,7 +460,7 @@ def handoffs(directory,kind,frames):
   base=load_peer('crouch')[-1];tag=''.join(part.title() for part in kind.split('-'))
   return {'crouchTo'+tag:compare(base,frames[0],h.STAND_LIGHT_BASE_LIMITS),tag[0].lower()+tag[1:]+'ToCrouch':compare(frames[-1],base,h.STAND_LIGHT_BASE_LIMITS)}
  base_limits={'crouch':h.STAND_LIGHT_BASE_LIMITS,'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS,'stand-heavy-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-light-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium':h.STAND_LIGHT_BASE_LIMITS,'stand-light':h.STAND_LIGHT_BASE_LIMITS,'stand-heavy':h.STAND_HEAVY_BASE_LIMITS}
- if directory.name=='ryu':base_limits['hadoken']=h.HADOKEN_BASE_LIMITS
+ if directory.name=='ryu':base_limits.update(hadoken=h.HADOKEN_BASE_LIMITS,shoryuken=h.SHORYUKEN_BASE_LIMITS)
  if kind in base_limits:
   base=load_peer('idle')[0];limits=base_limits[kind];tag=''.join(part.title() for part in kind.split('-'))
   bridges={'idleTo'+tag:compare(base,frames[0],limits),tag[0].lower()+tag[1:]+'ToIdle':compare(frames[0] if kind=='crouch' else frames[-1],base,limits)}
@@ -575,9 +593,10 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI','KEN'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI','KEN'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
- if args.character=='RYU' and args.kind not in ('hadoken','walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash-back'):parser.error('RYU selector supports support, backward dash, standing/crouching normals and crouch only')
+ if args.kind in ('hadoken','shoryuken') and args.character!='RYU':parser.error('Authored special selector requires --character RYU')
+ if args.character=='RYU' and args.kind not in ('shoryuken','hadoken','walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash-back'):parser.error('RYU selector supports support, backward dash, standing/crouching normals and crouch only')
  if args.character=='CHUNLI' and args.kind not in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('CHUNLI selector supports backward dash, defense, medium palm, standing kicks, crouch and all crouching normals only')
  if args.character=='IBUKI' and args.kind not in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('IBUKI selector supports backward dash, defense, medium palm, standing kicks, crouch, all crouching normals only')
  if args.character=='KEN' and args.kind not in ('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('KEN selector supports backward dash, medium punch, standing kicks, crouch, low punches and all crouching normals only')
@@ -592,7 +611,7 @@ def main():
  if args.character=='CHUNLI':entries[0]['attackRecipes']['stand-medium-kick']={'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'}
  if args.character=='CHUNLI':entries[0]['attackRecipes']['stand-heavy-kick']={'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}
  if args.character in ('CHUNLI','IBUKI'):entries[0]['attackRecipes']['crouch-light']={'rows':3,'sourceOrder':[1,2,3,4,5,5,6]}
- width=640 if kind in ('hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
+ width=640 if kind in ('shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
  for entry in entries:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
   motion.ROSTER_CHARACTER=entry['id']
@@ -617,16 +636,17 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'crouch-heavy-kick':'crouch-heavy-kick-sheet.png','crouch-medium-kick':'crouch-medium-kick-sheet.png','crouch-light-kick':'crouch-light-kick-sheet.png','crouch-heavy':'crouch-heavy-sheet.png','crouch-medium':'crouch-medium-sheet.png','crouch-light':'crouch-light-sheet.png','crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','dash-back':'dash-back-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','hadoken':'hadoken-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
+  source=SOURCE/slug/({'crouch-heavy-kick':'crouch-heavy-kick-sheet.png','crouch-medium-kick':'crouch-medium-kick-sheet.png','crouch-light-kick':'crouch-light-kick-sheet.png','crouch-heavy':'crouch-heavy-sheet.png','crouch-medium':'crouch-medium-sheet.png','crouch-light':'crouch-light-sheet.png','crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','dash-back':'dash-back-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','shoryuken':'shoryuken-sheet.png','hadoken':'hadoken-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
   attack_recipe=entry.get('attackRecipes',{}).get(kind) if kind in ('crouch-light','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else None
-  rows=attack_recipe['rows'] if attack_recipe else {'hadoken':3,'crouch-heavy-kick':3,'crouch-medium-kick':3,'crouch-light-kick':3,'crouch-heavy':3,'crouch-medium':3,'crouch-light':2,'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'dash-back':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
+  rows=attack_recipe['rows'] if attack_recipe else {'shoryuken':4,'hadoken':3,'crouch-heavy-kick':3,'crouch-medium-kick':3,'crouch-light-kick':3,'crouch-heavy':3,'crouch-medium':3,'crouch-light':2,'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'dash-back':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
   raw=extract(Image.open(source),rows);normalization=None;overrides=[]
+  if kind=='shoryuken':raw=[raw[i] for i in (0,1,1,2,2,3,3,4,5,6,6,7)]
   if kind=='guard':
    for recipe in entry.get('guardOverrides',[]):
     extra=SOURCE/slug/recipe['source'];target=recipe['pose']-1
     raw[target]=extract(Image.open(extra),recipe['rows'])[recipe['sourcePose']-1]
     overrides.append({'frames':[i+1 for i,pose in enumerate(GUARD_ORDER) if pose==target],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['sourcePose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
-  if kind in ('hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash','dash-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ryu' and kind=='walk-back'):
+  if kind in ('shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash','dash-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ryu' and kind=='walk-back'):
    if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
@@ -647,10 +667,11 @@ def main():
    # a visible vertical step every time support art enters or recovers.
    target=int(np.nonzero(motion._binary_mask(idle))[0].max());offsets=[]
    for index,frame in enumerate(keys):
+    if kind=='shoryuken' and 3<=index<=8:offsets.append(0);continue
     offset=target-int(np.nonzero(motion._binary_mask(frame))[0].max());offsets.append(offset)
     aligned=Image.new('RGBA',(width,448));aligned.alpha_composite(frame,(0,offset));keys[index]=aligned
    normalization.update({'footBaselineReference':'installed-'+base_kind,'footBaseline':target,'sourceBaselineOffsets':offsets})
-  if kind in ('hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ibuki' and kind in ('guard','parry')):
+  if kind in ('shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ibuki' and kind in ('guard','parry')):
    # Extended fists change the silhouette's bounding-box center. Anchor the
    # support feet to the matching guard, so the planted stance does not slide when
    # the arm extends. Wide cells preserve complete fists at the same scale.
@@ -660,14 +681,17 @@ def main():
    if support_anchor:normalization['footAnchorMode']='rear-support'
    if kind=='crouch':normalization.update({'reference':'idle-standing-height','footAnchorMode':'two-foot','standingReferenceFrame':1})
    if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):normalization.update({'reference':'crouch-recovery-height','footAnchorMode':'rear-support' if support_anchor else 'two-foot','referenceFrame':6})
+   if kind=='shoryuken':normalization.update(footAnchorMode='grounded-frames',groundedFrames=[1,2,3,10,11,12],airFrames=[4,5,6,7,8,9])
    normalization['footAnchorX']=target
    for index,frame in enumerate(keys):
+    if kind=='shoryuken' and 3<=index<=8:continue
     foot=foot_center(np.asarray(frame.getchannel('A'))>24);shift=round(target-foot)
     aligned=Image.new('RGBA',(width,448));aligned.alpha_composite(frame,(shift,0));keys[index]=aligned
     metrics[index]['paste'][0]+=shift;metrics[index]['footAnchorShift']=shift
   choices=[]
   gait=[0,0,1,2,2,3,4,4,5,6,6,7] if kind=='walk' else [0,0,1,2,2,3,4,4,5,5]
   orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
+  if kind=='shoryuken':orders=[list(range(12))]
   if kind=='hadoken':orders=[[0,0,1,1,2,3,3,4,4,5,5,5]]
   if kind=='crouch-heavy-kick':orders=[[0,0,1,2,2,3,3,4,4,5,5,5]]
   if kind=='crouch-medium-kick':orders=[[0,0,1,2,3,3,4,4,5,5]]
@@ -706,8 +730,9 @@ def main():
    if mask[0].any() or mask[-1].any() or mask[:,0].any() or mask[:,-1].any():raise ValueError(f'{slug}: clipped body')
   data=webp(frames)
   record={'id':kind,'frames':count,'frameSize':[width,448],'stripSize':[width*count,448],'renderMode':'full','enabled':True,'poseAuthored':True,'sha256':hashlib.sha256(data).hexdigest().upper(),'bytes':len(data),'poseQa':pose,'semanticQa':semantic,'handoffQa':bridges,'sourceOrder':[i+1 for i in order],'metrics':metrics,'source':source.relative_to(ROOT).as_posix(),'sourceSha256':hashlib.sha256(source.read_bytes()).hexdigest().upper()}
+  if kind=='shoryuken':record['sourceOrder']=[1,2,2,3,3,4,4,5,6,7,7,8]
   if normalization:record['normalization']=normalization
-  if kind in ('hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
+  if kind in ('shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
   if kind in ('stand-medium-kick','crouch-medium-kick'):record['semanticProfile']=profile
   if kind=='crouch-heavy':record['semanticProfile']=heavy_profile
   if kind in ('dash','dash-back'):record['facingRelativeDirection']='backward' if kind=='dash-back' else 'forward'
