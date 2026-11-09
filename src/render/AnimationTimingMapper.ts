@@ -103,6 +103,7 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
     return move.id === '5LP' ? 'stand-light' : move.id === '5MP' ? 'stand-medium' : move.id === '5HP' ? 'stand-heavy' : move.id === '5LK' ? 'stand-light-kick' : move.id === '5MK' ? 'stand-medium-kick' : move.id === '5HK' ? 'stand-heavy-kick' : null;
   }
   if (characterId === 'KEN') {
+    if (move.id === '2HP') return 'crouch-heavy';
     if (move.id === '2MP') return 'crouch-medium';
     if (move.id === '2LP') return 'crouch-light';
     if (move.id === 'KEN_PRIMARY' || move.id === 'KEN_EX_PRIMARY') return 'hadoken';

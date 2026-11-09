@@ -7,11 +7,11 @@ import importlib.util,io,json,shutil,sys,hashlib,argparse
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-supported={'CHUNLI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium')}
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN'],default='CHUNLI');parser.add_argument('--kind',choices=['crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
+supported={'CHUNLI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy')}
 if selected_kind not in supported[character]:parser.error('Unsupported supplemental character/kind')
-count,width,order={'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
-slug=character.lower();prior_count={'CHUNLI':21,'IBUKI':20,'KEN':22}[character];total={'CHUNLI':206,'IBUKI':192,'KEN':203}[character]
+count,width,order={'crouch-heavy':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
+slug=character.lower();prior_count={'CHUNLI':21,'IBUKI':20,'KEN':23}[character];total={'CHUNLI':206,'IBUKI':192,'KEN':213}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -62,7 +62,7 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
  assert rec['sourceOrder']==order
  assert rec['sourceSha256']==hashlib.sha256((source/(slug+'/'+selected_kind+'-sheet.png')).read_bytes()).hexdigest().upper()
  guard=Image.open(runtime/'idle.webp').convert('RGBA').crop((0,0,384,448))
- if selected_kind in ('crouch-light','crouch-medium'):guard=Image.open(runtime/'crouch.webp').convert('RGBA').crop((5*384,0,6*384,448))
+ if selected_kind in ('crouch-light','crouch-medium','crouch-heavy'):guard=Image.open(runtime/'crouch.webp').convert('RGBA').crop((5*384,0,6*384,448))
  baseline=int(np.nonzero(np.asarray(guard.getchannel('A'))>=32)[0].max())
  for frame in frames:assert int(np.nonzero(np.asarray(frame.getchannel('A'))>=32)[0].max())==baseline
  motion=module.module();motion.FRAME_W=width;motion.ROSTER_CHARACTER=character
@@ -75,6 +75,12 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
   assert max(roots)-min(roots)<1,'Planted Ibuki defense root slides with changing arm silhouette'
  def negative(frames,label):assert not motion.semantic_qa(selected_kind,frames,motion.pose_qa(frames,selected_kind))['semanticQaPass'],label
  pad=Image.new('RGBA',(width,448));pad.alpha_composite(guard,((width-384)//2,0))
+ if selected_kind=='crouch-heavy':
+  assert rec['semanticProfile']=='strike'
+  for contact in (4,5):
+   wrong=frames.copy();wrong[1]=frames[4];wrong[contact]=pad
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Lowguard accepted at heavy contact '+str(contact)
  if selected_kind in ('stand-medium','crouch-light','crouch-medium'):
   wrong=frames.copy();wrong[1]=frames[3];wrong[3]=pad
   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
@@ -108,10 +114,13 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
   negative(wrong,'Forward runner accepted as backward')
  original=path.read_bytes();bad=json.loads(original);bad['records'][-1].update({'facingRelativeDirection':'forward'} if selected_kind=='dash-back' else {'frames':count+1});path.write_text(json.dumps(bad))
  rejected(lambda:run(runtime_only=True));path.write_bytes(original)
+ if selected_kind=='crouch-heavy':
+  bad=json.loads(original);bad['records'][-1]['semanticProfile']='shoulder';path.write_text(json.dumps(bad))
+  rejected(lambda:run(runtime_only=True));path.write_bytes(original)
  if selected_kind=='stand-medium-kick':
   bad=json.loads(original);bad['records'][-1]['semanticProfile']='hook';path.write_text(json.dumps(bad))
   rejected(lambda:run(runtime_only=True));path.write_bytes(original)
- peer=runtime/('crouch.webp' if selected_kind in ('crouch-light','crouch-medium') else 'idle.webp');original=peer.read_bytes();peer.write_bytes(original+b'corrupt')
+ peer=runtime/('crouch.webp' if selected_kind in ('crouch-light','crouch-medium','crouch-heavy') else 'idle.webp');original=peer.read_bytes();peer.write_bytes(original+b'corrupt')
  rejected(run);peer.write_bytes(original)
  src=source/(slug+'/'+selected_kind+'-sheet.png');original=src.read_bytes();src.unlink()
  rejected(run,(FileNotFoundError,));src.write_bytes(original)
