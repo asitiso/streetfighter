@@ -1,0 +1,180 @@
+"""Supplemental authored-motion provenance, preservation, semantic negatives and atomic writes."""
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
+from contextlib import redirect_stdout,redirect_stderr
+import importlib.util,io,json,shutil,sys,hashlib,argparse
+import numpy as np
+from PIL import Image
+ROOT=Path(__file__).resolve().parents[1]
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN','RYU','ALEX','DUDLEY'],default='CHUNLI');parser.add_argument('--kind',choices=['ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
+supported={'DUDLEY':('ducking-straight',),'ALEX':('flash-chop','slash-elbow'),'RYU':('hadoken','shoryuken','tatsumaki'),'CHUNLI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')}
+if selected_kind not in supported[character]:parser.error('Unsupported supplemental character/kind')
+count,width,order={'ducking-straight':(12,640,[1,1,2,3,4,4,5,5,6,6,6,6]),'slash-elbow':(12,640,[1,1,2,3,4,4,5,5,6,6,6,6]),'flash-chop':(12,640,[1,1,2,3,4,4,5,5,6,6,6,6]),'tatsumaki':(12,640,[1,2,3,3,4,4,5,5,6,7,8,8]),'shoryuken':(12,640,[1,2,2,3,3,4,4,5,6,7,7,8]),'hadoken':(12,640,[1,1,2,2,3,4,4,5,5,6,6,6]),'crouch-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6]),'crouch-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'crouch-heavy':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
+slug=character.lower();prior_count={'DUDLEY':23,'ALEX':24,'RYU':25,'CHUNLI':28,'IBUKI':27,'KEN':26}[character];total={'DUDLEY':203,'ALEX':215,'RYU':229,'CHUNLI':267,'IBUKI':253,'KEN':243}[character]
+def load(path,name):
+ spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+with TemporaryDirectory(prefix='chunli-backdash-') as temp:
+ root=Path(temp)
+ for name in ('build-roster-motions.py','install-authored-ken-sequence.py','pose_ecc_cache.py','audit-ken-handoff-semantics.py'):
+  dest=root/'scripts'/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/'scripts'/name,dest)
+ source=root/'art-source/roster-idle';source.mkdir(parents=True)
+ shutil.copyfile(ROOT/'art-source/roster-idle/batch.json',source/'batch.json')
+ shutil.copytree(ROOT/('art-source/roster-idle/'+slug),source/slug)
+ runtime=root/('public/art/animation-hq/'+slug);shutil.copytree(ROOT/('public/art/animation-hq/'+slug),runtime)
+ path=runtime/'manifest.json';data=json.loads(path.read_text())
+ data['records']=[r for r in data['records'] if r['id']!=selected_kind]
+ module=load(root/'scripts/build-roster-motions.py','chunli_fixture')
+ module.update_frame_totals(data);path.write_text(json.dumps(data));(runtime/(selected_kind+'.webp')).unlink()
+ prior=data['records'];binding={k:v for k,v in data.items() if k not in ('records','frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')}
+ art={r['id']:(runtime/(r['id']+'.webp')).read_bytes() for r in prior}
+ def run(kind=selected_kind,runtime_only=False):
+  with patch.object(sys,'argv',['build','--character',character,'--kind',kind,'--runtime' if runtime_only else '--install']),redirect_stdout(io.StringIO()),redirect_stderr(io.StringIO()):module.main()
+ def snapshot():return {p.name:p.read_bytes() for p in runtime.iterdir()}
+ def rejected(action,errors=(ValueError,)):
+  before=snapshot()
+  try:action()
+  except errors:pass
+  else:raise AssertionError('Invalid input accepted')
+  assert snapshot()==before,'Rejected input modified runtime'
+ for kind in (('idle','air','dash') if character=='RYU' else ('idle','air','dash','stand-light')):rejected(lambda:run(kind),(SystemExit,))
+ def rollback():
+  before=snapshot();write=Path.write_bytes;failed=False
+  def fail(p,payload):
+   nonlocal failed
+   if p==path and not failed:failed=True;raise OSError('injected manifest write')
+   return write(p,payload)
+  with patch.object(Path,'write_bytes',fail):
+   try:run()
+   except OSError:pass
+   else:raise AssertionError('Write error swallowed')
+  assert failed and before==snapshot(),'Failed install did not roll back'
+ rollback();run();current=json.loads(path.read_text())
+ assert [current[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[total,229 if character=='RYU' else total,229 if character=='RYU' else total,0]
+ assert len(current['records'])==prior_count+1
+ assert prior==current['records'][:-1] and current['records'][-1]['id']==selected_kind
+ assert binding=={k:current[k] for k in binding}
+ assert art=={name:(runtime/(name+'.webp')).read_bytes() for name in art}
+ before=snapshot();rollback();run();assert snapshot()==before,'Reinstall not byte stable'
+ run(runtime_only=True)
+ rec=current['records'][-1];sheet=Image.open(runtime/(selected_kind+'.webp')).convert('RGBA')
+ frames=[sheet.crop((i*width,0,(i+1)*width,448)) for i in range(count)]
+ assert rec['sourceOrder']==order
+ assert rec['sourceSha256']==hashlib.sha256((source/(slug+'/'+selected_kind+'-sheet.png')).read_bytes()).hexdigest().upper()
+ guard=Image.open(runtime/'idle.webp').convert('RGBA').crop((0,0,384,448))
+ if selected_kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):guard=Image.open(runtime/'crouch.webp').convert('RGBA').crop((5*384,0,6*384,448))
+ baseline=int(np.nonzero(np.asarray(guard.getchannel('A'))>=32)[0].max())
+ for index,frame in enumerate(frames):
+  if (selected_kind=='shoryuken' and 3<=index<=8) or (selected_kind=='tatsumaki' and 1<=index<=9):continue
+  assert int(np.nonzero(np.asarray(frame.getchannel('A'))>=32)[0].max())==baseline
+ if selected_kind=='tatsumaki':
+  mask=np.asarray(frames[0].getchannel('A'))>=32;ys,_=np.nonzero(mask);band=round(float(ys.min())+.25*float(ys.max()-ys.min()))
+  heads=[float(np.nonzero((np.asarray(frames[i].getchannel('A'))>=32)[:band])[1].mean()) for i in range(1,10)]
+  assert np.ptp(heads)<=2,'Rotating torso slides with extended-leg bounding box'
+  assert rec['sourceGrid']==[2,4] and rec['normalization']['groundedFrames']==[1,11,12]
+  assert all(int(np.nonzero(np.asarray(frames[i].getchannel('A'))>=32)[0].max())!=baseline for i in range(1,10)),'Spin art grounded by normalization'
+ if selected_kind=='shoryuken':
+  assert rec['sourceGrid']==[2,4] and rec['normalization']['groundedFrames']==[1,2,3,10,11,12]
+  assert all(int(np.nonzero(np.asarray(frames[i].getchannel('A'))>=32)[0].max())!=baseline for i in range(3,9)),'Air art grounded by normalization'
+ motion=module.module();motion.FRAME_W=width;motion.ROSTER_CHARACTER=character
+ if selected_kind=='crouch':
+  assert rec['sourceGrid']==[2,2]
+  assert rec['normalization']['reference']=='idle-standing-height' and rec['normalization']['standingReferenceFrame']==1
+  assert rec['normalization']['footAnchorMode']=='two-foot'
+ if character=='IBUKI' and selected_kind in ('guard','parry'):
+  roots=[motion._foot_metrics(motion._binary_mask(f))[0] for f in frames]
+  assert max(roots)-min(roots)<1,'Planted Ibuki defense root slides with changing arm silhouette'
+ def negative(frames,label):assert not motion.semantic_qa(selected_kind,frames,motion.pose_qa(frames,selected_kind))['semanticQaPass'],label
+ pad=Image.new('RGBA',(width,448));pad.alpha_composite(guard,((width-384)//2,0))
+ if selected_kind=='tatsumaki':
+  punch=Image.open(runtime/'stand-medium.webp').convert('RGBA').crop((3*width,0,4*width,448))
+  low=Image.open(runtime/'crouch-medium-kick.webp').convert('RGBA').crop((4*width,0,5*width,448))
+  for contact in range(3,9):
+   for substitute in (pad,punch,low):
+    wrong=frames.copy();wrong[contact]=substitute
+    report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+    assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Wrong action accepted at spinning contact'
+ if selected_kind in ('ducking-straight','flash-chop','slash-elbow'):
+  for contact in (4,5):
+   wrong=frames.copy();wrong[1]=frames[4];wrong[contact]=pad
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Guard at grounded special contact accepted despite compensating startup'
+ if selected_kind=='ducking-straight':
+  standing=Image.open(runtime/'stand-heavy.webp').convert('RGBA').crop((5*width,0,6*width,448))
+  for contact in (4,5):
+   wrong=frames.copy();wrong[contact]=standing
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks'].get('duckedContact',True) and not report['semanticQaPass'],'Standing punch accepted as ducking contact'
+ if selected_kind=='slash-elbow':
+  chop=Image.open(runtime/'flash-chop.webp').convert('RGBA').crop((4*width,0,5*width,448))
+  for contact in (4,5):
+   wrong=frames.copy();wrong[contact]=chop
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks'].get('leadingElbowHeight',True) and not report['semanticQaPass'],'Low open-hand chop accepted as a high elbow contact'
+ if selected_kind=='shoryuken':
+  for contact in (4,5,6,7):
+   wrong=frames.copy();wrong[1]=frames[4];wrong[contact]=pad
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Guard at uppercut contact accepted'
+ if selected_kind=='hadoken':
+  for contact in (5,6):
+   wrong=frames.copy();wrong[1]=frames[5];wrong[contact]=pad
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks']['actualReleasePoses'] and not report['semanticQaPass'],'Guard at actual release accepted'
+ if selected_kind=='crouch-heavy':
+  assert rec['semanticProfile']=='strike'
+  for contact in (4,5):
+   wrong=frames.copy();wrong[1]=frames[4];wrong[contact]=pad
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Lowguard accepted at heavy contact '+str(contact)
+ if selected_kind in ('stand-medium','crouch-light','crouch-medium'):
+  wrong=frames.copy();wrong[1]=frames[3];wrong[3]=pad
+  report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+  assert not report['checks']['actualContactReach' if selected_kind=='stand-medium' else 'actualContactPoses'] and not report['semanticQaPass'],'Guard at actual strike contact accepted despite compensating startup attack'
+ if selected_kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):
+  contacts={'crouch-heavy-kick':(5,6),'crouch-medium-kick':(4,5),'crouch-light-kick':(3,),'stand-light-kick':(3,),'stand-medium-kick':(4,5),'stand-heavy-kick':(5,6)}[selected_kind]
+  punch=Image.open(runtime/'stand-medium.webp').convert('RGBA').crop((3*width,0,4*width,448))
+  substitutes=[pad,punch]
+  if selected_kind in ('crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):
+   for name,index in [('crouch-medium',3),('stand-heavy-kick',5)]:
+    peer=Image.open(runtime/(name+'.webp')).convert('RGBA');substitutes.append(peer.crop((index*width,0,(index+1)*width,448)))
+  if selected_kind=='stand-heavy-kick':
+   for name,index in [('stand-light-kick',3)]:
+    peer=Image.open(runtime/(name+'.webp')).convert('RGBA');substitutes.append(peer.crop((index*width,0,(index+1)*width,448)))
+  for substitute in substitutes:
+   for contact in contacts:
+    wrong=frames.copy();wrong[contact]=substitute
+    if selected_kind in ('crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):wrong[1]=frames[contacts[0]]
+    report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+    assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Wrong action accepted as actual kick contact '+str(contact)
+  for offset,check in [((18,0),'supportRootStable'),((0,-12),'supportBaselineStable')]:
+   shifted=Image.new('RGBA',(width,448));shifted.alpha_composite(frames[contacts[0]],offset);wrong=frames.copy();wrong[contacts[0]]=shifted
+   report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+   assert not report['checks'][check] and not report['semanticQaPass'],'Displaced support sole accepted'
+ if selected_kind=='crouch':negative(list(reversed(frames)),'Rising strip accepted as crouch entry')
+ negative([pad]*count,'Static guard accepted')
+ translated=[]
+ for dx in {5:(0,-8,-16,-8,0),6:(0,-8,-16,-16,-8,0),7:(0,-8,-16,-16,-8,-4,0),8:(0,-8,-16,-16,-8,-4,0,0),10:(0,-8,-16,-16,-8,-4,0,0,0,0),12:(0,-8,-16,-16,-8,-4,0,0,0,0,0,0)}[count]:
+  frame=Image.new('RGBA',(width,448));frame.alpha_composite(pad,(dx,0));translated.append(frame)
+ negative(translated,'Translated guard accepted')
+ if selected_kind=='dash-back':
+  forward=Image.open(runtime/'dash.webp').convert('RGBA');wrong=[]
+  for i in range(7):
+   frame=Image.new('RGBA',(width,448));frame.alpha_composite(forward.crop((i*384,0,(i+1)*384,448)),(128,0));wrong.append(frame)
+  negative(wrong,'Forward runner accepted as backward')
+ original=path.read_bytes();bad=json.loads(original);bad['records'][-1].update({'facingRelativeDirection':'forward'} if selected_kind=='dash-back' else {'frames':count+1});path.write_text(json.dumps(bad))
+ rejected(lambda:run(runtime_only=True));path.write_bytes(original)
+ if selected_kind=='crouch-heavy':
+  bad=json.loads(original);bad['records'][-1]['semanticProfile']='shoulder';path.write_text(json.dumps(bad))
+  rejected(lambda:run(runtime_only=True));path.write_bytes(original)
+ if selected_kind in ('stand-medium-kick','crouch-medium-kick'):
+  assert rec['semanticProfile']=='kick'
+  bad=json.loads(original);bad['records'][-1]['semanticProfile']='hook';path.write_text(json.dumps(bad))
+  rejected(lambda:run(runtime_only=True));path.write_bytes(original)
+ peer=runtime/('crouch.webp' if selected_kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick') else 'idle.webp');original=peer.read_bytes();peer.write_bytes(original+b'corrupt')
+ rejected(run);peer.write_bytes(original)
+ src=source/(slug+'/'+selected_kind+'-sheet.png');original=src.read_bytes();src.unlink()
+ rejected(run,(FileNotFoundError,));src.write_bytes(original)
+ # Both installed source metadata and files must remain unchanged after negatives.
+ assert art=={name:(runtime/(name+'.webp')).read_bytes() for name in art}
+print(character+'_'+selected_kind.upper()+'_INGEST_PASS')

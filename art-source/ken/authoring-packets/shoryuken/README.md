@@ -1,6 +1,8 @@
 # KEN SHORYUKEN AUTHORED SOURCE PACKET
 
-This folder is an authoring brief, not runtime art.
+Completed source frames are in `../../inbox/shoryuken/01.png` through `12.png`. The 12-frame HQ strip is active in the runtime and passes pose, semantic, and handoff gates.
+
+This folder remains the authoring brief for later revisions.
 
 ## Fastest workflow
 1. Use `_references/ken_master_new_original_v01.png` as the exact character-design reference.

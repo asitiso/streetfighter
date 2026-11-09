@@ -53,13 +53,16 @@ def shoryu_frame(rise=0, crouch=0, arm=0, tuck=0):
     return im
 
 cases=[]
+manifest=json.loads((ROOT/'public/art/animation-hq/ken/manifest.json').read_text(encoding='utf-8'))
+records={record['id']:record for record in manifest['records']}
 for kind in ('hadoken','shoryuken'):
     frames=runtime_frames(kind,12)
     pose=mod.pose_qa(frames,kind)
     sem=mod.semantic_qa(kind,frames,pose)
-    assert pose['poseAuthoredPass'] is False, (kind,pose)
-    assert sem['semanticQaPass'] is False, (kind,sem)
-    cases.append({'name':f'{kind}-current-staging-rejected','expected':False,'actual':False,'poseQa':pose,'semanticQa':sem})
+    active=bool(records[kind].get('enabled') and records[kind].get('poseAuthored'))
+    assert pose['poseAuthoredPass'] is active, (kind,pose)
+    assert sem['semanticQaPass'] is active, (kind,sem)
+    cases.append({'name':f'{kind}-runtime-{"authored" if active else "staging"}','expected':active,'actual':active,'poseQa':pose,'semanticQa':sem})
 
 # Authored Hadoken: coil, extension, release, controlled return.
 reaches=[0,0,4,8,18,55,70,60,40,20,8,0]

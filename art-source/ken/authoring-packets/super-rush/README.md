@@ -1,6 +1,8 @@
 # KEN SUPER-RUSH AUTHORED SOURCE PACKET
 
-This folder is an authoring brief, not runtime art.
+Completed source frames are in `../../inbox/super-rush/01.png` through `16.png`. The 16-frame HQ strip is active in the runtime and passes pose, semantic, and handoff gates. The neutral entry uses the approved master, and the final-hit load reuses the compact guard link pose for continuity.
+
+This folder remains the authoring brief for later revisions.
 
 ## Fastest workflow
 1. Use `_references/ken_master_new_original_v01.png` as the exact character-design reference.

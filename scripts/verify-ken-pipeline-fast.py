@@ -62,20 +62,22 @@ def run_python_step(name: str, relative_path: str, args: list[str]) -> None:
 
 def build_direct() -> None:
     started = time.perf_counter()
-    command = (
-        'rm -rf dist && tsc && mkdir -p dist/assets '
-        '&& cp index.html dist/index.html '
-        '&& cp src/styles.css dist/assets/styles.css '
-        '&& cp -R public/. dist/ '
-        '&& node scripts/generate-release-integrity.mjs'
-    )
-    proc = subprocess.run(['bash', '-lc', command], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    if proc.returncode != 0:
-        print('KEN_PIPELINE_BUILD_FAIL', file=sys.stderr)
-        print(proc.stdout[-12000:], file=sys.stderr)
-        raise SystemExit(proc.returncode)
+    commands = [
+        ['node', 'scripts/clean-dist.mjs'],
+        ['node', 'node_modules/typescript/bin/tsc'],
+        ['node', 'scripts/build-static.mjs'],
+        ['node', 'scripts/generate-release-integrity.mjs'],
+    ]
+    output = ''
+    for command in commands:
+        proc = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output += proc.stdout
+        if proc.returncode != 0:
+            print('KEN_PIPELINE_BUILD_FAIL', file=sys.stderr)
+            print(output[-12000:], file=sys.stderr)
+            raise SystemExit(proc.returncode)
     elapsed = time.perf_counter() - started
-    print(f'KEN_PIPELINE_STEP_PASS build {elapsed:.2f}s :: {compact_summary(proc.stdout)}', flush=True)
+    print(f'KEN_PIPELINE_STEP_PASS build {elapsed:.2f}s :: {compact_summary(output)}', flush=True)
 
 
 def run_node_step(name: str, relative_path: str) -> None:

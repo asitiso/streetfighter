@@ -1,0 +1,277 @@
+{
+  "character": "KEN",
+  "sequence": "hadoken",
+  "source": "art-source\\ken\\inbox\\hadoken",
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        42,
+        38,
+        457,
+        644
+      ],
+      "sourceBodyHeight": 606,
+      "paste": [
+        64,
+        48
+      ],
+      "scaledSize": [
+        257,
+        375
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        71,
+        29,
+        486,
+        609
+      ],
+      "sourceBodyHeight": 580,
+      "paste": [
+        64,
+        64
+      ],
+      "scaledSize": [
+        257,
+        359
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        62,
+        103,
+        539,
+        648
+      ],
+      "sourceBodyHeight": 545,
+      "paste": [
+        44,
+        86
+      ],
+      "scaledSize": [
+        295,
+        337
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        95,
+        95,
+        485,
+        645
+      ],
+      "sourceBodyHeight": 550,
+      "paste": [
+        72,
+        83
+      ],
+      "scaledSize": [
+        241,
+        340
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        15,
+        130,
+        523,
+        649
+      ],
+      "sourceBodyHeight": 519,
+      "paste": [
+        35,
+        102
+      ],
+      "scaledSize": [
+        314,
+        321
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        10,
+        168,
+        570,
+        645
+      ],
+      "sourceBodyHeight": 477,
+      "paste": [
+        19,
+        128
+      ],
+      "scaledSize": [
+        346,
+        295
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        33,
+        62,
+        580,
+        590
+      ],
+      "sourceBodyHeight": 528,
+      "paste": [
+        23,
+        97
+      ],
+      "scaledSize": [
+        338,
+        326
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        0,
+        93,
+        550,
+        644
+      ],
+      "sourceBodyHeight": 551,
+      "paste": [
+        22,
+        82
+      ],
+      "scaledSize": [
+        340,
+        341
+      ]
+    },
+    {
+      "frame": 9,
+      "sourceBBox": [
+        18,
+        95,
+        561,
+        645
+      ],
+      "sourceBodyHeight": 550,
+      "paste": [
+        24,
+        83
+      ],
+      "scaledSize": [
+        336,
+        340
+      ]
+    },
+    {
+      "frame": 10,
+      "sourceBBox": [
+        30,
+        89,
+        536,
+        636
+      ],
+      "sourceBodyHeight": 547,
+      "paste": [
+        36,
+        85
+      ],
+      "scaledSize": [
+        313,
+        338
+      ]
+    },
+    {
+      "frame": 11,
+      "sourceBBox": [
+        40,
+        67,
+        569,
+        618
+      ],
+      "sourceBodyHeight": 551,
+      "paste": [
+        28,
+        82
+      ],
+      "scaledSize": [
+        327,
+        341
+      ]
+    },
+    {
+      "frame": 12,
+      "sourceBBox": [
+        64,
+        31,
+        557,
+        611
+      ],
+      "sourceBodyHeight": 580,
+      "paste": [
+        40,
+        64
+      ],
+      "scaledSize": [
+        305,
+        359
+      ]
+    }
+  ],
+  "poseQa": {
+    "affineResidualAverage": 0.061613,
+    "affineResidualMax": 0.08728,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "hadoken",
+    "limits": {
+      "startEndIoUMin": 0.48,
+      "releaseIoUMin": 0.22,
+      "releaseIoUMax": 0.92,
+      "centroidXRangeMin": 6.0,
+      "centroidXRangeMax": 68.0,
+      "centroidYRangeMax": 44.0,
+      "reachRangeMin": 34.0,
+      "reachRangeMax": 155.0,
+      "releaseReachDeltaMin": 24.0,
+      "footCenterRangeMax": 62.0,
+      "footWidthCvMax": 0.58,
+      "areaCvMax": 0.22,
+      "residualAverageMin": 0.014,
+      "residualAverageMax": 0.19,
+      "residualMaxMin": 0.03,
+      "residualMaxMax": 0.25,
+      "releaseFrameIndex": 5
+    },
+    "startEndIoU": 0.728609,
+    "releaseIoU": 0.498919,
+    "centroidXRange": 23.345649,
+    "centroidYRange": 41.26728,
+    "reachRange": 52.0,
+    "releaseReachDelta": 26.0,
+    "footCenterRange": 27.491046,
+    "footWidthCv": 0.101848,
+    "areaCv": 0.077056,
+    "residualAverage": 0.061613,
+    "residualMax": 0.08728,
+    "checks": {
+      "recoveryTowardNeutral": true,
+      "releasePoseDistinct": true,
+      "bodyDrivePresent": true,
+      "verticalRootStable": true,
+      "handExtensionPresent": true,
+      "releaseExtendsPastGather": true,
+      "feetStayPlanted": true,
+      "stanceWidthStable": true,
+      "bodyVolumeStable": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  }
+}

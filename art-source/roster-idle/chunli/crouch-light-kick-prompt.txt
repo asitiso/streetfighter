@@ -1,0 +1,32 @@
+Create production animation art for a nonsexual arcade martial arts game. The subject is the adult fighter Chun-Li performing a low kick in her standard blue and gold martial arts uniform, white belt, white laced boots, black wrist guards, hair buns and white ribbons. Match the attached reference's illustration style and character design. Use ONLY its bottom-right defensive crouching stance as the pose reference.
+Transparent RGBA landscape sheet. Six separate complete full-body drawings arranged two columns and three rows, row-major. Consistent side camera facing right. Fixed anatomical scale and head size. Generous clear margins around every complete figure, including boots and ribbons. No text, cell borders, floor, shadows or background.
+Animate a compact crouching light kick:
+1. Defensive crouching guard matching the bottom-right reference, both boot soles planted.
+2. The front knee folds to prepare the kick; the front boot lifts near the body while the rear boot remains planted.
+3. The front leg begins extending to the right in a low, nearly horizontal path. Keep the hands in defensive guard.
+4. Contact pose: the front leg is almost straight to the right, the complete white boot horizontal about35–55pixels above the floor at the installed244pixel crouching body height. Its toe reaches70–100pixels beyond its neutral position. Natural fixed leg length. Rear leg bent, rear boot planted, torso slightly counterleans. Hands remain near the face in guard.
+5. Retraction: front knee folds back and the boot comes close to the body. Restore the crouching guard through a clearly distinct intermediate pose.
+6. Recovered crouching guard matching pose1, both soles planted.
+Keep the rear boot at the exact same horizontal position and baseline throughout. Remain crouching throughout; the body does not stand, step or jump. Consistent complete character anatomy, with actual articulated leg and torso drawings rather than translating or resizing a cutout. The action is athletic combat training, presented neutrally at the same side view in every cell. Use crisp ink and shaded arcade illustration. Transparent alpha0 blank space between cells.
+
+Reference: art-source/roster-idle/chunli/crouch-sheet.png (bottom-right lowguard).
+
+Earlier request rejected at output moderation; no image saved for this prompt:
+Use case: stylized-concept. Asset type: production CHUN-LI CROUCHING LIGHT KICK fullbody sprites.
+Reference role: attached crouchsheet ONLY BOTTOMRIGHT full lowguard for identity/style/anatomicalscale/boots. New articulatedaction source.
+Transparent RGBA LANDSCAPE sheet, SIXcomplete separate bodies,TWOcolumns THREErows row-major, widecells with40px alpha0 clear margin beyond all boots/buns/ribbons/gloves. Same3quarter sideview facingRIGHT,consistent head/muscle/limb scale. Chun-Li blueqipao/goldtrim/whitebelt,white lacedkneehighboots,blackspikedwristbands,buns/white ribbons,muscularthighs,crisp shaded fightinggameillustration.
+ALL six remain FULL LOW CROUCH,lowpelvis above deeplybent REARLEFT knee. REARLEFTbootsole/heel/toes stay planted at EXACT same baseline/position in ALL six. FrontRIGHTleg does quick LOW KICK thenretracts. Lowhead-to-ground height stays0.90–1.05neutral lowguard about244pxwheninstalled. No stand/rise/step/jump/bodyresizing. Both closedhands stay guarding face/chest, not punching.
+1 originalFULLLOWGUARD referencebottomright,bothbootsplanted.
+2 LOWCHAMBER: frontRIGHTknee folds towardribs, frontbootlifts fromfloor nearbody, rearbootfixed. Slighttorso counterlean, glovesguard.
+3 HALFEXTENSION: frontknee opensforwardRIGHT,shin travelslow nearhorizontal, boot halfway towardtarget30–45px abovefloor atinstalled244pxlowheight. Distinctfromchamber/fullcontact.
+4 FULLFASTLOWKICK CONTACT: frontleg almoststraightforwardRIGHT about35–55px abovefloor atinstalled244pxlowheight. Entirewhiteboot/shin/ankle/toes clearlyreadable,horizontal,closedtoeboxadvances70–100pxbeyond neutral frontboottoes. Naturalfixedleglengths. Rearleg deeplybent/rearsoleplanted,lowpelvis,slighttorso counterlean,handsnearface. Enoughclearspacebeyondextendedboot. Notakneeattack/highkick/floorscrapingsweep.
+5 FOLDEDWITHDRAWAL: frontknee folds sharplybacktowardbody,bootliftednearhipsbelowknee,outline muchshorterthancontact. Torso settlesbackoverlowpelvis,rearsolefixed.
+6 recoveredoriginalFULLLOWGUARDmatchingpose1,bothbootsplanted.
+Sixtrulyarticulateddifferenthip/knee/ankle/qipaofolddrawings,nottranslated/resizedguardorcopiedcutouts. Fixedanatomy/headsize,fullboots/hair/ribbons/arms. No extra limbs,punch,highkick,stand/step/jump,effects/text/borders/floor/shadows/background. Absolutealpha0gutters.
+
+Exact edit target: art-source/roster-idle/chunli/crouch-light-kick-edit-target.png
+
+Edit this exact transparent six-pose adult Chun-Li martial arts animation sheet. Keep two columns, three rows, complete full-body side-view characters and the reference costume/style. This is neutral athletic combat animation.
+Keep poses1,2,3,5,6 exactly unchanged. Only redraw pose4 (middle-right) contact to make it a LOWER kick:
+Keep the torso, defensive hands, crouching body height and rear planted boot unchanged. Rotate the extended front leg downward naturally at the joint by about10degrees, redrawing the knee/ankle connection. The front boot should be about25pixels lower at an installed244pixel crouching-body height, so its complete toe and heel are about50–65pixels above the rear sole baseline. It remains extended to the right, close to horizontal with a slight downward slope. Keep natural fixed leg length and complete white boot anatomy. Do not simply move a detached boot or resize the body. Rear boot stays fixed at the original baseline. The leg remains lifted clear of the floor.
+Do not change the other five drawings, body scale, framing or identities. Keep generous transparent margins around the complete extended boot. No extra limbs, standing pose, effects, text, cell borders, floor or shadows. Transparent RGBA with alpha0 background and gutters.

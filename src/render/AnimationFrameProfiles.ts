@@ -6,6 +6,15 @@ export interface AnimationFrameProfile {
 }
 
 const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
+  'DUDLEY:ducking-straight': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:slash-elbow': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:flash-chop': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'RYU:idle': {
     weights: [1.260, 0.940, 0.900, 1.080, 1.040, 0.960, 0.920, 1.320],
     anchorX: [0.000, 3.000, 5.000, 6.000, 0.000, -3.000, -5.000, -2.000],
@@ -23,6 +32,12 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, 0.000, 10.000, 10.000, 10.000, 10.000],
     anchorY: [0.000, 2.000, 3.000, 3.000, 2.000, 0.000, 1.000, 4.000, 4.000, 1.000],
     footLockStrength: 0.520,
+  },
+  'RYU:dash-back': {
+    weights: [1,1,1,1,1,1,1],
+    anchorX: [0,0,0,0,0,0,0],
+    anchorY: [0,0,0,0,0,0,0],
+    footLockStrength: 0,
   },
   'RYU:dash': {
     weights: [1.220, 0.820, 0.720, 0.720, 0.820, 1.000, 1.340],
@@ -42,16 +57,82 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
     footLockStrength: 0.300,
   },
+  'RYU:crouch': {
+    weights: [1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:crouch-light': {
+    weights: [1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:crouch-medium': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:crouch-heavy': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:crouch-light-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:crouch-medium-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:crouch-heavy-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
   'RYU:stand-light': {
     weights: [1.050, 0.800, 0.720, 1.180, 0.820, 1.000, 1.320],
-    anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, 0.000, 0.000],
-    anchorY: [0.000, 3.000, 2.000, 2.000, 0.000, 0.000, 0.000],
+    anchorX: [0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.720,
+  },
+  'RYU:stand-medium': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:stand-light-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:stand-medium-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
+  },
+  'RYU:stand-heavy-kick': {
+    weights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    footLockStrength: 1,
   },
   'RYU:stand-heavy': {
     weights: [1.080, 0.900, 0.800, 0.720, 0.700, 1.320, 0.820, 0.920, 1.050, 1.350],
-    anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, -10.000, -10.000, 0.000, 0.000, 0.000],
-    anchorY: [0.000, 2.000, 3.000, 3.000, 3.000, 3.000, 2.000, 0.000, 0.000, 0.000],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.680,
   },
   'RYU:hit': {
@@ -61,16 +142,13 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     footLockStrength: 0.320,
   },
   'RYU:hadoken': {
-    weights: [1.000, 0.900, 0.820, 0.780, 0.760, 0.720, 1.240, 0.820, 0.860, 0.940, 1.080, 1.340],
-    anchorX: [0.000, 10.000, 10.000, 10.000, -10.000, -10.000, -10.000, -10.000, -10.000, -9.614, 0.000, 0.000],
-    anchorY: [0.000, 0.000, -1.000, -1.000, -2.000, 3.000, 1.000, 3.000, 0.000, 0.000, 0.000, 0.000],
-    footLockStrength: 0.700,
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'RYU:tatsumaki': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
   'RYU:shoryuken': {
-    weights: [1.000, 0.860, 0.780, 0.720, 0.700, 1.240, 0.780, 0.800, 0.880, 0.960, 1.080, 1.350],
-    anchorX: [0.000, 10.000, -10.000, -10.000, -10.000, -10.000, -10.000, -10.000, -10.000, 0.000, 0.000, 0.000],
-    anchorY: [0.000, -2.000, 0.000, 8.000, 8.000, 8.000, 8.000, 8.000, 3.000, 0.000, 0.000, 0.000],
-    footLockStrength: 0.260,
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
   'KEN:idle': {
     weights: [1.350, 1.000, 0.900, 1.000, 0.950, 1.400],
@@ -89,6 +167,11 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, 0.000, 10.000, 10.000, 10.000, 10.000],
     anchorY: [0.000, 2.000, 3.000, 3.000, 2.000, 0.000, 2.000, 2.000, 2.000, 2.000],
     footLockStrength: 0.468,
+  },
+  'KEN:dash-back': {
+    weights: [1,1,1,1,1,1,1],
+    anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0],
+    footLockStrength: 0,
   },
   'KEN:dash': {
     weights: [1.220, 0.820, 0.720, 0.720, 0.820, 1.000, 1.340],
@@ -126,6 +209,81 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0, 0, -1, -1, 0, 0],
     footLockStrength: 0.68,
   },
+  'KEN:crouch-light': {
+    weights: [1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:crouch-light': {
+    weights: [1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:crouch-light': {
+    weights: [1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:crouch-medium': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:crouch-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:crouch-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:crouch-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:crouch-heavy': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:crouch-medium': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:crouch-medium': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:crouch-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:crouch-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:crouch-heavy': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:crouch-heavy': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:crouch-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:crouch-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:crouch': {
+    weights: [1,1,1,1,1,1], anchorX: [0,0,0,0,0,0], anchorY: [0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:crouch': {
+    weights: [1,1,1,1,1,1], anchorX: [0,0,0,0,0,0], anchorY: [0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:crouch': {
+    weights: [1,1,1,1,1,1], anchorX: [0,0,0,0,0,0], anchorY: [0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:stand-medium': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:stand-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:stand-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:stand-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:crouch-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:crouch-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'KEN:stand-light': {
     weights: [0.95, 0.72, 0.62, 1.18, 0.68, 0.92, 1.20],
     anchorX: [0, -4, -7, -10, -8, -3, 0],
@@ -162,6 +320,36 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 1, 1, 1, 0, 0, 0],
     footLockStrength: 0.22,
   },
+  'CHUNLI:guard': {
+    weights: [1,1,1,1,1], anchorX: [0,0,0,0,0], anchorY: [0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:parry': {
+    weights: [1,1,1,1,1,1], anchorX: [0,0,0,0,0,0], anchorY: [0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:stand-medium': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:stand-medium': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:stand-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:stand-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:stand-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:stand-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:stand-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:stand-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'CHUNLI:idle': {
     weights: [1.350, 1.000, 0.900, 1.000, 0.950, 1.400],
     anchorX: [0.000, 10.000, 10.000, 0.000, -10.000, -10.000],
@@ -179,6 +367,11 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, 0.000, 10.000, 10.000, 10.000, 10.000],
     anchorY: [0.000, 2.000, 2.000, 2.000, 2.000, 0.000, 1.000, 2.000, 2.000, 1.000],
     footLockStrength: 0.458,
+  },
+  'CHUNLI:dash-back': {
+    weights: [1,1,1,1,1,1,1],
+    anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0],
+    footLockStrength: 0,
   },
   'CHUNLI:dash': {
     weights: [1.220, 0.820, 0.720, 0.720, 0.820, 1.000, 1.340],
@@ -204,54 +397,67 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0.000, 0.000, 0.000, 0.000, 1.000, 1.000, 1.000, 0.000],
     footLockStrength: 0.282,
   },
+  'IBUKI:guard': {
+    weights: [1,1,1,1,1], anchorX: [0,0,0,0,0], anchorY: [0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:parry': {
+    weights: [1,1,1,1,1,1], anchorX: [0,0,0,0,0,0], anchorY: [0,0,0,0,0,0], footLockStrength: 0,
+  },
   'IBUKI:idle': {
     weights: [1.350, 1.000, 0.900, 1.000, 0.950, 1.400],
-    anchorX: [0.000, 10.000, 10.000, 0.000, -10.000, -10.000],
-    anchorY: [0.000, 3.000, 3.000, 0.000, -2.000, -2.000],
+    anchorX: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+    anchorY: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
     footLockStrength: 0.518,
   },
   'IBUKI:walk': {
     weights: [1.180, 0.900, 0.820, 0.900, 1.080, 1.220, 1.180, 0.900, 0.820, 0.900, 1.080, 1.220],
-    anchorX: [0.000, 10.000, 10.000, 10.000, 10.000, 10.000, 0.000, -10.000, -10.000, -10.000, -10.000, -10.000],
-    anchorY: [0.000, 3.000, 3.000, 4.000, 3.000, 3.000, 0.000, 3.000, 3.000, 4.000, 3.000, 3.000],
+    anchorX: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+    anchorY: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
     footLockStrength: 0.346,
   },
   'IBUKI:walk-back': {
     weights: [1.200, 0.920, 0.840, 0.940, 1.120, 1.200, 0.920, 0.840, 0.940, 1.120],
-    anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, 0.000, 10.000, 10.000, 10.000, 10.000],
-    anchorY: [0.000, 3.000, 3.000, 3.000, 3.000, 0.000, 3.000, 4.000, 4.000, 3.000],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.374,
+  },
+  'IBUKI:dash-back': {
+    weights: [1,1,1,1,1,1,1],
+    anchorX: [0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0],
+    footLockStrength: 0,
   },
   'IBUKI:dash': {
     weights: [1.220, 0.820, 0.720, 0.720, 0.820, 1.000, 1.340],
-    anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, -10.000, 0.000],
-    anchorY: [0.000, -1.000, -2.000, -2.000, -2.000, -1.000, 0.000],
+    anchorX: [0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.173,
   },
   'IBUKI:jump': {
     weights: [1.180, 0.920, 0.860, 1.050, 1.360, 1.020, 0.900, 1.180],
-    anchorX: [0.000, -10.000, -10.000, -10.000, -10.000, -10.000, -10.000, 0.000],
-    anchorY: [0.000, -3.000, 8.000, 8.000, 4.000, 0.000, 0.000, 0.000],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.000,
   },
   'IBUKI:landing': {
     weights: [1.100, 0.780, 1.180, 0.920, 1.080, 1.420],
-    anchorX: [0.000, 10.000, 10.000, -8.144, -8.990, 0.000],
-    anchorY: [0.000, -4.000, -2.000, 4.000, 4.000, 0.000],
+    anchorX: [0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0],
     footLockStrength: 0.648,
   },
   'IBUKI:hit': {
     weights: [1.000, 0.720, 0.780, 1.200, 0.920, 0.950, 1.050, 1.350],
-    anchorX: [0.000, 10.000, 10.000, 10.000, 10.000, 10.000, 10.000, 0.000],
-    anchorY: [0.000, -1.000, 0.000, -1.000, 0.000, 1.000, 0.000, 0.000],
+    anchorX: [0, 0, 0, 0, 0, 0, 0, 0],
+    anchorY: [0, 0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.230,
   },
 };
 
 const DEFAULT: AnimationFrameProfile = { weights:[1], anchorX:[0], anchorY:[0], footLockStrength:0 };
+// New six-frame breathing loops are already planted in their authored cells.
+const DEFAULT_IDLE: AnimationFrameProfile = { weights:[1.2,1,1,1.2,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 };
 
 export function animationFrameProfile(characterId: string, kind: string): AnimationFrameProfile {
-  return PROFILES[`${characterId}:${kind}`] ?? DEFAULT;
+  return PROFILES[`${characterId}:${kind}`] ?? (kind === 'idle' ? DEFAULT_IDLE : DEFAULT);
 }
 
 export function animationFrameProfileDigest(characterId: string, kind: string): string {

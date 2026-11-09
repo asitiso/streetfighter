@@ -7,6 +7,7 @@ import cv2
 import hashlib
 import json
 import numpy as np
+import os
 import re
 import subprocess
 import sys
@@ -49,7 +50,7 @@ POSE_THRESHOLDS = {
     'idle': (0.003, 0.006),
 }
 MIN_SOURCE_BODY_HEIGHT = 240
-POSE_ECC_CACHE = PoseEccCache(ROOT / 'RC39_POSE_ECC_CACHE.json')
+POSE_ECC_CACHE = PoseEccCache(Path(os.environ.get('POSE_ECC_CACHE_PATH') or ROOT / 'RC39_POSE_ECC_CACHE.json'))
 
 # Idle is a restrained loop: enough authored pose change to feel alive, but not enough
 # root/foot/body drift to read as walk, flinch or attack anticipation.
@@ -484,11 +485,23 @@ def normalize_frames(kind: str, frames: list[Image.Image], min_source_body_heigh
         crop = crop.resize((sw, sh), Image.Resampling.LANCZOS)
         dest = Image.new('RGBA', (FRAME_W, FRAME_H), (0,0,0,0))
         x = round(center_x - sw / 2)
-        if kind in GROUND_KINDS:
+        if kind == 'super-rush':
+            # Anchor the support feet, not the changing punch/kick bounding box.
+            # Keep the entire sprite in its cell when a strike reaches the edge.
+            foot_x, _ = _foot_metrics(np.asarray(crop.getchannel('A')) > 24)
+            x = max(5, min(FRAME_W - sw - 5, round(center_x - foot_x)))
+        grounded_special = (
+            (kind == 'shoryuken' and (i <= 2 or i >= 9))
+            or (kind == 'tatsumaki' and (i == 0 or i >= 10))
+        )
+        if kind in GROUND_KINDS or grounded_special:
             y = baseline - sh
         else:
             # preserve pose differences while removing root-translation from source layout
-            y = round(220 - sh / 2)
+            # Wide spin poses stay near the grounded root instead of looking
+            # like a high jump when the kicking leg extends.
+            air_center_y = 236 if kind == 'tatsumaki' else 220
+            y = round(air_center_y - sh / 2)
         dest.alpha_composite(crop, (x, y))
         normalized.append(dest)
         metrics.append({'frame': i+1, 'sourceBBox': list(bbox), 'sourceBodyHeight': source_heights[i], 'paste':[x,y], 'scaledSize':[sw,sh]})

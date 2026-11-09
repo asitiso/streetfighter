@@ -1,0 +1,277 @@
+{
+  "character": "CHUNLI",
+  "sequence": "landing",
+  "source": "art-source/chunli/inbox/landing",
+  "poseQa": {
+    "affineResidualAverage": 0.056718,
+    "affineResidualMax": 0.099845,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "landing",
+    "limits": {
+      "startEndIoUMin": 0.3,
+      "startEndIoUMax": 0.85,
+      "squashIoUMin": 0.2,
+      "squashIoUMax": 0.7,
+      "centroidXRangeMax": 55.0,
+      "centroidYRangeMin": 45.0,
+      "centroidYRangeMax": 135.0,
+      "centroidStepMax": 78.0,
+      "areaCvMax": 0.16,
+      "footWidthCvMin": 0.15,
+      "footWidthCvMax": 0.95,
+      "residualAverageMin": 0.03,
+      "residualAverageMax": 0.18,
+      "residualMaxMin": 0.05,
+      "residualMaxMax": 0.22
+    },
+    "startEndIoU": 0.709172,
+    "squashIoU": 0.433813,
+    "centroidXRange": 4.495571,
+    "centroidYRange": 56.996908,
+    "centroidStepMax": 42.188522,
+    "areaCv": 0.102816,
+    "footWidthCv": 0.306523,
+    "residualAverage": 0.056718,
+    "residualMax": 0.099845,
+    "checks": {
+      "neutralBridgeNotDuplicate": true,
+      "squashPoseDistinct": true,
+      "horizontalRootStable": true,
+      "compressionPresent": true,
+      "noFrameJump": true,
+      "bodyVolumeStable": true,
+      "stanceAbsorbsImpact": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  },
+  "baseToJump": {
+    "iou": 0.589162,
+    "centroidDistance": 20.941769,
+    "footCenterDelta": 6.93397,
+    "areaRatio": 0.855456,
+    "limits": {
+      "iouMin": 0.4,
+      "iouMax": 0.9,
+      "centroidDistanceMax": 38.0,
+      "footCenterDeltaMax": 65.0,
+      "areaRatioMin": 0.68,
+      "areaRatioMax": 1.45
+    },
+    "checks": {
+      "silhouetteCue": true,
+      "scaleContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true
+    },
+    "pass": true
+  },
+  "jumpToLanding": {
+    "iou": 0.696298,
+    "centroidDistance": 16.122015,
+    "footCenterDelta": 3.488663,
+    "areaRatio": 1.044137,
+    "limits": {
+      "iouMin": 0.25,
+      "iouMax": 0.78,
+      "footCenterDeltaMax": 65.0,
+      "areaRatioMin": 0.65,
+      "areaRatioMax": 1.4
+    },
+    "checks": {
+      "silhouetteCue": true,
+      "scaleContinuity": true,
+      "footContinuity": true
+    },
+    "pass": true
+  },
+  "landingToBase": {
+    "iou": 0.639276,
+    "centroidDistance": 13.820018,
+    "footCenterDelta": 5.193855,
+    "areaRatio": 1.092144,
+    "limits": {
+      "iouMin": 0.35,
+      "iouMax": 0.9,
+      "centroidDistanceMax": 48.0,
+      "footCenterDeltaMax": 65.0,
+      "areaRatioMin": 0.65,
+      "areaRatioMax": 1.4
+    },
+    "checks": {
+      "silhouetteCue": true,
+      "scaleContinuity": true,
+      "rootContinuity": true,
+      "footContinuity": true
+    },
+    "pass": true
+  },
+  "pass": true,
+  "pairedSequence": {
+    "sequence": "jump",
+    "poseQa": {
+      "affineResidualAverage": 0.077294,
+      "affineResidualMax": 0.105252,
+      "fullPoseAverageThreshold": 0.008,
+      "fullPoseMaxThreshold": 0.018,
+      "poseAuthoredPass": true
+    },
+    "semanticQa": {
+      "kind": "jump",
+      "limits": {
+        "startEndIoUMin": 0.35,
+        "startEndIoUMax": 0.9,
+        "apexIoUMin": 0.3,
+        "apexIoUMax": 0.72,
+        "centroidXRangeMax": 50.0,
+        "centroidYRangeMin": 45.0,
+        "centroidYRangeMax": 135.0,
+        "centroidStepMax": 92.0,
+        "areaCvMax": 0.18,
+        "footWidthCvMin": 0.15,
+        "footWidthCvMax": 1.2,
+        "residualAverageMin": 0.03,
+        "residualAverageMax": 0.18,
+        "residualMaxMin": 0.05,
+        "residualMaxMax": 0.22
+      },
+      "startEndIoU": 0.677811,
+      "apexIoU": 0.437006,
+      "centroidXRange": 25.431894,
+      "centroidYRange": 111.277792,
+      "centroidStepMax": 86.456547,
+      "areaCv": 0.101418,
+      "footWidthCv": 0.888064,
+      "residualAverage": 0.077294,
+      "residualMax": 0.105252,
+      "checks": {
+        "contactBridgeNotDuplicate": true,
+        "apexPoseDistinct": true,
+        "horizontalShapeStable": true,
+        "verticalPhasePresent": true,
+        "noFrameJump": true,
+        "bodyVolumeStable": true,
+        "aerialLegShapeChanges": true,
+        "authoredMotionAverage": true,
+        "authoredMotionPeak": true
+      },
+      "semanticQaPass": true
+    },
+    "pass": true
+  },
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        190,
+        30,
+        577,
+        513
+      ],
+      "sourceBodyHeight": 483,
+      "paste": [
+        56,
+        83
+      ],
+      "scaledSize": [
+        273,
+        340
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        127,
+        78,
+        590,
+        529
+      ],
+      "sourceBodyHeight": 451,
+      "paste": [
+        29,
+        105
+      ],
+      "scaledSize": [
+        326,
+        318
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        219,
+        74,
+        693,
+        453
+      ],
+      "sourceBodyHeight": 379,
+      "paste": [
+        25,
+        156
+      ],
+      "scaledSize": [
+        334,
+        267
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        134,
+        1,
+        590,
+        472
+      ],
+      "sourceBodyHeight": 471,
+      "paste": [
+        32,
+        91
+      ],
+      "scaledSize": [
+        321,
+        332
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        377,
+        7,
+        607,
+        492
+      ],
+      "sourceBodyHeight": 485,
+      "paste": [
+        111,
+        81
+      ],
+      "scaledSize": [
+        162,
+        342
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        205,
+        12,
+        537,
+        495
+      ],
+      "sourceBodyHeight": 483,
+      "paste": [
+        75,
+        83
+      ],
+      "scaledSize": [
+        234,
+        340
+      ]
+    }
+  ]
+}

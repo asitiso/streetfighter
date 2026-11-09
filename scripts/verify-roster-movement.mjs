@@ -1,0 +1,203 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {CHARACTERS,BOSS_CHARACTERS,getCharacter} from '../dist/assets/game/characters.js';
+import {Fighter} from '../dist/assets/combat/Fighter.js';
+import {normalFor} from '../dist/assets/combat/MoveLibrary.js';
+import {animationSequenceFor,animationSequencesFor} from '../dist/assets/render/AnimationSequenceLibrary.js';
+import {animationSequenceSample} from '../dist/assets/render/AnimationTimingMapper.js';
+const added=['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'];
+const quiet={held:()=>false,pressed:()=>false,released:()=>false};
+// Keep repeated cycle sampling away from arena clamping, including fast Yun.
+const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:-10000,arenaRight:10000,arenaTop:380,arenaBottom:590};
+const sequences=new Map([...CHARACTERS,...BOSS_CHARACTERS].flatMap(c=>animationSequencesFor(c.id)).map(s=>[s.asset,s]));
+globalThis.Image=class {
+ complete=true;
+ set src(value){this.url=value;const s=sequences.get(value);this.naturalWidth=s?s.frameWidth*s.frameCount:384;this.naturalHeight=448;this.onload?.();}
+ get src(){return this.url;}
+};
+const {runtimeQuality}=await import('../dist/assets/core/RuntimeQuality.js');
+const {drawCombatFighter}=await import('../dist/assets/render/Visuals.js');
+runtimeQuality.setTier('high');
+const calls=[];
+const translations=[];
+let canvasDraws=0;
+const ctx=new Proxy({globalAlpha:1,translate:(...a)=>translations.push(a),drawImage:(...a)=>calls.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});
+function checkCanvas(fighter,seq){
+ calls.length=0;translations.length=0;drawCombatFighter(ctx,fighter,0,0);
+ const call=calls.find(c=>c[0].src===seq.asset);assert.ok(call,`${seq.id} must reach Canvas`);
+ canvasDraws++;
+ assert.deepEqual(call.slice(5),[-seq.frameWidth/4,-220,seq.frameWidth/2,224]);
+ assert.ok(call[1]>=0&&call[1]+call[3]<=seq.frameWidth*seq.frameCount);
+ if(fighter.jumpHeight>0)assert.equal(translations.filter(([x,y])=>x===0&&y===-fighter.jumpHeight).length,1,'Airborne body must follow physical height exactly once');
+}
+for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
+ const seq=animationSequenceFor(def.id,'idle');
+ assert.ok(seq?.enabled&&seq.poseAuthored,`${def.id} must have an authored idle`);
+ for(const facing of [-1,1]) {
+  const fighter=new Fighter(def,'player',600,460,facing),frames=new Set();let wrapped=false,previous=0;
+  for(let tick=0;tick<180;tick++) {
+   const sample=animationSequenceSample(fighter,tick/60);
+   assert.equal(sample?.sequence.id,seq.id);frames.add(sample.frame);
+   checkCanvas(fighter,seq);
+   if(sample.frame<previous)wrapped=true;previous=sample.frame;
+   fighter.updatePlayer(quiet,rules);
+  }
+  assert.equal(frames.size,seq.frameCount,`${def.id} must reach every idle frame`);assert.ok(wrapped);
+  fighter.state='hit';fighter.hitAnimationDuration=24;fighter.stateFrame=-24;
+  assert.notEqual(animationSequenceSample(fighter,0)?.sequence.id,seq.id,'Idle must not hide hit reactions');
+  const walking=new Fighter(def,'player',600,460,facing),walk=animationSequenceFor(def.id,'walk'),walkFrames=new Set();
+  assert.ok(walk?.enabled&&walk.poseAuthored,`${def.id} must have an authored walk`);
+  for(let tick=0;tick<100;tick++) {
+   walking.updatePlayer({...quiet,held:key=>key===(facing===1?'right':'left')},rules);
+   const sample=animationSequenceSample(walking,0);assert.equal(sample?.sequence.id,walk.id);walkFrames.add(sample.frame);checkCanvas(walking,walk);
+  }
+  assert.equal(walkFrames.size,walk.frameCount);walking.updatePlayer(quiet,rules);
+  assert.equal(animationSequenceSample(walking,0)?.sequence.id,seq.id,'Releasing movement returns to idle');
+  if(added.includes(def.id)||['RYU','CHUNLI','IBUKI','KEN'].includes(def.id)) {
+   const retreat=new Fighter(def,'player',600,460,facing),back=animationSequenceFor(def.id,'walk-back'),backFrames=new Set();
+   assert.ok(back?.enabled&&back.poseAuthored,`${def.id} must have an authored retreat`);
+   let previous=0,wrapped=false;
+   for(let tick=0;tick<100;tick++) {
+    const before=retreat.x;
+    retreat.updatePlayer({...quiet,held:key=>key===(facing===1?'left':'right')},rules);
+    assert.ok((retreat.x-before)*facing<0,'Retreat must move away without turning');assert.equal(retreat.facing,facing);
+    const sample=animationSequenceSample(retreat,0);assert.equal(sample?.sequence.id,back.id);backFrames.add(sample.frame);checkCanvas(retreat,back);
+    if(sample.frame<previous)wrapped=true;previous=sample.frame;
+   }
+   assert.equal(backFrames.size,10);assert.ok(wrapped);
+   retreat.updatePlayer({...quiet,held:key=>key===(facing===1?'right':'left')},rules);
+   assert.equal(animationSequenceSample(retreat,0)?.sequence.id,walk.id,'Forward switch must use forward walking');
+   retreat.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(retreat,0)?.sequence.id,seq.id);
+   if(added.includes(def.id)||['RYU','CHUNLI','IBUKI','KEN'].includes(def.id)){
+   for(const direction of [-1,1]) {
+    const dash=new Fighter(def,'player',600,460,facing),action=direction===1?'right':'left';
+    const tap={held:key=>key===action,pressed:key=>key===action,released:()=>false};
+    for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){dash.captureInput(input,tick);dash.updatePlayer(input,rules);}
+    assert.equal(dash.dashFrames,8,'Double tap must start the unchanged eight-tick dash');
+    const dashSeq=animationSequenceFor(def.id,direction===facing?'dash':'dash-back');assert.ok(dashSeq?.enabled&&dashSeq.poseAuthored,`${def.id} needs authored directional dash`);
+    const frames=new Set();let ticks=0;
+    while(dash.dashFrames>0) {
+     const sample=animationSequenceSample(dash,0);
+     assert.equal(sample?.sequence.id,dashSeq.id);frames.add(sample.frame);checkCanvas(dash,dashSeq);
+     assert.equal(dashSeq.facingRelativeDirection,direction===facing?'forward':'backward');
+     if(ticks===0&&direction!==facing){
+      dashSeq.enabled=false;try{assert.equal(animationSequenceSample(dash,0),null,'Disabled backward art preserves prior fallback');}finally{dashSeq.enabled=true;}
+      dashSeq.facingRelativeDirection='forward';try{assert.equal(animationSequenceSample(dash,0),null,'Wrong-direction art cannot play');}finally{dashSeq.facingRelativeDirection='backward';}
+     }
+     if(ticks===2){
+      dash.hitStop=2;const clock=dash.dashFrames,x=dash.x;
+      for(let stop=0;stop<2;stop++){dash.updatePlayer(quiet,rules);assert.equal(dash.dashFrames,clock);assert.equal(dash.x,x);assert.equal(animationSequenceSample(dash,0).frame,sample.frame);}
+     }
+     const before=dash.x;dash.captureInput(quiet,3+ticks);dash.updatePlayer(quiet,rules);
+     assert.ok(Math.abs((dash.x-before)-direction*8.2*def.speed*dash.combatProfile.walkScale)<1e-8);assert.equal(dash.facing,facing);ticks++;
+    }
+    assert.equal(ticks,8);
+    assert.deepEqual([...frames],[0,1,3,4,5,6],'Launch/drive/braking/recovery must all be reached');
+    dash.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(dash,0)?.sequence.id,seq.id);
+    for(const button of ['lp','jump']){
+     const interrupted=new Fighter(def,'player',600,460,facing);
+     for(const [tick,input] of [[0,tap],[1,quiet],[2,tap]]){interrupted.captureInput(input,tick);interrupted.updatePlayer(input,rules);}
+     interrupted.updatePlayer({...quiet,pressed:key=>key===button},rules);assert.equal(interrupted.dashFrames,0);assert.equal(animationSequenceSample(interrupted,0).sequence.kind,button==='jump'?'jump':'stand-light');
+    }
+   }
+   if(added.includes(def.id)){
+   const jumping=new Fighter(def,'player',600,460,facing),jumpSeq=animationSequenceFor(def.id,'jump'),landingSeq=animationSequenceFor(def.id,'landing');
+   assert.ok(jumpSeq?.enabled&&jumpSeq.poseAuthored,`${def.id} needs authored jump`);
+   assert.ok(landingSeq?.enabled&&landingSeq.poseAuthored,`${def.id} needs authored landing`);
+   jumping.updatePlayer({...quiet,pressed:key=>key==='jump'},rules);
+   const airFrames=new Set(),landingFrames=new Set();let rise=false,fall=false,landed=false,apex=false;
+   for(let tick=0;tick<120;tick++) {
+    const sample=animationSequenceSample(jumping,0);
+    if(jumping.airborne) {
+     assert.equal(sample?.sequence.id,jumpSeq.id);airFrames.add(sample.frame);checkCanvas(jumping,jumpSeq);
+     rise ||= jumping.jumpVelocity>0;fall ||= jumping.jumpVelocity<0;
+     if(Math.abs(jumping.jumpVelocity)<jumping.combatProfile.gravity*1.5){assert.ok([3,4,5].includes(sample.frame),'Physical apex must show tucked knees');apex=true;}
+    } else if(jumping.landingFrames>0) {
+     landed=true;assert.equal(sample?.sequence.id,landingSeq.id);landingFrames.add(sample.frame);checkCanvas(jumping,landingSeq);
+    } else if(landed){assert.equal(sample?.sequence.id,seq.id);break;}
+    jumping.updatePlayer(quiet,rules);
+   }
+   assert.ok(rise&&fall&&landed&&apex);assert.equal(airFrames.size,8);assert.equal(landingFrames.size,6);
+   assert.equal(jumping.jumpHeight,0);assert.equal(jumping.state,'idle');
+   }
+   }
+   const hitSeq=animationSequenceFor(def.id,'hit');assert.ok(hitSeq?.enabled&&hitSeq.poseAuthored);
+   for(const air of [false,true]) {
+    const victim=new Fighter(def,'player',600,460,facing),attacker=new Fighter(getCharacter('RYU'),'enemy',600+facing*60,460,-facing);
+    if(air){victim.updatePlayer({...quiet,pressed:k=>k==='jump'},rules);for(let t=0;t<10;t++)victim.updatePlayer(quiet,rules);assert.ok(victim.jumpHeight>0);}
+    assert.equal(victim.receiveHit({...normalFor('lp'),hitStun:24},attacker,false),'hit');
+    const frames=new Set();let tick=0,airDraw=false;
+    while(victim.state==='hit'&&tick++<120) {
+     const sample=animationSequenceSample(victim,0);assert.equal(sample?.sequence.id,hitSeq.id);frames.add(sample.frame);checkCanvas(victim,hitSeq);
+     if(victim.hitStop>0)assert.equal(sample.frame,0,'Impact must freeze during hit stop');
+     airDraw ||= victim.jumpHeight>0;victim.updatePlayer(quiet,rules);
+    }
+    assert.equal(frames.size,8);assert.notEqual(victim.state,'hit');if(air)assert.ok(airDraw,'Air hit must render above ground');
+   }
+   {
+   const guardSeq=animationSequenceFor(def.id,'guard'),parrySeq=animationSequenceFor(def.id,'parry');
+   assert.ok(guardSeq?.enabled&&guardSeq.poseAuthored,`${def.id} needs authored guard`);
+   assert.ok(parrySeq?.enabled&&parrySeq.poseAuthored,`${def.id} needs authored parry`);
+   const create=()=>new Fighter(def,'player',600,460,facing),opponent=new Fighter(getCharacter('RYU'),'enemy',600+facing*60,460,-facing);
+   const drainStop=(fighter,sequence)=>{const initial=animationSequenceSample(fighter,0).frame;while(fighter.hitStop>0){checkCanvas(fighter,sequence);fighter.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(fighter,0).frame,initial,'Hit stop must freeze defense');}};
+   for(const duration of [6,12,24]) {
+    const defender=create(),move={...normalFor('lp'),blockStun:duration};assert.equal(defender.receiveHit(move,opponent,true),'block');
+    const initial=animationSequenceSample(defender,0);assert.equal(initial?.sequence.id,guardSeq.id);drainStop(defender,guardSeq);
+    let ticks=0;const frames=new Set();
+    while(defender.state==='block'&&ticks<60){const sample=animationSequenceSample(defender,0);assert.equal(sample?.sequence.id,guardSeq.id);frames.add(sample.frame);checkCanvas(defender,guardSeq);
+     if(duration===24&&ticks===2){assert.equal(defender.receiveHit(move,opponent,true),'block');assert.equal(animationSequenceSample(defender,0).frame,initial.frame,'Repeated block must restart brace');drainStop(defender,guardSeq);}
+     defender.updatePlayer(quiet,rules);ticks++;}
+    assert.equal(ticks,duration+(duration===24?2:0));assert.equal(defender.hp,defender.maxHp);assert.equal(defender.state,'idle');assert.equal(animationSequenceSample(defender,0)?.sequence.id,seq.id);
+    assert.ok(frames.has(2)||frames.has(3),'Even short block stun must show impact absorption');assert.ok(frames.has(4),'Guard must settle before returning to idle');if(duration===24)assert.equal(frames.size,5);
+   }
+   for(const red of [false,true]) {
+    const defender=create();if(red){assert.equal(defender.receiveHit(normalFor('lp'),opponent,true),'block');drainStop(defender,guardSeq);}
+    defender.updatePlayer({...quiet,pressed:k=>k===(facing===1?'right':'left')},rules);
+    assert.equal(defender.receiveHit(normalFor('lp'),opponent,false),red?'red-parry':'parry');
+    assert.equal(animationSequenceSample(defender,0)?.sequence.id,parrySeq.id);drainStop(defender,parrySeq);
+    let ticks=0;const frames=new Set();while(defender.state==='parry'&&ticks<30){const sample=animationSequenceSample(defender,0);assert.equal(sample?.sequence.id,parrySeq.id);frames.add(sample.frame);checkCanvas(defender,parrySeq);defender.updatePlayer(quiet,rules);ticks++;}
+    assert.equal(ticks,red?10:8);assert.equal(defender.hp,defender.maxHp);assert.equal(defender.state,'idle');assert.equal(animationSequenceSample(defender,0)?.sequence.id,seq.id);
+    assert.ok(frames.has(2)||frames.has(3),'Parry contact must be visible');assert.ok(frames.has(5));if(red)assert.equal(frames.size,6);
+   }
+   }
+  }
+ }
+ if(added.includes(def.id)) {
+  const manifest=JSON.parse(await readFile(new URL(`../public/art/animation-hq/${def.id.toLowerCase()}/manifest.json`,import.meta.url),'utf8'));
+  for(const record of manifest.records){
+   const data=await readFile(new URL(`../public/art/animation-hq/${def.id.toLowerCase()}/${record.id}.webp`,import.meta.url));
+   assert.equal(record.sha256,createHash('sha256').update(data).digest('hex').toUpperCase());
+   assert.equal(record.enabled,true);assert.equal(record.poseAuthored,true);
+   assert.equal(record.poseQa.poseAuthoredPass,true);assert.equal(record.semanticQa.semanticQaPass,true);
+   if(record.id==='dash') {
+    assert.deepEqual(record.frameSize,[640,448]);assert.equal(record.facingRelativeDirection,'forward');
+    for(const metric of record.metrics)assert.ok(Math.abs(metric.scaledSize[1]-metric.sourceBodyHeight*record.normalization.uniformScale)<=1,'Dash must use one body scale without per-frame fit shrinkage');
+    for(const input of [{source:record.source,sourceSha256:record.sourceSha256},...(record.sourceOverrides??[])]) {
+     const bytes=await readFile(new URL(`../${input.source}`,import.meta.url));
+     assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),input.sourceSha256,'Dash source provenance must match');
+    }
+   }
+   if(['crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash-back','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'].includes(record.id)) {
+    const source=await readFile(new URL(`../${record.source}`,import.meta.url));
+    assert.equal(createHash('sha256').update(source).digest('hex').toUpperCase(),record.sourceSha256,'Source provenance must match');
+    for(const override of record.sourceOverrides??[]) {
+     const bytes=await readFile(new URL(`../${override.source}`,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex').toUpperCase(),override.sourceSha256,'Shared defense pose provenance must match');
+    }
+    for(const metric of record.metrics)assert.ok(Math.abs(metric.scaledSize[1]-metric.sourceBodyHeight*record.normalization.uniformScale)<=1,'Poses must preserve one anatomical scale');
+    if(record.id==='jump'||record.id==='landing') {
+     const peer=manifest.records.find(r=>r.id===(record.id==='jump'?'landing':'jump'));
+     assert.equal(record.normalization.uniformScale,peer.normalization.uniformScale,'Jump and landing must share body scale');
+    }
+   }
+  }
+  assert.equal(manifest.enabledFrameTotal,def.id==='ALEX'?215:def.id==='DUDLEY'?203:191);
+ }
+}
+// Boss AI also advances the idle clock when waiting at its assigned position.
+for(const id of ['URIEN','GILL']) {
+ const fighter=new Fighter(getCharacter(id),'enemy',600,460,1),target=new Fighter(getCharacter('RYU'),'player',850,460,-1);
+ for(let tick=0;tick<20;tick++)fighter.updateAiDirected(target,rules,{role:'wait',desiredX:600,desiredY:460,attackAllowed:false,rangedAllowed:false});
+ assert.equal(fighter.state,'idle');assert.ok(fighter.stateFrame>0);
+}
+console.log('ROSTER_MOVEMENT_PASS',{characters:10,facings:2,airCharacters:6,airFrames:84,hitCharacters:10,hitFrames:80,defenseCharacters:10,defenseFrames:110,canvasDraws});

@@ -14,7 +14,7 @@ export interface AnimationTextureSelection {
 }
 
 const cache = new Map<string, SequenceTextureEntry>();
-const MOVEMENT = new Set(['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']);
+const MOVEMENT = new Set(['idle','crouch','walk','walk-back','dash','dash-back','jump','landing','hit','guard','parry']);
 
 function now(): number { return typeof performance === 'undefined' ? 0 : performance.now(); }
 

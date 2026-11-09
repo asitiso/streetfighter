@@ -1,0 +1,15 @@
+Use case: stylized-concept. Asset type: production CHUN-LI backward dash source sprite sheet.
+Reference1 idle figure is exact character, costume, body proportions and neutral stance reference; ignore its backdrop. Reference2 forward dash is matching cel-shaded rendering reference ONLY, do not reuse its forward leaning run.
+Exactly SIX complete figures, TWO columns THREE rows row-major. Every figure faces SCREEN RIGHT while retreating toward SCREEN LEFT. Same muscular Chun-Li, brown hair in paired white buns with white ribbons, blue qipao with gold trim, white waistband, spiked black wrist cuffs and white lace-up boots. Crisp clean cel shading, matching existing sprite.
+ONE fixed anatomical scale/head size/limb lengths across all six. SIX distinct internal joint poses:
+1 guarded launch anticipation: neutral wide stance slightly compressed, both fists guarding chest, close to idle.
+2 knee/hip compression, hips lower, push off front SCREEN-RIGHT foot.
+3 strong BACKWARD DRIVE: low hips/torso tilt SCREEN LEFT relative to lower-leg spread midpoint, front SCREEN-RIGHT leg extends to push back, rear SCREEN-LEFT knee folds to receive weight, screen-left arm counterbalances beside waist while other fist guards chin.
+4 rear SCREEN-LEFT boot PLANTS to brake, rear knee deeply flexed, trailing SCREEN-RIGHT knee bends with boot lifted slightly from floor, torso remains leaning left.
+5 weight settles, knees rise, fists return to guard.
+6 recovered upright idle-like stance matching reference1, one fist near chest and other near waist, slight weight change from1.
+At neutral body height340px compression lowers head/hips35–50px; drive torso20–40px LEFT of lower-leg spread center. Clear shoulder/elbow/knee/ankle articulation, no translated/rotated/scaled clones. Keep opponent-facing RIGHT in every frame. Fighter supplies world travel: center near common root.
+Spacious portrait canvas with generous gutters and40px room beyond every ribbon, fist, heel and toe. Full bodies, do not crop any boot or bun. Transparent alpha ZERO outside bodies. No backdrop, ground, shadow, speed lines, effects, blur, labels, text, panels, extra figures.
+
+Background extraction; exact input retained as dash-back-edit-target.png:
+Use case: background-extraction. Edit target is six-pose Chun-Li backward-dash source. Remove ONLY the gradient/backdrop and make all non-character pixels truly alpha ZERO, including space between arms/legs and all gutters. Preserve all six figures exactly, including poses, placement, proportions, colors, linework, gold trim, ribbons and entire boots. Do not add shadow or halo or redraw anatomy. Same two-column three-row layout and same canvas.

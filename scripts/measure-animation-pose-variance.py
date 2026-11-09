@@ -24,7 +24,20 @@ POSE_THRESHOLDS = {
 
 TARGETS = {
     'RYU': {
+        'tatsumaki': 12,
+        'dash-back': 7,
+        'crouch': 6,
+        'crouch-light': 7,
+        'crouch-medium': 8,
+        'crouch-heavy': 10,
+        'crouch-light-kick': 8,
+        'crouch-medium-kick': 10,
+        'crouch-heavy-kick': 12,
         'stand-light': 7,
+        'stand-medium': 8,
+        'stand-light-kick': 8,
+        'stand-medium-kick': 10,
+        'stand-heavy-kick': 12,
         'stand-heavy': 10,
         'hadoken': 12,
         'shoryuken': 12,
@@ -49,8 +62,11 @@ TARGETS = {
 }
 
 
-def alpha_frame(strip: Image.Image, index: int) -> np.ndarray:
-    frame = strip.crop((index * FRAME_W, 0, (index + 1) * FRAME_W, FRAME_H))
+FRAME_WIDTHS = {('RYU', kind): 640 for kind in ('tatsumaki','shoryuken','hadoken', 'dash-back', 'stand-light', 'stand-medium', 'stand-heavy', 'stand-light-kick', 'stand-medium-kick', 'stand-heavy-kick', 'crouch-light', 'crouch-medium', 'crouch-heavy', 'crouch-light-kick', 'crouch-medium-kick', 'crouch-heavy-kick')}
+
+
+def alpha_frame(strip: Image.Image, index: int, width: int = FRAME_W) -> np.ndarray:
+    frame = strip.crop((index * width, 0, (index + 1) * width, FRAME_H))
     return np.asarray(frame.getchannel('A'), dtype=np.float32) / 255.0
 
 
@@ -62,7 +78,7 @@ def affine_residual(reference: np.ndarray, candidate: np.ndarray) -> float:
         aligned = cv2.warpAffine(
             candidate,
             warp,
-            (FRAME_W, FRAME_H),
+            (reference.shape[1], reference.shape[0]),
             flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP,
             borderMode=cv2.BORDER_CONSTANT,
             borderValue=0,
@@ -97,9 +113,10 @@ def measure(character: str, output: Path, strict_missing: bool = False) -> dict:
             continue
 
         strip = Image.open(path).convert('RGBA')
-        if strip.size != (FRAME_W * count, FRAME_H):
+        width = FRAME_WIDTHS.get((character, name), FRAME_W)
+        if strip.size != (width * count, FRAME_H):
             raise SystemExit(f'{character} {name}: invalid strip size {strip.size}')
-        masks = [alpha_frame(strip, i) for i in range(count)]
+        masks = [alpha_frame(strip, i, width) for i in range(count)]
         avg_threshold, max_threshold = POSE_THRESHOLDS.get((character, name), (FULL_POSE_AVG_THRESHOLD, FULL_POSE_MAX_THRESHOLD))
         cached = POSE_ECC_CACHE.get(masks, avg_threshold, max_threshold)
         if cached is None:

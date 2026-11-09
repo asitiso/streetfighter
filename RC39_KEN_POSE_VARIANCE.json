@@ -129,48 +129,48 @@
       "sequence": "hadoken",
       "frames": 12,
       "missing": false,
-      "affineResidualAverage": 0.001624,
-      "affineResidualMax": 0.002149,
+      "affineResidualAverage": 0.061613,
+      "affineResidualMax": 0.08728,
       "fullPoseAverageThreshold": 0.008,
       "fullPoseMaxThreshold": 0.018,
-      "poseAuthoredPass": false,
-      "requiredRuntimeMode": "bridge"
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
     },
     {
       "sequence": "shoryuken",
       "frames": 12,
       "missing": false,
-      "affineResidualAverage": 0.001604,
-      "affineResidualMax": 0.002252,
+      "affineResidualAverage": 0.086902,
+      "affineResidualMax": 0.115045,
       "fullPoseAverageThreshold": 0.008,
       "fullPoseMaxThreshold": 0.018,
-      "poseAuthoredPass": false,
-      "requiredRuntimeMode": "bridge"
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
     },
     {
       "sequence": "tatsumaki",
       "frames": 12,
       "missing": false,
-      "affineResidualAverage": 0.001773,
-      "affineResidualMax": 0.002313,
+      "affineResidualAverage": 0.11909,
+      "affineResidualMax": 0.15985,
       "fullPoseAverageThreshold": 0.008,
       "fullPoseMaxThreshold": 0.018,
-      "poseAuthoredPass": false,
-      "requiredRuntimeMode": "bridge"
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
     },
     {
       "sequence": "super-rush",
       "frames": 16,
       "missing": false,
-      "affineResidualAverage": 0.001669,
-      "affineResidualMax": 0.002114,
+      "affineResidualAverage": 0.059808,
+      "affineResidualMax": 0.125146,
       "fullPoseAverageThreshold": 0.008,
       "fullPoseMaxThreshold": 0.018,
-      "poseAuthoredPass": false,
-      "requiredRuntimeMode": "bridge"
+      "poseAuthoredPass": true,
+      "requiredRuntimeMode": "full"
     }
   ],
-  "allFullPosePass": false,
-  "bridgeRequiredCount": 4,
+  "allFullPosePass": true,
+  "bridgeRequiredCount": 0,
   "missingCount": 0
 }

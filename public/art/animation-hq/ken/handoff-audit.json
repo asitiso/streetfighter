@@ -400,15 +400,15 @@
     "standingAttackHandoffPass": true
   },
   "specialAttacks": {
-    "hadokenActive": false,
-    "shoryukenActive": false,
-    "tatsumakiActive": false,
-    "superRushActive": false,
+    "hadokenActive": true,
+    "shoryukenActive": true,
+    "tatsumakiActive": true,
+    "superRushActive": true,
     "hadokenFromBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.59542,
+      "centroidDistance": 25.060685,
+      "footCenterDelta": 9.831309,
+      "areaRatio": 1.357344,
       "limits": {
         "iouMin": 0.42,
         "iouMax": 1.0,
@@ -426,10 +426,10 @@
       "pass": true
     },
     "hadokenToBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.534475,
+      "centroidDistance": 10.698558,
+      "footCenterDelta": 2.660576,
+      "areaRatio": 0.754178,
       "limits": {
         "iouMin": 0.42,
         "iouMax": 1.0,
@@ -447,10 +447,10 @@
       "pass": true
     },
     "shoryukenFromBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.825258,
+      "centroidDistance": 3.782836,
+      "footCenterDelta": 9.386505,
+      "areaRatio": 1.037926,
       "limits": {
         "iouMin": 0.36,
         "iouMax": 1.0,
@@ -468,10 +468,10 @@
       "pass": true
     },
     "shoryukenToBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.914767,
+      "centroidDistance": 2.106578,
+      "footCenterDelta": 2.060969,
+      "areaRatio": 0.967247,
       "limits": {
         "iouMin": 0.36,
         "iouMax": 1.0,
@@ -489,10 +489,10 @@
       "pass": true
     },
     "tatsumakiFromBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.585588,
+      "centroidDistance": 5.381358,
+      "footCenterDelta": 8.71276,
+      "areaRatio": 1.209704,
       "limits": {
         "iouMin": 0.28,
         "iouMax": 1.0,
@@ -510,10 +510,10 @@
       "pass": true
     },
     "tatsumakiToBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.733974,
+      "centroidDistance": 6.866912,
+      "footCenterDelta": 2.020139,
+      "areaRatio": 0.86139,
       "limits": {
         "iouMin": 0.28,
         "iouMax": 1.0,
@@ -531,10 +531,10 @@
       "pass": true
     },
     "superRushFromBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.853587,
+      "centroidDistance": 6.907618,
+      "footCenterDelta": 0.208826,
+      "areaRatio": 1.079699,
       "limits": {
         "iouMin": 0.34,
         "iouMax": 1.0,
@@ -552,10 +552,10 @@
       "pass": true
     },
     "superRushToBase": {
-      "iou": 1.0,
-      "centroidDistance": 0.0,
-      "footCenterDelta": 0.0,
-      "areaRatio": 1.0,
+      "iou": 0.647033,
+      "centroidDistance": 15.239989,
+      "footCenterDelta": 0.350694,
+      "areaRatio": 0.828783,
       "limits": {
         "iouMin": 0.34,
         "iouMax": 1.0,

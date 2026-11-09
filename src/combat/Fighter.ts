@@ -18,6 +18,8 @@ export class Fighter {
   facing: 1 | -1;
   state: FighterState = 'idle';
   stateFrame = 0;
+  // Visual-only crouch transition: -1 is inactive, 0–5 lower into the hold.
+  crouchAnimationFrame = -1;
   hp = 1000;
   maxHp = 1000;
   superGauge = 0;
@@ -59,6 +61,7 @@ export class Fighter {
   lastHitReaction: 'high' | 'mid' | 'low' | 'launch' | 'throw' = 'mid';
   lastHitZone: HitZone = 'torso';
   lastHitPower = 0;
+  hitAnimationDuration = 0;
   throwSyncFrames = 0;
   throwSyncTotal = 0;
   throwSyncRole: 'attacker' | 'victim' | null = null;
@@ -118,6 +121,7 @@ export class Fighter {
     this.previousY = this.y;
     if (this.hitStop > 0) { this.hitStop -= 1; return; }
     this.updateAir();
+    this.tickCrouchAnimation(!rules.depthMovement && input.held('down'));
     this.tickWindows();
 
     const forwardAction = this.facing === 1 ? 'right' : 'left';
@@ -204,6 +208,7 @@ export class Fighter {
     this.previousY = this.y;
     if (this.hitStop > 0) { this.hitStop -= 1; return; }
     this.updateAir();
+    this.tickCrouchAnimation(false);
     this.tickWindows();
     if (this.aiCooldown > 0) this.aiCooldown -= 1;
     if (this.state === 'hit' || this.state === 'block' || this.state === 'parry' || this.state === 'knockdown' || this.state === 'victory' || this.state === 'ko') {
@@ -348,13 +353,6 @@ export class Fighter {
     this.lastHitReaction = move.level === 'throw' ? 'throw' : move.launch ? 'launch' : move.level === 'low' ? 'low' : move.level === 'high' ? 'high' : 'mid';
     this.lastHitZone = this.resolveHitZone(move);
     this.lastHitPower = Math.max(move.damage, move.pushback * 2);
-    if (move.superCost) {
-      this.superVictimFrames = Math.max(this.superVictimFrames, 28);
-      this.superVictimTotal = Math.max(this.superVictimTotal, 28);
-      this.superVictimMotif = move.superPresentation?.motif ?? 'burst';
-      this.superVictimDirection = attacker.facing;
-      if (!move.multiHit) { this.superVictimHitIndex = 1; this.superVictimHitTotal = 1; }
-    }
     if (this.canDefend() && this.redParryWindow > 0) {
       this.enterParry(10);
       return 'red-parry';
@@ -365,6 +363,7 @@ export class Fighter {
     }
     if (guarding && this.canDefend() && move.level !== 'throw' && !move.guardBreak) {
       this.interruptMove();
+      this.clearSuperVictimReaction();
       this.state = 'block';
       this.stateFrame = -move.blockStun;
       this.x += attacker.facing * move.pushback * .3;
@@ -372,6 +371,13 @@ export class Fighter {
       return 'block';
     }
 
+    if (move.superCost) {
+      this.superVictimFrames = Math.max(this.superVictimFrames, 28);
+      this.superVictimTotal = Math.max(this.superVictimTotal, 28);
+      this.superVictimMotif = move.superPresentation?.motif ?? 'burst';
+      this.superVictimDirection = attacker.facing;
+      if (!move.multiHit) { this.superVictimHitIndex = 1; this.superVictimHitTotal = 1; }
+    }
     this.interruptMove();
     const juggleScale = this.airborne ? Math.max(.58, 1 - this.juggleHits * .09) : 1;
     const damage = Math.round(move.damage * (counter ? 1.12 : 1) * juggleScale);
@@ -396,6 +402,7 @@ export class Fighter {
     } else {
       this.state = 'hit';
       this.stateFrame = -(move.hitStun + (counter ? 3 : 0));
+      this.hitAnimationDuration = -this.stateFrame;
     }
     return 'hit';
   }
@@ -616,6 +623,17 @@ export class Fighter {
     }
   }
 
+  private tickCrouchAnimation(heldDown: boolean): void {
+    const eligible = this.state === 'idle' || this.state === 'walk' || this.state === 'crouch'
+      || (this.state === 'attack' && this.currentMove?.id.startsWith('2'));
+    if (this.airborne || !eligible) { this.crouchAnimationFrame = -1; return; }
+    // Keep grounded crouching attacks low until their recovery completes.
+    if (this.state === 'attack' && this.currentMove?.id.startsWith('2')) { this.crouchAnimationFrame = 5; return; }
+    this.crouchAnimationFrame = heldDown
+      ? Math.min(5, this.crouchAnimationFrame + 1)
+      : Math.max(-1, this.crouchAnimationFrame - 1);
+  }
+
   private tickWindows(): void {
     if (this.installFrames > 0) {
       this.installFrames -= 1;
@@ -635,7 +653,7 @@ export class Fighter {
     }
     if (this.superVictimFrames > 0) {
       this.superVictimFrames -= 1;
-      if (this.superVictimFrames === 0) { this.superVictimMotif = ''; this.superVictimTotal = 0; this.superVictimHitIndex = 1; this.superVictimHitTotal = 1; }
+      if (this.superVictimFrames === 0) this.clearSuperVictimReaction();
     }
     if (this.throwSyncFrames > 0) {
       this.throwSyncFrames -= 1;
@@ -644,8 +662,17 @@ export class Fighter {
     if (this.aiCornerPressureFrames > 0) this.aiCornerPressureFrames -= 1;
   }
 
+  private clearSuperVictimReaction(): void {
+    this.superVictimFrames = 0;
+    this.superVictimTotal = 0;
+    this.superVictimMotif = '';
+    this.superVictimHitIndex = 1;
+    this.superVictimHitTotal = 1;
+  }
+
   private enterParry(frames: number): void {
     this.interruptMove();
+    this.clearSuperVictimReaction();
     this.state = 'parry';
     this.stateFrame = -frames;
     this.hitStop = 2;
