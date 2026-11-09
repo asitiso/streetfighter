@@ -160,6 +160,7 @@ const CHUNLI: readonly AnimationSequence[] = [
 ] as const;
 
 const IBUKI: readonly AnimationSequence[] = [
+  { id:'IBUKI_CROUCH_HEAVY_HQ', characterId:'IBUKI', kind:'crouch-heavy', asset:'/art/animation-hq/ibuki/crouch-heavy.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_CROUCH_MEDIUM_HQ', characterId:'IBUKI', kind:'crouch-medium', asset:'/art/animation-hq/ibuki/crouch-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_CROUCH_LIGHT_HQ', characterId:'IBUKI', kind:'crouch-light', asset:'/art/animation-hq/ibuki/crouch-light.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_CROUCH_HQ', characterId:'IBUKI', kind:'crouch', asset:'/art/animation-hq/ibuki/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

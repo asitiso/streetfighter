@@ -852,3 +852,13 @@ python scripts/build-roster-motions.py --character IBUKI --kind crouch-medium --
 python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-medium
 node scripts/verify-roster-crouch-light.mjs
 ```
+
+## Ibuki crouching heavy punch (2026-11-09)
+
+Built-in imagegen final source: ibuki/crouch-heavy-sheet.png; exact generation and three refinement prompts: ibuki/crouch-heavy-prompt.txt. Original edit targets saved alongside as crouch-heavy-edit-target.png, crouch-heavy-edit2-target.png and crouch-heavy-edit3-target.png. References: existing medium-punch sheet, then bottom-right low guard in crouch-sheet.png. First source failed clean extraction; second failed heavy contact distinction and guard scale; third passed attack semantics but failed guard scale. Final redraw restores the installed low guard's slimmer anatomy and high ponytail arc without lowering any numeric gate.
+
+Six original poses become ten640x448 stored frames [1,1,2,3,4,4,5,5,6,6], startup0–3/contact4–5/recovery6–9, snap28, zero offsets, two-foot lock. Front/right punching arm continues through two-high-fist load, halfextension, fullcontact and withdrawal; rear arm guards. Affine residual average.01655/peak.04043, contact4/5 reach57px in fixed upper band257–336, foot-center range.645672px. Both guard handoffs pass unchanged limits. Ibuki223active/fullframes,25records; new strip482834bytes, entry11775850under unchanged13MB. All24prior records and WebPbytes preserved. Cache163.
+
+Commands: python scripts/build-roster-motions.py --character IBUKI --kind crouch-heavy [--install|--runtime]; python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-heavy.
+
+Verification: four affected ingest fixtures and clean TypeScript/build/release443files hashDA955B18DE102A33 plus twelve focused checks pass. Both-facing input preview covers all10frames/contact4/5/hitstop/held/released recovery;520stored lowattackframes/5212Canvasdraws. Independent readonly review found no actionable P1/P2 and confirmed all24priorrecords/art. Known PWA v025/v028/v063 remain failing; broad suite not rerun.
