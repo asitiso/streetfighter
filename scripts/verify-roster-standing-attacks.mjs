@@ -43,7 +43,7 @@ assert.equal(animationSequenceKindForAttack('KEN',normalFor('mk',false,'KEN')),'
 assert.equal(animationSequenceKindForAttack('KEN',normalFor('lk',false,'KEN')),'stand-light-kick','Ken standing LK needs its own authored presentation');
 assert.equal(animationSequenceKindForAttack('KEN',normalFor('mp',false,'KEN')),'stand-medium','Ken standing MP needs its own authored presentation');
 for(const crouch of [false,true])for(const button of ['lp','mp','hp','lk','mk','hk']){
- const expected=!crouch?({lp:'stand-light',mp:'stand-medium',hp:'stand-heavy',lk:'stand-light-kick',mk:'stand-medium-kick',hk:'stand-heavy-kick'}[button]??null):button==='lp'?'crouch-light':button==='mp'?'crouch-medium':button==='hp'?'crouch-heavy':button==='lk'?'crouch-light-kick':button==='mk'?'crouch-medium-kick':null;
+ const expected=!crouch?({lp:'stand-light',mp:'stand-medium',hp:'stand-heavy',lk:'stand-light-kick',mk:'stand-medium-kick',hk:'stand-heavy-kick'}[button]??null):button==='lp'?'crouch-light':button==='mp'?'crouch-medium':button==='hp'?'crouch-heavy':button==='lk'?'crouch-light-kick':button==='mk'?'crouch-medium-kick':button==='hk'?'crouch-heavy-kick':null;
  assert.equal(animationSequenceKindForAttack('CHUNLI',normalFor(button,crouch,'CHUNLI')),expected,'Chun-Li exact normal identity');
 }
 const chunliCatalog=techniqueCatalogFor('CHUNLI');
@@ -99,7 +99,7 @@ for(const id of [...roster,'RYU','KEN','CHUNLI','IBUKI'])for(const facing of [-1
  assert.equal(animationSequenceSample(fighter,0),null,'Grounded normal must not replace an airborne attack');
  fighter.airborne=false;
  for(const crouch of [false,true])for(const other of ['lp','mp','hp','lk','mk','hk']) {
-  if(id==='IBUKI'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='CHUNLI'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk'].includes(other)):id==='KEN'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='RYU'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):(!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)))continue;
+  if(id==='IBUKI'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='CHUNLI'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='KEN'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='RYU'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):(!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)))continue;
   fighter.currentMove=normalFor(other,crouch,id);assert.equal(animationSequenceSample(fighter,0),null);
  }
 }
