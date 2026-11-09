@@ -710,3 +710,19 @@ python scripts/build-roster-motions.py --character CHUNLI --kind crouch --runtim
 python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch
 node scripts/verify-roster-crouch.mjs
 ```
+
+## Chun-Li crouching light punch
+
+Six new lowguard/load/halfjab/contact/withdrawal/recovered-lowguard drawings use sharedrecipe[1,2,3,4,5,5,6] in7stored640x448frames,startup0–2/contact3/recovery4–6. Final source `chunli/crouch-light-sheet.png`, exact built-in generation/edit/refinement prompts `chunli/crouch-light-prompt.txt` and two exact edit targets retained. Initial residual0.011688/0.018980 and firstedit0.013624/0.020118 failed original peak0.022. Stronger contactshoulder/torso drive and oppositearm counterbalance pass0.016027/0.031301, actualcontactreach71px,footcenter range0.648897px. No numeric qualitylimits relaxed. Installedcrouchreference/twofootanchoring/baseline422/zerooffsets preserve lowguard/root. Clean compositedruntime preview inspected.
+
+Only grounded2LP selects this strip. Actualinput in bothfacings reaches all7frames/contact3/hitstop/heldlowguard and released recovery before rising. Otherfive lowattacks retainfallback; standing/special/SA/command/air/target mappings andgameplay unchanged. Lowattackchecks cover9characters(8complete sets plusChun-Li2LP),447storedframes/4504Canvasdraws.
+
+Sharedselector/lightrecipe/Ryu actualcontactcrouchpunch audit/parameterizedfixture reused. Guard at contact3 with validjab at startup rejects; static/translated/runtime/source/actualcrouch-peer errors reject. Byte-stable reinstall and first/new-file/replacement rollback preserve23priorrecords/art/bindings/pipeline. Fouraffectedfixtures(CHUNLI2LP/crouch/5MP,KEN2LP) pass.
+
+Chun-Li now219enabled/fullframes/24records. New471066bytes raises entry13992282→14463348bytes, explicitlybudgetChun-Lionly14→15MB; Ken16MB/Ryu-Ibuki13MBunchanged. Originalquality/eagerloading retained; movementpreparation excludes lowattacks. Cachev154.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind crouch-light --runtime
+python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-light
+node scripts/verify-roster-crouch-light.mjs
+```

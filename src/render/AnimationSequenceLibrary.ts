@@ -128,6 +128,7 @@ const KEN: readonly AnimationSequence[] = [
 ] as const;
 
 const CHUNLI: readonly AnimationSequence[] = [
+  { id:'CHUNLI_CROUCH_LIGHT_HQ', characterId:'CHUNLI', kind:'crouch-light', asset:'/art/animation-hq/chunli/crouch-light.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_CROUCH_HQ', characterId:'CHUNLI', kind:'crouch', asset:'/art/animation-hq/chunli/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_STAND_MEDIUM_HQ', characterId:'CHUNLI', kind:'stand-medium', asset:'/art/animation-hq/chunli/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'CHUNLI_STAND_LIGHT_KICK_HQ', characterId:'CHUNLI', kind:'stand-light-kick', asset:'/art/animation-hq/chunli/stand-light-kick.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
