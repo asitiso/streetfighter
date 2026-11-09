@@ -94,8 +94,8 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 }
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
-  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 219 : 192, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 219 : 192, `${id} enabled frame total mismatch`);
+  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 227 : 192, `${id} frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 227 : 192, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -202,11 +202,11 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   const extraManifest = JSON.parse(await readFile(new URL(`../public/art/animation-hq/${slug}/manifest.json`, import.meta.url), 'utf8'));
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
-  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 219 : 192);
+  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 227 : 192);
   const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
   assert.equal(extraManifest.enabledFrameTotal, activeFrames);
   assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
-  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 24 : 21);
+  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 25 : 21);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
   for (const rec of extraManifest.records) {
@@ -368,6 +368,7 @@ try {
  animationTextureManager.preloadCharacter('CHUNLI','movement');
  for(const kind of ['crouch','guard','parry'])assert.ok(requests.includes('/art/animation-hq/chunli/'+kind+'.webp'),'Defense preparation must start with movement');
  assert.ok(requests.includes('/art/animation-hq/chunli/dash-back.webp'),'Chun-Li backward dash must start preparation with movement');
+ assert.ok(!requests.includes('/art/animation-hq/chunli/crouch-medium.webp'),'Movement preparation must not load medium low attacks');
  assert.ok(!requests.includes('/art/animation-hq/chunli/crouch-light.webp'),'Movement preparation must not load low attacks');
  assert.ok(!requests.includes('/art/animation-hq/chunli/stand-heavy-kick.webp'),'Movement preparation must not load heavy kicks');
  assert.ok(!requests.includes('/art/animation-hq/chunli/stand-medium-kick.webp'),'Movement preparation must not load medium kicks');
@@ -443,7 +444,7 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   lite: `${liteDim.width}x${liteDim.height}`,
   frameTotal: manifest.frameTotal,
   kenFrameTotal: kenManifest.frameTotal,
-  chunliFrameTotal: 219,
+  chunliFrameTotal: 227,
   ibukiFrameTotal: 192,
   ibukiEnabledFrameTotal: 192,
   enabledFrameTotal: manifest.enabledFrameTotal,
