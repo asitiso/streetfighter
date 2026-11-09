@@ -61,7 +61,7 @@ TARGETS = {
 }
 
 
-FRAME_WIDTHS = {('RYU', kind): 640 for kind in ('dash-back', 'stand-light', 'stand-medium', 'stand-heavy', 'stand-light-kick', 'stand-medium-kick', 'stand-heavy-kick', 'crouch-light', 'crouch-medium', 'crouch-heavy', 'crouch-light-kick', 'crouch-medium-kick', 'crouch-heavy-kick')}
+FRAME_WIDTHS = {('RYU', kind): 640 for kind in ('hadoken', 'dash-back', 'stand-light', 'stand-medium', 'stand-heavy', 'stand-light-kick', 'stand-medium-kick', 'stand-heavy-kick', 'crouch-light', 'crouch-medium', 'crouch-heavy', 'crouch-light-kick', 'crouch-medium-kick', 'crouch-heavy-kick')}
 
 
 def alpha_frame(strip: Image.Image, index: int, width: int = FRAME_W) -> np.ndarray:
