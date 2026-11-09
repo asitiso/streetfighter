@@ -94,8 +94,8 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 }
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
-  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 227 : 192, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 227 : 192, `${id} enabled frame total mismatch`);
+  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 237 : 192, `${id} frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 237 : 192, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -202,11 +202,11 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   const extraManifest = JSON.parse(await readFile(new URL(`../public/art/animation-hq/${slug}/manifest.json`, import.meta.url), 'utf8'));
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
-  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 227 : 192);
+  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 237 : 192);
   const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
   assert.equal(extraManifest.enabledFrameTotal, activeFrames);
   assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
-  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 25 : 21);
+  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 26 : 21);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
   for (const rec of extraManifest.records) {
@@ -368,6 +368,7 @@ try {
  animationTextureManager.preloadCharacter('CHUNLI','movement');
  for(const kind of ['crouch','guard','parry'])assert.ok(requests.includes('/art/animation-hq/chunli/'+kind+'.webp'),'Defense preparation must start with movement');
  assert.ok(requests.includes('/art/animation-hq/chunli/dash-back.webp'),'Chun-Li backward dash must start preparation with movement');
+ assert.ok(!requests.includes('/art/animation-hq/chunli/crouch-heavy.webp'),'Movement preparation must not load heavy low attacks');
  assert.ok(!requests.includes('/art/animation-hq/chunli/crouch-medium.webp'),'Movement preparation must not load medium low attacks');
  assert.ok(!requests.includes('/art/animation-hq/chunli/crouch-light.webp'),'Movement preparation must not load low attacks');
  assert.ok(!requests.includes('/art/animation-hq/chunli/stand-heavy-kick.webp'),'Movement preparation must not load heavy kicks');
@@ -377,8 +378,8 @@ try {
  animationTextureManager.preloadCharacter('CHUNLI','combat');
  assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('CHUNLI',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());
  const chunliEntryBytes=chunliManifest.records.filter(r=>requests.includes('/art/animation-hq/chunli/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
- // Original-quality crouching jab explicitly increases only Chun-Li budget14MB→15MB.
- assert.ok(chunliEntryBytes<15_000_000,'Chun-Li stage-entry animations exceed15MB');
+ // Original-quality crouching heavy punch explicitly increases only Chun-Li budget15MB→16MB.
+ assert.ok(chunliEntryBytes<16_000_000,'Chun-Li stage-entry animations exceed16MB');
  const back=chunliManifest.records.find(r=>r.id==='dash-back');
  assert.equal(back.facingRelativeDirection,'backward');
  assert.deepEqual(back.sourceOrder,[1,2,3,3,4,5,6]);
@@ -444,7 +445,7 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   lite: `${liteDim.width}x${liteDim.height}`,
   frameTotal: manifest.frameTotal,
   kenFrameTotal: kenManifest.frameTotal,
-  chunliFrameTotal: 227,
+  chunliFrameTotal: 237,
   ibukiFrameTotal: 192,
   ibukiEnabledFrameTotal: 192,
   enabledFrameTotal: manifest.enabledFrameTotal,
