@@ -94,8 +94,8 @@ for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','gua
 }
 assert.ok(animationSequenceFor('KEN','dash', false).fps > animationSequenceFor('RYU','dash', false).fps, 'Ken dash should animate faster than Ryu');
 for (const id of ['CHUNLI','IBUKI']) {
-  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 267 : 241, `${id} frame total mismatch`);
-  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 267 : 241, `${id} enabled frame total mismatch`);
+  assert.equal(animationSequenceFrameTotal(id), id === 'CHUNLI' ? 267 : 253, `${id} frame total mismatch`);
+  assert.equal(enabledAnimationSequenceFrameTotal(id), id === 'CHUNLI' ? 267 : 253, `${id} enabled frame total mismatch`);
   for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit']) {
     const sequence = animationSequenceFor(id, kind, false);
     assert.ok(sequence, `missing ${id} sequence ${kind}`);
@@ -202,11 +202,11 @@ for (const [id, slug] of [['CHUNLI','chunli'],['IBUKI','ibuki']]) {
   const extraManifest = JSON.parse(await readFile(new URL(`../public/art/animation-hq/${slug}/manifest.json`, import.meta.url), 'utf8'));
   assert.equal(extraManifest.candidate, '0.0.63-rc.38');
   assert.equal(extraManifest.character, id);
-  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 267 : 241);
+  assert.equal(extraManifest.frameTotal, id === 'CHUNLI' ? 267 : 253);
   const activeFrames = extraManifest.records.filter(rec => rec.enabled).reduce((sum, rec) => sum + rec.frames, 0);
   assert.equal(extraManifest.enabledFrameTotal, activeFrames);
   assert.equal(enabledAnimationSequenceFrameTotal(id), activeFrames);
-  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 29 : 27);
+  assert.equal(extraManifest.records.length, id === 'CHUNLI' ? 29 : 28);
   const source = await readFile(new URL(`../public/art/combat-sprites-hq/${slug}.webp`, import.meta.url));
   assert.equal(extraManifest.sourceSha256, sha(source));
   for (const rec of extraManifest.records) {
@@ -394,6 +394,7 @@ try {
  const ibukiManifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/ibuki/manifest.json',import.meta.url),'utf8'));
  animationTextureManager.releaseCharacter('IBUKI');
  animationTextureManager.preloadCharacter('IBUKI','movement');
+ assert.ok(!requests.includes('/art/animation-hq/ibuki/crouch-heavy-kick.webp'),'Movement preparation must not load Ibuki low heavy kicks');
  assert.ok(!requests.includes('/art/animation-hq/ibuki/crouch-medium-kick.webp'),'Movement preparation must not load Ibuki low medium kicks');
  assert.ok(!requests.includes('/art/animation-hq/ibuki/crouch-light-kick.webp'),'Movement preparation must not load Ibuki low light kicks');
  assert.ok(!requests.includes('/art/animation-hq/ibuki/crouch-heavy.webp'),'Movement preparation must not load Ibuki heavy low attacks');
@@ -409,7 +410,8 @@ try {
  animationTextureManager.preloadCharacter('IBUKI','combat');
  assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('IBUKI',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());
  const ibukiEntryBytes=ibukiManifest.records.filter(r=>requests.includes('/art/animation-hq/ibuki/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
- assert.ok(ibukiEntryBytes<13_000_000,'Ibuki stage-entry animations exceed13MB');
+ // Explicit13->14MB for523636-byte2HK, preserving original image quality.
+ assert.ok(ibukiEntryBytes<14_000_000,'Ibuki stage-entry animations exceed14MB');
  const back=ibukiManifest.records.find(r=>r.id==='dash-back');
  assert.equal(back.facingRelativeDirection,'backward');
  assert.deepEqual(back.sourceOrder,[1,2,3,3,4,5,6]);
@@ -455,8 +457,8 @@ console.log('ANIMATION_SEQUENCE_VERIFY_PASS', {
   frameTotal: manifest.frameTotal,
   kenFrameTotal: kenManifest.frameTotal,
   chunliFrameTotal: 267,
-  ibukiFrameTotal: 241,
-  ibukiEnabledFrameTotal: 241,
+  ibukiFrameTotal: 253,
+  ibukiEnabledFrameTotal: 253,
   enabledFrameTotal: manifest.enabledFrameTotal,
   strips: manifest.records.length,
   payloadKb: Math.round(totalBytes / 1024),

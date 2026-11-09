@@ -886,3 +886,15 @@ Commands: python scripts/build-roster-motions.py --character IBUKI --kind crouch
 Verification: fouraffectedfixtures IBUKI2MK/2LK/5MK CHUNLI2MK pass,cleanTypeScript/build/release445files hashCF3FC942B7389368 plus12focusedchecks pass. Bothfacing160tickinputpreview all10frames/contact4/5/hitstop/heldlowguard/releasedrise checked;538stored lowattackframes/5352Canvasdraws. FreshknownPWA v025/v028/v063 same network2vs0/pinCurrentShell/cache065vs165 failures;no fullsuiteclaim.
 
 Independent readonly review review_ibuki_crouch_medium_kick found no actionable P1/P2; confirmed distinct2MKhip/torso motion,legcontinuity/guardedarms/exactgroundmapping and26priorrecords/WebPbytes preserved.
+
+## Ibuki crouching heavy kick / complete normal set (2026-11-09)
+
+Built-in imagegen first-generation source: ibuki/crouch-heavy-kick-sheet.png; exact prompt: ibuki/crouch-heavy-kick-prompt.txt; reference: existing2MKsheet for identity/style. Six poses show lowguard,rotated front-leg load,half-sweep,full low sweep,withdrawal,lowguard. Same front/right leg throughout,rear/left sole fixed and arms guard. Forward torso/shoulder rotation and lower contact distinguish heavy from backward-leaning2MK.
+
+Twelve640x448frames [1,1,2,3,3,4,4,5,5,6,6,6],startup0–4/contact5–6/recovery7–11,snap28,rear-support anchor/zero offsets/opaque429. Firstsource passes all originalnumericgates:residual average.024909/peak.050794,actualcontacts5/6reach125px/footheight57px,supportcenter.811187/baseline0,lowheight.975904–1.012048,guardhandoffs pass. Prior2MKcontactreach105px/footheight67px retains its original drawing. All27priorrecords/art unchanged;253active/fullframes28records,new523636bytes,entry12780770→13304406. Ibuki-only preload budget explicitly13→14MB toretain originalimagequality and eagercombatloading;other characterbudgets unchanged. Client+SWcache166.
+
+Alltencharacters now have authored sixstanding and sixcrouching normals. Exact2HKmapping/lowguard recovery replaces finalIbukilowfallback. Air/command/specials and gameplay retain existing behavior. Commands: python scripts/build-roster-motions.py --character IBUKI --kind crouch-heavy-kick [--install|--runtime]; python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-heavy-kick.
+
+Verification: fouraffectedfixtures IBUKI2HK/2MK/5HK CHUNLI2HK pass;cleanTypeScript/build/release446files hash1CE46AC20B9ABA6F plus12focusedchecks pass. Both-facing160tickinputpreview all12frames/contact5/6/hitstop/heldlowguard/releasedrise checked. All10low-normal sets:550storedframes/5492Canvasdraws;standing60strips550frames unchanged. FreshknownPWA v025network2vs0/v028removedpinCurrentShell/v063pinned065vscurrent166 fail;no fullsuiteclaim.
+
+Complete six-button both-facing actual-input preview covers every storedframe/contact/hitstop/heldlowguard/releasedrise. Independent readonly review review_ibuki_crouch_heavy_kick found no actionable P1/P2,confirmed leg/armcontinuity/2MKdistinction and27previousrecords/WebPbytes preserved.
