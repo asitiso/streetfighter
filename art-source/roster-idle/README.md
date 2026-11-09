@@ -563,3 +563,19 @@ python scripts/build-roster-motions.py --character IBUKI --kind stand-medium-kic
 python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind stand-medium-kick
 node scripts/verify-roster-standing-attacks.mjs
 ```
+
+## Ibuki spinning heavy kick: six standing normals complete
+
+Six new neutral/turned chamber/partial spinning extension/high heel-contact/folded rotational withdrawal/recovered-guard drawings match the existing5HK SPIN KICK label. Source `ibuki/stand-heavy-kick-sheet.png` and exact built-in prompt `ibuki/stand-heavy-kick-prompt.txt` retained. Back shoulder/gi and hip turning distinguish the strike from a front kick; ponytail/sash follow the turn. Order [1,1,2,3,3,4,4,5,5,6,6,6] supplies12stored640x448frames,startup0–4/contact5–6/recovery7–11. First-generation unchanged pose/action/handoff limits pass: residual average0.058158/peak0.101594, reach58px/foot height247px at both contacts, support center range1.064195px/baseline0. Numeric audits validate high-kick geometry/root; source/visual review verifies the rotation cue.
+
+Installed idle342px/opaque429/rear-support anchoring retain scale/root; profile offsets zero. Both actual contacts require high-kick reach/height/one planted support. Guard/punch/low-kick substitution and displaced support roots/baselines reject; medium/high envelopes intentionally overlap. Actual foot heightsLK144/MK192/HK247px distinguish silhouettes. Source gutter alpha max1/corners0; established extraction removes low-alpha residue and runtime composites are clean.
+
+Exact grounded5HK only. Existing gameplay, target-combo and special mappings unchanged. Both-facing actual input reaches all12frames/both contacts/hitstop/idle. Complete six-button input preview includes all frames and final HK recovery. All20prior records/art/bindings/pipeline unchanged. Shared selector/recipe/contact audit/fixture reused with byte-stable reinstall and first/new-file/replacement rollback.
+
+Ibuki now192enabled/full frames,21records, all six standing normals authored. All10characters now have authored six-button standing sets; standing checks60strips/550frames/2744Canvasdraws. New strip514290bytes; combined movement+combat entry9955024bytes stays below existing13MBcap, other budgets unchanged. Movement-only preparation excludes normals. Cachev145.
+
+```sh
+python scripts/build-roster-motions.py --character IBUKI --kind stand-heavy-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind stand-heavy-kick
+node scripts/verify-roster-standing-attacks.mjs
+```
