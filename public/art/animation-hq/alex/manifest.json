@@ -1,8 +1,8 @@
 {
   "character": "ALEX",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 203,
-  "enabledFrameTotal": 203,
+  "frameTotal": 215,
+  "enabledFrameTotal": 215,
   "records": [
     {
       "id": "idle",
@@ -5623,8 +5623,297 @@
         2,
         3
       ]
+    },
+    {
+      "id": "slash-elbow",
+      "frames": 12,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        7680,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "238F644551E7FAB6AD6600197E549529C7EE3AA19F2A85E0B9F05EDFA7C1F903",
+      "bytes": 681180,
+      "poseQa": {
+        "affineResidualAverage": 0.019341,
+        "affineResidualMax": 0.048138,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "slash-elbow",
+        "limits": {
+          "startEndIoUMin": 0.5,
+          "contactIoUMin": 0.22,
+          "contactIoUMax": 0.75,
+          "centroidXRangeMin": 7.0,
+          "centroidXRangeMax": 62.0,
+          "centroidYRangeMin": 0.75,
+          "centroidYRangeMax": 42.0,
+          "reachRangeMin": 38.0,
+          "reachRangeMax": 145.0,
+          "footCenterRangeMax": 58.0,
+          "footWidthCvMax": 0.55,
+          "areaCvMax": 0.2,
+          "residualAverageMin": 0.014,
+          "residualAverageMax": 0.18,
+          "residualMaxMin": 0.03,
+          "residualMaxMax": 0.24,
+          "contactFrameIndex": 5
+        },
+        "startEndIoU": 0.896045,
+        "contactIoU": 0.511122,
+        "centroidXRange": 51.402237,
+        "centroidYRange": 8.332793,
+        "reachRange": 89.0,
+        "footCenterRange": 0.81301,
+        "footWidthCv": 0.05264,
+        "areaCv": 0.054917,
+        "residualAverage": 0.019341,
+        "residualMax": 0.048138,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "bodyTorquePresent": true,
+          "actualContactPoses": true,
+          "leadingElbowHeight": true
+        },
+        "semanticQaPass": true,
+        "actualContacts": [
+          {
+            "frame": 4,
+            "reach": 89.0,
+            "pass": true,
+            "leadingEdgeHeight": 199.0,
+            "leadingEdgeHeightRatio": 0.606707
+          },
+          {
+            "frame": 5,
+            "reach": 89.0,
+            "pass": true,
+            "leadingEdgeHeight": 199.0,
+            "leadingEdgeHeightRatio": 0.606707
+          }
+        ],
+        "leadingEdgeHeightRatioLimits": [
+          0.5,
+          0.8
+        ]
+      },
+      "handoffQa": {
+        "idleToSlashElbow": {
+          "iou": 0.641227,
+          "centroidDistance": 17.424978,
+          "footCenterDelta": 0.194697,
+          "areaRatio": 1.38362,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 46.0,
+            "footCenterDeltaMax": 55.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "slashElbowToIdle": {
+          "iou": 0.622456,
+          "centroidDistance": 18.739175,
+          "footCenterDelta": 0.475081,
+          "areaRatio": 0.688327,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 46.0,
+            "footCenterDeltaMax": 55.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            313,
+            367
+          ],
+          "sourceBodyHeight": 367,
+          "paste": [
+            162,
+            90
+          ],
+          "scaledSize": [
+            284,
+            333
+          ],
+          "footAnchorShift": -16
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            333,
+            364
+          ],
+          "sourceBodyHeight": 364,
+          "paste": [
+            149,
+            93
+          ],
+          "scaledSize": [
+            302,
+            330
+          ],
+          "footAnchorShift": -20
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            302,
+            359
+          ],
+          "sourceBodyHeight": 359,
+          "paste": [
+            184,
+            98
+          ],
+          "scaledSize": [
+            274,
+            325
+          ],
+          "footAnchorShift": 1
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            413,
+            357
+          ],
+          "sourceBodyHeight": 357,
+          "paste": [
+            161,
+            99
+          ],
+          "scaledSize": [
+            374,
+            324
+          ],
+          "footAnchorShift": 28
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            319,
+            374
+          ],
+          "sourceBodyHeight": 374,
+          "paste": [
+            160,
+            84
+          ],
+          "scaledSize": [
+            289,
+            339
+          ],
+          "footAnchorShift": -16
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            337,
+            373
+          ],
+          "sourceBodyHeight": 373,
+          "paste": [
+            147,
+            85
+          ],
+          "scaledSize": [
+            305,
+            338
+          ],
+          "footAnchorShift": -21
+        }
+      ],
+      "source": "art-source/roster-idle/alex/slash-elbow-sheet.png",
+      "sourceSha256": "D4B7535C2E4923CFC41855E948B67A4B60F589F0F0C9395ADFEB85BB0A358DB6",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 338,
+        "sourceGuardHeight": 373,
+        "uniformScale": 0.9061662198391421,
+        "footBaselineReference": "installed-idle",
+        "footBaseline": 421,
+        "sourceBaselineOffsets": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "footAnchorX": 312.01030042918455
+      },
+      "sourceGrid": [
+        2,
+        3
+      ]
     }
   ],
-  "fullFrameTotal": 203,
+  "fullFrameTotal": 215,
   "bridgeFrameTotal": 0
 }

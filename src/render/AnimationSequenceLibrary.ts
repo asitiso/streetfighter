@@ -28,6 +28,7 @@ export type AnimationSequenceKind =
   | 'hadoken'
   | 'shoryuken'
   | 'tatsumaki'
+  | 'slash-elbow'
   | 'flash-chop'
   | 'super-rush';
 
@@ -193,6 +194,7 @@ const IBUKI: readonly AnimationSequence[] = [
 ] as const;
 
 const ROSTER_MOVEMENT: readonly AnimationSequence[] = [
+  { id:'ALEX_SLASH_ELBOW_HQ', characterId:'ALEX', kind:'slash-elbow', asset:'/art/animation-hq/alex/slash-elbow.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:24, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_FLASH_CHOP_HQ', characterId:'ALEX', kind:'flash-chop', asset:'/art/animation-hq/alex/flash-chop.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:24, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'ALEX_CROUCH_HEAVY_KICK_HQ', characterId:'ALEX', kind:'crouch-heavy-kick', asset:'/art/animation-hq/alex/crouch-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'DUDLEY_CROUCH_HEAVY_KICK_HQ', characterId:'DUDLEY', kind:'crouch-heavy-kick', asset:'/art/animation-hq/dudley/crouch-heavy-kick.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:28, loop:false, timing:'snap', phase:{startupEnd:4,activeStart:5,activeEnd:6,recoveryStart:7}, events:[{frame:5,type:'contact'}], footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

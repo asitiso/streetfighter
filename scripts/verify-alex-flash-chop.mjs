@@ -22,7 +22,7 @@ const {ASSET_GROUPS}=await import('../dist/assets/core/AssetManager.js');
 assert.ok(Object.values(ASSET_GROUPS).flat().includes(seq.asset),'Flash Chop must be in the app asset catalog');
 animationTextureManager.releaseCharacter('ALEX');requests.length=0;animationTextureManager.preloadCharacter('ALEX','movement');assert.ok(!requests.includes(seq.asset),'Movement preparation must not load chop art');animationTextureManager.preloadCharacter('ALEX','combat');assert.ok(requests.includes(seq.asset));
 const manifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/alex/manifest.json',import.meta.url),'utf8'));const urls=new Set(requests);const entryBytes=manifest.records.filter(r=>urls.has('/art/animation-hq/alex/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
-assert.equal(manifest.frameTotal,203);assert.equal(manifest.records.length,24);assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('ALEX',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());assert.ok(entryBytes<12_000_000,'Alex authored entry exceeds12MB');
+assert.equal(manifest.frameTotal,215);assert.equal(manifest.records.length,25);assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('ALEX',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());assert.ok(entryBytes<12_000_000,'Alex authored entry exceeds12MB');
 for(const facing of [-1,1])for(const variant of ['PRIMARY','EX_PRIMARY']){
  const w=new CombatWorld(getCharacter('ALEX'),getCharacter('KEN'),'duel');w.enemies.length=0;const f=w.player;f.facing=facing;f.x=600;f.superGauge=500;
  const forward=facing===1?'right':'left',rows=[];
