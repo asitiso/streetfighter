@@ -613,3 +613,20 @@ python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-li
 node scripts/verify-roster-crouch-light.mjs
 node scripts/verify-ken-normal-mapping.mjs
 ```
+
+## Ken crouching medium punch
+
+Six new lowguard/load/half-extension/compact body-cross/withdrawal/recovered-lowguard drawings use the existing defaultorder [1,2,3,4,5,5,6,6] in8stored640x448frames,startup0–2/contact3/recovery4–7. Final source `ken/crouch-medium-sheet.png`, exact built-in generation/refinement/alpha prompts `ken/crouch-medium-prompt.txt` and four exact edit targets retained. Initial residual0.006276/0.014190 and edits0.008699/0.017472,0.011613/0.020830 failed original motion gates. Stronger upper-body outline/shoulder drive plus alpha cleanup passes0.012566/0.027794, actualcontact upper-band reach82px. No numeric quality limits changed.
+
+Installed crouch frame5 height217px/opaque419 and two-foot anchoring retain low posture/root (center range1.051855px); profiles add zero offsets. Only grounded2MP maps to this strip. Existing2LP, four other low normals, standing normals, specials/SA/command/target and gameplay timing/input/damage unchanged. Both-facing actual input reaches all8/contact3/hitstop, then returns to lowguard before rising when released. Low-attack checks now400storedframes/4056Canvasdraws across8characters(7complete sets plusKenLP/MP).
+
+Shared default medium-punch recipe/selector/Ryu actual-contact audit/supplemental fixture reused. Lowguard at actual contact with compensating startup attack rejects; static/translated/runtime/source/actualcrouch-peer corruption reject. Byte-stable reinstall and first/new-file/replacement rollback preserve all22prior records/art/bindings/pipeline.
+
+Ken now203enabled/full frames,23records,122attackframes; historicalRC39attacktarget69 remains unchanged. Newstrip393462bytes raises combined movement+combat entry13313744→13707206bytes below existing14MBcap. Other budgets/loading behavior unchanged; movement-only preparation excludes low attacks. Cachev148.
+
+```sh
+python scripts/build-roster-motions.py --character KEN --kind crouch-medium --runtime
+python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-medium
+node scripts/verify-roster-crouch-light.mjs
+node scripts/verify-ken-normal-mapping.mjs
+```
