@@ -1,0 +1,14 @@
+Use case: stylized-concept. Asset type: production KEN CROUCHING LIGHT KICK full-body source sprites.
+Reference role: use ONLY bottom-right fully crouching guard in attached Ken sheet for identity, drawing style, scale and low posture. This is new action art, not a recolor.
+Create a transparent RGBA landscape source sheet, exactly SIX independent full-body Ken drawings in TWO columns THREE rows, row-major. Each wide cell has enough room for a horizontal low kick; at least40px transparent space beyond all hair/toes/belt/gloves. Consistent three-quarter side view facing RIGHT. Blond long hair, red sleeveless torn gi, black belt, brown gloves, bare feet, muscular body, crisp ink and shaded fighting-game illustration matching reference.
+All six remain in FULL LOW CROUCH. Head-to-ground body height stays consistent with original bottom-right guard (about217px when installed). REAR LEFT bare foot stays planted at exactly the same baseline and horizontal position through all poses. Pelvis stays low above rear bent knee. Front RIGHT leg does quick low shin/ankle kick, then retracts. No standing up or stepping.
+Six poses:
+1 original compact full LOW GUARD matching bottom-right reference, two planted bare feet and gloves near face.
+2 low loaded chamber: front right knee folds visibly up and toward body, kicking bare foot leaves floor, rear foot anchored. Torso counterleans slightly, gloves guard face.
+3 half-extension: front knee opens with shin traveling forward RIGHT only20–35px above floor, foot/toes horizontal. Silhouette clearly differs from load and full contact.
+4 full fast LOW KICK contact: front leg almost straight horizontally to RIGHT just25–45px above floor, bare heel/toes extended far beyond original front toes by60–100px at installed scale. Knee/ankle/heel all clearly readable. REAR leg deeply bent and foot planted; pelvis remains low. Closed gloves still guard face, no punch. Complete toes with generous blank margin.
+5 folded withdrawal: front knee retracts to chest with foot off floor, leg folded clearly shorter than contact, chest returns above low pelvis, rear sole fixed.
+6 original recovered FULL LOW GUARD matching pose1, both feet planted.
+Authentic different drawings of hips/knees/ankles/red trouser folds, no duplicate cutouts or whole-body translation. Consistent anatomy/head/limb scale, no elongated legs, no high kick, no sweep along floor, no energy effects, no text, no cell borders, no shadows, no floor, no backdrop. Absolutely alpha0 blank space between cells and around each complete figure.
+
+Reference: art-source/roster-idle/ken/crouch-sheet.png (bottom-right low guard only).
