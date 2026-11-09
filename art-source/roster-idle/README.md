@@ -596,3 +596,20 @@ python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch
 node scripts/verify-roster-crouch.mjs
 node scripts/verify-ken-authored-pipeline.mjs
 ```
+
+## Ken crouching light punch
+
+Six new low-guard/preparation/half-extension/jab/withdrawal/recovered-low-guard drawings use order [1,2,3,4,5,5,6] in7stored640x448frames,startup0–2/contact3/recovery4–6. Final source `ken/crouch-light-sheet.png`, exact generation/edit/redraw prompts `ken/crouch-light-prompt.txt`, and exact edit/redraw references are retained. Initialdraft residual0.007939/0.014172 and firstedit0.008817/0.014241 failed original motion gates. Wider cells and stronger shoulder/torso/arm articulation passed0.011954/0.023556 with actualcontact85pxreach; no numeric limits relaxed.
+
+Installed crouch frame5 height217px/opaque419 and two-foot anchoring retain low posture/root, center range0.747443px; profile offsets zero. Only grounded2LP selects this strip. Existing input/physics/damage/timing, six standing normals, specials/SA/command/target and five other low attacks remain unchanged. Both-facing actual input covers all7/contact3/hitstop and held/released recovery into lowguard before rising. Low-attack checks now8characters(7complete sets plusKen2LP),392storedframes/3980Canvasdraws.
+
+Shared selector/recipe/Ryu actual-contact crouch audit/supplemental fixture reused. Guard at contact3 with compensating startup jab rejects; static/translated/runtime/source/actualcrouch-peer corruption reject. Fixture now corrupts the low attack's actual crouch normalization peer rather than unrelated idle. Byte-stable reinstall and first/new-file/replacement rollback preserve21prior records/art/bindings/pipeline.
+
+Ken now195enabled/full frames,22records; attack total114 while historicalRC39target69 remains unchanged. Newstrip398630bytes raises combined movement+combat entry12915114→13313744bytes. Explicitly budget14MB for Ken only, preserving original-quality art and eager combat preparation; Chun-Li14MB/Ryu-Ibuki13MBunchanged. Movement-only preparation excludes low attacks. Cachev147.
+
+```sh
+python scripts/build-roster-motions.py --character KEN --kind crouch-light --runtime
+python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-light
+node scripts/verify-roster-crouch-light.mjs
+node scripts/verify-ken-normal-mapping.mjs
+```

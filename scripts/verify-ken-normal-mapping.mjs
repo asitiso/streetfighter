@@ -30,14 +30,14 @@ for(const facing of [-1,1]) {
    fighter.updatePlayer({held:key=>stance==='crouching'&&key==='down',pressed:key=>key===button,released:()=>false},rules);
    assert.equal(fighter.state,'attack');
    const move=fighter.currentMove;
-   const expected=stance==='standing'?(button==='lp'?'stand-light':button==='mp'?'stand-medium':button==='hp'?'stand-heavy':button==='lk'?'stand-light-kick':button==='mk'?'stand-medium-kick':button==='hk'?'stand-heavy-kick':null):null;
+   const expected=stance==='standing'?(button==='lp'?'stand-light':button==='mp'?'stand-medium':button==='hp'?'stand-heavy':button==='lk'?'stand-light-kick':button==='mk'?'stand-medium-kick':button==='hk'?'stand-heavy-kick':null):stance==='crouching'&&button==='lp'?'crouch-light':null;
    let contact=false;
    while(fighter.state==='attack') {
     const sample=animationSequenceSample(fighter,0);
     assert.equal(sample?.sequence.kind??null,expected,`${stance} ${move.id} must keep its own attack visual`);
     if(fighter.moveFrame===move.startup) {
      calls.length=0;drawCombatFighter(ctx,fighter,0,0);
-     const strips=calls.filter(c=>c[0].src?.includes('/animation-hq/ken/stand-'));
+     const strips=calls.filter(c=>(c[0].src?.includes('/animation-hq/ken/stand-')||c[0].src?.includes('/animation-hq/ken/crouch-light.webp')));
      assert.equal(strips.length,expected?1:0,`${stance} ${move.id}: Canvas must draw the correct attack family`);
     }
     contact ||= sample?.contact??false;
