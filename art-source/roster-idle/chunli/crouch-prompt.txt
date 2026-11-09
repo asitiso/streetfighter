@@ -1,0 +1,11 @@
+Use case: stylized-concept. Asset type: production CHUN-LI crouch transition full-body source sprites.
+Reference role: attached Chun-Li idle sheet for exact character identity, blue qipao/gold trim/white belt, brown tights/thighs, white laced boots, black spiked wristbands, hair buns/white ribbons, drawing style/anatomical scale. First upright frame is neutral target.
+Create transparent RGBA PORTRAIT source sheet exactly FOUR complete separate full bodies, TWOcolumns TWOrows, row-major. Spacious cells with40px alpha0 clear margins beyond all hair/ribbons/boots/arms. Same three-quarter side camera facing RIGHT, consistent head/muscle/limb/anatomical size, crisp ink/shaded fighting-game illustration matching reference.
+Action is standing guard smoothly lowering to full LOW CROUCH. BOTH white boot soles/heels/toes stay planted at EXACT same positions and same stance width/baseline in ALL four poses. No stepping or foot rotation. Pelvis lowers between feet as knees bend. Upper torso leans naturally slightly forward while hands remain closed near face/chest in guard.
+1 exact original UPRIGHT standing guard matching idle reference. Hair buns/ribbons complete, both boot soles planted, full body.
+2 quarter squat about0.90 standing height: knees/hips bend a little, pelvis lowers, head/shoulders lower, torso very slightly forward.
+3 deeper half squat about0.78 standing height: clearly more bent knees, pelvis significantly lower, guards follow chest, both boots anchored.
+4 FULL LOW CROUCH about0.64 standing height: knees deeply bent, pelvis low between knees, torso folded naturally forward, chin low and guard compact near face/chest. Both boot soles still planted at EXACT original width/baseline. Do not kneel or sit on ground; maintain a balanced low fighting guard.
+Four truly articulated drawings of knees/hips/torso/qipao folds, no resized standing cutouts or whole-body vertical translation. Same fixed head size and limb lengths, no shrinking. Preserve entire boots/ribbons/buns, no limb cutoffs. No attack, no stepping/jumping/sitting/extra limbs, no text/grid/effects/floor/shadow/background. Absolute alpha0 transparency in gutters and all blank areas.
+
+Reference: public/art/animation-hq/chunli/idle.webp (original upright guard).

@@ -696,3 +696,17 @@ python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-he
 node scripts/verify-roster-crouch-light.mjs
 node scripts/verify-ken-normal-mapping.mjs
 ```
+
+## Chun-Li crouch transition
+
+Four authored uprightguard/quarterbend/half-squat/full-lowguard drawings use existingorder[1,2,2,3,3,4] in6stored384x448frames,linear60fps,holdframe5/reverse4→0. Final source `chunli/crouch-sheet.png` and exact built-in prompt `chunli/crouch-prompt.txt` retained; existing installed idle strip is the identity/style/standing reference. First generation passes original numeric pose/crouch/handoff gates unchanged: residualaverage0.041217/peak0.067137,height ratio0.724036,centroiddrop55.554513px,centerXrange7.641124px,footcenter range0.650363px/baseline0,widthCv0.002499. Installedidle337px/opaque422,twofootanchoring and zerooffsets preserve boot/standing scale. Clean compositedruntime preview inspected.
+
+Generic crouch clock reused without new gameplay/mapper logic. Both-facing actual input covers all6frames,hold/reversal,rapidrelease/repress,hitstop,jump and beltdepthmovement. Existing six crouching attacks retain fallback but recover into lowguard before rising when down is released; test covers held/released2HK. Ibuki remains crouchfallback. Transition checks now9characters/54storedframes/108Canvasdraws; lowattack eightcomplete sets unchanged.
+
+Shared selector/parameterized fixture reused. Reversed rising/static/translated guard, runtime/source/idle-peer errors reject. Reinstall is byte-stable and first/new-file/replacement rollback preserve all22priorrecords/art/bindings/pipeline. Current212enabled/fullframes/23records; new293678byte strip raises entry13698604→13992282bytes under unchanged14MBcap. Crouch loads with movement before first input; combatloading/otherbudgets unchanged. Cachev153.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind crouch --runtime
+python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch
+node scripts/verify-roster-crouch.mjs
+```
