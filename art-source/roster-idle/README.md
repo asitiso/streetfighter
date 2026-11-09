@@ -679,3 +679,20 @@ python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-me
 node scripts/verify-roster-crouch-light.mjs
 node scripts/verify-ken-normal-mapping.mjs
 ```
+
+## Ken crouching heavy kick and completed low normals
+
+Six new lowguard/load/half-sweep/contact/foldedwithdrawal/recoveredguard source drawings use defaultorder[1,1,2,3,3,4,4,5,5,6,6,6] in12stored640x448frames, startup0–4/contact5–6/recovery7–11. Final source `ken/crouch-heavy-kick-sheet.png`, exact built-in generation/edit/refinement prompts `ken/crouch-heavy-kick-prompt.txt` and two exact edit targets retained. First source residual0.017086/0.028955 failed heavy peak0.030; stronger loaded/recovery rotation passed peak0.031170 but bodycenter range64.907055 exceeded62. Compact contactguard reduced forward body drive. Final original numeric pose/action/handoff gates pass0.018792/0.031642, contactlegreach142px/footheight50px at both5/6, bodycenter range51.543245px, supportcenter range0.844245px/baseline0. No numeric limits relaxed. Installed lowcrouch217px/opaque419/rear-support anchoring and zero offsets retained.
+
+Only exact grounded2HK selects the strip. Ken now has all six authored low normals and all twelve standing/crouching normals. Twelve-panel actual-input preview covers LP/MP/HP/LK/MK/HK in both facings, all55storedlowattackframes, contacts/hitstop/heldlowguard/released recovery before rising; runtime composite inspected. Other mappings/gameplay unchanged. Low-attack checks now eight complete sets/440storedframes/4460Canvasdraws.
+
+Shared defaultrecipe/selector/Ryu both-contact low-kick audit/parameterized fixture reused. Each actualcontact independently rejects guard/standingpunch/lowpunch/highkick even with validkick at startup; displaced supportroot/baseline/static/translated/runtime/source/crouch-peer failures reject. Byte-stable reinstall and first/new-file/replacement rollback preserve all26prior records/art/bindings/pipeline. Numeric low-kick envelopes intentionally overlap.
+
+Ken now243enabled/full frames,27records,162attackframes; historicalRC39target69 remains historical. New415940byte strip raises eagerentry14866954→15282894bytes, requiring explicit Ken-only16MBcap(previous15MB). Other budgets unchanged, original image quality and eager loading retained; movement preparation excludes low attacks. Cachev152.
+
+```sh
+python scripts/build-roster-motions.py --character KEN --kind crouch-heavy-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-heavy-kick
+node scripts/verify-roster-crouch-light.mjs
+node scripts/verify-ken-normal-mapping.mjs
+```

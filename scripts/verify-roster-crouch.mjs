@@ -39,7 +39,7 @@ for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL','RYU','KEN'])for(
  for(let stop=0;stop<3;stop++){f.updatePlayer(quiet,duel);assert.equal(animationSequenceSample(f,0).frame,1,'Hit stop freezes the crouch pose');}
  for(let tick=0;tick<6;tick++)f.updatePlayer(down,duel);
  f.updatePlayer({...down,pressed:key=>key==='hk'},duel);assert.equal(f.currentMove.id,'2HK');
- while(f.state==='attack'){if(id==='KEN')assert.equal(animationSequenceSample(f,0),null,'Ken low attacks retain fallback');else assert.equal(animationSequenceSample(f,0).sequence.kind,'crouch-heavy-kick','Exact 2HK uses its authored low sweep');f.updatePlayer(down,duel);}
+ while(f.state==='attack'){assert.equal(animationSequenceSample(f,0).sequence.kind,'crouch-heavy-kick','Exact 2HK uses its authored low sweep');f.updatePlayer(down,duel);}
  assert.equal(animationSequenceSample(f,0).sequence.kind,'crouch');assert.equal(animationSequenceSample(f,0).frame,5,'No standing flash after crouching attack');
  f.updatePlayer({...down,pressed:key=>key==='hk'},duel);
  while(f.state==='attack')f.updatePlayer(quiet,duel);
