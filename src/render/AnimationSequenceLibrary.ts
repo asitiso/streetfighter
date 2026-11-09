@@ -160,6 +160,7 @@ const CHUNLI: readonly AnimationSequence[] = [
 ] as const;
 
 const IBUKI: readonly AnimationSequence[] = [
+  { id:'IBUKI_CROUCH_HQ', characterId:'IBUKI', kind:'crouch', asset:'/art/animation-hq/ibuki/crouch.webp', frameCount:6, frameWidth:384, frameHeight:448, fps:60, loop:false, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_STAND_MEDIUM_HQ', characterId:'IBUKI', kind:'stand-medium', asset:'/art/animation-hq/ibuki/stand-medium.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_STAND_LIGHT_KICK_HQ', characterId:'IBUKI', kind:'stand-light-kick', asset:'/art/animation-hq/ibuki/stand-light-kick.webp', frameCount:8, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:3,recoveryStart:4}, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'IBUKI_STAND_MEDIUM_KICK_HQ', characterId:'IBUKI', kind:'stand-medium-kick', asset:'/art/animation-hq/ibuki/stand-medium-kick.webp', frameCount:10, frameWidth:640, frameHeight:448, fps:26, loop:false, timing:'snap', phase:{startupEnd:3,activeStart:4,activeEnd:5,recoveryStart:6}, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

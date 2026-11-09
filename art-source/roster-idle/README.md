@@ -806,3 +806,17 @@ python scripts/build-roster-motions.py --character CHUNLI --kind crouch-heavy-ki
 python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-heavy-kick
 node scripts/verify-roster-crouch-light.mjs
 ```
+
+## Ibuki crouch transition
+
+Four new uprightguard/quarterbend/halfsquat/fulllowguard drawings use defaultorder[1,2,2,3,3,4] in6stored384x448frames,linear60fps/hold5/reverse4→0. Finalsource `ibuki/crouch-sheet.png` andexactbuilt-inprompt `ibuki/crouch-prompt.txt` retained;firstinstalledidleposeisstanding/style/anatomyreference. Firstgenerationpassesunchangedoriginalnumericpose/crouch/handoffgates0.054537/0.120543,height ratio0.733918/centroiddrop52.553012px,horizontalcenter3.669997px,footcenter1.232575px/baseline0/widthCv0. Installedidle342px/opaque429/twofoot/zerooffsetsretainstanding/foot/hairscale. Cleanruntimecompositeinspected.
+
+Genericcrouchclockreusedwithoutnewgameplay/mapperlogic. Both-facingactualinputcoversall6frames/hold/reversal/quickrelease-repress/hitstop/jump/beltdepthmovement. Existing6lowattacksretainfallbackbutrecoverlowbeforerising;held/released2HKrecoverychecked. All10charactersnowhaveauthoredcrouchtransitions:60storedframes/120Canvasdraws. Ninecomplete lowattacksetsunchanged.
+
+Sharedselector/parameterizedfixture reused. Reversedrising/static/translatedart,runtime/source/idle-peererrorsreject. Byte-stablereinstallandfirst/new-file/replacementrollbackpreserve21priorrecords/art/bindings/pipeline. Current198enabled/fullframes/22records;new310460bytesraisesentry9955024→10265484underunchanged13MBcap. Crouchprepareswithmovementbeforefirstdowninput;combatloading/otherbudgetsunchanged. Cachev160.
+
+```sh
+python scripts/build-roster-motions.py --character IBUKI --kind crouch --runtime
+python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch
+node scripts/verify-roster-crouch.mjs
+```
