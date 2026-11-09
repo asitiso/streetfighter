@@ -68,6 +68,7 @@ export interface AnimationSequence {
 }
 
 const RYU: readonly AnimationSequence[] = [
+  { id:'RYU_TATSUMAKI_HQ', characterId:'RYU', kind:'tatsumaki', asset:'/art/animation-hq/ryu/tatsumaki.webp', frameCount:12, frameWidth:640, frameHeight:448, fps:24, loop:false, timing:'snap', phase:{startupEnd:2,activeStart:3,activeEnd:8,recoveryStart:9}, events:[{frame:3,type:'contact'},{frame:6,type:'contact'},{frame:9,type:'recovery'}], footLock:false, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'RYU_DASH_BACK_HQ', characterId:'RYU', kind:'dash-back', asset:'/art/animation-hq/ryu/dash-back.webp', frameCount:7, frameWidth:640, frameHeight:448, fps:20, loop:false, timing:'ease-out', footLock:false, facingRelativeDirection:'backward', enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'RYU_IDLE_HQ', characterId:'RYU', kind:'idle', asset:'/art/animation-hq/ryu/idle.webp', frameCount:8, frameWidth:384, frameHeight:448, fps:8.0, loop:true, timing:'ease-in', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },
   { id:'RYU_WALK_HQ', characterId:'RYU', kind:'walk', asset:'/art/animation-hq/ryu/walk.webp', frameCount:12, frameWidth:384, frameHeight:448, fps:12, loop:true, timing:'linear', footLock:true, enabled:true, renderMode:'full', poseAuthored:true, quality:'hq', source:'authored-hq' },

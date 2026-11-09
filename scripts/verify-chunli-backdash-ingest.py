@@ -7,11 +7,11 @@ import importlib.util,io,json,shutil,sys,hashlib,argparse
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN','RYU'],default='CHUNLI');parser.add_argument('--kind',choices=['shoryuken','hadoken','crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
-supported={'RYU':('hadoken','shoryuken'),'CHUNLI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')}
+parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['CHUNLI','IBUKI','KEN','RYU'],default='CHUNLI');parser.add_argument('--kind',choices=['tatsumaki','shoryuken','hadoken','crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='dash-back');args=parser.parse_args();character=args.character;selected_kind=args.kind
+supported={'RYU':('hadoken','shoryuken','tatsumaki'),'CHUNLI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'IBUKI':('crouch-heavy-kick','crouch-medium-kick','crouch-light-kick','crouch-heavy','crouch-medium','crouch-light','crouch','dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick'),'KEN':('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')}
 if selected_kind not in supported[character]:parser.error('Unsupported supplemental character/kind')
-count,width,order={'shoryuken':(12,640,[1,2,2,3,3,4,4,5,6,7,7,8]),'hadoken':(12,640,[1,1,2,2,3,4,4,5,5,6,6,6]),'crouch-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6]),'crouch-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'crouch-heavy':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
-slug=character.lower();prior_count={'RYU':24,'CHUNLI':28,'IBUKI':27,'KEN':26}[character];total={'RYU':217,'CHUNLI':267,'IBUKI':253,'KEN':243}[character]
+count,width,order={'tatsumaki':(12,640,[1,2,3,3,4,4,5,5,6,7,8,8]),'shoryuken':(12,640,[1,2,2,3,3,4,4,5,6,7,7,8]),'hadoken':(12,640,[1,1,2,2,3,4,4,5,5,6,6,6]),'crouch-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6]),'crouch-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'crouch-heavy':(10,640,[1,1,2,3,4,4,5,5,6,6]),'crouch-medium':(8,640,[1,2,3,4,5,5,6,6]),'crouch-light':(7,640,[1,2,3,4,5,5,6]),'crouch':(6,384,[1,2,2,3,3,4]),'dash-back':(7,640,[1,2,3,3,4,5,6]),'guard':(5,384,[2,2,3,3,4]),'parry':(6,384,[1,2,3,3,4,4]),'stand-medium':(8,640,[1,2,3,4,5,5,6,6]),'stand-light-kick':(8,640,[1,2,3,4,5,5,6,6]),'stand-medium-kick':(10,640,[1,1,2,3,4,4,5,5,6,6]),'stand-heavy-kick':(12,640,[1,1,2,3,3,4,4,5,5,6,6,6])}[selected_kind]
+slug=character.lower();prior_count={'RYU':25,'CHUNLI':28,'IBUKI':27,'KEN':26}[character];total={'RYU':229,'CHUNLI':267,'IBUKI':253,'KEN':243}[character]
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 with TemporaryDirectory(prefix='chunli-backdash-') as temp:
@@ -50,7 +50,7 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
    else:raise AssertionError('Write error swallowed')
   assert failed and before==snapshot(),'Failed install did not roll back'
  rollback();run();current=json.loads(path.read_text())
- assert [current[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[total,217 if character=='RYU' else total,217 if character=='RYU' else total,0]
+ assert [current[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[total,229 if character=='RYU' else total,229 if character=='RYU' else total,0]
  assert len(current['records'])==prior_count+1
  assert prior==current['records'][:-1] and current['records'][-1]['id']==selected_kind
  assert binding=={k:current[k] for k in binding}
@@ -65,8 +65,14 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
  if selected_kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):guard=Image.open(runtime/'crouch.webp').convert('RGBA').crop((5*384,0,6*384,448))
  baseline=int(np.nonzero(np.asarray(guard.getchannel('A'))>=32)[0].max())
  for index,frame in enumerate(frames):
-  if selected_kind=='shoryuken' and 3<=index<=8:continue
+  if (selected_kind=='shoryuken' and 3<=index<=8) or (selected_kind=='tatsumaki' and 1<=index<=9):continue
   assert int(np.nonzero(np.asarray(frame.getchannel('A'))>=32)[0].max())==baseline
+ if selected_kind=='tatsumaki':
+  mask=np.asarray(frames[0].getchannel('A'))>=32;ys,_=np.nonzero(mask);band=round(float(ys.min())+.25*float(ys.max()-ys.min()))
+  heads=[float(np.nonzero((np.asarray(frames[i].getchannel('A'))>=32)[:band])[1].mean()) for i in range(1,10)]
+  assert np.ptp(heads)<=2,'Rotating torso slides with extended-leg bounding box'
+  assert rec['sourceGrid']==[2,4] and rec['normalization']['groundedFrames']==[1,11,12]
+  assert all(int(np.nonzero(np.asarray(frames[i].getchannel('A'))>=32)[0].max())!=baseline for i in range(1,10)),'Spin art grounded by normalization'
  if selected_kind=='shoryuken':
   assert rec['sourceGrid']==[2,4] and rec['normalization']['groundedFrames']==[1,2,3,10,11,12]
   assert all(int(np.nonzero(np.asarray(frames[i].getchannel('A'))>=32)[0].max())!=baseline for i in range(3,9)),'Air art grounded by normalization'
@@ -80,6 +86,14 @@ with TemporaryDirectory(prefix='chunli-backdash-') as temp:
   assert max(roots)-min(roots)<1,'Planted Ibuki defense root slides with changing arm silhouette'
  def negative(frames,label):assert not motion.semantic_qa(selected_kind,frames,motion.pose_qa(frames,selected_kind))['semanticQaPass'],label
  pad=Image.new('RGBA',(width,448));pad.alpha_composite(guard,((width-384)//2,0))
+ if selected_kind=='tatsumaki':
+  punch=Image.open(runtime/'stand-medium.webp').convert('RGBA').crop((3*width,0,4*width,448))
+  low=Image.open(runtime/'crouch-medium-kick.webp').convert('RGBA').crop((4*width,0,5*width,448))
+  for contact in range(3,9):
+   for substitute in (pad,punch,low):
+    wrong=frames.copy();wrong[contact]=substitute
+    report=motion.semantic_qa(selected_kind,wrong,motion.pose_qa(wrong,selected_kind))
+    assert not report['checks']['actualContactPoses'] and not report['semanticQaPass'],'Wrong action accepted at spinning contact'
  if selected_kind=='shoryuken':
   for contact in (4,5,6,7):
    wrong=frames.copy();wrong[1]=frames[4];wrong[contact]=pad
