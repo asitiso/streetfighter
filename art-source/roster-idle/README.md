@@ -862,3 +862,15 @@ Six original poses become ten640x448 stored frames [1,1,2,3,4,4,5,5,6,6], startu
 Commands: python scripts/build-roster-motions.py --character IBUKI --kind crouch-heavy [--install|--runtime]; python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-heavy.
 
 Verification: four affected ingest fixtures and clean TypeScript/build/release443files hashDA955B18DE102A33 plus twelve focused checks pass. Both-facing input preview covers all10frames/contact4/5/hitstop/held/released recovery;520stored lowattackframes/5212Canvasdraws. Independent readonly review found no actionable P1/P2 and confirmed all24priorrecords/art. Known PWA v025/v028/v063 remain failing; broad suite not rerun.
+
+## Ibuki crouching light kick (2026-11-09)
+
+Built-in imagegen first-generation source: ibuki/crouch-light-kick-sheet.png; exact prompt: ibuki/crouch-light-kick-prompt.txt; reference: final crouch-heavy-sheet.png for slender lowguard anatomy/high ponytail. Six original poses: lowguard, front-leg load, halfextension, lowkick contact, withdrawal, recoveredguard. Same front/right leg throughout; rear/left sole planted, hands guard.
+
+Eight640x448 stored frames [1,2,3,4,5,5,6,6],startup0–2/contact3/recovery4–7,snap28,zero staging offsets/rear-support anchor/opaque429. First source passes all original numeric gates: affine residual average.019262/peak.0416,actualcontact3legreach89px/footheight60px,supportcenter range.634281/baseline0,lowheight ratio.980159–1;both guardhandoffs pass. All25priorrecords/art preserved;231active/fullframes26records,new495676bytes,entry12271526below unchanged13MB;client+SWcache164.
+
+Commands: python scripts/build-roster-motions.py --character IBUKI --kind crouch-light-kick [--install|--runtime]; python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-light-kick.
+
+Verification: four affected fixtures IBUKI2LK/2HP/5LK andCHUNLI2LK pass, clean TypeScript/build/release444files hash33A44CA4E7665085 plus twelve focused checks pass. Both-facing160tick input preview reaches all8frames/contact3/hitstop/heldlowguard/releasedrise;528stored lowattackframes/5264Canvasdraws. Fresh knownPWA v025/v028/v063 fail same network2vs0/pinCurrentShell/cache065vs164 expectations; full suite not rerun.
+
+Independent readonly review review_ibuki_crouch_light_kick found no actionable P1/P2; confirmed coherent leg continuity, guarded arms, grounded-only mapping and all25previousrecords/WebPbytes unchanged.
