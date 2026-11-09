@@ -6,6 +6,9 @@ export interface AnimationFrameProfile {
 }
 
 const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
+  'ALEX:flash-chop': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'RYU:idle': {
     weights: [1.260, 0.940, 0.900, 1.080, 1.040, 0.960, 0.920, 1.320],
     anchorX: [0.000, 3.000, 5.000, 6.000, 0.000, -3.000, -5.000, -2.000],

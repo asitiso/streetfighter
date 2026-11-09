@@ -1,8 +1,8 @@
 {
   "character": "ALEX",
   "pipeline": "roster-movement-authored-v1",
-  "frameTotal": 191,
-  "enabledFrameTotal": 191,
+  "frameTotal": 203,
+  "enabledFrameTotal": 203,
   "records": [
     {
       "id": "idle",
@@ -5343,6 +5343,288 @@
         "uniformScale": 0.7115789473684211
       },
       "facingRelativeDirection": "backward"
+    },
+    {
+      "id": "flash-chop",
+      "frames": 12,
+      "frameSize": [
+        640,
+        448
+      ],
+      "stripSize": [
+        7680,
+        448
+      ],
+      "renderMode": "full",
+      "enabled": true,
+      "poseAuthored": true,
+      "sha256": "47D42C4D1BF369FA53C805661CF080ECB27ACDCEF195AAE73B707D13D23CCAF8",
+      "bytes": 637162,
+      "poseQa": {
+        "affineResidualAverage": 0.02063,
+        "affineResidualMax": 0.047536,
+        "fullPoseAverageThreshold": 0.008,
+        "fullPoseMaxThreshold": 0.018,
+        "poseAuthoredPass": true
+      },
+      "semanticQa": {
+        "kind": "flash-chop",
+        "limits": {
+          "startEndIoUMin": 0.5,
+          "contactIoUMin": 0.22,
+          "contactIoUMax": 0.75,
+          "centroidXRangeMin": 7.0,
+          "centroidXRangeMax": 62.0,
+          "centroidYRangeMin": 0.75,
+          "centroidYRangeMax": 42.0,
+          "reachRangeMin": 38.0,
+          "reachRangeMax": 145.0,
+          "footCenterRangeMax": 58.0,
+          "footWidthCvMax": 0.55,
+          "areaCvMax": 0.2,
+          "residualAverageMin": 0.014,
+          "residualAverageMax": 0.18,
+          "residualMaxMin": 0.03,
+          "residualMaxMax": 0.24,
+          "contactFrameIndex": 5
+        },
+        "startEndIoU": 0.846819,
+        "contactIoU": 0.615434,
+        "centroidXRange": 34.798626,
+        "centroidYRange": 8.970641,
+        "reachRange": 108.0,
+        "footCenterRange": 0.711419,
+        "footWidthCv": 0.029701,
+        "areaCv": 0.050363,
+        "residualAverage": 0.02063,
+        "residualMax": 0.047536,
+        "checks": {
+          "recoveryTowardNeutral": true,
+          "contactPoseDistinct": true,
+          "bodyDrivePresent": true,
+          "verticalRootStable": true,
+          "attackReachPresent": true,
+          "feetStayPlanted": true,
+          "stanceWidthStable": true,
+          "bodyVolumeStable": true,
+          "authoredMotionAverage": true,
+          "authoredMotionPeak": true,
+          "bodyTorquePresent": true,
+          "actualContactPoses": true
+        },
+        "semanticQaPass": true,
+        "actualContacts": [
+          {
+            "frame": 4,
+            "reach": 98.0,
+            "pass": true
+          },
+          {
+            "frame": 5,
+            "reach": 98.0,
+            "pass": true
+          }
+        ]
+      },
+      "handoffQa": {
+        "idleToFlashChop": {
+          "iou": 0.726483,
+          "centroidDistance": 9.992639,
+          "footCenterDelta": 0.125955,
+          "areaRatio": 1.203658,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 46.0,
+            "footCenterDeltaMax": 55.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        },
+        "flashChopToIdle": {
+          "iou": 0.663845,
+          "centroidDistance": 15.207767,
+          "footCenterDelta": 0.279195,
+          "areaRatio": 0.782276,
+          "limits": {
+            "iouMin": 0.42,
+            "iouMax": 1.0,
+            "centroidDistanceMax": 46.0,
+            "footCenterDeltaMax": 55.0,
+            "areaRatioMin": 0.68,
+            "areaRatioMax": 1.4
+          },
+          "checks": {
+            "silhouetteCue": true,
+            "scaleContinuity": true,
+            "rootContinuity": true,
+            "footContinuity": true
+          },
+          "pass": true
+        }
+      },
+      "sourceOrder": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6
+      ],
+      "metrics": [
+        {
+          "frame": 1,
+          "sourceBBox": [
+            0,
+            0,
+            268,
+            335
+          ],
+          "sourceBodyHeight": 335,
+          "paste": [
+            180,
+            87
+          ],
+          "scaledSize": [
+            269,
+            336
+          ],
+          "footAnchorShift": -6
+        },
+        {
+          "frame": 2,
+          "sourceBBox": [
+            0,
+            0,
+            274,
+            336
+          ],
+          "sourceBodyHeight": 336,
+          "paste": [
+            164,
+            86
+          ],
+          "scaledSize": [
+            275,
+            337
+          ],
+          "footAnchorShift": -18
+        },
+        {
+          "frame": 3,
+          "sourceBBox": [
+            0,
+            0,
+            266,
+            328
+          ],
+          "sourceBodyHeight": 328,
+          "paste": [
+            173,
+            94
+          ],
+          "scaledSize": [
+            267,
+            329
+          ],
+          "footAnchorShift": -13
+        },
+        {
+          "frame": 4,
+          "sourceBBox": [
+            0,
+            0,
+            375,
+            321
+          ],
+          "sourceBodyHeight": 321,
+          "paste": [
+            171,
+            101
+          ],
+          "scaledSize": [
+            376,
+            322
+          ],
+          "footAnchorShift": 39
+        },
+        {
+          "frame": 5,
+          "sourceBBox": [
+            0,
+            0,
+            268,
+            333
+          ],
+          "sourceBodyHeight": 333,
+          "paste": [
+            176,
+            89
+          ],
+          "scaledSize": [
+            269,
+            334
+          ],
+          "footAnchorShift": -10
+        },
+        {
+          "frame": 6,
+          "sourceBBox": [
+            0,
+            0,
+            280,
+            337
+          ],
+          "sourceBodyHeight": 337,
+          "paste": [
+            170,
+            85
+          ],
+          "scaledSize": [
+            281,
+            338
+          ],
+          "footAnchorShift": -10
+        }
+      ],
+      "source": "art-source/roster-idle/alex/flash-chop-sheet.png",
+      "sourceSha256": "38D8840B91B34579D33611D933CE18570D03EDE2E0A0973A6C8BF7479F61E3E9",
+      "normalization": {
+        "reference": "idle-recovery-height",
+        "referenceHeight": 338,
+        "sourceGuardHeight": 337,
+        "uniformScale": 1.002967359050445,
+        "footBaselineReference": "installed-idle",
+        "footBaseline": 421,
+        "sourceBaselineOffsets": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "footAnchorX": 312.01030042918455
+      },
+      "sourceGrid": [
+        2,
+        3
+      ]
     }
-  ]
+  ],
+  "fullFrameTotal": 203,
+  "bridgeFrameTotal": 0
 }
