@@ -135,6 +135,9 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   'RYU:hadoken': {
     weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
+  'RYU:tatsumaki': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'RYU:shoryuken': {
     weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },

@@ -42,11 +42,11 @@ assert.equal(manifest.candidate, '0.0.63-rc.38');
 assert.equal(manifest.character, 'RYU');
 assert.equal(manifest.pipeline, 'roster-movement-authored-v1');
 assert.deepEqual(manifest.sourceSize, [384,448]);
-assert.equal(manifest.frameTotal, 217);
-assert.equal(manifest.enabledFrameTotal, 217);
-assert.equal(manifest.fullFrameTotal, 217);
+assert.equal(manifest.frameTotal, 229);
+assert.equal(manifest.enabledFrameTotal, 229);
+assert.equal(manifest.fullFrameTotal, 229);
 assert.equal(manifest.bridgeFrameTotal, 0);
-assert.equal(manifest.records.length, 25);
+assert.equal(manifest.records.length, 26);
 
 const hqSource = await readFile(new URL('../public/art/combat-sprites-hq/ryu.webp', import.meta.url));
 const hdSource = await readFile(new URL('../public/art/combat-sprites-hd/ryu.webp', import.meta.url));
@@ -67,7 +67,7 @@ for (const rec of manifest.records) {
   assert.equal(dim.width, rec.frameSize[0] * rec.frames, `${rec.id} strip width mismatch`);
   assert.equal(dim.height, 448, `${rec.id} strip height mismatch`);
   assert.equal(dim.alpha, true, `${rec.id} should preserve transparency`);
-  assert.equal(rec.frameSize[0], ['shoryuken','hadoken','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'].includes(rec.id)?640:384);
+  assert.equal(rec.frameSize[0], ['tatsumaki','shoryuken','hadoken','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'].includes(rec.id)?640:384);
   assert.equal(rec.frameSize[1], 448);
   assert.deepEqual(rec.stripSize, [rec.frameSize[0] * rec.frames, 448]);
   assert.equal(rec.sha256, sha(data), `${rec.id} sha mismatch`);
@@ -80,8 +80,8 @@ for (const rec of manifest.records) {
 assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalBytes}`);
 
 
-assert.equal(animationSequenceFrameTotal('RYU'), 217);
-assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 217);
+assert.equal(animationSequenceFrameTotal('RYU'), 229);
+assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 229);
 assert.equal(animationSequenceFrameTotal('KEN'), 243, 'Ken registry should include 70 movement + 11 defense + 162 attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
@@ -152,7 +152,7 @@ assert.equal(animationSequenceFor('RYU','landing')?.enabled, true);
 assert.equal(animationSequenceFor('RYU','landing')?.poseAuthored, true);
 assert.equal(animationSequenceFor('RYU','landing')?.source, 'authored-hq');
 
-for (const kind of ['idle','walk','walk-back','dash','dash-back','jump','landing','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','hit','hadoken','shoryuken']) {
+for (const kind of ['idle','walk','walk-back','dash','dash-back','jump','landing','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','hit','hadoken','shoryuken','tatsumaki']) {
   const sequence = animationSequenceFor('RYU', kind, false);
   assert.ok(sequence, `missing Ryu sequence ${kind}`);
   const profile = animationFrameProfile('RYU', kind);
@@ -360,8 +360,8 @@ try {
  assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('RYU',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort(),'Stage entry movement + combat preload must exclude staged-disabled art');
  for(const url of new Set(requests)){const rec=manifest.records.find(r=>url===`/art/animation-hq/ryu/${r.id}.webp`);assert.ok(rec?.enabled);stageEntryPreloadBytes+=rec.bytes;}
  assert.equal(stageEntryPreloadBytes,catalogBytes,'Stage entry must cover the complete enabled Ryu catalog');
- // Previously12->13MB for backward dash; now13->14MB for592340-byte authored hadoken; preserve image quality.
- assert.ok(stageEntryPreloadBytes<14_000_000,`Ryu stage-entry animation preload exceeds14MB: ${stageEntryPreloadBytes}`);
+ // Previously13->14MB for hadoken; now14->15MB for749320-byte Tatsumaki, preserving original image quality.
+ assert.ok(stageEntryPreloadBytes<15_000_000,`Ryu stage-entry animation preload exceeds15MB: ${stageEntryPreloadBytes}`);
  animationTextureManager.releaseCharacter('RYU');requests.length=0;
  const chunliManifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/chunli/manifest.json',import.meta.url),'utf8'));
  animationTextureManager.releaseCharacter('CHUNLI');
