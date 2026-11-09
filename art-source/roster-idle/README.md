@@ -630,3 +630,18 @@ python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-me
 node scripts/verify-roster-crouch-light.mjs
 node scripts/verify-ken-normal-mapping.mjs
 ```
+
+## Ken crouching heavy punch
+
+Six authored lowguard/load/half-extension/heavy body-cross/withdrawal/recovered-lowguard drawings use default order [1,1,2,3,4,4,5,5,6,6] in10stored640x448frames: startup0–3/contact4–5/recovery6–9. Final source `ken/crouch-heavy-sheet.png`, exact built-in generation/edit prompts `ken/crouch-heavy-prompt.txt`, and exact edit target retained. First source residual0.011443/0.025558 failed original heavy motion gates; refined articulation passes0.014944/0.032607 without changing numeric limits. Both actual contacts reach99px in fixed upper band270–339. Low posture remains217px/opaque419 with two-foot anchoring, foot center range0.743667px/baseline0 and zero profile offsets.
+
+Only grounded2HP selects the new strip, completing authored Ken low punches2LP/2MP/2HP. Both-facing actual inputs reach all7/8/10frames, contacts3/3/4–5, hitstop, held lowguard and released recovery before rising. Three low kicks retain fallback. Shared selector/default heavy strike profile/Ryu actual-contact crouch audit/fixture are reused. Each heavy contact independently rejects guard substitution, including compensating startup attack; static/translated/runtime/source/crouch-peer corruption rejects. Byte-stable reinstall and first/new-file/replacement rollback preserve23prior records/art/bindings/pipeline.
+
+Ken now213enabled/full frames,24records,132attackframes; historical RC39target69 remains historical. New421824byte strip raises combined movement+combat entry13707206→14129030bytes, requiring an explicit Ken-only15MBcap (previous14MB). Other budgets and original image quality/eager loading remain unchanged; movement preparation excludes low attacks. Cachev149. Low-attack checks cover410storedframes/4172Canvasdraws across8characters (seven complete sets plusKen low punches).
+
+```sh
+python scripts/build-roster-motions.py --character KEN --kind crouch-heavy --runtime
+python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-heavy
+node scripts/verify-roster-crouch-light.mjs
+node scripts/verify-ken-normal-mapping.mjs
+```

@@ -82,7 +82,7 @@ assert.ok(totalBytes > 5_000_000, `HQ pilot payload unexpectedly small: ${totalB
 
 assert.equal(animationSequenceFrameTotal('RYU'), 217);
 assert.equal(enabledAnimationSequenceFrameTotal('RYU'), 193);
-assert.equal(animationSequenceFrameTotal('KEN'), 203, 'Ken registry should include 70 movement + 11 defense + 122 attack frames');
+assert.equal(animationSequenceFrameTotal('KEN'), 213, 'Ken registry should include 70 movement + 11 defense + 132 attack frames');
 // Ken enabled-frame total is validated against its manifest below so partial authored promotion stays supported.
 for (const kind of ['idle','walk','walk-back','dash','jump','landing','hit','guard','parry']) {
   const sequence = animationSequenceFor('KEN', kind, false);
@@ -168,8 +168,8 @@ assert.ok(animationFrameProfile('RYU','walk').weights[0] > animationFrameProfile
 const kenManifest = JSON.parse(await readFile(new URL('../public/art/animation-hq/ken/manifest.json', import.meta.url), 'utf8'));
 assert.equal(kenManifest.candidate, '0.0.63-rc.38');
 assert.equal(kenManifest.character, 'KEN');
-assert.equal(kenManifest.frameTotal, 203);
-assert.equal(kenManifest.records.length, 23);
+assert.equal(kenManifest.frameTotal, 213);
+assert.equal(kenManifest.records.length, 24);
 assert.match(kenManifest.pipeline, /^rc39-ken-authored-gated-v\d+$/);
 const kenEnabledFrames = kenManifest.records.filter((record) => record.enabled).reduce((sum, record) => sum + record.frames, 0);
 const kenStagingFrames = kenManifest.records.filter((record) => record.stagingOnly).reduce((sum, record) => sum + record.frames, 0);
@@ -411,6 +411,7 @@ try {
  animationTextureManager.releaseCharacter('KEN');
  animationTextureManager.preloadCharacter('KEN','movement');
  assert.ok(requests.includes('/art/animation-hq/ken/crouch.webp'),'Ken crouch must prepare with movement');
+ assert.ok(!requests.includes('/art/animation-hq/ken/crouch-heavy.webp'),'Movement preparation must not load heavy low attacks');
  assert.ok(!requests.includes('/art/animation-hq/ken/crouch-medium.webp'),'Movement preparation must not load medium low attacks');
  assert.ok(!requests.includes('/art/animation-hq/ken/crouch-light.webp'),'Movement preparation must not load low attacks');
  assert.ok(requests.includes('/art/animation-hq/ken/dash-back.webp'),'Ken backward dash must start preparation with movement');
@@ -421,8 +422,8 @@ try {
  animationTextureManager.preloadCharacter('KEN','combat');
  assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('KEN',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());
  const kenEntryBytes=kenManifest.records.filter(r=>requests.includes('/art/animation-hq/ken/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
- // Original-quality crouching jab explicitly increases only Ken budget13MB→14MB.
- assert.ok(kenEntryBytes<14_000_000,'Ken stage-entry animations exceed14MB');
+ // Original-quality crouching heavy punch explicitly increases only Ken budget14MB→15MB.
+ assert.ok(kenEntryBytes<15_000_000,'Ken stage-entry animations exceed15MB');
  const back=kenManifest.records.find(r=>r.id==='dash-back');
  assert.equal(back.facingRelativeDirection,'backward');
  assert.deepEqual(back.sourceOrder,[1,2,3,3,4,5,6]);
