@@ -19,7 +19,7 @@ for(const id of roster) {
  }
  const catalog=techniqueCatalogFor(id);
  for(const move of [catalog.command,...catalog.air,...Object.values(specialMovesFor(id)),{...normalFor('lp',false,id),id:`${id}_TARGET_TEST`}].filter(Boolean)) {
-  const expected=id==='ALEX'&&['ALEX_PRIMARY','ALEX_EX_PRIMARY'].includes(move.id)?'flash-chop':id==='ALEX'&&move.id==='ALEX_MOBILITY'?'slash-elbow':null;
+  const expected=id==='ALEX'&&['ALEX_PRIMARY','ALEX_EX_PRIMARY'].includes(move.id)?'flash-chop':id==='ALEX'&&move.id==='ALEX_MOBILITY'?'slash-elbow':id==='DUDLEY'&&move.id==='DUDLEY_MOBILITY'?'ducking-straight':null;
   assert.equal(animationSequenceKindForAttack(id,move),expected,`${id} ${move.id} keeps its exact special/fallback identity`);
  }
 }

@@ -52,6 +52,9 @@ def module():
  motion.EXPECTED['crouch-heavy']=10
  motion.TARGET_HEIGHT['crouch-heavy']=220
  motion.GROUND_KINDS.add('crouch-heavy')
+ motion.EXPECTED['ducking-straight']=12
+ motion.TARGET_HEIGHT['ducking-straight']=340
+ motion.GROUND_KINDS.add('ducking-straight')
  motion.EXPECTED['slash-elbow']=12
  motion.TARGET_HEIGHT['slash-elbow']=340
  motion.GROUND_KINDS.add('slash-elbow')
@@ -67,7 +70,8 @@ def module():
  motion.GROUND_KINDS.add('crouch-light')
  original_semantic=motion.semantic_qa
  def semantic(kind,frames,pose):
-  if getattr(motion,'ROSTER_CHARACTER',None)=='ALEX' and kind in ('flash-chop','slash-elbow'):return alex_ground_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='DUDLEY' and kind=='ducking-straight':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='ALEX' and kind in ('flash-chop','slash-elbow'):return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
   if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind=='tatsumaki':return ryu_tatsumaki_semantic_qa(motion,frames,pose)
   if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind=='shoryuken':return ryu_shoryuken_semantic_qa(motion,frames,pose)
   if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind=='hadoken':return ryu_hadoken_semantic_qa(motion,frames,pose)
@@ -90,7 +94,7 @@ def module():
  motion.semantic_qa=semantic
  return motion
 
-def alex_ground_strike_semantic_qa(motion,frames,pose,kind):
+def grounded_special_strike_semantic_qa(motion,frames,pose,kind):
  report=motion.stand_heavy_semantic_qa(frames,pose);report['kind']=kind
  limits=motion.STAND_HEAVY_SEMANTIC_LIMITS
  reaches=[float(np.nonzero(motion._binary_mask(frame))[1].max()) for frame in frames]
@@ -111,6 +115,12 @@ def alex_ground_strike_semantic_qa(motion,frames,pose,kind):
    row['leadingEdgeHeight']=round(edge_height,6);row['leadingEdgeHeightRatio']=round(edge_height/height,6)
   report['leadingEdgeHeightRatioLimits']=[0.5,0.8]
   report['checks']['leadingElbowHeight']=all(0.5<=row['leadingEdgeHeightRatio']<=0.8 for row in actual)
+ if kind=='ducking-straight':
+  # Forward punches alone do not establish the lowered ducking posture.
+  base_top=int(np.nonzero(motion._binary_mask(frames[0]))[0].min())
+  for row in actual:row['headDrop']=int(np.nonzero(motion._binary_mask(frames[row['frame']]))[0].min())-base_top
+  report['headDropLimits']=[30,75]
+  report['checks']['duckedContact']=all(30<=row['headDrop']<=75 for row in actual)
  report['semanticQaPass']=all(report['checks'].values())
  return report
 
@@ -518,6 +528,7 @@ def handoffs(directory,kind,frames):
   base=load_peer('crouch')[-1];tag=''.join(part.title() for part in kind.split('-'))
   return {'crouchTo'+tag:compare(base,frames[0],h.STAND_LIGHT_BASE_LIMITS),tag[0].lower()+tag[1:]+'ToCrouch':compare(frames[-1],base,h.STAND_LIGHT_BASE_LIMITS)}
  base_limits={'crouch':h.STAND_LIGHT_BASE_LIMITS,'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS,'stand-heavy-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-light-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium':h.STAND_LIGHT_BASE_LIMITS,'stand-light':h.STAND_LIGHT_BASE_LIMITS,'stand-heavy':h.STAND_HEAVY_BASE_LIMITS}
+ if directory.name=='dudley':base_limits['ducking-straight']=h.STAND_HEAVY_BASE_LIMITS
  if directory.name=='alex':base_limits.update({kind:h.STAND_HEAVY_BASE_LIMITS for kind in ('flash-chop','slash-elbow')})
  if directory.name=='ryu':base_limits.update(hadoken=h.HADOKEN_BASE_LIMITS,shoryuken=h.SHORYUKEN_BASE_LIMITS,tatsumaki=h.TATSUMAKI_BASE_LIMITS)
  if kind in base_limits:
@@ -652,8 +663,10 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI','KEN','ALEX'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI','KEN','ALEX','DUDLEY'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
+ if args.kind=='ducking-straight' and args.character!='DUDLEY':parser.error('Ducking Straight selector requires --character DUDLEY')
+ if args.character=='DUDLEY' and args.kind!='ducking-straight':parser.error('DUDLEY selector supports authored Ducking Straight only')
  if args.kind in ('flash-chop','slash-elbow') and args.character!='ALEX':parser.error('Alex special selector requires --character ALEX')
  if args.character=='ALEX' and args.kind not in ('flash-chop','slash-elbow'):parser.error('ALEX selector supports authored Flash Chop and Slash Elbow only')
  if args.kind in ('hadoken','shoryuken','tatsumaki') and args.character!='RYU':parser.error('Authored special selector requires --character RYU')
@@ -663,7 +676,7 @@ def main():
  if args.character=='KEN' and args.kind not in ('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('KEN selector supports backward dash, medium punch, standing kicks, crouch, low punches and all crouching normals only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
- entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'crouch-light':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6]},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else ([{'id':args.character,'slug':args.character.lower(),**({'attackRecipes':{'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]}}} if args.character=='KEN' else {})}] if args.character in ('CHUNLI','IBUKI','KEN','ALEX') else CONFIG)
+ entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'crouch-light':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6]},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else ([{'id':args.character,'slug':args.character.lower(),**({'attackRecipes':{'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]}}} if args.character=='KEN' else {})}] if args.character in ('CHUNLI','IBUKI','KEN','ALEX','DUDLEY') else CONFIG)
  if args.character=='KEN':entries[0]['attackRecipes']['crouch-light']={'rows':3,'sourceOrder':[1,2,3,4,5,5,6]}
  if args.character=='IBUKI':entries[0]['attackRecipes']={kind:{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]} for kind in ('stand-medium','stand-light-kick')}
  if args.character=='IBUKI':entries[0]['attackRecipes']['stand-medium-kick']={'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'}
@@ -672,7 +685,7 @@ def main():
  if args.character=='CHUNLI':entries[0]['attackRecipes']['stand-medium-kick']={'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'}
  if args.character=='CHUNLI':entries[0]['attackRecipes']['stand-heavy-kick']={'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}
  if args.character in ('CHUNLI','IBUKI'):entries[0]['attackRecipes']['crouch-light']={'rows':3,'sourceOrder':[1,2,3,4,5,5,6]}
- width=640 if kind in ('slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
+ width=640 if kind in ('ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
  for entry in entries:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
   motion.ROSTER_CHARACTER=entry['id']
@@ -697,9 +710,9 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'crouch-heavy-kick':'crouch-heavy-kick-sheet.png','crouch-medium-kick':'crouch-medium-kick-sheet.png','crouch-light-kick':'crouch-light-kick-sheet.png','crouch-heavy':'crouch-heavy-sheet.png','crouch-medium':'crouch-medium-sheet.png','crouch-light':'crouch-light-sheet.png','crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','dash-back':'dash-back-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','slash-elbow':'slash-elbow-sheet.png','flash-chop':'flash-chop-sheet.png','tatsumaki':'tatsumaki-sheet.png','shoryuken':'shoryuken-sheet.png','hadoken':'hadoken-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
+  source=SOURCE/slug/({'crouch-heavy-kick':'crouch-heavy-kick-sheet.png','crouch-medium-kick':'crouch-medium-kick-sheet.png','crouch-light-kick':'crouch-light-kick-sheet.png','crouch-heavy':'crouch-heavy-sheet.png','crouch-medium':'crouch-medium-sheet.png','crouch-light':'crouch-light-sheet.png','crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','dash-back':'dash-back-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','ducking-straight':'ducking-straight-sheet.png','slash-elbow':'slash-elbow-sheet.png','flash-chop':'flash-chop-sheet.png','tatsumaki':'tatsumaki-sheet.png','shoryuken':'shoryuken-sheet.png','hadoken':'hadoken-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
   attack_recipe=entry.get('attackRecipes',{}).get(kind) if kind in ('crouch-light','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else None
-  rows=attack_recipe['rows'] if attack_recipe else {'slash-elbow':3,'flash-chop':3,'tatsumaki':4,'shoryuken':4,'hadoken':3,'crouch-heavy-kick':3,'crouch-medium-kick':3,'crouch-light-kick':3,'crouch-heavy':3,'crouch-medium':3,'crouch-light':2,'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'dash-back':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
+  rows=attack_recipe['rows'] if attack_recipe else {'ducking-straight':3,'slash-elbow':3,'flash-chop':3,'tatsumaki':4,'shoryuken':4,'hadoken':3,'crouch-heavy-kick':3,'crouch-medium-kick':3,'crouch-light-kick':3,'crouch-heavy':3,'crouch-medium':3,'crouch-light':2,'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'dash-back':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
   raw=extract(Image.open(source),rows);normalization=None;overrides=[]
   if kind=='tatsumaki':raw=[raw[i] for i in (0,1,2,2,3,3,4,4,5,6,7,7)]
   if kind=='shoryuken':raw=[raw[i] for i in (0,1,1,2,2,3,3,4,5,6,6,7)]
@@ -708,7 +721,7 @@ def main():
     extra=SOURCE/slug/recipe['source'];target=recipe['pose']-1
     raw[target]=extract(Image.open(extra),recipe['rows'])[recipe['sourcePose']-1]
     overrides.append({'frames':[i+1 for i,pose in enumerate(GUARD_ORDER) if pose==target],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['sourcePose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
-  if kind in ('slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash','dash-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ryu' and kind=='walk-back'):
+  if kind in ('ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash','dash-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ryu' and kind=='walk-back'):
    if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
@@ -723,7 +736,7 @@ def main():
    motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/reference_height
    normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':reference_height,'uniformScale':idle_height/reference_height}
   keys,metrics=motion.normalize_frames(kind,raw)
-  if slug in ('ryu','chunli','ibuki','ken') or kind in ('flash-chop','slash-elbow'):
+  if slug in ('ryu','chunli','ibuki','ken') or kind in ('ducking-straight','flash-chop','slash-elbow'):
    # Existing supplemental idle uses a different sole baseline from the shared atlas.
    # Align actual opaque soles to its installed guard, rather than introducing
    # a visible vertical step every time support art enters or recovers.
@@ -733,7 +746,7 @@ def main():
     offset=target-int(np.nonzero(motion._binary_mask(frame))[0].max());offsets.append(offset)
     aligned=Image.new('RGBA',(width,448));aligned.alpha_composite(frame,(0,offset));keys[index]=aligned
    normalization.update({'footBaselineReference':'installed-'+base_kind,'footBaseline':target,'sourceBaselineOffsets':offsets})
-  if kind in ('slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ibuki' and kind in ('guard','parry')):
+  if kind in ('ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ibuki' and kind in ('guard','parry')):
    # Extended fists change the silhouette's bounding-box center. Anchor the
    # support feet to the matching guard, so the planted stance does not slide when
    # the arm extends. Wide cells preserve complete fists at the same scale.
@@ -768,7 +781,7 @@ def main():
   choices=[]
   gait=[0,0,1,2,2,3,4,4,5,6,6,7] if kind=='walk' else [0,0,1,2,2,3,4,4,5,5]
   orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
-  if kind in ('flash-chop','slash-elbow'):orders=[[0,0,1,2,3,3,4,4,5,5,5,5]]
+  if kind in ('ducking-straight','flash-chop','slash-elbow'):orders=[[0,0,1,2,3,3,4,4,5,5,5,5]]
   if kind=='tatsumaki':orders=[list(range(12))]
   if kind=='shoryuken':orders=[list(range(12))]
   if kind=='hadoken':orders=[[0,0,1,1,2,3,3,4,4,5,5,5]]
@@ -812,14 +825,14 @@ def main():
   if kind=='tatsumaki':record['sourceOrder']=[1,2,3,3,4,4,5,5,6,7,8,8]
   if kind=='shoryuken':record['sourceOrder']=[1,2,2,3,3,4,4,5,6,7,7,8]
   if normalization:record['normalization']=normalization
-  if kind in ('slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
+  if kind in ('ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
   if kind in ('stand-medium-kick','crouch-medium-kick'):record['semanticProfile']=profile
   if kind=='crouch-heavy':record['semanticProfile']=heavy_profile
   if kind in ('dash','dash-back'):record['facingRelativeDirection']='backward' if kind=='dash-back' else 'forward'
   if overrides:record['sourceOverrides']=overrides
   manifest=json.loads((directory/'manifest.json').read_text()) if (directory/'manifest.json').exists() else {'character':entry['id'],'pipeline':'roster-movement-authored-v1','records':[]}
   if slug not in ('chunli','ibuki','ken'):manifest['pipeline']='roster-movement-authored-v1'
-  if slug not in ('ryu','chunli','ibuki','ken') and kind not in ('flash-chop','slash-elbow'):manifest.pop('source',None);manifest.pop('sourceSha256',None)
+  if slug not in ('ryu','chunli','ibuki','ken') and kind not in ('ducking-straight','flash-chop','slash-elbow'):manifest.pop('source',None);manifest.pop('sourceSha256',None)
   replace_records(manifest,[record])
   update_frame_totals(manifest)
   pending[directory/f'{kind}.webp']=data
