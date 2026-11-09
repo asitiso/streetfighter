@@ -2,7 +2,7 @@ import { runtimeQuality } from './RuntimeQuality.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v147';
+export const GAME_CACHE_NAME = 'game-cache-v148';
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
@@ -71,6 +71,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/animation-hq/ken/manifest.json',
     '/art/animation-hq/ken/crouch.webp',
     '/art/animation-hq/ken/crouch-light.webp',
+    '/art/animation-hq/ken/crouch-medium.webp',
     '/art/animation-hq/ken/idle.webp', '/art/animation-hq/ken/walk.webp', '/art/animation-hq/ken/walk-back.webp',
     '/art/animation-hq/ken/dash-back.webp', '/art/animation-hq/ken/dash.webp', '/art/animation-hq/ken/jump.webp', '/art/animation-hq/ken/landing.webp', '/art/animation-hq/ken/hit.webp',
     '/art/special-keyposes/ken/hadoken.webp', '/art/special-keyposes/ken/shoryuken.webp',
