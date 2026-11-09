@@ -63,7 +63,7 @@ def module():
  def semantic(kind,frames,pose):
   if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light','stand-medium','stand-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None) in ('KEN','CHUNLI','IBUKI') and kind=='stand-medium'):return ryu_punch_semantic_qa(motion,frames,pose,kind)
   if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='KEN' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='CHUNLI' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='IBUKI' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')):return ryu_kick_semantic_qa(motion,frames,pose,kind)
-  if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('crouch-light','crouch-medium','crouch-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None)=='KEN' and kind in ('crouch-light','crouch-medium','crouch-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None)=='CHUNLI' and kind in ('crouch-light','crouch-medium','crouch-heavy')):return ryu_crouch_punch_semantic_qa(motion,frames,pose,kind)
+  if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('crouch-light','crouch-medium','crouch-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None)=='KEN' and kind in ('crouch-light','crouch-medium','crouch-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None)=='CHUNLI' and kind in ('crouch-light','crouch-medium','crouch-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None)=='IBUKI' and kind=='crouch-light'):return ryu_crouch_punch_semantic_qa(motion,frames,pose,kind)
   if (getattr(motion,'ROSTER_CHARACTER',None) in ('RYU','KEN') and kind in ('crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='CHUNLI' and kind in ('crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')):return ryu_crouch_kick_semantic_qa(motion,frames,pose,kind)
   if kind=='dash-back':return backward_dash_semantic_qa(motion,frames,pose)
   if kind=='stand-medium':
@@ -564,7 +564,7 @@ def main():
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
  if args.character=='RYU' and args.kind not in ('walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash-back'):parser.error('RYU selector supports support, backward dash, standing/crouching normals and crouch only')
  if args.character=='CHUNLI' and args.kind not in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('CHUNLI selector supports backward dash, defense, medium palm, standing kicks, crouch and all crouching normals only')
- if args.character=='IBUKI' and args.kind not in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch'):parser.error('IBUKI selector supports backward dash, defense, medium palm, standing kicks and crouch only')
+ if args.character=='IBUKI' and args.kind not in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light'):parser.error('IBUKI selector supports backward dash, defense, medium palm, standing kicks, crouch and low jab only')
  if args.character=='KEN' and args.kind not in ('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('KEN selector supports backward dash, medium punch, standing kicks, crouch, low punches and all crouching normals only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
@@ -576,7 +576,7 @@ def main():
  if args.character=='CHUNLI':entries[0]['attackRecipes']={kind:{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]} for kind in ('stand-medium','stand-light-kick')}
  if args.character=='CHUNLI':entries[0]['attackRecipes']['stand-medium-kick']={'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'}
  if args.character=='CHUNLI':entries[0]['attackRecipes']['stand-heavy-kick']={'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}
- if args.character=='CHUNLI':entries[0]['attackRecipes']['crouch-light']={'rows':3,'sourceOrder':[1,2,3,4,5,5,6]}
+ if args.character in ('CHUNLI','IBUKI'):entries[0]['attackRecipes']['crouch-light']={'rows':3,'sourceOrder':[1,2,3,4,5,5,6]}
  width=640 if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
  for entry in entries:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'

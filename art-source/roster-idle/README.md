@@ -820,3 +820,19 @@ python scripts/build-roster-motions.py --character IBUKI --kind crouch --runtime
 python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch
 node scripts/verify-roster-crouch.mjs
 ```
+
+## Ibuki crouching light punch
+
+Six authored lowguard/compactpreparatoryguard/halfextension/lowjab/withdrawal/recoveredguard drawings use sharedlightrecipe[1,2,3,4,5,5,6] in7stored640x448frames,startup0–2/contact3/recovery4–6. Finalsource `ibuki/crouch-light-sheet.png`,exactbuilt-ingeneration/editprompts `ibuki/crouch-light-prompt.txt` andthreeexacteditinputs retained. Initialnumericgatespassedbutvisualreviewcaughtarm-roleinconsistency. Repeatedwaist-chambereditsdidnotresolveit;finalcompacttwo-fistpreparatoryguard makesfront/rightarmcontinuouslyguard→halfextension→contact→withdrawal. ReviewerP2resolvedonfinalart. Originalnumericgatesremainunchanged;final0.019233/0.028342,contact3reach65px,footcenter0.695372px. Installedcrouchreference/twofoot/opaque429/zerooffsetsretainposture/root. Compositedruntimepreviewclean.
+
+Onlyexactgrounded2LPselectsnewstrip. Both-facingactualinputall7frames/contact3/hitstop/heldlowguard/releasedrecoveryverified. Otherfive lownormals/standing/special/SA/command/air/target/gameplayunchanged. Lowattackchecks10characters(9complete sets plusIbuki2LP),502storedframes/5028Canvasdraws.
+
+Sharedrecipe/selector/Ryuactualcontactcrouchpunch audit/parameterizedfixture reused. Guardatactualcontactwithvalidjabatstartup,static/translated/runtime/source/crouch-peererrorsreject. Byte-stablereinstallandfirst/new-file/replacementrollbackpreserve22priorrecords/art/bindings/pipeline.
+
+Ibukinow205enabled/fullframes/23records. New497894bytesraisesentry10265484→10763378underunchanged13MBcap;otherbudgets/originalquality/eagerloadingunchanged. Movementpreparationexcludeslowattacks. Cachev161.
+
+```sh
+python scripts/build-roster-motions.py --character IBUKI --kind crouch-light --runtime
+python scripts/verify-chunli-backdash-ingest.py --character IBUKI --kind crouch-light
+node scripts/verify-roster-crouch-light.mjs
+```
