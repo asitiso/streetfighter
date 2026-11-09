@@ -662,3 +662,20 @@ python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-li
 node scripts/verify-roster-crouch-light.mjs
 node scripts/verify-ken-normal-mapping.mjs
 ```
+
+## Ken crouching medium kick
+
+Six new authored lowguard/load/halfextension/lowcontact/foldedwithdrawal/recoveredguard drawings use defaultorder [1,1,2,3,4,4,5,5,6,6] in10stored640x448frames: startup0–3/contact4–5/recovery6–9. Final source `ken/crouch-medium-kick-sheet.png` and exact built-in prompt `ken/crouch-medium-kick-prompt.txt` retained; bottom-right fully lowguard in original crouch source is the reference. Original numeric pose/action/handoff gates pass unchanged on first generation: residualaverage0.016332/peak0.028199, actualcontact legreach87px/footheight78px at both4/5, supportcenter range0.782129px/baseline0. Installed crouch217px/opaque419/rear-support and zero offsets retain low posture/root. Hip rotation/counterlean and loaded chamber differ visually from light kick. Numeric LK/MK envelopes intentionally overlap; no disjoint reach claim. Clean runtime composite inspected.
+
+Only exact grounded2MK selects the new strip. Actual input in both facings covers all10frames/bothcontacts/hitstop and held lowguard/released recovery before rising. Low heavy kick retains fallback; other mappings/gameplay unchanged. Low-attack checks now428storedframes/4316Canvasdraws across8characters (seven complete sets plusKenLP/MP/HP/LK/MK).
+
+Shared defaultrecipe/selector/kickprofile/Ryu both-contact low-kick audit/parameterized fixture reused. Each actual contact independently rejects guard/standingpunch/lowpunch/highkick with validkick at startup. Displaced supportroot/baseline, static/translated/runtimeprofile/source/crouch-peer corruption reject. Byte-stable reinstall and first/new-file/replacement rollback preserve all25prior records/art/bindings/pipeline.
+
+Ken now231enabled/full frames,26records,150attackframes; historicalRC39target69 remains historical. New378340byte strip raises eagerentry14488614→14866954bytes below unchanged15MBcap. Other budgets/loading unchanged; movement preparation excludes low attacks. Cachev151.
+
+```sh
+python scripts/build-roster-motions.py --character KEN --kind crouch-medium-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character KEN --kind crouch-medium-kick
+node scripts/verify-roster-crouch-light.mjs
+node scripts/verify-ken-normal-mapping.mjs
+```

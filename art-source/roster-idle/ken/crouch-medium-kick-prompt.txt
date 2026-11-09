@@ -1,0 +1,13 @@
+Use case: stylized-concept. Asset type: production KEN CROUCHING MEDIUM KICK full-body sprite source.
+Reference role: attached Ken sheet BOTTOM-RIGHT full lowguard only, for identity/style/anatomical scale. Create a new distinct action, not duplicate cutouts.
+Transparent RGBA LANDSCAPE sheet, exactly SIX independent complete full-body drawings in TWO columns THREE rows, row-major. Spacious wide cells with40px clear transparent margins around hair/belt/gloves/all toes. Consistent three-quarter side camera facing RIGHT. Muscular Ken, long blond hair, red sleeveless torn gi, black belt, brown gloves, bare feet, crisp ink/shaded fighting-game illustration matching reference.
+Full low crouch in ALL poses. Keep rear LEFT bent leg/foot planted in exactly same position/baseline; pelvis low above rear knee. Head-to-sole height within about0.9–1.05 reference fully lowguard height, never stand or step. Front RIGHT leg extends for a MEDIUM LOW KICK, with stronger hip rotation and counterlean than a quick light kick. Complete natural anatomy, fixed leg lengths.
+1 compact FULL LOW GUARD matching reference bottom-right; both feet planted, gloves guarding face.
+2 loaded low chamber: front knee folds close toward ribs, foot raised; shoulders counterturn slightly BACKLEFT, rear knee deeply bent, hips stay low.
+3 half-extension: front leg opens diagonally forward right, shin near horizontal, foot moving toward target, clearly between chamber and contact.
+4 full medium low kick CONTACT: front leg almost straight forward RIGHT, thigh and shin visible, ankle/bare heel/toes horizontal45–60px above floor at installed217px low-body scale. Front toes extend100–125px beyond neutral front toes at that scale; no stretching limb lengths. Torso counterleans slightly backward and rotates, rear leg stays deeply bent, rear sole planted. Both gloves near face, no punching arm. Strong readable hip-to-heel silhouette, enough blank space beyond toes.
+5 clear retraction: front knee sharply folds toward chest, foot nearer body and raised, hip/shoulder rotation unwinds to lowguard; rear foot fixed.
+6 recovered FULL LOW GUARD matching pose1, both feet planted.
+Six truly articulated different drawings, not translated/resized figures. Preserve head/limb/muscle scale. All stays low, no high kick, no standing/jumping/steps/sweep scraping floor, no effects/weapons/text/borders/floor/shadows/background. Absolute alpha0 clear gutters and background.
+
+Reference: art-source/roster-idle/ken/crouch-sheet.png (bottom-right lowguard only).

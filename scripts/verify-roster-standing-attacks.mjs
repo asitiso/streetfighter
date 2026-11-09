@@ -99,7 +99,7 @@ for(const id of [...roster,'RYU','KEN','CHUNLI','IBUKI'])for(const facing of [-1
  assert.equal(animationSequenceSample(fighter,0),null,'Grounded normal must not replace an airborne attack');
  fighter.airborne=false;
  for(const crouch of [false,true])for(const other of ['lp','mp','hp','lk','mk','hk']) {
-  if(id==='IBUKI'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='CHUNLI'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='KEN'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk'].includes(other)):id==='RYU'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):(!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)))continue;
+  if(id==='IBUKI'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='CHUNLI'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):id==='KEN'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk'].includes(other)):id==='RYU'?(!crouch&&['lp','mp','hp','lk','mk','hk'].includes(other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)):(!crouch&&Object.hasOwn(normalKinds,other))||(crouch&&['lp','mp','hp','lk','mk','hk'].includes(other)))continue;
   fighter.currentMove=normalFor(other,crouch,id);assert.equal(animationSequenceSample(fighter,0),null);
  }
 }
