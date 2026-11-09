@@ -201,7 +201,15 @@ export function animationSequenceSample(fighter: Fighter, _time: number): Animat
     if (fighter.airborne && (kind === 'crouch-light' || kind === 'crouch-medium' || kind === 'crouch-heavy' || kind === 'crouch-light-kick' || kind === 'crouch-medium-kick' || kind === 'crouch-heavy-kick' || kind === 'stand-light' || kind === 'stand-medium' || kind === 'stand-heavy' || kind === 'stand-light-kick' || kind === 'stand-medium-kick' || kind === 'stand-heavy-kick')) return null;
     const sequence = animationSequenceFor(characterId, kind, true);
     if (!sequence || !sequence.poseAuthored) return null;
-    const sample = attackFrame(sequence, fighter, fighter.currentMove);
+    let sample = attackFrame(sequence, fighter, fighter.currentMove);
+    if (characterId === 'RYU' && kind === 'shoryuken' && !sample.contact
+      && fighter.moveFrame >= fighter.currentMove.startup + fighter.currentMove.active) {
+      // Flight can outlast the active hit. Keep the fist/legs airborne until
+      // actual touchdown instead of playing grounded recovery at jump apex.
+      const frame = fighter.airborne ? (fighter.jumpVelocity > 0 ? 7 : 8)
+        : fighter.landingFrames > 0 ? (fighter.landingFrames >= 6 ? 9 : fighter.landingFrames >= 3 ? 10 : 11) : sample.frame;
+      sample = { ...sample, frame };
+    }
     if (sequence.renderMode === 'bridge' && sample.contact) return null;
     return sample;
   }
