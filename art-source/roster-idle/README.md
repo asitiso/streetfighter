@@ -742,3 +742,19 @@ python scripts/build-roster-motions.py --character CHUNLI --kind crouch-medium -
 python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-medium
 node scripts/verify-roster-crouch-light.mjs
 ```
+
+## Chun-Li crouching heavy punch and completed low punches
+
+Six new lowguard/deepload/halfextension/heavybodycross/withdrawal/recoveredguard drawings use defaultorder[1,1,2,3,4,4,5,5,6,6] in10stored640x448frames,startup0–3/contact4–5/recovery6–9. Final source `chunli/crouch-heavy-sheet.png` and exact built-in prompt `chunli/crouch-heavy-prompt.txt` retained; original crouch bottom-right lowguard is reference. First generation passes unchanged original numeric pose/action/handoff gates0.020019/0.040501,actualcontacts4/5reach121px,footcenter range1.022866px. Strikeprofile/installedcrouchreference/twofootanchoring/opaque422/zerooffsets retained. Clean runtimecomposite inspected.
+
+Only exactgrounded2HP selects this strip, completing Chun-Li lowpunch3set. Six-panel actualinput preview coversLP/MP/HP in bothfacings,all7/8/10frames,contacts3/3/4–5,hitstop,heldlowguard/releasedrecoverybefore rising. Existing lowkicks/standing/special/SA/command/air/target/gameplay unchanged. Lowattackchecks9characters(8complete sets plusChun-LiLP/MP/HP),465storedframes/4696Canvasdraws.
+
+Sharedselector/defaultheavystrikeprofile/Ryu bothactualcontactaudit/parameterizedfixture reused. Eachcontact independently rejects guardsubstitute with validcontact atstartup,plusstatic/translated/runtimeprofile/source/crouch-peer errors. Byte-stable reinstall and first/new-file/replacementrollback preserve25priorrecords/art/bindings/pipeline. Fouraffectedfixtures(CHUNLI2HP/2MP/2LP,KEN2HP) pass.
+
+Chun-Li now237enabled/fullframes/26records. New504938bytes raisesentry14923938→15428876bytes,requiring explicitChun-Lionly15→16MBcap;otherbudgets/originalquality/eagerloading unchanged. Movementpreparation excludeslowattacks. Cachev156.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind crouch-heavy --runtime
+python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-heavy
+node scripts/verify-roster-crouch-light.mjs
+```
