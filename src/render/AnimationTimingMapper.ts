@@ -77,6 +77,7 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
   if (characterId === 'IBUKI' && ['IBUKI_PRIMARY','IBUKI_EX_PRIMARY','IBUKI_SUPER','IBUKI_SA1'].includes(move.id)) return 'hadoken';
   if (characterId === 'IBUKI') return move.id === '5LP' ? 'stand-light' : move.id === '5MP' ? 'stand-medium' : move.id === '5HP' ? 'stand-heavy' : move.id === '5LK' ? 'stand-light-kick' : move.id === '5MK' ? 'stand-medium-kick' : move.id === '5HK' ? 'stand-heavy-kick' : null;
   if (characterId === 'CHUNLI') {
+    if (move.id === '2HK') return 'crouch-heavy-kick';
     if (move.id === '2MK') return 'crouch-medium-kick';
     if (move.id === '2LK') return 'crouch-light-kick';
     if (move.id === '2HP') return 'crouch-heavy';

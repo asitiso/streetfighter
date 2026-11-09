@@ -790,3 +790,19 @@ python scripts/build-roster-motions.py --character CHUNLI --kind crouch-medium-k
 python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-medium-kick
 node scripts/verify-roster-crouch-light.mjs
 ```
+
+## Chun-Li crouching heavy kick and completed low normals
+
+Six new lowguard/deeprotationalload/halfsweep/fulllowcontact/foldedwithdrawal/recoveredguard drawings use defaultorder[1,1,2,3,3,4,4,5,5,6,6,6] in12stored640x448frames,startup0–4/contact5–6/recovery7–11. Finalsource `chunli/crouch-heavy-kick-sheet.png` andexactbuilt-inprompt `chunli/crouch-heavy-kick-prompt.txt` retained; originalcrouchbottom-rightlowguardisreference. Firstgenerationpassesunchangedoriginalnumericpose/action/handoffgates0.023800/0.047951,bothcontactsreach127px/footheight56px,supportcenter0.465526px/baseline0. Installedcrouchreference/rearsupport/opaque422/zerooffsetsretained. Runtimecompositeinspectedclean.
+
+Onlyexactgrounded2HKselectsnewstrip. Chun-Linowhasall6authoredlownormals/all12standing-crouchingnormals. Twelve-panelactualinputpreviewcoversLP/MP/HP/LK/MK/HKbothfacings/all55storedframes/contacts/hitstop/heldlowguard/releasedrecoverybefore rising. Othermappings/gameplayunchanged. Lowattackchecksnow9completecharacter sets/495storedframes/4984Canvasdraws;Ibuki remainsunfinishedcrouch/lowattacks. CrouchtransitiontestnowexpectsChun-Liauthored2HKconsistentlywithothercomplete sets.
+
+Sharedselector/defaultheavykickrecipe/Ryubothactualcontactaudit/parameterizedfixture reused. Eachactualcontactindependentlyrejectsguard/standingpunch/lowpunch/highkickwithvalidkickatstartup;displacedsupportroot/baseline/static/translated/runtime/source/crouch-peererrorsreject. Byte-stablereinstallandfirst/new-file/replacementrollbackpreserve28priorrecords/art/bindings/pipeline.
+
+Chun-Linow267enabled/fullframes/29records. New479656bytesraisesentry16275356→16755012bytesunderunchanged17MBcap;otherbudgets/originalquality/eagerloadingunchanged. Movementpreparationexcludeslowattacks. Cachev159.
+
+```sh
+python scripts/build-roster-motions.py --character CHUNLI --kind crouch-heavy-kick --runtime
+python scripts/verify-chunli-backdash-ingest.py --character CHUNLI --kind crouch-heavy-kick
+node scripts/verify-roster-crouch-light.mjs
+```
