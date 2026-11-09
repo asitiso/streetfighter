@@ -75,6 +75,7 @@ export function animationSequenceKindForAttack(characterId: string, move: MoveDa
   if (characterId === 'IBUKI' && move.id === 'IBUKI_MOBILITY') return 'tatsumaki';
   if (characterId === 'IBUKI' && move.id === 'IBUKI_ANTI_AIR') return 'shoryuken';
   if (characterId === 'IBUKI' && ['IBUKI_PRIMARY','IBUKI_EX_PRIMARY','IBUKI_SUPER','IBUKI_SA1'].includes(move.id)) return 'hadoken';
+  if (characterId === 'IBUKI' && move.id === '2HK') return 'crouch-heavy-kick';
   if (characterId === 'IBUKI' && move.id === '2MK') return 'crouch-medium-kick';
   if (characterId === 'IBUKI' && move.id === '2LK') return 'crouch-light-kick';
   if (characterId === 'IBUKI' && move.id === '2HP') return 'crouch-heavy';
