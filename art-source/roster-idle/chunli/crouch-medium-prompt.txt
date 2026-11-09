@@ -1,0 +1,14 @@
+Use case: stylized-concept. Asset type: production CHUN-LI CROUCHING MEDIUM PUNCH fullbody source sprites.
+Reference role: attached crouch sheet ONLY BOTTOMRIGHT full lowguard for identity/style/proportions/boot placement. Create new action art, not copies/translations.
+Transparent RGBA LANDSCAPE sheet, exactly SIX complete separate full bodies, TWOcolumns THREErows row-major. Spacious wide cells with40px alpha0 gutters/margins beyond all buns/ribbons/fists/boots. Same3quarter side view facingRIGHT, same head/limb/anatomical scale. Chun-Li blueqipao/goldtrim/whitebelt,muscularthighs,white lacedboots,black spikedwristbands,buns/white ribbons,crisp ink shaded fightinggame illustration.
+ALL six stay FULL LOW CROUCH matching bottomright reference, deeply bent knees/pelvis low betweenknees. BOTH boot soles/heels/toes in EXACT same horizontalpositions/baseline/stancewidth. Do not step, stand, rise or resize. Head-to-ground within0.90–1.05 neutral lowguard.
+Action MEDIUM LOW BODY CROSS, heavier shoulder/torso rotation than a quick jab. Closedfist, not open palm. Six genuine articulated silhouettes:
+1 original compact FULL LOW GUARD.
+2 loaded shoulder/chest counterrotation BACKLEFT around fixed lowhips, near upperback and blue shoulder visible, rear elbow projects clearly BACKLEFT outside ribs with transparent gap, fist chambers at lower ribs. Other fist guards chin.
+3 halfextension: front closedfist halfway forwardRIGHT, elbow opening, chest starts turning/folding forward around fixed lowpelvis. Shoulders and upperarm silhouette differ from neutral/load.
+4 CONTACT: full compact medium bodycross, front arm nearstraight at natural length, closed knuckles forwardRIGHT at opponent midsection125–145px above soles at installed244px lowbodyheight. Fist advances80–100px from original neutral FRONT GUARDING FIST, not toes. Strong FORWARD shoulder drive and chest/torso rotation/fold, face slightly forward, opposite bent elbow counterbalances clearly BACKLEFT beyond ribs with alpha gap, other closedfist near lower ribs. Keep fist below own face. Lowhips/boots unchanged. Do NOT only extend forearm with rigid torso.
+5 withdrawal: punching elbow folds and fist retracts halfway to chest, torso still slightly folded while unwinding, opposite guarding elbow opens outward, distinctly different shoulder/chest/arm outline from load/contact/guard.
+6 original recovered FULL LOW GUARD matchingpose1.
+Consistent complete anatomy/muscle/head size, full boots/hair/ribbons; no elongated arms, translated/resized wholefigures, duplicate poses, palmstrike/kick/standing/jump/step/effects/text/borders/floor/shadow/backdrop. Absolute alpha0 transparency in blankspace/gutters.
+
+Reference: art-source/roster-idle/chunli/crouch-sheet.png (bottom-right lowguard).
