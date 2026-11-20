@@ -1,0 +1,322 @@
+{
+ "version": 1,
+ "cell": [
+  384,
+  448
+ ],
+ "baseline": 423,
+ "runtimeCell": [
+  192,
+  224
+ ],
+ "poses": [
+  "idle",
+  "walk",
+  "windup",
+  "strike",
+  "hit",
+  "down",
+  "grabbed"
+ ],
+ "grunts": {
+  "punk": {
+   "file": "punk.webp",
+   "scale": 1.0497,
+   "poses": [
+    {
+     "pose": "idle",
+     "width": 161,
+     "height": 342
+    },
+    {
+     "pose": "walk",
+     "width": 187,
+     "height": 338
+    },
+    {
+     "pose": "windup",
+     "width": 175,
+     "height": 330
+    },
+    {
+     "pose": "strike",
+     "width": 221,
+     "height": 330
+    },
+    {
+     "pose": "hit",
+     "width": 155,
+     "height": 331
+    },
+    {
+     "pose": "down",
+     "width": 261,
+     "height": 316
+    },
+    {
+     "pose": "grabbed",
+     "width": 144,
+     "height": 316
+    }
+   ]
+  },
+  "knife": {
+   "file": "knife.webp",
+   "scale": 1.2222,
+   "poses": [
+    {
+     "pose": "idle",
+     "width": 207,
+     "height": 330
+    },
+    {
+     "pose": "walk",
+     "width": 196,
+     "height": 362
+    },
+    {
+     "pose": "windup",
+     "width": 200,
+     "height": 389
+    },
+    {
+     "pose": "strike",
+     "width": 341,
+     "height": 329
+    },
+    {
+     "pose": "hit",
+     "width": 229,
+     "height": 314
+    },
+    {
+     "pose": "down",
+     "width": 292,
+     "height": 347
+    },
+    {
+     "pose": "grabbed",
+     "width": 170,
+     "height": 347
+    }
+   ]
+  },
+  "bruiser": {
+   "file": "bruiser.webp",
+   "scale": 1.2138,
+   "poses": [
+    {
+     "pose": "idle",
+     "width": 229,
+     "height": 352
+    },
+    {
+     "pose": "walk",
+     "width": 205,
+     "height": 362
+    },
+    {
+     "pose": "windup",
+     "width": 210,
+     "height": 402
+    },
+    {
+     "pose": "strike",
+     "width": 305,
+     "height": 306
+    },
+    {
+     "pose": "hit",
+     "width": 204,
+     "height": 334
+    },
+    {
+     "pose": "down",
+     "width": 280,
+     "height": 339
+    },
+    {
+     "pose": "grabbed",
+     "width": 163,
+     "height": 339
+    }
+   ]
+  },
+  "kicker": {
+   "file": "kicker.webp",
+   "scale": 1.1583,
+   "poses": [
+    {
+     "pose": "idle",
+     "width": 170,
+     "height": 321
+    },
+    {
+     "pose": "walk",
+     "width": 184,
+     "height": 331
+    },
+    {
+     "pose": "windup",
+     "width": 180,
+     "height": 329
+    },
+    {
+     "pose": "strike",
+     "width": 250,
+     "height": 325
+    },
+    {
+     "pose": "hit",
+     "width": 170,
+     "height": 322
+    },
+    {
+     "pose": "down",
+     "width": 305,
+     "height": 97
+    },
+    {
+     "pose": "grabbed",
+     "width": 124,
+     "height": 328
+    }
+   ]
+  },
+  "soldier": {
+   "file": "soldier.webp",
+   "scale": 1.2546,
+   "poses": [
+    {
+     "pose": "idle",
+     "width": 213,
+     "height": 345
+    },
+    {
+     "pose": "walk",
+     "width": 205,
+     "height": 340
+    },
+    {
+     "pose": "windup",
+     "width": 202,
+     "height": 438
+    },
+    {
+     "pose": "strike",
+     "width": 279,
+     "height": 370
+    },
+    {
+     "pose": "hit",
+     "width": 183,
+     "height": 316
+    },
+    {
+     "pose": "down",
+     "width": 297,
+     "height": 113
+    },
+    {
+     "pose": "grabbed",
+     "width": 183,
+     "height": 271
+    }
+   ]
+  },
+  "thrower": {
+   "file": "thrower.webp",
+   "scale": 1.1,
+   "poses": [
+    {
+     "pose": "idle",
+     "width": 162,
+     "height": 336
+    },
+    {
+     "pose": "walk",
+     "width": 174,
+     "height": 330
+    },
+    {
+     "pose": "windup",
+     "width": 188,
+     "height": 350
+    },
+    {
+     "pose": "strike",
+     "width": 188,
+     "height": 331
+    },
+    {
+     "pose": "hit",
+     "width": 158,
+     "height": 302
+    },
+    {
+     "pose": "down",
+     "width": 288,
+     "height": 106
+    },
+    {
+     "pose": "grabbed",
+     "width": 140,
+     "height": 277
+    }
+   ]
+  }
+ },
+ "pickups": {
+  "file": "pickups.webp",
+  "cell": [
+   320,
+   160
+  ],
+  "items": [
+   {
+    "item": "apple",
+    "width": 112,
+    "height": 120
+   },
+   {
+    "item": "chicken",
+    "width": 190,
+    "height": 124
+   },
+   {
+    "item": "coins",
+    "width": 135,
+    "height": 140
+   },
+   {
+    "item": "pipe",
+    "width": 196,
+    "height": 87
+   },
+   {
+    "item": "knife",
+    "width": 196,
+    "height": 53
+   },
+   {
+    "item": "sword",
+    "width": 308,
+    "height": 66
+   },
+   {
+    "item": "bottle",
+    "width": 158,
+    "height": 59
+   }
+  ]
+ },
+ "sources": {
+  "bruiser-sheet.jpg": "1fdf9f2cbde2c542",
+  "kicker-sheet.jpg": "14dbba23049e481e",
+  "knife-sheet.jpg": "599ac45051fbfc94",
+  "pickups-sheet.jpg": "6029244d346d0ba5",
+  "punk-sheet.jpg": "6229fa475e6f04b4",
+  "soldier-sheet.jpg": "7a1fd4a1baa8c6d3",
+  "thrower-sheet.jpg": "0a83ce2b9e907a85"
+ }
+}

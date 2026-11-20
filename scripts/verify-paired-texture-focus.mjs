@@ -13,7 +13,8 @@ const art=await import('../dist/assets/render/ImageAssets.js');
 const ken=roster.find(c=>c.id==='KEN');
 const scene=new Stage1Scene({}, {playStagePulse(){}},ken,ken.superArts[0]);
 textures.setMode('auto');scene.enter();
-const enemyId=scene.world.enemy.character.id;assert.notEqual(enemyId,'KEN');
+// Belt waves are grunts (own atlases); the textured opponent is the stage boss.
+scene.prepareDuel();const enemyId=scene.world.enemy.character.id;assert.notEqual(enemyId,'KEN');assert(!enemyId.startsWith('GRUNT_'));
 const idle=id=>animationSequencesFor(id,true).find(s=>s.kind==='idle'&&s.poseAuthored);
 const enemy=animations.selection(idle(enemyId)).image, before=images.length;
 scene.exit();scene.enter();

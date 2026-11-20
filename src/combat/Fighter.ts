@@ -7,6 +7,8 @@ import { InputBuffer } from './InputBuffer.js';
 import { normalFor, specialMovesFor, superArtMoveFor, throwMoveFor } from './MoveLibrary.js';
 import { airNormalFor, commandNormalFor, targetComboFollowUp } from './TechniqueLibrary.js';
 import { combatProfileFor, type CharacterCombatProfile } from './CharacterCombatProfiles.js';
+import { gruntAiAttack, gruntStrikeRange, isGruntId } from './GruntLibrary.js';
+import { weaponMoveFor } from './BeltSystems.js';
 
 let nextFighterUid = 1;
 const HITSTOP_CANCEL_BUFFER_TICKS = 6;
@@ -89,6 +91,9 @@ function brain(fighter: object): AiBrain {
   }
   return b;
 }
+
+/** Proximity guard (SF rule): holding back near an incoming attack stands and guards instead of walking away. */
+const proximityGuard = new WeakMap<object, boolean>();
 
 export class Fighter {
   readonly uid = nextFighterUid++;
@@ -395,7 +400,8 @@ export class Fighter {
     }
 
     const moveSpeed = 4.3 * this.character.speed * this.combatProfile.walkScale * this.installMoveScale;
-    const horizontalDirection = Number(input.held('right')) - Number(input.held('left'));
+    let horizontalDirection = Number(input.held('right')) - Number(input.held('left'));
+    if (horizontalDirection === -this.facing && proximityGuard.get(this)) horizontalDirection = 0;
     let moved = horizontalDirection !== 0;
     if (horizontalDirection !== 0) this.x += horizontalDirection * moveSpeed;
     this.walkDirection = horizontalDirection as -1 | 0 | 1;
@@ -479,7 +485,7 @@ export class Fighter {
     } else if (!this.airborne && targetCornered && directive.attackAllowed && this.aiCooldown === 0 && playerDistance < Math.max(118, profile.preferredDistance + 44) && sameLane) {
       const deterministic = ((this.uid * 23 + this.stateFrame * 7 + Math.round(playerDistance * 1.7)) % 100) / 100;
       const command = this.aiCommandNormal();
-      const useThrow = playerDistance < 74 && deterministic < Math.min(.62, profile.throwBias + .23);
+      const useThrow = !isGruntId(this.character.id) && playerDistance < 74 && deterministic < Math.min(.62, profile.throwBias + .23);
       const useCommand = !useThrow && command && deterministic > .58;
       const pressureMove = useThrow ? throwMoveFor(this.character.id) : useCommand ? command : normalFor(deterministic < .42 ? 'mp' : 'hk', false, this.character.id);
       this.startMove(pressureMove, movementEntry);
@@ -491,17 +497,26 @@ export class Fighter {
       const rangedMove = specialMovesFor(this.character.id).primary;
       const movingDepth = rules.depthMovement && Math.abs(dy) > 8;
       if (movingDepth) this.y += Math.sign(dy) * Math.min(Math.abs(dy), movement * .92);
-      if (Math.abs(dx) > Math.max(22, profile.preferredDistance * .22)) {
+      const gruntRange = gruntStrikeRange(this.character.id);
+      const gruntEngaging = gruntRange !== null && !this.airborne && directive.attackAllowed && this.aiCooldown === 0 && playerDistance < 260;
+      if (!gruntEngaging && Math.abs(dx) > Math.max(22, profile.preferredDistance * .22)) {
         this.walkDirection = Math.sign(dx) as -1 | 1;
         this.x += this.walkDirection * movement;
         this.state = 'walk';
       } else if (!this.airborne && directive.rangedAllowed && profile.rangedBias > 0 && !!rangedMove.projectile && this.aiCooldown === 0 && playerDistance > profile.preferredDistance * 1.25) {
         this.startMove(rangedMove, movementEntry);
         this.aiCooldown = Math.max(24, Math.round(profile.attackCooldown * (1.18 - Math.min(1, profile.rangedBias) * .22) / this.aiTempoScale));
-      } else if (!this.airborne && directive.attackAllowed && this.aiCooldown === 0 && playerDistance < Math.max(92, profile.preferredDistance + 58) && sameLane) {
+      } else if (gruntEngaging && (playerDistance > gruntRange! || !sameLane)) {
+        // Grunts step in to their own strike range instead of swinging from the director's stand-off slot.
+        this.walkDirection = playerDistance > gruntRange! ? Math.sign(dxToPlayer) as -1 | 1 : 0;
+        this.x += this.walkDirection * movement;
+        if (rules.depthMovement && Math.abs(target.y - this.y) > 6) this.y += Math.sign(target.y - this.y) * Math.min(Math.abs(target.y - this.y), movement * .7);
+        this.state = 'walk';
+} else if (!this.airborne && directive.attackAllowed && this.aiCooldown === 0 && playerDistance < Math.max(92, profile.preferredDistance + 58) && sameLane) {
         const deterministic = ((this.uid * 17 + this.stateFrame * 11 + Math.round(playerDistance)) % 100) / 100;
-        const useSuper = this.superGauge >= this.superStockCost && deterministic < this.aiSuperBias;
-        const useThrow = !useSuper && playerDistance < 72 && deterministic < profile.throwBias + this.aiSuperBias * .25;
+        const useSuper = !isGruntId(this.character.id) && this.superGauge >= this.superStockCost && deterministic < this.aiSuperBias;
+        // Grunts never use the duel throw; grappler grunts grab through the belt hold system instead.
+        const useThrow = !useSuper && !isGruntId(this.character.id) && playerDistance < 72 && deterministic < profile.throwBias + this.aiSuperBias * .25;
         const heavyThreshold = .55 + Math.min(.25, profile.pressure * .08);
         const move = useSuper ? this.selectedSuperMove() : useThrow ? throwMoveFor(this.character.id) : this.selectAiAttack(deterministic, heavyThreshold, playerDistance);
         this.startMove(move, movementEntry);
@@ -517,6 +532,7 @@ export class Fighter {
   }
 
   startMove(move: MoveData, movementEntry = this.dashFrames > 0 || Math.abs(this.x - this.previousX) > 4.6): void {
+    move = weaponMoveFor(this, move);
     if (move.exCost && this.superGauge < move.exCost) return;
     if (move.superCost && this.superGauge < move.superCost) return;
     this.clearThrowSync();
@@ -594,6 +610,38 @@ export class Fighter {
     const delta = targetY - this.y;
     if (Math.abs(delta) < .2) return;
     this.y += Math.sign(delta) * Math.min(Math.abs(delta), maxDistance);
+  }
+
+  setProximityGuard(active: boolean): void { proximityGuard.set(this, active); }
+  get proximityGuarding(): boolean { return proximityGuard.get(this) === true; }
+
+  /** Belt grab: pin this fighter in a held reaction beside its holder. */
+  setHeld(x: number, y: number, facing: 1 | -1): void {
+    this.interruptMove();
+    this.clearSuperVictimReaction();
+    this.state = 'hit';
+    this.stateFrame = -14;
+    this.hitAnimationDuration = 14;
+    this.airborne = false;
+    this.jumpHeight = 0;
+    this.jumpVelocity = 0;
+    this.dashFrames = 0;
+    this.walkDirection = 0;
+    this.x = x; this.y = y;
+    this.previousX = x; this.previousY = y;
+    this.facing = facing;
+  }
+
+  releaseHeld(): void {
+    if (this.state !== 'hit') return;
+    this.state = 'idle';
+    this.stateFrame = 0;
+  }
+
+  /** Holder clinch pose: the authored throw-attacker opening frame, frozen while holding. */
+  setGrabPose(active: boolean): void {
+    if (active) { this.throwSyncRole = 'attacker'; this.throwSyncStyle = this.character.id; this.throwSyncTotal = 200; this.throwSyncFrames = 186; }
+    else if (this.throwSyncTotal === 200) this.clearThrowSync();
   }
 
   isMoveActive(): boolean {
@@ -981,6 +1029,8 @@ export class Fighter {
   }
 
   private selectAiAttack(deterministic: number, heavyThreshold: number, playerDistance: number): MoveData {
+    const gruntMove = gruntAiAttack(this.character.id, deterministic, playerDistance);
+    if (gruntMove) return gruntMove;
     const specials = specialMovesFor(this.character.id);
     const specialBias = this.character.id === 'GILL' ? .32 : this.character.id === 'URIEN' ? .25 : this.aiProfile.rangedBias > .5 ? .22 : .1;
     if (deterministic < specialBias && playerDistance > 82) return specials.primary;

@@ -207,14 +207,14 @@ if (!clear2) fail('stage 2 callback');
 
 const stage3 = new Stage3Scene(new StubInput(), new StubAudio(), character, character.superArts[0], () => { clear3 = true; });
 const r3 = testStage(stage3, 'stage3', 2000, (r) => {
-  if (!r.waveProfiles.flat().includes('technical')) fail('stage3 technical AI missing');
+  if (!r.waveProfiles.flat().includes('kick') || !r.waveProfiles.flat().includes('grappler')) fail('stage3 kicker/bruiser grunt AI missing');
   if (r.boss !== 'MAKOTO') fail(`stage3 boss expected MAKOTO, got ${r.boss}`);
 });
 if (!clear3) fail('stage 3 callback');
 
 const stage4 = new Stage4Scene(new StubInput(), new StubAudio(), character, character.superArts[0], () => { clear4 = true; });
 const r4 = testStage(stage4, 'stage4', 3000, (r) => {
-  if (!r.waveProfiles.flat().includes('mma')) fail('stage4 MMA AI missing');
+  if (!r.waveProfiles.flat().includes('heavy') || !r.waveProfiles.flat().includes('grappler')) fail('stage4 riot soldier/bruiser grunt AI missing');
   if (r.boss !== 'DUDLEY') fail(`stage4 boss expected DUDLEY, got ${r.boss}`);
 });
 if (!clear4) fail('stage 4 callback');
@@ -224,7 +224,7 @@ if (!clear4) fail('stage 4 callback');
 const stage5 = new Stage5Scene(new StubInput(), new StubAudio(), character, character.superArts[0], () => { clear5 = true; });
 stage5.introFrames = 0;
 const r5 = clearStage5(stage5, 4000);
-if (!r5.waveProfiles.flat().includes('technical') || !r5.waveProfiles.flat().includes('mma')) fail('stage5 advanced AI mix missing');
+if (!['heavy', 'grappler', 'agile', 'kick', 'ranged'].every((id) => r5.waveProfiles.flat().includes(id))) fail('stage5 mixed grunt AI missing');
 for (let i = 0; i < 300 && stage5.phase === 'clear'; i += 1) stage5.fixedUpdate(1 / 60, r5.tick + i);
 if (!clear5) fail('stage 5 callback');
 

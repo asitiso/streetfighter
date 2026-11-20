@@ -4,6 +4,8 @@ import type { CombatEvent, EnvironmentProp, ModeRules, MoveData } from './Combat
 import type { EnemyArchetypeId } from './EnemyArchetypes.js';
 import { EnemyDirector } from './EnemyDirector.js';
 import { Fighter } from './Fighter.js';
+import { BeltSystems } from './BeltSystems.js';
+import { gruntById } from './GruntLibrary.js';
 
 export interface ProjectileInstance {
   owner: Fighter;
@@ -39,6 +41,8 @@ interface DuelTradeIntent {
 }
 
 const PLAYER_ENEMY_BODY_GAP = 58;
+// Kept outside the instance so serialised world fixtures are unchanged.
+const beltSystems = new WeakMap<CombatWorld, BeltSystems>();
 const PLAYER_COMBO_LINK_FRAMES = 82;
 
 function meleeForwardReach(attacker: Fighter, move: MoveData): number {
@@ -100,6 +104,13 @@ export class CombatWorld {
     this.enemies.push(new Fighter(enemyDef, 'enemy', 880, mode === 'belt' ? 490 : 500, -1, enemySuperArt));
   }
 
+  /** Beat 'em up layer (grabs, thrown bodies, pickups, weapons, score); belt mode only. */
+  get belt(): BeltSystems {
+    let systems = beltSystems.get(this);
+    if (!systems) { systems = new BeltSystems(); beltSystems.set(this, systems); }
+    return systems;
+  }
+
   get enemy(): Fighter {
     return this.enemies.find((enemy) => enemy.hp > 0) ?? this.enemies[0]!;
   }
@@ -120,6 +131,7 @@ export class CombatWorld {
   replaceEnemies(spawns: readonly BeltEnemySpawn[]): void {
     this.enemies.length = 0;
     this.lastPlayerTargetUid = null;
+    this.belt.reset();
     for (const spawn of spawns) {
       const facing: 1 | -1 = spawn.x >= this.player.x ? -1 : 1;
       const fighter = new Fighter(spawn.character, 'enemy', spawn.x, spawn.y, facing, undefined, spawn.archetype ?? 'brawler');
@@ -150,8 +162,14 @@ export class CombatWorld {
 
     this.player.captureInput(input, tick);
     const playerWasInHitStop = this.player.hitStop > 0;
-    this.player.updatePlayer(input, this.rules);
-    if (!playerWasInHitStop) this.applySoftLaneAlignment(target);
+    const belt = this.rules.mode === 'belt' && !this.dummyController ? this.belt : null;
+    const playerInput = belt ? belt.collectPickups(this, input) : input;
+    if (!belt?.tickPlayerSide(this, playerInput)) {
+      this.player.setProximityGuard(this.proximityThreat(this.player));
+      this.player.updatePlayer(playerInput, this.rules);
+      if (!playerWasInHitStop) this.applySoftLaneAlignment(target);
+      belt?.detectPlayerGrab(this, playerInput);
+    }
 
     const directives = this.director.update(this.player, this.enemies, this.rules);
     if (this.rules.mode === 'duel') {
@@ -170,9 +188,10 @@ export class CombatWorld {
         if (enemy.state === 'ko') enemy.updateAi(this.player, this.rules);
         continue;
       }
-      if (this.enemyInput && enemy === this.enemies[0]) { enemy.captureInput(this.enemyInput, tick); enemy.updatePlayer(this.enemyInput, this.rules); continue; }
+      if (this.enemyInput && enemy === this.enemies[0]) { enemy.captureInput(this.enemyInput, tick); enemy.setProximityGuard(this.proximityThreat(enemy)); enemy.updatePlayer(this.enemyInput, this.rules); continue; }
       if (this.dummyController) { this.dummyController(enemy, this.player, this.rules); continue; }
       const directive = directives.get(enemy.uid);
+      if (belt?.tickEnemySide(this, enemy, directive)) continue;
       if (directive) enemy.updateAiDirected(this.player, this.rules, directive);
       else enemy.updateAi(this.player, this.rules);
     }
@@ -196,8 +215,24 @@ export class CombatWorld {
     for (const enemy of this.livingEnemies) this.resolveEnvironmentAttack(enemy);
     this.updateProjectiles(input);
     this.resolveBodyCollisions();
+    belt?.afterUpdate(this);
 
     this.ageEvents();
+  }
+
+  /** An opponent's attack (or a projectile) is coming at this fighter, so holding back guards in place. */
+  private proximityThreat(fighter: Fighter): boolean {
+    const opponents = fighter.side === 'player' ? this.livingEnemies : [this.player];
+    for (const other of opponents) {
+      const move = other.currentMove;
+      if (other.hp <= 0 || other.state !== 'attack' || !move || move.kind === 'projectile' || other.moveFrame >= move.startup + move.active) continue;
+      if (Math.abs(other.x - fighter.x) <= move.hitbox.forward * other.character.reach + 70 && Math.abs(other.y - fighter.y) <= Math.max(this.rules.laneTolerance, move.hitbox.lane) + 12) return true;
+    }
+    for (const projectile of this.projectiles) {
+      if (projectile.owner.side === fighter.side || projectile.vx === 0 || Math.sign(projectile.vx) !== Math.sign(fighter.x - projectile.x)) continue;
+      if (Math.abs(projectile.x - fighter.x) < 220 && Math.abs(projectile.y - (fighter.y - 92)) < 80) return true;
+    }
+    return false;
   }
 
   private tickComboFeedback(): void {
@@ -208,7 +243,7 @@ export class CombatWorld {
     if (this.lastPlayerHitTimer > 0) this.lastPlayerHitTimer -= 1;
   }
 
-  private registerComboHit(attacker: Fighter, damage: number, defender?: Fighter): void {
+  registerComboHit(attacker: Fighter, damage: number, defender?: Fighter): void {
     const actual = Math.max(0, Math.round(damage));
     if (actual <= 0) return;
     if (attacker === this.player) {
@@ -253,6 +288,7 @@ export class CombatWorld {
     const move = fighter.currentMove;
     if (!move || fighter.moveStartAnnounced) return;
     fighter.moveStartAnnounced = true;
+    if (this.rules.mode === 'belt') this.belt.onMoveStarted(fighter);
     if (move.superCost) {
       if (fighter === this.player) this.playerSupersUsed += 1;
       this.events.push({ type: 'super-flash', x: fighter.x, y: fighter.y - fighter.jumpHeight - 108, power: move.damage, ttl: 36, label: move.label, color: move.color, style: move.superPresentation?.motif, accent: move.superPresentation?.accent });
@@ -440,8 +476,27 @@ export class CombatWorld {
     const hpBefore = defender.hp;
     // Capture the victim's contact height before launching/bouncing can change it.
     const midY = meleeImpactY(attacker, defender);
+    const armor = this.rules.mode === 'belt' ? gruntById(defender.character.id)?.armor ?? 0 : 0;
+    if (armor > 0 && !guarding && defender.state === 'attack' && !hitMove.knockdown && !hitMove.launch && hitMove.level !== 'throw' && hitMove.damage < 50) {
+      // Armored grunts (bruiser, riot soldier) shrug off light hits mid-swing: chip damage, no flinch.
+      const damage = Math.max(1, Math.round(hitMove.damage * (1 - armor)));
+      if (defender.hp > damage) {
+        defender.hp -= damage;
+        defender.hitFlash = Math.max(defender.hitFlash, 4);
+        attacker.markHitTarget(defender);
+        attacker.hitStop = Math.max(attacker.hitStop, 5);
+        this.registerComboHit(attacker, damage, defender);
+        this.belt.onAttackerContact(this, attacker, move);
+        this.events.push({ type: 'block', x: (attacker.x + defender.x) * .5, y: midY, power: damage, ttl: 16, label: 'ARMOR', color: '#9fb3c8', attackerSide: attacker.side, moveId: move.id });
+        return;
+      }
+    }
     const outcome = defender.receiveHit(hitMove, attacker, guarding, counter);
     attacker.markHitTarget(defender);
+    if (this.rules.mode === 'belt' && !this.dummyController) {
+      if (outcome === 'hit' || outcome === 'block') this.belt.onAttackerContact(this, attacker, move);
+      if (defender === this.player && outcome === 'hit') this.belt.onPlayerHit(this, hitMove);
+    }
     // A blocked melee contact freezes both bodies on the same impact tick.
     if (outcome === 'block') attacker.hitStop = Math.max(attacker.hitStop, Math.round(hitMove.hitStop * .55));
     if (outcome === 'hit') {
@@ -514,6 +569,7 @@ export class CombatWorld {
         const hpBefore = defender.hp;
         const impactDirection: 1 | -1 = projectile.vx < 0 ? -1 : projectile.vx > 0 ? 1 : projectile.owner.facing;
         const outcome = defender.receiveHit(projectile.move, projectile.owner, guarding, counter, impactDirection);
+        if (this.rules.mode === 'belt' && defender === this.player && outcome === 'hit' && !this.dummyController) this.belt.onPlayerHit(this, projectile.move);
         if (outcome === 'hit') {
           defender.syncVisualHitSequence(projectile.burstIndex, projectile.burstTotal);
           projectile.owner.addAttackReward(projectile.move);

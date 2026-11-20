@@ -3,6 +3,13 @@ export type ArtAssetKey =
   | 'prop-impact-v1'
   | 'stage-ambient-v1'
   | 'stage-props-v1'
+  | 'grunt-punk'
+  | 'grunt-knife'
+  | 'grunt-bruiser'
+  | 'grunt-kicker'
+  | 'grunt-soldier'
+  | 'grunt-thrower'
+  | 'pickups-v1'
   | 'combat-impact-atlas'
   | 'title-keyart'
   | 'roster-mural'
@@ -72,6 +79,13 @@ export const ART_ASSET_PATHS: Record<ArtAssetKey, string> = {
   'prop-impact-v1': '/art/prop-impact-v1/atlas.webp',
   'stage-ambient-v1': '/art/stage-ambient-v1/atlas.webp',
   'stage-props-v1': '/art/stage-props-v1/atlas.webp',
+  'grunt-punk': '/art/grunts-v1/punk.webp',
+  'grunt-knife': '/art/grunts-v1/knife.webp',
+  'grunt-bruiser': '/art/grunts-v1/bruiser.webp',
+  'grunt-kicker': '/art/grunts-v1/kicker.webp',
+  'grunt-soldier': '/art/grunts-v1/soldier.webp',
+  'grunt-thrower': '/art/grunts-v1/thrower.webp',
+  'pickups-v1': '/art/grunts-v1/pickups.webp',
   'stage-1': '/art/stage-backgrounds-v2/newyork.webp',
   'stage-2': '/art/stage-backgrounds-v2/hongkong.webp',
   'stage-3': '/art/stage-backgrounds-v2/japan.webp',

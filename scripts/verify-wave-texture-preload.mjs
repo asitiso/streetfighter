@@ -17,7 +17,8 @@ const idle=id=>animationSequencesFor(id,true).find(s=>s.kind==='idle'&&s.poseAut
 const input={held(){return false;},pressed(){return false;},released(){return false;}};
 const audio={playStagePulse(){},playHit(){},playParry(){}};
 function reset(mode='auto',tier='high'){textures.setMode('lite');runtimeQuality.setTier(tier);textures.setMode(mode);}
-function actors(scene){return [...new Set([scene.playerDef.id,...scene.world.enemies.map(e=>e.character.id)])];}
+// Grunts draw from grunts-v1 atlases; only roster/boss actors own animation textures.
+function actors(scene){return [...new Set([scene.playerDef.id,...scene.world.enemies.map(e=>e.character.id).filter(id=>!id.startsWith('GRUNT_'))])];}
 function prepared(scene,high=true){
  const ids=actors(scene);
  for(const id of ids){assert.equal(animations.readyCount(id),high?expected(id):0,'Current wave must prepare all motion for '+id);if(high)for(const key of [art.combatSpriteHdKey(id),art.attackAtlasHdKey(id),art.combatSpriteHqKey(id)].filter(Boolean))assert(art.isArtAssetReady(key));}

@@ -17,6 +17,8 @@ const PROP_IMPACT_ASSETS = ['/art/prop-impact-v1/atlas.webp', '/assets/render/Pr
 
 const STAGE_AMBIENT_ASSETS = ['/art/stage-ambient-v1/atlas.webp', '/assets/render/StageAmbientAssets.js'];
 
+export const BELT_GRUNT_ASSETS = ['/art/grunts-v1/punk.webp', '/art/grunts-v1/knife.webp', '/art/grunts-v1/bruiser.webp', '/art/grunts-v1/kicker.webp', '/art/grunts-v1/soldier.webp', '/art/grunts-v1/thrower.webp', '/art/grunts-v1/pickups.webp', '/assets/render/GruntSprites.js'];
+
 const STAGE_PROP_ASSETS = ['/art/stage-props-v1/atlas.webp', '/assets/render/StagePropAssets.js', '/assets/render/StagePropAtlasData.js'];
 
 export const THROW_ESCAPE_ASSETS = ['ryu','ken','chunli','alex','dudley','makoto','ibuki','yun','urien','gill'].map(id => '/art/throw-escape-v1/' + id + '.webp');
@@ -246,6 +248,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'stage-1': [
     ...THROW_ESCAPE_ASSETS,
     ...STAGE_PROP_ASSETS,
+    ...BELT_GRUNT_ASSETS,
     ...STAGE_AMBIENT_ASSETS,
     ...PROP_IMPACT_ASSETS,
     ...KNOCKDOWN_ASSETS,
@@ -257,6 +260,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'stage-2': [
     ...THROW_ESCAPE_ASSETS,
     ...STAGE_PROP_ASSETS,
+    ...BELT_GRUNT_ASSETS,
     ...STAGE_AMBIENT_ASSETS,
     ...PROP_IMPACT_ASSETS,
     ...KNOCKDOWN_ASSETS,
@@ -268,6 +272,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'stage-3': [
     ...THROW_ESCAPE_ASSETS,
     ...STAGE_PROP_ASSETS,
+    ...BELT_GRUNT_ASSETS,
     ...STAGE_AMBIENT_ASSETS,
     ...PROP_IMPACT_ASSETS,
     ...KNOCKDOWN_ASSETS,
@@ -279,6 +284,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'stage-4': [
     ...THROW_ESCAPE_ASSETS,
     ...STAGE_PROP_ASSETS,
+    ...BELT_GRUNT_ASSETS,
     ...STAGE_AMBIENT_ASSETS,
     ...PROP_IMPACT_ASSETS,
     ...KNOCKDOWN_ASSETS,
@@ -292,6 +298,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/animation-hq/urien/crouch-parry-v1.webp', '/art/animation-hq/gill/crouch-parry-v1.webp',
     ...THROW_ESCAPE_ASSETS,
     ...STAGE_PROP_ASSETS,
+    ...BELT_GRUNT_ASSETS,
     ...STAGE_AMBIENT_ASSETS,
     ...PROP_IMPACT_ASSETS,
     ...KNOCKDOWN_ASSETS,

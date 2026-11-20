@@ -6,7 +6,10 @@ import type { RenderContext, Scene } from '../core/Scene.js';
 import type { CharacterDef, SuperArtDef } from '../game/characters.js';
 import { getCharacter } from '../game/characters.js';
 import type { InputManager } from '../input/InputManager.js';
-import { CombatWorld } from '../combat/CombatWorld.js';
+import { CombatWorld, type BeltEnemySpawn } from '../combat/CombatWorld.js';
+import { GRUNTS, gruntById, gruntCharacter, type GruntKind } from '../combat/GruntLibrary.js';
+import { heldWeaponOf, PICKUP_LABELS } from '../combat/BeltSystems.js';
+import { drawGruntPortrait, drawHeldWeapon, drawItemProjectile, drawPickup } from '../render/GruntSprites.js';
 import type { CombatEvent, EnvironmentProp } from '../combat/CombatTypes.js';
 import type { Fighter } from '../combat/Fighter.js';
 import { drawPropImpact } from '../render/PropImpactAssets.js';
@@ -421,6 +424,8 @@ export class Stage1Scene implements Scene {
       else if (event.type === 'wall-bounce' || event.type === 'ground-bounce') this.audio.playHit(Math.max(150, event.power));
       else if (event.type === 'ko') this.audio.playKo?.();
       else if (event.type === 'enemy-collision' || event.type === 'wall-impact' || event.type === 'prop-break') this.audio.playHit(Math.max(90, event.power));
+      else if (event.type === 'pickup') this.audio.playUiConfirm?.();
+      else if (event.type === 'grab') this.audio.playThrowEscape?.();
       if (event.power > 0 && event.type !== 'block') this.hitPulse = Math.max(this.hitPulse, Math.min(12, Math.round(event.power / 18)));
     }
     if (this.hitPulse > 0) this.hitPulse -= 1;
@@ -489,6 +494,7 @@ export class Stage1Scene implements Scene {
     const focusedEnemy = this.world.rules.mode === 'belt' ? this.world.focusedEnemy : null;
     this.drawFighterContrastFields(ctx, fighters);
     this.drawCloseSpacingSeparation(ctx, fighters);
+    if (this.world.rules.mode === 'belt') for (const pickup of this.world.belt.pickups) drawPickup(ctx, pickup, this.time);
     for (let index = 0; index < fighters.length; index += 1) {
       const fighter = fighters[index]!;
       // Ground depth determines occlusion; jumping keeps the same floor lane.
@@ -510,6 +516,7 @@ export class Stage1Scene implements Scene {
       if (!heldFinalKo || !drawGroundedKoCinematic(ctx, fighter, 180)) {
         drawCombatFighter(ctx, fighter, bodyAlpha, this.time + index * .17);
       }
+      if (fighter === this.world.player) drawHeldWeapon(ctx, fighter, fighter.previousX + (fighter.x - fighter.previousX) * bodyAlpha, fighter.previousY + (fighter.y - fighter.previousY) * bodyAlpha);
       this.drawFighterRimLight(ctx, fighter);
     }
     this.drawProps(ctx, props, propIndex);
@@ -1058,122 +1065,49 @@ export class Stage1Scene implements Scene {
     this.world.rules.arenaTop = this.stageId === 2 ? (index === 1 ? 420 : 405) : this.stageId === 3 ? (index === 2 ? 410 : 398) : this.stageId === 4 ? (index === 2 ? 428 : 408) : this.stageId === 5 ? (index === 2 ? 420 : 404) : 394;
     this.world.rules.arenaBottom = this.stageId === 2 ? (index === 1 ? 558 : 575) : this.stageId === 3 ? (index === 2 ? 560 : 578) : this.stageId === 4 ? (index === 2 ? 552 : 574) : this.stageId === 5 ? (index === 2 ? 558 : 572) : 580;
     if (index > 0) this.world.player.x = Math.max(this.world.player.x, base + 170);
+    this.world.replaceEnemies(this.beltWaveRoster(index, base));
+  }
 
-    if (this.stageId === 5) {
-      if (index === 0) {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('URIEN', 'FACILITY ENFORCER', '#596a8e', '#232b39', '#d8bb5e', 1.05, 1.07), archetype: 'heavy', x: base + 780, y: 455, hp: 470 },
-          { character: this.enemyVariant('RYU', 'SOCIETY TECHNICIAN', '#c9cfd6', '#38445a', '#6bd2e8', .98, 1), archetype: 'technical', x: base + 960, y: 548, hp: 430 },
-          { character: this.enemyVariant('KEN', 'SECURITY STRIKER', '#6a3441', '#202735', '#d6b557', 1.01, 1.02), archetype: 'mma', x: base + 1090, y: 420, hp: 410 },
-        ]);
-      } else if (index === 1) {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('URIEN', 'ADVANCED ENFORCER', '#576a92', '#242a38', '#d7bd65', 1.08, 1.1), archetype: 'heavy', x: base + 690, y: 440, hp: 560 },
-          { character: this.enemyVariant('IBUKI', 'AGILE OPERATIVE', '#756354', '#39404c', '#d45155', .93, .88), archetype: 'agile', x: base + 820, y: 560, hp: 410 },
-          { character: this.enemyVariant('RYU', 'PARRY SPECIALIST', '#cfd4d8', '#33445b', '#72d8ee', .99, 1), archetype: 'technical', x: base + 950, y: 420, hp: 500 },
-          { character: this.enemyVariant('ALEX', 'CAPTURE UNIT', '#3f5560', '#b98c65', '#e0b84e', 1.08, 1.13), archetype: 'grappler', x: base + 1080, y: 555, hp: 590 },
-        ]);
-      } else {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('URIEN', 'ELITE ENFORCER', '#536b98', '#222936', '#ebc861', 1.1, 1.12), archetype: 'technical', x: base + 835, y: 450, hp: 880 },
-          { character: this.enemyVariant('KEN', 'ELITE GUARD', '#653441', '#202632', '#e0ba55', 1.03, 1.04), archetype: 'mma', x: base + 1035, y: 545, hp: 760 },
-        ]);
-      }
-      return;
-    }
+  /**
+   * Rank-and-file grunts per stage (never the playable roster): each stage introduces a new type
+   * and the last area of each stage is an elite pair, Final Fight style.
+   */
+  private beltWaveRoster(index: number, base: number): BeltEnemySpawn[] {
+    const g = (kind: GruntKind, dx: number, y: number, elite = false): BeltEnemySpawn => this.gruntSpawn(kind, base + dx, y, elite);
+    const rosters: Record<1 | 2 | 3 | 4 | 5, BeltEnemySpawn[][]> = {
+      1: [
+        [g('punk', 790, 478), g('punk', 960, 535), g('thrower', 1090, 430)],
+        [g('punk', 700, 455), g('thrower', 820, 550), g('punk', 930, 425), g('punk', 1030, 575), g('knife', 1100, 500)],
+        [g('bruiser', 850, 455, true), g('punk', 1030, 545, true)],
+      ],
+      2: [
+        [g('knife', 790, 455), g('kicker', 970, 548), g('knife', 1080, 420)],
+        [g('knife', 115, 430), g('kicker', 835, 555), g('punk', 960, 470), g('thrower', 1070, 545), g('knife', 1120, 405)],
+        [g('kicker', 860, 450, true), g('knife', 1040, 548, true)],
+      ],
+      3: [
+        [g('kicker', 790, 452), g('punk', 970, 548), g('kicker', 1090, 420)],
+        [g('bruiser', 700, 445), g('kicker', 835, 560), g('thrower', 950, 420), g('knife', 1060, 560)],
+        [g('bruiser', 850, 448, true), g('kicker', 1035, 545, true)],
+      ],
+      4: [
+        [g('bruiser', 785, 455), g('soldier', 965, 548), g('punk', 1090, 420)],
+        [g('soldier', 690, 440), g('bruiser', 825, 560), g('knife', 945, 420), g('kicker', 1075, 555)],
+        [g('soldier', 840, 450, true), g('bruiser', 1035, 545, true)],
+      ],
+      5: [
+        [g('soldier', 780, 455), g('soldier', 960, 548), g('thrower', 1090, 420)],
+        [g('soldier', 690, 440), g('kicker', 820, 560), g('knife', 950, 420), g('bruiser', 1080, 555)],
+        [g('soldier', 835, 450, true), g('bruiser', 1035, 545, true)],
+      ],
+    };
+    return rosters[this.stageId][index] ?? rosters[this.stageId][0]!;
+  }
 
-    if (this.stageId === 3) {
-      if (index === 0) {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('MAKOTO', 'KARATE FIGHTER', '#eee4d2', '#b99042', '#bf3d3c', .94, .92), archetype: 'karate', x: base + 790, y: 452, hp: 350 },
-          { character: this.enemyVariant('RYU', 'DOJO FIGHTER', '#d9d5cf', '#6e2930', '#d9aa43', .98, 1), archetype: 'technical', x: base + 970, y: 548, hp: 370 },
-          { character: this.enemyVariant('IBUKI', 'FAST FIGHTER', '#665b50', '#3a3540', '#cf4d4d', .92, .86), archetype: 'agile', x: base + 1090, y: 420, hp: 315 },
-        ]);
-      } else if (index === 1) {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('MAKOTO', 'COUNTER KARATE', '#efe7d7', '#c19b48', '#bd3f3f', .94, .92), archetype: 'technical', x: base + 700, y: 445, hp: 410 },
-          { character: this.enemyVariant('ALEX', 'DOJO GRAPPLER', '#44594e', '#c08e60', '#df5448', 1.05, 1.1), archetype: 'grappler', x: base + 835, y: 560, hp: 470 },
-          { character: this.enemyVariant('RYU', 'TECHNICAL FIGHTER', '#d7d4ce', '#672a31', '#e2b44a', .99, 1), archetype: 'technical', x: base + 950, y: 420, hp: 430 },
-          { character: this.enemyVariant('YUN', 'FAST FIGHTER', '#315f87', '#dfd1ab', '#d9ad3e', .94, .9), archetype: 'agile', x: base + 1060, y: 560, hp: 340 },
-        ]);
-      } else {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('MAKOTO', 'ELITE DOJO MASTER', '#f0e9db', '#a77e35', '#bc3838', .96, .94), archetype: 'technical', x: base + 850, y: 448, hp: 760 },
-          { character: this.enemyVariant('RYU', 'ELITE COUNTER FIGHTER', '#d4d0c9', '#5e252d', '#e0b24b', 1, 1.02), archetype: 'technical', x: base + 1035, y: 545, hp: 710 },
-        ]);
-      }
-      return;
-    }
-
-    if (this.stageId === 4) {
-      if (index === 0) {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('DUDLEY', 'BOXER', '#ddd4c2', '#294a3f', '#bd433f', 1.02, 1.02), archetype: 'boxer', x: base + 785, y: 455, hp: 390 },
-          { character: this.enemyVariant('ALEX', 'HEAVYWEIGHT', '#454b5e', '#bd895b', '#dbb346', 1.1, 1.14), archetype: 'heavy', x: base + 965, y: 548, hp: 520 },
-          { character: this.enemyVariant('KEN', 'TECHNICAL BOXER', '#6f333b', '#24232b', '#e4bd4e', 1.02, 1.02), archetype: 'technical', x: base + 1090, y: 420, hp: 410 },
-        ]);
-      } else if (index === 1) {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('DUDLEY', 'TECHNICAL BOXER', '#d9d1be', '#24483d', '#c04442', 1.02, 1.03), archetype: 'technical', x: base + 690, y: 440, hp: 450 },
-          { character: this.enemyVariant('ALEX', 'GRAPPLER', '#424b57', '#c18b5c', '#d84f45', 1.08, 1.12), archetype: 'grappler', x: base + 825, y: 560, hp: 520 },
-          { character: this.enemyVariant('KEN', 'MMA FIGHTER', '#703640', '#25232b', '#e4b84a', 1.01, 1.02), archetype: 'mma', x: base + 945, y: 420, hp: 470 },
-          { character: this.enemyVariant('YUN', 'CAGE RUSHDOWN', '#2e5c84', '#ded0aa', '#e0b641', .95, .91), archetype: 'agile', x: base + 1075, y: 555, hp: 390 },
-        ]);
-      } else {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('DUDLEY', 'ELITE PRIZEFIGHTER', '#dfd7c6', '#24483e', '#c44a43', 1.04, 1.04), archetype: 'technical', x: base + 840, y: 450, hp: 790 },
-          { character: this.enemyVariant('ALEX', 'ELITE MMA HEAVY', '#3f4855', '#c28f61', '#e0b64b', 1.12, 1.16), archetype: 'mma', x: base + 1035, y: 545, hp: 830 },
-        ]);
-      }
-      return;
-    }
-
-    if (this.stageId === 2) {
-      if (index === 0) {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('YUN', 'FAST STRIKER', '#254f79', '#e1d2aa', '#f0c44b', .94, .88), archetype: 'agile', x: base + 790, y: 455, hp: 300 },
-          { character: this.enemyVariant('CHUNLI', 'KUNG-FU FIGHTER', '#315ba0', '#e8dfc8', '#ecbf4b', .94, .9), archetype: 'karate', x: base + 970, y: 548, hp: 320 },
-          { character: this.enemyVariant('IBUKI', 'AGILE FIGHTER', '#765d48', '#443944', '#df5c56', .92, .86), archetype: 'agile', x: base + 1080, y: 420, hp: 280 },
-        ]);
-      } else if (index === 1) {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('YUN', 'FAST STRIKER', '#2f669b', '#e9dbb5', '#e6bd47', .94, .88), archetype: 'agile', x: base + 115, y: 430, hp: 330 },
-          { character: this.enemyVariant('MAKOTO', 'KUNG-FU FIGHTER', '#eee4d2', '#d0a94c', '#c84342', .92, .9), archetype: 'karate', x: base + 835, y: 555, hp: 360 },
-          { character: this.enemyVariant('CHUNLI', 'KICK FIGHTER', '#355eaa', '#eee6d4', '#efc94f', .94, .9), archetype: 'kick', x: base + 960, y: 470, hp: 340 },
-          { character: this.enemyVariant('ALEX', 'THROW FIGHTER', '#415e50', '#c5905e', '#df5548', 1.04, 1.08), archetype: 'grappler', x: base + 1070, y: 565, hp: 430 },
-          { character: this.enemyVariant('RYU', 'RANGED FIGHTER', '#d9d5cf', '#6e2930', '#edbd4f', .98, 1), archetype: 'ranged', x: base + 1120, y: 405, hp: 330 },
-        ]);
-      } else {
-        this.world.replaceEnemies([
-          { character: this.enemyVariant('YUN', 'ELITE RUSHDOWN', '#24547f', '#e7d9b5', '#f1c948', .95, .9), archetype: 'agile', x: base + 860, y: 450, hp: 650 },
-          { character: this.enemyVariant('ALEX', 'ELITE THROW FIGHTER', '#38594c', '#c69160', '#e15b4b', 1.08, 1.12), archetype: 'grappler', x: base + 1040, y: 548, hp: 720 },
-        ]);
-      }
-      return;
-    }
-
-    if (index === 0) {
-      this.world.replaceEnemies([
-        { character: this.enemyVariant('RYU', 'STREET BRAWLER', '#6d5141', '#27232a', '#d7a55e', .98, 1.02), archetype: 'brawler', x: base + 790, y: 478, hp: 280 },
-        { character: this.enemyVariant('DUDLEY', 'BOXER', '#d8d0bd', '#315447', '#c94b43', 1.02, 1.02), archetype: 'boxer', x: base + 960, y: 535, hp: 300 },
-        { character: this.enemyVariant('YUN', 'KICK FIGHTER', '#375f80', '#ded1aa', '#d4a83f', .94, .9), archetype: 'kick', x: base + 1090, y: 430, hp: 270 },
-      ]);
-      return;
-    }
-    if (index === 1) {
-      this.world.replaceEnemies([
-        { character: this.enemyVariant('RYU', 'STREET BRAWLER', '#6d5141', '#27232a', '#d7a55e', .98, 1.02), archetype: 'brawler', x: base + 700, y: 455, hp: 310 },
-        { character: this.enemyVariant('DUDLEY', 'BOXER', '#d8d0bd', '#315447', '#c94b43', 1.02, 1.02), archetype: 'boxer', x: base + 820, y: 550, hp: 330 },
-        { character: this.enemyVariant('ALEX', 'WRESTLER', '#494f66', '#c08c5f', '#e2b950', 1.08, 1.11), archetype: 'grappler', x: base + 930, y: 425, hp: 390 },
-        { character: this.enemyVariant('YUN', 'KICK FIGHTER', '#375f80', '#ded1aa', '#d4a83f', .94, .9), archetype: 'kick', x: base + 1030, y: 575, hp: 290 },
-        { character: this.enemyVariant('KEN', 'HEAVY BRAWLER', '#74353d', '#25222a', '#e0ba5d', 1.06, 1.08), archetype: 'heavy', x: base + 1100, y: 500, hp: 440 },
-      ]);
-      return;
-    }
-    this.world.replaceEnemies([
-      { character: this.enemyVariant('ALEX', 'ELITE GRAPPLER', '#334d46', '#c49561', '#efcb5b', 1.1, 1.14), archetype: 'grappler', x: base + 850, y: 455, hp: 620 },
-      { character: this.enemyVariant('KEN', 'ELITE STRIKER', '#8a323d', '#211f29', '#f0c755', 1.04, 1.04), archetype: 'boxer', x: base + 1030, y: 545, hp: 560 },
-    ]);
+  private gruntSpawn(kind: GruntKind, x: number, y: number, elite: boolean): BeltEnemySpawn {
+    const def = GRUNTS[kind];
+    const hp = Math.round(def.hp * (1 + (this.stageId - 1) * .12) * (elite ? 1.65 : 1));
+    return { character: gruntCharacter(kind, elite ? `ELITE ${def.name}` : def.name, elite ? 1.06 : 1), archetype: def.archetype, x, y, hp };
   }
 
   private seedStageProps(): void {
@@ -1249,11 +1183,6 @@ export class Stage1Scene implements Scene {
     ctx.fillText(this.beltWave === 1 ? (this.stageId === 2 ? 'NIGHT MARKET RUSH' : this.stageId === 3 ? 'PARRY TEST' : this.stageId === 4 ? 'UNDERGROUND QUALIFIER' : this.stageId === 5 ? 'SECURITY LOCKDOWN' : 'THE CROWD CLOSES IN') : (this.stageId === 3 ? 'DOJO ELITES' : this.stageId === 4 ? 'FIGHT CLUB ELITES' : this.stageId === 5 ? 'SOCIETY ELITES' : 'ELITE FIGHTERS'), 640, 367);
     ctx.fillStyle = `rgba(255,255,255,${alpha * .6})`; ctx.font = '700 12px Arial, sans-serif';
     ctx.fillText('KEEP MOVING • CONTROL THE LANE • PICK YOUR OPENING', 640, 396);
-  }
-
-  private enemyVariant(baseId: string, name: string, primary: string, secondary: string, accent: string, heightScale: number, widthScale: number): CharacterDef {
-    const base = getCharacter(baseId);
-    return { ...base, name, primary, secondary, accent, heightScale, widthScale };
   }
 
   private drawProps(ctx: CanvasRenderingContext2D, props: readonly EnvironmentProp[] = [...this.world.props].sort((a, b) => a.y - b.y), start = 0): void {
@@ -1608,6 +1537,7 @@ export class Stage1Scene implements Scene {
   }
 
   private drawHudPortrait(ctx: CanvasRenderingContext2D, character: CharacterDef, x: number, y: number, size: number, right = false, accent?: string): void {
+    if (gruntById(character.id) && drawGruntPortrait(ctx, character, x, y, size, accent ?? character.accent)) return;
     const key = characterPortraitKey(character.id);
     const image = key ? artImage(key) : null;
     ctx.save();
@@ -1644,6 +1574,20 @@ export class Stage1Scene implements Scene {
     ctx.restore();
   }
 
+  private drawBeltCallout(ctx: CanvasRenderingContext2D, event: CombatEvent): void {
+    const p = Math.max(0, Math.min(1, event.ttl / 40));
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, p * 1.6);
+    ctx.textAlign = 'center';
+    ctx.font = event.type === 'grab' ? '900 24px Impact, sans-serif' : '900 18px Arial Black, sans-serif';
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(8,10,16,.85)';
+    const y = event.y - (1 - p) * 26;
+    ctx.strokeText(event.label ?? '', event.x, y);
+    ctx.fillStyle = event.color ?? (event.type === 'grab' ? '#ffcf5a' : '#ffffff');
+    ctx.fillText(event.label ?? '', event.x, y);
+    ctx.restore();
+  }
+
   private drawFocusedEnemyMarker(ctx: CanvasRenderingContext2D, fighter: Fighter): void {
     ctx.save(); ctx.strokeStyle = 'rgba(255,215,115,.86)'; ctx.fillStyle = '#ffd773'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.ellipse(fighter.x, fighter.y + 3, 28, 8, 0, 0, Math.PI * 2); ctx.stroke();
@@ -1664,6 +1608,21 @@ export class Stage1Scene implements Scene {
     ctx.fillStyle = 'rgba(255,255,255,.42)'; ctx.font = '800 8px ui-monospace, monospace'; ctx.fillText(`${presentation.locationCode} // BELT ACTION`, 104, 62);
     this.drawHudHp(ctx, 104, 69, Math.max(210, layout.playerPanelWidth - 55), player.hp / player.maxHp, presentation.hudAccent, false);
     this.drawSuperMeter(ctx, player, 104, 93, 255, false, '#51c7f4');
+    const belt = this.world.belt;
+    ctx.textAlign = 'right'; ctx.fillStyle = '#ffd84a'; ctx.font = '900 16px Impact, sans-serif';
+    ctx.fillText('SCORE ' + String(belt.score).padStart(7, '0'), layout.playerPanelWidth + 88, 49);
+    const weapon = heldWeaponOf(player);
+    if (weapon) {
+      ctx.fillStyle = '#e7f2ff'; ctx.font = '900 10px Arial, sans-serif';
+      ctx.fillText(PICKUP_LABELS[weapon.kind] + ' ' + weapon.durability + '/' + weapon.maxDurability + '  •  HK TOSS', layout.playerPanelWidth + 88, 62);
+    }
+    if (belt.hold && !belt.hold.byPlayer) {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#ff7a5c'; ctx.font = '900 22px Impact, sans-serif';
+      ctx.fillText('MASH TO ESCAPE!  ' + Math.min(100, Math.round(belt.hold.mash / 12 * 100)) + '%', 640, 150);
+    } else if (belt.hold?.byPlayer) {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#ffe39e'; ctx.font = '900 14px Arial Black, sans-serif';
+      ctx.fillText('ATTACK: KNEE   •   FWD+ATTACK: THROW   •   BACK+ATTACK: BACK DROP', 640, 150);
+    }
 
     const threatX = 1005, target = this.world.focusedEnemy;
     ctx.fillStyle = 'rgba(7,10,15,.9)'; ctx.beginPath(); ctx.roundRect(threatX, 18, 249, 92, 12); ctx.fill();
@@ -1779,6 +1738,7 @@ export class Stage1Scene implements Scene {
 
   private drawProjectiles(ctx: CanvasRenderingContext2D): void {
     for (const projectile of this.world.projectiles) {
+      if (drawItemProjectile(ctx, projectile, this.time)) continue;
       ctx.save();
       ctx.translate(projectile.x, projectile.y);
       ctx.globalCompositeOperation = 'screen';
@@ -1845,6 +1805,7 @@ export class Stage1Scene implements Scene {
   private drawFx(ctx: CanvasRenderingContext2D): void {
     for (const event of this.world.events) {
       if (drawPropImpact(ctx, event)) continue;
+      if (event.type === 'pickup' || event.type === 'grab') { this.drawBeltCallout(ctx, event); continue; }
       const fx = fxPolishProfile(event);
       const rawP = Math.max(0, Math.min(1, event.ttl / fx.baseTtl));
       const p = Math.pow(rawP, fx.fadePower);
@@ -2183,7 +2144,10 @@ export class Stage1Scene implements Scene {
   }
 
   private prepareCombatTextures(): void {
-    const opponentIds = this.world.enemies.map((enemy) => enemy.character.id);
+    // Grunts use their own grunts-v1 atlases, never the playable texture slots.
+    const gruntKinds = [...new Set(this.world.enemies.map((enemy) => gruntById(enemy.character.id)?.kind).filter((kind): kind is GruntKind => !!kind))];
+    if (gruntKinds.length) preloadArtAssets([...gruntKinds.map((kind) => `grunt-${kind}` as const), 'pickups-v1']);
+    const opponentIds = this.world.enemies.map((enemy) => enemy.character.id).filter((id) => !gruntById(id));
     characterTextureManager.focusCharacter(this.playerDef.id, ...opponentIds);
     if (characterTextureManager.wantsHd()) {
       for (const id of new Set([this.playerDef.id, ...opponentIds])) {

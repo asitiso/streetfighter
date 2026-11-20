@@ -1,5 +1,6 @@
 import type { MoveButton, MoveData, MoveKind } from './CombatTypes.js';
 import { combatProfileFor } from './CharacterCombatProfiles.js';
+import { gruntNormalFor, gruntSpecialsFor } from './GruntLibrary.js';
 
 const normal = (id: string, label: string, button: MoveButton, startup: number, active: number, recovery: number, damage: number, reach: number, level: 'high' | 'mid' | 'low', color: string, cancelIntoSpecial = false): MoveData => ({
   id, label, button, kind: 'melee', startup, active, recovery, damage,
@@ -318,12 +319,14 @@ export function superArtMoveFor(characterId: string, artId: 1 | 2 | 3, gaugeCost
 }
 
 export function specialMovesFor(characterId: string): CharacterSpecialSet {
-  return SPECIALS[characterId] ?? SPECIALS.RYU!;
+  return gruntSpecialsFor(characterId) ?? SPECIALS[characterId] ?? SPECIALS.RYU!;
 }
 
 export const SPECIAL_MOVES: readonly MoveData[] = Object.values(SPECIALS.RYU!);
 
 export function normalFor(button: MoveButton, crouching = false, characterId?: string): MoveData {
+  const grunt = characterId ? gruntNormalFor(characterId, button) : null;
+  if (grunt) return grunt;
   const list = crouching ? CROUCH_MOVES : BASE_MOVES;
   const base = list.find((move) => move.button === button) ?? list[0]!;
   return characterId ? characterNormal(base, characterId) : base;

@@ -29,7 +29,7 @@ for(const player of roster)for(const stage of [1,2,3,4,5]){
  textures.setMode('lite');textures.setMode('auto');
  const scene=new Stage1Scene(input,audio,player,player.superArts[0],stage);
  scene.spawnBeltWave(1);await scenes.setScene(scene);
- const actors=[...new Set([player.id,...scene.world.enemies.map(e=>e.character.id)])];
+ const actors=[...new Set([player.id,...scene.world.enemies.map(e=>e.character.id).filter(id=>!id.startsWith('GRUNT_'))])];
  assert(actors.every(id=>animations.readyCount(id)>0));
  const handles=activeHigh(),writes=storageWrites;
  await scenes.setScene(title());

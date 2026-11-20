@@ -1,4 +1,5 @@
 import { throwAttackerSample } from './ThrowAttackerProfiles.js';
+import { drawGruntSprite } from './GruntSprites.js';
 import { throwVictimSample, throwVictimHandoffSample, releasedThrowSample } from './ThrowVictimProfiles.js';
 import { superHitSample, superHitHandoffSample } from './SuperHitProfiles.js';
 import { airFallSample } from './AirFallProfiles.js';
@@ -910,6 +911,7 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
     ctx.scale(transition.scaleX, transition.scaleY);
     ctx.translate(-x, -y);
   }
+  if (drawGruntSprite(ctx, fighter, x, y)) { ctx.restore(); return; }
   if (drawAuthoredThrowVictimHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawAuthoredSuperHitHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawAuthoredWallBounceHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }

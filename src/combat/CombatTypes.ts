@@ -63,7 +63,7 @@ export interface MoveData {
 }
 
 export interface CombatEvent {
-  type: 'hit' | 'air-hit' | 'command-hit' | 'target-hit' | 'super-flash' | 'super-impact' | 'counter' | 'block' | 'parry' | 'red-parry' | 'throw-escape' | 'enemy-collision' | 'wall-impact' | 'prop-hit' | 'prop-break' | 'boss-warning' | 'boss-burst' | 'juggle' | 'wall-bounce' | 'ground-bounce' | 'ko';
+  type: 'hit' | 'air-hit' | 'command-hit' | 'target-hit' | 'super-flash' | 'super-impact' | 'counter' | 'block' | 'parry' | 'red-parry' | 'throw-escape' | 'enemy-collision' | 'wall-impact' | 'prop-hit' | 'prop-break' | 'boss-warning' | 'boss-burst' | 'juggle' | 'wall-bounce' | 'ground-bounce' | 'ko' | 'pickup' | 'grab';
   x: number;
   y: number;
   power: number;
