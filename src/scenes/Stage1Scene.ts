@@ -1,5 +1,6 @@
 import type { AudioManager } from '../core/AudioManager.js';
 import type { TrainingSession } from '../training/TrainingSession.js';
+import type { VersusSession, VersusWinner } from '../versus/VersusSession.js';
 import { stageAiLevel } from '../combat/AiDifficulty.js';
 import type { RenderContext, Scene } from '../core/Scene.js';
 import type { CharacterDef, SuperArtDef } from '../game/characters.js';
@@ -73,6 +74,8 @@ export class Stage1Scene implements Scene {
   private paused = false;
   /** Set by startTraining(): a 1v1 sandbox with no timer, rounds or boss scripts. */
   private training: TrainingSession | null = null;
+  /** Set by startVersus(): local 2-player duel, P2 drives the opponent. */
+  private versus: VersusSession | null = null;
   // Best-of-3 duel rounds (Street Fighter III rules): first to ROUNDS_TO_WIN round wins takes the match.
   private duelRound = 1;
   private playerRoundWins = 0;
@@ -159,6 +162,60 @@ export class Stage1Scene implements Scene {
   }
 
   get trainingSession(): TrainingSession | null { return this.training; }
+  get versusSession(): VersusSession | null { return this.versus; }
+
+  /** Local VERSUS: P1 vs P2 on this stage, best-of-3 with the regular round system, no boss scripts. */
+  startVersus(session: VersusSession): void {
+    this.versus = session;
+    this.world = this.buildVersusWorld();
+    this.phase = 'duel';
+    this.introFrames = 0;
+    this.stageTime = 99;
+    this.cameraX = 0;
+    this.bossPatternCooldown = Number.MAX_SAFE_INTEGER;
+    this.beginDuelMatch();
+    const portrait = characterPortraitKey(session.selection.p2.id);
+    if (portrait) preloadArtAssets([portrait]);
+    this.prepareCombatTextures();
+  }
+
+  private buildVersusWorld(): CombatWorld {
+    const { p1, p1Art, p2, p2Art } = this.versus!.selection;
+    const world = new CombatWorld(p1, p2, 'duel', p1Art, p2Art);
+    world.enemyInput = this.versus!.p2;
+    world.enemy.setAiLevel(0);
+    world.enemy.setStunEnabled(true);
+    return world;
+  }
+
+  private prepareVersusRound(): void {
+    this.world = this.buildVersusWorld();
+    this.stageTime = 99;
+    this.cameraX = 0;
+    this.cameraFocusFrames = 40;
+    this.cameraFocusX = 640;
+    this.cameraFocusY = this.world.player.y - 105;
+    this.cameraFocusZoom = 1.04;
+    this.prepareCombatTextures();
+  }
+
+  /** Match decided in VERSUS: hand off to the session's win screen (rematch / character select / title). */
+  private finishVersusMatch(reason: RoundEndReason): void {
+    const p1 = this.playerRoundWins, p2 = this.enemyRoundWins;
+    const winner: VersusWinner = p1 > p2 ? 'p1' : p2 > p1 ? 'p2' : 'draw';
+    this.world.projectiles.length = 0;
+    this.roundBreakFrames = 0;
+    this.roundAnnounceFrames = 0;
+    this.onPostCombatChange?.(true);
+    const focus = winner === 'p2' ? this.world.enemy : this.world.player;
+    this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 90);
+    this.cameraFocusX = winner === 'draw' ? 640 : focus.x;
+    this.cameraFocusY = focus.y - 110;
+    this.cameraFocusZoom = 1.08;
+    this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 90);
+    this.versus!.finish(winner, p1, p2, reason === 'time' ? 'TIME OVER' : reason === 'double-ko' ? 'DOUBLE K.O.' : 'K.O.');
+    this.audio.playStageClear?.(false);
+  }
 
   enter(): void {
     this.onPostCombatChange?.(false);
@@ -224,13 +281,22 @@ export class Stage1Scene implements Scene {
       }
       return;
     }
+    if (this.versus?.result) {
+      const v = this.versus, celebrate = v.resultFrames >= 40;
+      this.advancePostCombatEffects();
+      this.updateKnockedOutFighters();
+      this.settleDuelFighter(this.world.player, this.world.enemy, celebrate && v.result!.winner === 'p1');
+      this.settleDuelFighter(this.world.enemy, this.world.player, celebrate && v.result!.winner === 'p2');
+      v.updateResult(this.input);
+      return;
+    }
     if (this.training) {
       if (this.input.pressed('start')) { this.training.toggleMenu(); this.input.resetCommandHistory?.(); this.onPauseChange?.(this.training.menuOpen); return; }
       if (this.training.menuOpen) { this.training.updateMenu(this.input); if (!this.training.menuOpen) this.onPauseChange?.(false); return; }
       if (this.input.pressed('back')) { this.training.resetPositions(); return; }
     }
     const pauseAllowed = this.introFrames <= 0 && (this.phase === 'belt' || this.phase === 'duel' || this.phase === 'final-duel');
-    if (pauseAllowed && this.input.pressed('start')) {
+    if (pauseAllowed && (this.input.pressed('start') || !!this.versus?.p2.pressed('start'))) {
       this.paused = !this.paused;
       this.onPauseChange?.(this.paused);
       this.input.resetCommandHistory?.();
@@ -332,8 +398,8 @@ export class Stage1Scene implements Scene {
     this.world.update(this.input, tick);
     this.playStunCues();
     this.updateCamera();
-    if (!combatFrozen && !this.training && this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();
-    if (!combatFrozen && !this.training && this.phase === 'final-duel') { this.updateGillPhase(); this.updateGillPattern(); }
+    if (!combatFrozen && !this.training && !this.versus && this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();
+    if (!combatFrozen && !this.training && !this.versus && this.phase === 'final-duel') { this.updateGillPhase(); this.updateGillPattern(); }
     if (this.bossPatternFlash > 0) this.bossPatternFlash -= 1;
     if (this.gillPhaseBanner > 0) this.gillPhaseBanner -= 1;
     for (const event of this.world.events) {
@@ -460,6 +526,7 @@ export class Stage1Scene implements Scene {
     this.drawSuperOverlay(ctx);
     this.drawHud(ctx);
     this.training?.render(ctx);
+    this.versus?.render(ctx);
     this.drawIntro(ctx);
     this.drawWaveCard(ctx);
     this.drawAdvancePrompt(ctx);
@@ -736,6 +803,7 @@ export class Stage1Scene implements Scene {
     this.roundOneBannerFrames = 0;
     const playerMatch = this.playerRoundWins >= ROUNDS_TO_WIN;
     const enemyMatch = this.enemyRoundWins >= ROUNDS_TO_WIN;
+    if (this.versus && (playerMatch || enemyMatch || this.duelRound >= MAX_DUEL_ROUNDS)) { this.finishVersusMatch(reason); return; }
     // A draw that hands both fighters match point, or running out of rounds, is a DRAW GAME: the challenger loses.
     if (enemyMatch || (!playerMatch && this.duelRound >= MAX_DUEL_ROUNDS)) {
       if (reason === 'time') this.enterTimeOverDefeat();
@@ -778,7 +846,7 @@ export class Stage1Scene implements Scene {
     const playerGauge = this.world.player.superGauge;
     const enemyGauge = this.world.enemy.superGauge;
     this.duelRound += 1;
-    if (this.phase === 'final-duel') this.prepareFinalDuel(); else this.prepareDuel();
+    if (this.versus) this.prepareVersusRound(); else if (this.phase === 'final-duel') this.prepareFinalDuel(); else this.prepareDuel();
     const player = this.world.player;
     const enemy = this.world.enemy;
     player.hp = player.maxHp;
@@ -786,6 +854,7 @@ export class Stage1Scene implements Scene {
     player.superGauge = Math.min(player.superGaugeMax, playerGauge);
     enemy.superGauge = Math.min(enemy.superGaugeMax, Math.max(enemy.superGauge, enemyGauge));
     this.input.resetCommandHistory?.();
+    this.versus?.p2.resetCommandHistory();
     this.roundAnnounceFrames = ROUND_ANNOUNCE_FRAMES;
   }
 
@@ -915,7 +984,8 @@ export class Stage1Scene implements Scene {
     if (this.roundBreakFrames > 0) {
       const elapsed = ROUND_BREAK_FRAMES - this.roundBreakFrames;
       const title = this.lastRoundReason === 'time' ? 'TIME OVER' : this.lastRoundReason === 'double-ko' ? 'DOUBLE K.O.' : 'K.O.';
-      const winnerName = this.lastRoundWinner === 'player' ? this.world.player.character.name : this.lastRoundWinner === 'enemy' ? this.world.enemy.character.name : '';
+      const tag = (side: 'P1' | 'P2') => this.versus ? `${side} ` : '';
+      const winnerName = this.lastRoundWinner === 'player' ? tag('P1') + this.world.player.character.name : this.lastRoundWinner === 'enemy' ? tag('P2') + this.world.enemy.character.name : '';
       const subtitle = elapsed < 45 ? '' : this.lastRoundWinner === 'draw' ? 'DRAW' : `${winnerName} WINS${this.lastRoundPerfect ? ' • PERFECT' : ''}`;
       const pop = Math.min(1, elapsed / 8);
       this.drawRoundBanner(ctx, title, subtitle, Math.min(pop, this.roundBreakFrames / 14), 1.25 - pop * .25, this.lastRoundWinner === 'enemy' ? '#ff6f63' : '#ffd34d');
@@ -3331,7 +3401,7 @@ export class Stage1Scene implements Scene {
     ctx.beginPath(); ctx.roundRect(22, 672, 1236, 32, 10); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.8)';
     ctx.font = '700 13px Arial, sans-serif';
-    ctx.fillText(this.world.rules.mode === 'duel' ? 'DUEL  •  ← → WALK  •  ↑ / SPACE JUMP  •  ↓ CROUCH' : 'BELT  •  ← → ADVANCE  •  ↑ ↓ DEPTH  •  SPACE / JUMP', 38, 693);
+    ctx.fillText(this.versus ? 'VERSUS  •  P1 WASD + J K L / U I O  •  P2 ARROWS + NUM 4 5 6 / 7 8 9' : this.world.rules.mode === 'duel' ? 'DUEL  •  ← → WALK  •  ↑ / SPACE JUMP  •  ↓ CROUCH' : 'BELT  •  ← → ADVANCE  •  ↑ ↓ DEPTH  •  SPACE / JUMP', 38, 693);
     ctx.textAlign = 'right';
     ctx.fillStyle = '#f1bd51';
     ctx.fillText('START / P  •  MOVE LIST & PAUSE', 1242, 693);

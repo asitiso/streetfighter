@@ -24,6 +24,7 @@ export class TrainingSelectScene implements Scene {
     private readonly onStart: (selection: TrainingSelection) => void | Promise<void>,
     private readonly onBack: () => void | Promise<void>,
     initial?: Partial<TrainingSelection>,
+    private readonly onSelectionModeChange?: (active: boolean) => void,
   ) {
     this.playerIndex = Math.max(0, CHARACTERS.findIndex((c) => c.id === (initial?.player?.id ?? 'RYU')));
     this.dummyIndex = Math.max(0, this.dummies.findIndex((c) => c.id === (initial?.dummy?.id ?? 'KEN')));
@@ -34,11 +35,12 @@ export class TrainingSelectScene implements Scene {
 
   enter(): void {
     this.leaving = false;
+    this.onSelectionModeChange?.(true);
     preloadArtAssets(this.dummies.map((c) => characterPortraitKey(c.id)).filter((k): k is ArtAssetKey => !!k));
   }
-  exit(): void { this.leaving = true; }
+  exit(): void { this.leaving = true; this.onSelectionModeChange?.(false); }
   resize(): void {}
-  destroy(): void { this.leaving = true; }
+  destroy(): void { this.leaving = true; this.onSelectionModeChange?.(false); }
 
   fixedUpdate(dt: number): void {
     this.time += dt;

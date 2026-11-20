@@ -65,6 +65,8 @@ export class CombatWorld {
   dummyController: ((enemy: Fighter, player: Fighter, rules: ModeRules) => void) | null = null;
   /** Training mode: forced enemy guard decision (null = normal AI decision). */
   defenseOverride: ((defender: Fighter, attacker: Fighter, move: MoveData) => boolean | null) | null = null;
+  /** VERSUS: a second human drives the duel opponent with the same controls (motions, parry, throws, guard) as P1. */
+  enemyInput: InputManager | null = null;
   readonly props: EnvironmentProp[] = [];
   readonly rules: ModeRules;
   readonly director = new EnemyDirector();
@@ -88,14 +90,14 @@ export class CombatWorld {
   playerSupersUsed = 0;
   playerThrowsLanded = 0;
 
-  constructor(playerDef: CharacterDef, enemyDef: CharacterDef, mode: 'belt' | 'duel' = 'belt', playerSuperArt?: SuperArtDef) {
+  constructor(playerDef: CharacterDef, enemyDef: CharacterDef, mode: 'belt' | 'duel' = 'belt', playerSuperArt?: SuperArtDef, enemySuperArt?: SuperArtDef) {
     this.rules = mode === 'belt'
       ? { mode, depthMovement: true, laneTolerance: 54, arenaLeft: 128, arenaRight: 1152, arenaTop: 394, arenaBottom: 580 }
       : { mode, depthMovement: false, laneTolerance: 22, arenaLeft: 120, arenaRight: 1160, arenaTop: 500, arenaBottom: 500 };
     this.player = new Fighter(playerDef, 'player', 360, mode === 'belt' ? 495 : 500, 1, playerSuperArt);
     // Mob pressure in belt sections would chain-stun the hero; the stun gauge is a 1 VS 1 duel mechanic for the player.
     this.player.setStunEnabled(mode === 'duel');
-    this.enemies.push(new Fighter(enemyDef, 'enemy', 880, mode === 'belt' ? 490 : 500, -1));
+    this.enemies.push(new Fighter(enemyDef, 'enemy', 880, mode === 'belt' ? 490 : 500, -1, enemySuperArt));
   }
 
   get enemy(): Fighter {
@@ -135,6 +137,7 @@ export class CombatWorld {
   update(input: InputManager, tick: number): void {
     if (this.superFreezeFrames > 0) {
       this.player.captureInput(input, tick, true, this.rules);
+      if (this.enemyInput) this.enemies[0]?.captureInput(this.enemyInput, tick, true, this.rules);
       this.superFreezeFrames -= 1;
       this.ageEvents();
       return;
@@ -167,6 +170,7 @@ export class CombatWorld {
         if (enemy.state === 'ko') enemy.updateAi(this.player, this.rules);
         continue;
       }
+      if (this.enemyInput && enemy === this.enemies[0]) { enemy.captureInput(this.enemyInput, tick); enemy.updatePlayer(this.enemyInput, this.rules); continue; }
       if (this.dummyController) { this.dummyController(enemy, this.player, this.rules); continue; }
       const directive = directives.get(enemy.uid);
       if (directive) enemy.updateAiDirected(this.player, this.rules, directive);
@@ -431,8 +435,7 @@ export class CombatWorld {
       return;
     }
 
-    const defenderBack = defender.facing === 1 ? 'left' : 'right';
-    const guarding = defender.canDefend() && (defender.side === 'player' ? input.held(defenderBack) && !input.held(defender.facing === 1 ? 'right' : 'left') : this.enemyDefenseDecision(defender, attacker, move));
+    const guarding = defender.canDefend() && (this.humanInputFor(defender, input) ? this.holdingGuard(defender, this.humanInputFor(defender, input)!) : this.enemyDefenseDecision(defender, attacker, move));
     const counter = defender.state === 'attack' && !!defender.currentMove && defender.moveFrame < defender.currentMove.startup;
     const hpBefore = defender.hp;
     // Capture the victim's contact height before launching/bouncing can change it.
@@ -506,8 +509,7 @@ export class CombatWorld {
         const defenderCenterY = defender.y - 88 - defender.jumpHeight * .9;
         const dy = Math.abs(defenderCenterY - projectile.y);
         if (dx > projectile.radius + 34 || dy > Math.max(55, projectile.move.hitbox.lane)) continue;
-        const defenderBack = defender.facing === 1 ? 'left' : 'right';
-        const guarding = defender.canDefend() && (defender.side === 'player' ? input.held(defenderBack) && !input.held(defender.facing === 1 ? 'right' : 'left') : this.enemyDefenseDecision(defender, projectile.owner, projectile.move, projectile.x));
+        const guarding = defender.canDefend() && (this.humanInputFor(defender, input) ? this.holdingGuard(defender, this.humanInputFor(defender, input)!) : this.enemyDefenseDecision(defender, projectile.owner, projectile.move, projectile.x));
         const counter = defender.state === 'attack' && !!defender.currentMove && defender.moveFrame < defender.currentMove.startup;
         const hpBefore = defender.hp;
         const impactDirection: 1 | -1 = projectile.vx < 0 ? -1 : projectile.vx > 0 ? 1 : projectile.owner.facing;
@@ -595,8 +597,21 @@ export class CombatWorld {
     }
   }
 
+  isHumanEnemy(fighter: Fighter): boolean { return !!this.enemyInput && fighter === this.enemies[0]; }
+
+  /** The human input that owns this defender (P1, or P2 in VERSUS); null for CPU fighters. */
+  private humanInputFor(defender: Fighter, playerInput: InputManager): InputManager | null {
+    if (defender.side === 'player') return playerInput;
+    return this.isHumanEnemy(defender) ? this.enemyInput : null;
+  }
+
+  private holdingGuard(defender: Fighter, input: InputManager): boolean {
+    const back = defender.facing === 1 ? 'left' : 'right';
+    return input.held(back) && !input.held(defender.facing === 1 ? 'right' : 'left');
+  }
+
   private throwEscape(defender: Fighter): boolean {
-    if (defender.side === 'player') return defender.buffer.pressedWithin('lp', 5) && defender.buffer.pressedWithin('lk', 5);
+    if (defender.side === 'player' || this.isHumanEnemy(defender)) return defender.buffer.pressedWithin('lp', 5) && defender.buffer.pressedWithin('lk', 5);
     return defender.aiCooldown > 0 && defender.aiCooldown % 9 === 0;
   }
 

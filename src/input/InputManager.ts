@@ -13,6 +13,53 @@ type ActionState = {
 
 const ACTIONS: Action[] = ['left', 'right', 'up', 'down', 'jump', 'lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'confirm', 'back', 'start'];
 
+export type KeyBinding = readonly [code: string, action: Action];
+
+/** Single-player keyboard layout: arrows or WASD, J K L punches, U I O kicks. */
+export const DEFAULT_KEY_BINDINGS: readonly KeyBinding[] = [
+  ['ArrowLeft', 'left'], ['KeyA', 'left'], ['ArrowRight', 'right'], ['KeyD', 'right'],
+  ['ArrowUp', 'up'], ['KeyW', 'up'], ['ArrowDown', 'down'], ['KeyS', 'down'],
+  ['KeyJ', 'lp'], ['KeyK', 'mp'], ['KeyL', 'hp'], ['KeyU', 'lk'], ['KeyI', 'mk'], ['KeyO', 'hk'],
+  ['Space', 'jump'], ['Enter', 'confirm'], ['Escape', 'back'], ['Backspace', 'back'], ['KeyP', 'start'], ['Pause', 'start'],
+];
+
+/** VERSUS P1: left side of the keyboard (arrows go to P2). */
+export const P1_VERSUS_KEY_BINDINGS: readonly KeyBinding[] = [
+  ['KeyA', 'left'], ['KeyD', 'right'], ['KeyW', 'up'], ['KeyS', 'down'],
+  ['KeyJ', 'lp'], ['KeyK', 'mp'], ['KeyL', 'hp'], ['KeyU', 'lk'], ['KeyI', 'mk'], ['KeyO', 'hk'],
+  ['Space', 'jump'], ['Enter', 'confirm'], ['Escape', 'back'], ['Backspace', 'back'], ['KeyP', 'start'], ['Pause', 'start'],
+];
+
+/** VERSUS P2: arrows + numpad (7 8 9 kicks / 4 5 6 punches), or the Insert/Delete block for keyboards without a numpad. */
+export const P2_VERSUS_KEY_BINDINGS: readonly KeyBinding[] = [
+  ['ArrowLeft', 'left'], ['ArrowRight', 'right'], ['ArrowUp', 'up'], ['ArrowDown', 'down'],
+  ['Numpad4', 'lp'], ['Numpad5', 'mp'], ['Numpad6', 'hp'], ['Numpad7', 'lk'], ['Numpad8', 'mk'], ['Numpad9', 'hk'],
+  ['Delete', 'lp'], ['End', 'mp'], ['PageDown', 'hp'], ['Insert', 'lk'], ['Home', 'mk'], ['PageUp', 'hk'],
+  ['Numpad0', 'jump'], ['NumpadEnter', 'confirm'], ['NumpadDecimal', 'back'], ['NumpadAdd', 'start'], ['Backslash', 'start'],
+];
+
+export interface InputManagerOptions { bindings?: readonly KeyBinding[]; gamepadSlot?: number }
+
+const KEY_LABELS: Record<string, string> = {
+  ArrowLeft: '←', ArrowRight: '→', ArrowUp: '↑', ArrowDown: '↓', Space: 'SPACE', Enter: 'ENTER', Escape: 'ESC', Backspace: 'BKSP',
+  NumpadEnter: 'NUM ENT', NumpadDecimal: 'NUM .', NumpadAdd: 'NUM +', Backslash: '\\', Delete: 'DEL', End: 'END', PageDown: 'PGDN',
+  Insert: 'INS', Home: 'HOME', PageUp: 'PGUP', Pause: 'PAUSE',
+};
+
+/** Short display label for a KeyboardEvent.code ("KeyJ" -> "J", "Numpad4" -> "NUM 4"). */
+export function keyLabel(code: string): string {
+  if (KEY_LABELS[code]) return KEY_LABELS[code]!;
+  if (code.startsWith('Key')) return code.slice(3);
+  if (code.startsWith('Numpad')) return `NUM ${code.slice(6)}`;
+  if (code.startsWith('Digit')) return code.slice(5);
+  return code.toUpperCase();
+}
+
+/** Every key bound to an action, as display labels ("J", "NUM 4 / DEL"). */
+export function keysForAction(bindings: readonly KeyBinding[], action: Action): string[] {
+  return bindings.filter(([, a]) => a === action).map(([code]) => keyLabel(code));
+}
+
 export class InputManager {
   private states = new Map<Action, ActionState>(ACTIONS.map((a) => [a, {
     held: false, pressed: false, released: false, keyboardHeld: false, touchHeld: false, touchPressed: false, touchReleased: false, gamepadHeld: false,
@@ -28,19 +75,33 @@ export class InputManager {
   private readonly keyboardKeys = new Set<string>();
   private readonly directionHistory: Set<Action>[] = [];
 
-  private keyMap = new Map<string, Action>([
-    ['ArrowLeft', 'left'], ['KeyA', 'left'], ['ArrowRight', 'right'], ['KeyD', 'right'],
-    ['ArrowUp', 'up'], ['KeyW', 'up'], ['ArrowDown', 'down'], ['KeyS', 'down'],
-    ['KeyJ', 'lp'], ['KeyK', 'mp'], ['KeyL', 'hp'], ['KeyU', 'lk'], ['KeyI', 'mk'], ['KeyO', 'hk'],
-    ['Space', 'jump'], ['Enter', 'confirm'], ['Escape', 'back'], ['Backspace', 'back'], ['KeyP', 'start'], ['Pause', 'start'],
-  ]);
+  private keyMap = new Map<string, Action>(DEFAULT_KEY_BINDINGS);
+  /** Which connected gamepad (in index order) this input owns: 0 = first pad (P1), 1 = second pad (P2). */
+  private readonly gamepadSlot: number;
 
-  constructor() {
+  constructor(options: InputManagerOptions = {}) {
+    if (options.bindings) this.keyMap = new Map(options.bindings);
+    this.gamepadSlot = Math.max(0, Math.floor(options.gamepadSlot ?? 0));
     window.addEventListener('keydown', this.onKeyDown, { passive: false });
     window.addEventListener('keyup', this.onKeyUp, { passive: false });
     window.addEventListener('blur', this.onBlur);
     window.addEventListener('pagehide', this.onBlur);
     if (typeof document !== 'undefined') document.addEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  get bindings(): readonly KeyBinding[] { return [...this.keyMap.entries()]; }
+  get padSlot(): number { return this.gamepadSlot; }
+
+  /** Swap the keyboard layout (VERSUS splits the keyboard); keys held under the old layout are released. */
+  setKeyBindings(bindings: readonly KeyBinding[]): void {
+    this.keyMap = new Map(bindings);
+    this.onBlur();
+  }
+
+  /** Connected gamepads (index order) for the controls screen. */
+  static connectedGamepads(): Gamepad[] {
+    try { return Array.from(navigator.getGamepads?.() ?? []).filter((pad): pad is Gamepad => !!pad && pad.connected !== false); }
+    catch { return []; }
   }
 
   prepareTick(): void {
@@ -211,7 +272,7 @@ export class InputManager {
     let pad: Gamepad | null | undefined;
     try {
       pad = Array.from(navigator.getGamepads?.() ?? [])
-        .find((candidate) => candidate && candidate.connected !== false);
+        .filter((candidate) => candidate && candidate.connected !== false)[this.gamepadSlot];
     } catch {
       // Browser policy or device failures must not stop keyboard/touch polling.
     }
