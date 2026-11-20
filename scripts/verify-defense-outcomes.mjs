@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { CHARACTERS, getCharacter } from '../dist/assets/game/characters.js';
-import { Fighter } from '../dist/assets/combat/Fighter.js';
+import { Fighter, chipDamageFor } from '../dist/assets/combat/Fighter.js';
 import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
 import { normalFor, superArtMoveFor } from '../dist/assets/combat/MoveLibrary.js';
 import { animationSequenceSample } from '../dist/assets/render/AnimationTimingMapper.js';
@@ -30,7 +30,8 @@ for(const id of ['KEN','CHUNLI'])for(const facing of [-1,1])for(const move of mo
   const victim=new Fighter(getCharacter(id),'player',600,460,facing);
   prepare(victim,attacker,outcome);
   assert.equal(victim.receiveHit(move,attacker,outcome==='block'),outcome);
-  assert.equal(victim.hp,victim.maxHp);assertDefense(victim);defenses++;
+  // V080: blocked supers chip (SF rule); parries stay damage-free.
+  assert.equal(victim.hp,outcome==='block'?victim.maxHp-chipDamageFor(move):victim.maxHp);assertDefense(victim);defenses++;
  }
  const victim=new Fighter(getCharacter(id),'player',600,460,facing);
  assert.equal(victim.receiveHit(move,attacker,false),'hit');
@@ -66,7 +67,7 @@ for(const facing of [-1,1])for(const outcome of ['block','parry','red-parry','hi
   assert.ok(victim.hp<victim.maxHp&&victim.superVictimFrames>0);
   assert.ok(world.events.some(e=>e.type==='wall-impact'),'Actual hit retains wall impact');
  } else {
-  assert.equal(victim.hp,victim.maxHp);assertDefense(victim);
+  assert.equal(victim.hp,outcome==='block'?victim.maxHp-chipDamageFor(move):victim.maxHp);assertDefense(victim);
   assert.ok(!world.events.some(e=>['wall-impact','wall-bounce','ground-bounce','super-impact'].includes(e.type)),'Defense must not emit hit-only effects');
   if(outcome.includes('parry'))assert.equal(victim.hitStop,2);
  }

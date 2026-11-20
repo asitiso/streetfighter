@@ -269,6 +269,7 @@ export class Stage1Scene implements Scene {
     const timerActive = this.phase !== 'belt' || this.beltState === 'fight';
     const combatFrozen = this.world.superFreezeFrames > 0;
     if (timerActive && !combatFrozen) this.stageTime = Math.max(0, this.stageTime - dt);
+    if (timerActive && !combatFrozen && this.stageTime <= 0 && this.resolveDuelTimeOverWin()) return;
     if (timerActive && !combatFrozen && this.stageTime <= 0) {
       this.phase = 'defeat';
       this.onPostCombatChange?.(true);
@@ -660,6 +661,28 @@ export class Stage1Scene implements Scene {
     ctx.restore();
   }
 
+
+  /**
+   * Street Fighter time-over judgement: in a 1 VS 1 duel the fighter with the larger
+   * remaining life ratio wins the decision. Belt sections keep the beat-em-up rule
+   * (running out of time is a loss). Returns true when the player won on time.
+   */
+  private resolveDuelTimeOverWin(): boolean {
+    if (this.phase !== 'duel' && this.phase !== 'final-duel') return false;
+    const player = this.world.player;
+    const enemy = this.world.enemy;
+    const playerRatio = player.hp / Math.max(1, player.maxHp);
+    const enemyRatio = enemy.hp / Math.max(1, enemy.maxHp);
+    if (playerRatio <= enemyRatio) return false;
+    this.world.projectiles.length = 0;
+    this.world.events.push({ type: 'boss-warning', x: 640, y: 250, power: 0, ttl: 110, label: 'TIME OVER • DECISION WIN' });
+    this.phase = 'clear';
+    this.onPostCombatChange?.(true);
+    this.phaseFrames = this.stageId === 5 ? transitionPolishProfile(this.stageId).finalClearFrames : transitionPolishProfile(this.stageId).clearFrames;
+    if (!player.airborne) player.enterVictoryPose();
+    this.audio.playStageClear?.(this.stageId === 5);
+    return true;
+  }
 
   private spawnBeltWave(index: number): void {
     const base = this.areaStarts[index];
@@ -1195,10 +1218,11 @@ export class Stage1Scene implements Scene {
       ctx.textAlign = 'right';
       ctx.fillStyle = 'rgba(255,125,112,.9)';
       ctx.font = '900 24px Impact, Arial Black, sans-serif';
-      ctx.fillText(`${this.world.enemyComboHits} HIT`, 1204, 152);
+      // Sit below the START/pause button lane (logical y 134-170) so the counter stays readable.
+      ctx.fillText(`${this.world.enemyComboHits} HIT`, 1204, 204);
       ctx.font = '800 10px Arial, sans-serif';
       ctx.fillStyle = 'rgba(255,205,196,.7)';
-      ctx.fillText(`${this.world.enemyComboDamage} DAMAGE`, 1204, 173);
+      ctx.fillText(`${this.world.enemyComboDamage} DAMAGE`, 1204, 225);
       ctx.restore();
     }
 

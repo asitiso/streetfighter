@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {CHARACTERS,BOSS_CHARACTERS,getCharacter} from '../dist/assets/game/characters.js';
 import {CombatWorld} from '../dist/assets/combat/CombatWorld.js';
-import {Fighter} from '../dist/assets/combat/Fighter.js';
+import {Fighter,chipDamageFor} from '../dist/assets/combat/Fighter.js';
 import {specialMovesFor,superArtMoveFor,normalFor} from '../dist/assets/combat/MoveLibrary.js';
 import {victimReactionSample} from '../dist/assets/render/VictimReactionProfiles.js';
 const roster=[...CHARACTERS,...BOSS_CHARACTERS],quiet={held:()=>false,pressed:()=>false,released:()=>false};
@@ -20,7 +20,7 @@ for(const def of roster)for(const facing of [-1,1])for(const {c,move}of moves)fo
 for(const def of roster)for(const facing of [-1,1])for(const {c,move}of moves)for(const defense of ['block','parry']){
  if(defense==='block'&&move.guardBreak)continue;const w=new CombatWorld(def,c,'duel'),f=w.player,owner=w.enemy;f.facing=facing;owner.facing=-facing;
  if(defense==='parry'){const forward=facing===1?'right':'left';f.updatePlayer({...quiet,pressed:k=>k===forward},w.rules);assert(f.parryWindow>0);}
- const hp=f.hp,before=fields(f),input=defense==='block'?{...quiet,held:k=>k===(facing===1?'left':'right')}:quiet;fire(w,f,owner,move,1,move.projectile.count??1,input);assert.equal(f.state,defense);assert.equal(f.hp,hp);assert.deepEqual(fields(f),before,'Defense must not start a hit recoil sequence');assert.equal(w.totalEnemyDamage,0);defenseControls++;
+ const hp=f.hp,before=fields(f),input=defense==='block'?{...quiet,held:k=>k===(facing===1?'left':'right')}:quiet;fire(w,f,owner,move,1,move.projectile.count??1,input);assert.equal(f.state,defense);assert.equal(f.hp,defense==='block'?hp-chipDamageFor(move):hp);assert.deepEqual(fields(f),before,'Defense must not start a hit recoil sequence');assert.equal(w.totalEnemyDamage,0);defenseControls++;
 }
 assert.equal(failures.length,0,JSON.stringify({count:failures.length,examples:failures.slice(0,10)},null,2));
 console.log('PROJECTILE_HIT_RECOIL_PASS',{victims:10,facings:2,projectileMoves:moves.length,cases,priorMeleeCases,defenseControls,freezeChecks,actualBurstMetadata:true,damageAndDefensePreserved:true});

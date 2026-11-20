@@ -15,6 +15,18 @@ type PendingFrozenAction = { airborne: boolean; epoch: number | undefined; tick:
 );
 const pendingFrozenActions = new WeakMap<Fighter, PendingFrozenAction>();
 
+/** SF-style combo scaling: first two hits full damage, then -10% per hit, floored (supers keep more). */
+export function comboDamageScale(hitInCombo: number, move: Pick<MoveData, 'superCost'>): number {
+  const scaled = 1 - Math.max(0, hitInCombo - 2) * .1;
+  return Math.max(move.superCost ? .5 : .3, Math.min(1, scaled));
+}
+
+/** Chip damage on block: specials (no button) and supers chip; normals and throws never do. */
+export function chipDamageFor(move: Pick<MoveData, 'button' | 'kind' | 'level' | 'damage' | 'superCost'>): number {
+  if (move.button || move.kind === 'throw' || move.level === 'throw') return 0;
+  return Math.max(1, Math.round(move.damage * (move.superCost ? .25 : .15)));
+}
+
 export class Fighter {
   readonly uid = nextFighterUid++;
   x: number;
@@ -79,6 +91,11 @@ export class Fighter {
   jumpVelocity = 0;
   airborne = false;
   juggleHits = 0;
+  // ES private fields stay out of serialized fighter snapshots used by determinism fixtures.
+  #comboHitsTaken = 0;
+  #lastComboHitKey = '';
+  /** Hits taken in the current uninterrupted hit/juggle chain (drives SF-style damage scaling). */
+  get comboHitsTaken(): number { return this.#comboHitsTaken; }
   wallBounceFrames = 0;
   groundBounceFrames = 0;
   landingFrames = 0;
@@ -475,6 +492,9 @@ export class Fighter {
   }
 
   receiveHit(move: MoveData, attacker: Fighter, guarding: boolean, counter = false, impactDirection: 1 | -1 = attacker.facing): 'hit' | 'block' | 'parry' | 'red-parry' {
+    // A combo only continues while the victim is still reeling (hitstun, juggle, bounce or OTG).
+    const stillReeling = this.state === 'hit' || this.state === 'knockdown' || (this.airborne && this.juggleHits > 0);
+    if (!stillReeling) { this.#comboHitsTaken = 0; this.#lastComboHitKey = ''; }
     const low = move.level === 'low';
     const canParry = move.level !== 'throw' && move.kind !== 'throw';
     this.lastHitDirection = impactDirection;
@@ -497,6 +517,13 @@ export class Fighter {
       this.stateFrame = -move.blockStun;
       this.x += impactDirection * move.pushback * .3;
       this.hitStop = Math.max(this.hitStop, Math.round(move.hitStop * .55));
+      // Street Fighter chip damage: blocked specials and supers still wear the guard down.
+      const chip = chipDamageFor(move);
+      if (chip > 0) {
+        this.hp = Math.max(0, this.hp - chip);
+        this.hitFlash = Math.max(this.hitFlash, 3);
+        if (this.hp <= 0) { this.state = 'ko'; this.stateFrame = -90; return 'hit'; }
+      }
       return 'block';
     }
 
@@ -511,7 +538,11 @@ export class Fighter {
     }
     this.interruptMove();
     const juggleScale = this.airborne ? Math.max(.58, 1 - this.juggleHits * .09) : 1;
-    const damage = Math.round(move.damage * (counter ? 1.12 : 1) * juggleScale);
+    // Hits of one multi-hit move count once, so a super is not scaled by its own hit count.
+    const comboKey = `${attacker.uid}:${move.id}`;
+    if (!(move.multiHit && comboKey === this.#lastComboHitKey && stillReeling)) this.#comboHitsTaken += 1;
+    this.#lastComboHitKey = comboKey;
+    const damage = Math.round(move.damage * (counter ? 1.12 : 1) * Math.min(juggleScale, comboDamageScale(this.#comboHitsTaken, move)));
     this.hp = Math.max(0, this.hp - damage);
     this.superGauge = Math.min(this.superGaugeMax, this.superGauge + Math.round(move.superGain * .55));
     this.hitFlash = 6;
