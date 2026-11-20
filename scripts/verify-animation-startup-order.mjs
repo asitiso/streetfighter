@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
+import {animationSequencesFor} from '../dist/assets/render/AnimationSequenceLibrary.js';
+import {runtimeQuality} from '../dist/assets/core/RuntimeQuality.js';
+const images=[];globalThis.Image=class{complete=false;naturalWidth=0;naturalHeight=0;set src(value){this.url=value;if(value)images.push(this);}get src(){return this.url;}};
+const {animationTextureManager:m}=await import('../dist/assets/render/AnimationTextureManager.js');
+runtimeQuality.setTier('high');
+const firstKinds=['idle','walk','walk-back','jump'];let cases=0,dedup=0;
+for(const c of [...CHARACTERS,...BOSS_CHARACTERS])for(const scope of ['movement','combat']){m.releaseCharacter(c.id);const start=images.length;m.preloadCharacter(c.id,scope);const requested=images.slice(start),sequences=animationSequencesFor(c.id,true).filter(s=>s.poseAuthored),byUrl=new Map(sequences.map(s=>[s.asset,s]));const kinds=requested.map(im=>byUrl.get(im.url)?.kind);assert.deepEqual(kinds.slice(0,4),firstKinds,c.id+'/'+scope+' first-frame locomotion must lead preload');assert.equal(new Set(requested.map(im=>im.url)).size,requested.length,'No duplicate image requests');const priorCount=images.length;m.preloadCharacter(c.id,scope);assert.equal(images.length,priorCount,'Pending loads must remain shared');dedup++;const idle=requested[0],seq=byUrl.get(idle.url);idle.complete=true;idle.naturalWidth=seq.frameWidth*seq.frameCount;idle.naturalHeight=seq.frameHeight;idle.onload();assert.equal(m.selection(seq)?.image,idle,'Idle ready while other textures are pending');assert.equal(m.readyCount(c.id),1);m.releaseCharacter(c.id);assert.equal(m.readyCount(c.id),0);cases++;}
+runtimeQuality.setTier('low');const before=images.length;for(const c of [...CHARACTERS,...BOSS_CHARACTERS])m.preloadCharacter(c.id,'combat');assert.equal(images.length,before,'Low tier must not start high-frame loads');console.log(JSON.stringify({passed:true,cases,dedup,firstKinds,lowTierRespected:true}));

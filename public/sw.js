@@ -1,19 +1,29 @@
-const CACHE_VERSION = 'game-cache-v172';
+const CACHE_VERSION = 'game-cache-v688';
 const GAME_CACHE_PREFIX = 'game-cache-v';
 const UPDATE_META_CACHE = 'ssc-update-meta';
 const ROLLBACK_MARKER = '/__ssc_rollback_target__';
 const APP_SHELL = [
+  "/audio/sfx-v2/block-0.ogg", "/audio/sfx-v2/block-1.ogg", "/audio/sfx-v2/hit-heavy-0.ogg", "/audio/sfx-v2/hit-heavy-1.ogg", "/audio/sfx-v2/hit-heavy-2.ogg", "/audio/sfx-v2/hit-light-0.ogg", "/audio/sfx-v2/hit-light-1.ogg", "/audio/sfx-v2/hit-light-2.ogg", "/audio/sfx-v2/ko.ogg", "/audio/sfx-v2/parry-0.ogg", "/audio/sfx-v2/parry-1.ogg", "/audio/sfx-v2/super-impact.ogg", "/audio/sfx-v2/super-start.ogg", "/audio/sfx-v2/ui.ogg", "/audio/sfx-v2/victory.ogg", "/audio/sfx-v2/whoosh.ogg",
   '/', '/index.html', '/manifest.webmanifest', '/release-integrity.json', '/icons/icon-192.png', '/icons/icon-512.png', '/assets/styles.css', '/assets/main.js',
-  '/assets/core/AssetManager.js', '/assets/core/SafeAreaProbe.js', '/assets/core/AudioManager.js', '/assets/core/AudioMixProfiles.js', '/assets/core/LoadingProfiles.js', '/assets/core/FixedStepLoop.js', '/assets/core/GameApp.js', '/assets/core/Scene.js', '/assets/core/SceneManager.js', '/assets/core/RuntimeQuality.js', '/assets/core/ReleaseProfiles.js', '/assets/core/RuntimeTelemetry.js', '/assets/core/ReleaseGate.js', '/assets/core/ReleaseReport.js', '/assets/core/AcceptanceMatrix.js', '/assets/core/UpdatePolicy.js', '/assets/core/PwaInstallManager.js', '/assets/core/PwaUpdateManager.js', '/assets/core/DeviceCertification.js', '/assets/core/TouchLatencyProbe.js', '/assets/core/RuntimeErrorJournal.js', '/assets/core/SessionRecovery.js', '/assets/core/RecoveryHistory.js', '/assets/core/ReleaseSummary.js', '/assets/core/FinalCandidateDecision.js', '/assets/core/DeviceCertificationHistory.js', '/assets/core/ReproPackage.js', '/assets/core/ReleaseApproval.js', '/assets/core/ReleaseEvidenceFingerprint.js', '/assets/core/ReleaseIntegrity.js', '/assets/core/FinalProofBundle.js',
+  '/assets/core/AssetManager.js', '/assets/core/SafeAreaProbe.js', '/assets/core/AudioManager.js', '/assets/core/SampledSfxBank.js', '/assets/core/AudioMixProfiles.js', '/assets/core/LoadingProfiles.js', '/assets/core/FixedStepLoop.js', '/assets/core/GameApp.js', '/assets/core/Scene.js', '/assets/core/SceneManager.js', '/assets/core/RuntimeQuality.js', '/assets/core/ReleaseProfiles.js', '/assets/core/RuntimeTelemetry.js', '/assets/core/ReleaseGate.js', '/assets/core/ReleaseReport.js', '/assets/core/AcceptanceMatrix.js', '/assets/core/UpdatePolicy.js', '/assets/core/PwaInstallManager.js', '/assets/core/PwaUpdateManager.js', '/assets/core/DeviceCertification.js', '/assets/core/TouchLatencyProbe.js', '/assets/core/RuntimeErrorJournal.js', '/assets/core/SessionRecovery.js', '/assets/core/RecoveryHistory.js', '/assets/core/ReleaseSummary.js', '/assets/core/FinalCandidateDecision.js', '/assets/core/DeviceCertificationHistory.js', '/assets/core/ReproPackage.js', '/assets/core/ReleaseApproval.js', '/assets/core/ReleaseEvidenceFingerprint.js', '/assets/core/ReleaseIntegrity.js', '/assets/core/FinalProofBundle.js',
   '/assets/input/InputManager.js', '/assets/save/SaveManager.js', '/assets/ui/TouchControls.js', '/assets/render/SpecialKeyPoseLibrary.js',
-  '/assets/game/characters.js', '/assets/game/StageResult.js', '/assets/render/Visuals.js', '/assets/render/ImageAssets.js', '/assets/render/HqCharacterMasterRegistry.js', '/assets/render/CharacterTextureManager.js', '/assets/render/FinalVisualProfiles.js', '/assets/render/FinalPresentationProfiles.js', '/assets/render/CombatPresentationProfiles.js', '/assets/render/FinalPolishProfiles.js',
-  '/assets/render/CombatSpriteProfiles.js', '/assets/render/AttackSpriteProfiles.js', '/assets/render/AnimationFrameProfiles.js', '/assets/render/MotionPolishProfiles.js', '/assets/render/LocomotionProfiles.js', '/assets/render/FighterReadabilityProfiles.js', '/assets/render/AnimationTransitionProfiles.js', '/assets/render/CinematicTimingProfiles.js', '/assets/render/SignatureMoveProfiles.js', '/assets/render/ContactVisualProfiles.js', '/assets/render/HeroContactProfiles.js', '/assets/render/VictimReactionProfiles.js', '/assets/render/AnimationPoseLibrary.js', '/assets/render/FighterVisualProfiles.js', '/assets/render/FighterKinematicsProfiles.js', '/assets/render/BossAnimationProfiles.js', '/assets/render/BossCinematicProfiles.js', '/assets/render/SuperCameraProfiles.js', '/assets/render/ThrowAnimationProfiles.js', '/assets/render/ThrowJointProfiles.js', '/assets/render/SuperVictimProfiles.js', '/assets/render/FinalSequenceProfiles.js',
+  '/assets/game/characters.js', '/assets/game/StageResult.js', '/assets/render/Visuals.js', '/assets/render/ImageAssets.js', '/assets/render/CombatImpactAssets.js', '/assets/render/HqCharacterMasterRegistry.js', '/assets/render/CharacterTextureManager.js', '/assets/render/FinalVisualProfiles.js', '/assets/render/FinalPresentationProfiles.js', '/assets/render/CombatPresentationProfiles.js', '/assets/render/FinalPolishProfiles.js',
+  '/assets/render/CombatSpriteProfiles.js', '/assets/render/AttackSpriteProfiles.js', '/assets/render/AnimationFrameProfiles.js', '/assets/render/MotionPolishProfiles.js', '/assets/render/LocomotionProfiles.js', '/assets/render/FighterReadabilityProfiles.js', '/assets/render/AnimationTransitionProfiles.js', '/assets/render/CinematicTimingProfiles.js', '/assets/render/SignatureMoveProfiles.js', '/assets/render/ContactVisualProfiles.js', '/assets/render/HeroContactProfiles.js', '/assets/render/VictimReactionProfiles.js', '/assets/render/AnimationPoseLibrary.js', '/assets/render/FighterVisualProfiles.js', '/assets/render/FighterKinematicsProfiles.js', '/assets/render/BossAnimationProfiles.js', '/assets/render/BossCinematicProfiles.js', '/assets/render/SuperCameraProfiles.js', '/assets/render/ThrowAnimationProfiles.js', '/assets/render/ThrowJointProfiles.js', '/assets/render/SuperVictimProfiles.js', '/assets/render/WallBounceProfiles.js',
+  '/assets/render/GroundBounceProfiles.js',
+  '/assets/render/AnimationTimingMapper.js',
+  '/assets/render/AnimationSequenceLibrary.js',
+  '/assets/render/AnimationTextureManager.js',
+  '/assets/render/PoseBlendBuffer.js',
+  '/assets/render/AirFallProfiles.js',
+  '/assets/render/SuperHitProfiles.js',
+  '/assets/render/ThrowAttackerProfiles.js',
+  '/assets/render/ThrowVictimProfiles.js', '/assets/render/FinalSequenceProfiles.js',
   '/assets/combat/CombatTypes.js', '/assets/combat/CharacterCombatProfiles.js', '/assets/combat/TechniqueLibrary.js', '/assets/combat/EnemyArchetypes.js', '/assets/combat/EnemyDirector.js', '/assets/combat/InputBuffer.js', '/assets/combat/MoveLibrary.js', '/assets/combat/Fighter.js', '/assets/combat/CombatWorld.js',
   '/assets/scenes/TitleScene.js', '/assets/scenes/CharacterSelectScene.js', '/assets/scenes/SuperArtSelectScene.js', '/assets/scenes/Stage1Scene.js', '/assets/scenes/StageSelectScene.js', '/assets/scenes/ResultsScene.js', '/assets/scenes/OptionsScene.js', '/assets/scenes/ReleaseCheckScene.js', '/assets/scenes/SaveToolsScene.js', '/assets/scenes/InstallScene.js', '/assets/scenes/DeviceCertificationScene.js', '/assets/scenes/PwaUpdateScene.js', '/assets/scenes/DiagnosticsScene.js',
-  '/art/title-keyart.png', '/art/roster-mural.png', '/audio/title-theme.ogg', '/audio/select-theme.ogg',
+  '/art/title-keyart.png', '/art/roster-mural.png', '/audio/score-v2/title-theme.ogg', '/audio/score-v2/select-theme.ogg',
   '/art/portraits/ryu.webp', '/art/portraits/ken.webp', '/art/portraits/chunli.webp', '/art/portraits/alex.webp', '/art/portraits/dudley.webp', '/art/portraits/makoto.webp', '/art/portraits/ibuki.webp', '/art/portraits/yun.webp',
-  '/art/combat-sprites/ryu.webp', '/art/combat-sprites/ken.webp', '/art/combat-sprites/chunli.webp', '/art/combat-sprites/alex.webp', '/art/combat-sprites/dudley.webp', '/art/combat-sprites/makoto.webp', '/art/combat-sprites/ibuki.webp', '/art/combat-sprites/yun.webp',
-  '/art/attack-atlases/ryu.webp', '/art/attack-atlases/ken.webp', '/art/attack-atlases/chunli.webp', '/art/attack-atlases/alex.webp', '/art/attack-atlases/dudley.webp', '/art/attack-atlases/makoto.webp', '/art/attack-atlases/ibuki.webp', '/art/attack-atlases/yun.webp',
+  '/art/combat-sprites/ryu-authored-v1.png', '/art/combat-sprites/ken-authored-v1.png', '/art/combat-sprites/chunli-authored-v1.png', '/art/combat-sprites/alex-authored-v1.png', '/art/combat-sprites/dudley-authored-v1.png', '/art/combat-sprites/makoto-authored-v1.png', '/art/combat-sprites/ibuki-authored-v1.png', '/art/combat-sprites/yun-authored-v1.png',
+  '/art/attack-atlases/ryu-authored-v1.webp', '/art/attack-atlases/ken-authored-v1.webp', '/art/attack-atlases/chunli-authored-v1.webp', '/art/attack-atlases/alex-authored-v1.webp', '/art/attack-atlases/dudley-authored-v1.webp', '/art/attack-atlases/makoto-authored-v1.webp', '/art/attack-atlases/ibuki-authored-v1.webp', '/art/attack-atlases/yun-authored-v1.webp',
   '/art/special-keyposes/ken/hadoken.webp', '/art/special-keyposes/ken/shoryuken.webp', '/art/special-keyposes/ken/tatsumaki.webp', '/art/special-keyposes/ken/super-rush.webp',
   '/art/special-keyposes/chunli/kikoken.webp', '/art/special-keyposes/chunli/spinning-bird-kick.webp',
 ];
@@ -56,7 +66,7 @@ self.addEventListener('activate', (event) => {
       .sort((a, b) => cacheVersion(b) - cacheVersion(a))[0] || null;
     await Promise.all(keys.filter((key) => key.startsWith(GAME_CACHE_PREFIX) && key !== CACHE_VERSION && key !== previous).map((key) => caches.delete(key)));
     const target = await rollbackTarget();
-    if (target && !keys.includes(target)) await setRollbackTarget(null);
+    if (target && !(await caches.keys()).includes(target)) await setRollbackTarget(null);
     await self.clients.claim();
   })());
 });
@@ -88,35 +98,45 @@ self.addEventListener('message', (event) => {
   }))));
 });
 
+async function openCacheIfAvailable(name) {
+  try { return await caches.open(name); } catch { return null; }
+}
+
+async function matchCacheIfAvailable(cache, request) {
+  if (!cache) return undefined;
+  try { return await cache.match(request); } catch { return undefined; }
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith((async () => {
     const url = new URL(event.request.url);
     if (url.origin !== self.location.origin) return fetch(event.request);
 
-    const rollback = await rollbackTarget();
+    const rollback = await rollbackTarget().catch(() => null);
     if (rollback) {
-      const rollbackCache = await caches.open(rollback);
-      const rollbackHit = await rollbackCache.match(event.request);
+      const rollbackCache = await openCacheIfAvailable(rollback);
+      const rollbackHit = await matchCacheIfAvailable(rollbackCache, event.request);
       if (rollbackHit) return rollbackHit;
     }
 
-    const current = await caches.open(CACHE_VERSION);
+    const current = await openCacheIfAvailable(CACHE_VERSION);
     try {
       const response = await fetch(event.request);
-      if (response && response.status === 200 && response.type !== 'opaque') {
-        await current.put(event.request, response.clone());
+      if (current && response && response.status === 200 && response.type !== 'opaque') {
+        try { await current.put(event.request, response.clone()); }
+        catch { /* Cache storage failure must not discard a successful network response. */ }
       }
       return response;
     } catch {
-      const currentHit = await current.match(event.request);
+      const currentHit = await matchCacheIfAvailable(current, event.request);
       if (currentHit) return currentHit;
-      const previous = await previousGameCache();
+      const previous = await previousGameCache().catch(() => null);
       if (previous && previous !== rollback) {
-        const fallback = await (await caches.open(previous)).match(event.request);
+        const fallback = await matchCacheIfAvailable(await openCacheIfAvailable(previous), event.request);
         if (fallback) return fallback;
       }
-      return event.request.mode === 'navigate' ? (await current.match('/index.html') || Response.error()) : Response.error();
+      return event.request.mode === 'navigate' ? (await matchCacheIfAvailable(current, '/index.html') || Response.error()) : Response.error();
     }
   })());
 });

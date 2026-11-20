@@ -1,0 +1,128 @@
+{
+  "character": "ALEX",
+  "kind": "fall",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.6597374179431073,
+  "sourceBounds": [
+    [
+      113,
+      23,
+      429,
+      480
+    ],
+    [
+      95,
+      28,
+      404,
+      437
+    ],
+    [
+      122,
+      41,
+      410,
+      388
+    ],
+    [
+      111,
+      34,
+      507,
+      460
+    ],
+    [
+      92,
+      42,
+      422,
+      487
+    ],
+    [
+      109,
+      59,
+      396,
+      472
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      153,
+      111,
+      361,
+      412
+    ],
+    [
+      150,
+      127,
+      354,
+      397
+    ],
+    [
+      167,
+      143,
+      357,
+      372
+    ],
+    [
+      139,
+      124,
+      400,
+      405
+    ],
+    [
+      158,
+      120,
+      376,
+      414
+    ],
+    [
+      175,
+      126,
+      364,
+      398
+    ]
+  ],
+  "centroidTarget": [
+    255.5,
+    254.5849081056252
+  ],
+  "centroids": [
+    [
+      255.93171465928435,
+      255.04975297234725
+    ],
+    [
+      255.66231774099688,
+      254.73180279048415
+    ],
+    [
+      255.1749445091907,
+      254.91704771519466
+    ],
+    [
+      255.67304543272303,
+      254.9835537910604
+    ],
+    [
+      255.17100377296725,
+      254.81689266216716
+    ],
+    [
+      255.4594029600118,
+      254.5976904107697
+    ]
+  ],
+  "centroidLockPass": true,
+  "uniqueDrawings": 6,
+  "noClippingPass": true,
+  "runtime": "public/art/air-fall-v1/alex.webp",
+  "bytes": 398680,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "b267c3937b044f1713ef96a5f111218cb8520c4aa363e914d785c4b4184209e5",
+    "generation-reference.png": "0030e6d6e72c7817d0988bf1e18fd5dd90b445d01a776451ed6a57e5e6d8cb48",
+    "generation-prompt.txt": "c1da53210c465b5df4e0d62eccba5e5aba6d81abd7d137cd57005721ce26a4b2",
+    "generated-sheet-v1-initial.png": "a701da69239eb68c4f99003cd960db9d96ebf933f4d494aaf8b19923019fc968",
+    "alpha-cleanup-prompt.txt": "5986090f45e9cd42eb0e7b28cbc103ebcec775579b38a6472df74975406ca0e5",
+    "alex.webp": "1309dcc8876b0977f88c3f0dc27467eb7262e6d51b7bec96a8701414f191b8e0"
+  }
+}

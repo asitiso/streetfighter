@@ -23,7 +23,7 @@ const {ASSET_GROUPS}=await import('../dist/assets/core/AssetManager.js');
 assert.ok(Object.values(ASSET_GROUPS).flat().includes(seq.asset),'Ducking Straight must be in the app asset catalog');
 animationTextureManager.releaseCharacter('DUDLEY');requests.length=0;animationTextureManager.preloadCharacter('DUDLEY','movement');assert.ok(!requests.includes(seq.asset),'Movement preparation must not load ducking art');animationTextureManager.preloadCharacter('DUDLEY','combat');assert.ok(requests.includes(seq.asset));
 const manifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/dudley/manifest.json',import.meta.url),'utf8'));const urls=new Set(requests);const entryBytes=manifest.records.filter(r=>urls.has('/art/animation-hq/dudley/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
-assert.equal(manifest.frameTotal,203);assert.equal(manifest.records.length,24);assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('DUDLEY',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());assert.ok(entryBytes<9_000_000,'Dudley authored entry exceeds9MB');
+assert.equal(manifest.frameTotal,335);assert.equal(manifest.records.length,36);assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('DUDLEY',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());assert.ok(entryBytes<13_000_000,'Dudley authored entry exceeds13MB');
 for(const facing of [-1,1])for(const variant of ['lk','mk','hk']){
  const w=new CombatWorld(getCharacter('DUDLEY'),getCharacter('KEN'),'duel');w.enemies.length=0;const f=w.player;f.facing=facing;f.x=600;f.superGauge=500;
  const back=facing===1?'left':'right',rows=[];
@@ -40,8 +40,13 @@ for(const facing of [-1,1])for(const variant of ['lk','mk','hk']){
   w.update(quiet,tick);
  }
  assert.equal(seen.size,12);assert.deepEqual([...contacts].sort(),[4,5]);assert.equal(f.state,'idle');assert.ok(Math.abs(f.x-startX-facing*combatProfileFor('DUDLEY').mobilitySpeed*move.active)<1e-7,'Authored action retains exact mobility distance');
- f.startMove(move);f.airborne=true;f.jumpHeight=40;assert.equal(animationSequenceSample(f,0),null,'Grounded ducking straight must retain aerial fallback');f.state='hit';assert.equal(animationSequenceSample(f,0)?.sequence.kind,'hit');
+ f.startMove(move);f.airborne=true;f.jumpHeight=40;assert.equal(animationSequenceSample(f,0),null,'Grounded ducking straight must retain aerial fallback');f.state='hit';assert.equal(animationSequenceSample(f,0)?.sequence.kind,'fall');
  timelines[variant+' '+(facing===1?'RIGHT':'LEFT')]=rows;
 }
-for(const id of ['DUDLEY_MOBILITY_TEST','DUDLEY_TC_TEST','DUDLEY_SUPER','DUDLEY_SA1','DUDLEY_SA2','DUDLEY_SA3'])assert.equal(animationSequenceKindForAttack('DUDLEY',{id}),null,'Only exact mobility uses elbow art');assert.equal(animationSequenceKindForAttack('KEN',{id:'DUDLEY_MOBILITY'}),null); for(const id of ['DUDLEY_PRIMARY','DUDLEY_EX_PRIMARY','DUDLEY_ANTI_AIR'])assert.equal(animationSequenceKindForAttack('DUDLEY',{id}),null);
+for(const id of ['DUDLEY_MOBILITY_TEST','DUDLEY_TC_TEST'])assert.equal(animationSequenceKindForAttack('DUDLEY',{id}),null,'Only exact mobility uses elbow art');assert.equal(animationSequenceKindForAttack('KEN',{id:'DUDLEY_MOBILITY'}),null); for(const id of ['DUDLEY_PRIMARY','DUDLEY_EX_PRIMARY'])assert.equal(animationSequenceKindForAttack('DUDLEY',{id}),'machine-gun-blow');assert.equal(animationSequenceKindForAttack('DUDLEY',{id:'DUDLEY_ANTI_AIR'}),'shoryuken');
+for(const id of ['DUDLEY_SUPER','DUDLEY_SA3'])assert.equal(animationSequenceKindForAttack('DUDLEY',{id}),'corkscrew-blow');
 console.log('DUDLEY_DUCKING_STRAIGHT_PASS',{buttons:3,facings:2,canvasDraws,contacts:[4,5],entryBytes,airRejected:true});
+
+assert.equal(animationSequenceKindForAttack('DUDLEY',{id:'DUDLEY_SA2'}),'rolling-thunder');
+
+assert.equal(animationSequenceKindForAttack('DUDLEY',{id:'DUDLEY_SA1'}),'rocket-uppercut');

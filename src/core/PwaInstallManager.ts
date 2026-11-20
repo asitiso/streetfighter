@@ -27,10 +27,13 @@ export class PwaInstallManager {
   }
 
   async prompt(): Promise<'accepted' | 'dismissed' | 'unavailable'> {
-    if (!this.deferred) return 'unavailable';
-    await this.deferred.prompt();
-    const choice = await this.deferred.userChoice;
-    if (choice.outcome === 'accepted') this.deferred = null;
+    const event = this.deferred;
+    if (!event) return 'unavailable';
+    // Browser install events are single-use, including dismissal and failure.
+    // Capture ownership before awaiting appinstalled or a replacement offer.
+    this.deferred = null;
+    await event.prompt();
+    const choice = await event.userChoice;
     return choice.outcome;
   }
 }

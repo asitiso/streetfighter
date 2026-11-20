@@ -1,0 +1,357 @@
+{
+  "width": 960,
+  "height": 768,
+  "cell": 192,
+  "baseline": 184,
+  "contentMax": 176,
+  "frames": 20,
+  "bytes": 562404,
+  "decodedBytes": 2949120,
+  "runtimeSha256": "cf5a8cc633afbdc67e64c2a71bac10fdd81fa0f8ad150082a84443543cd35553",
+  "sources": {
+    "intact": "356c1332ac366d1c0894b9f2d5ba97ca6d0e12846f7745918b157e7b2ceb3b31",
+    "broken": "c75a0e26f46af2d3d522f431d5f77fba99070e5868b905a508e5451f2d9c55df"
+  },
+  "sprites": [
+    {
+      "kind": "trash",
+      "state": "intact",
+      "index": 0,
+      "sourceBox": [
+        91,
+        89,
+        306,
+        389
+      ],
+      "packedBox": [
+        33,
+        8,
+        126,
+        176
+      ]
+    },
+    {
+      "kind": "stall",
+      "state": "intact",
+      "index": 1,
+      "sourceBox": [
+        432,
+        31,
+        757,
+        386
+      ],
+      "packedBox": [
+        207,
+        8,
+        161,
+        176
+      ]
+    },
+    {
+      "kind": "vending",
+      "state": "intact",
+      "index": 2,
+      "sourceBox": [
+        866,
+        21,
+        1119,
+        388
+      ],
+      "packedBox": [
+        419,
+        8,
+        121,
+        176
+      ]
+    },
+    {
+      "kind": "lantern",
+      "state": "intact",
+      "index": 3,
+      "sourceBox": [
+        1287,
+        14,
+        1505,
+        389
+      ],
+      "packedBox": [
+        621,
+        8,
+        102,
+        176
+      ]
+    },
+    {
+      "kind": "bag",
+      "state": "intact",
+      "index": 4,
+      "sourceBox": [
+        1713,
+        10,
+        1860,
+        389
+      ],
+      "packedBox": [
+        830,
+        8,
+        68,
+        176
+      ]
+    },
+    {
+      "kind": "bin",
+      "state": "intact",
+      "index": 5,
+      "sourceBox": [
+        91,
+        443,
+        306,
+        784
+      ],
+      "packedBox": [
+        40,
+        200,
+        111,
+        176
+      ]
+    },
+    {
+      "kind": "console",
+      "state": "intact",
+      "index": 6,
+      "sourceBox": [
+        432,
+        491,
+        747,
+        782
+      ],
+      "packedBox": [
+        200,
+        213,
+        176,
+        163
+      ]
+    },
+    {
+      "kind": "tank",
+      "state": "intact",
+      "index": 7,
+      "sourceBox": [
+        899,
+        448,
+        1083,
+        784
+      ],
+      "packedBox": [
+        432,
+        200,
+        96,
+        176
+      ]
+    },
+    {
+      "kind": "crate",
+      "state": "intact",
+      "index": 8,
+      "sourceBox": [
+        1230,
+        467,
+        1538,
+        784
+      ],
+      "packedBox": [
+        586,
+        200,
+        171,
+        176
+      ]
+    },
+    {
+      "kind": "hydrant",
+      "state": "intact",
+      "index": 9,
+      "sourceBox": [
+        1663,
+        448,
+        1915,
+        784
+      ],
+      "packedBox": [
+        798,
+        200,
+        132,
+        176
+      ]
+    },
+    {
+      "kind": "trash",
+      "state": "broken",
+      "index": 10,
+      "sourceBox": [
+        10,
+        274,
+        377,
+        423
+      ],
+      "packedBox": [
+        8,
+        497,
+        176,
+        71
+      ]
+    },
+    {
+      "kind": "stall",
+      "state": "broken",
+      "index": 11,
+      "sourceBox": [
+        411,
+        214,
+        775,
+        426
+      ],
+      "packedBox": [
+        200,
+        465,
+        176,
+        103
+      ]
+    },
+    {
+      "kind": "vending",
+      "state": "broken",
+      "index": 12,
+      "sourceBox": [
+        804,
+        218,
+        1176,
+        424
+      ],
+      "packedBox": [
+        392,
+        471,
+        176,
+        97
+      ]
+    },
+    {
+      "kind": "lantern",
+      "state": "broken",
+      "index": 13,
+      "sourceBox": [
+        1217,
+        204,
+        1562,
+        421
+      ],
+      "packedBox": [
+        584,
+        457,
+        176,
+        111
+      ]
+    },
+    {
+      "kind": "bag",
+      "state": "broken",
+      "index": 14,
+      "sourceBox": [
+        1602,
+        267,
+        1974,
+        427
+      ],
+      "packedBox": [
+        776,
+        492,
+        176,
+        76
+      ]
+    },
+    {
+      "kind": "bin",
+      "state": "broken",
+      "index": 15,
+      "sourceBox": [
+        12,
+        610,
+        376,
+        785
+      ],
+      "packedBox": [
+        8,
+        675,
+        176,
+        85
+      ]
+    },
+    {
+      "kind": "console",
+      "state": "broken",
+      "index": 16,
+      "sourceBox": [
+        408,
+        615,
+        769,
+        785
+      ],
+      "packedBox": [
+        200,
+        677,
+        176,
+        83
+      ]
+    },
+    {
+      "kind": "tank",
+      "state": "broken",
+      "index": 17,
+      "sourceBox": [
+        805,
+        639,
+        1168,
+        786
+      ],
+      "packedBox": [
+        392,
+        689,
+        176,
+        71
+      ]
+    },
+    {
+      "kind": "crate",
+      "state": "broken",
+      "index": 18,
+      "sourceBox": [
+        1203,
+        609,
+        1578,
+        786
+      ],
+      "packedBox": [
+        584,
+        677,
+        176,
+        83
+      ]
+    },
+    {
+      "kind": "hydrant",
+      "state": "broken",
+      "index": 19,
+      "sourceBox": [
+        1613,
+        621,
+        1966,
+        786
+      ],
+      "packedBox": [
+        776,
+        678,
+        176,
+        82
+      ]
+    }
+  ]
+}

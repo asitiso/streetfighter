@@ -1,41 +1,55 @@
 import type { AudioManager } from '../core/AudioManager.js';
 import type { RenderContext, Scene } from '../core/Scene.js';
 import type { InputManager } from '../input/InputManager.js';
-import { CHARACTERS, type CharacterDef } from '../game/characters.js';
+import { CHARACTERS, getCharacter, type CharacterDef } from '../game/characters.js';
 import { characterPreviewPose, drawCharacterPreview } from '../render/Visuals.js';
 import { artImage, characterPortraitKey, PLAYABLE_PORTRAIT_KEYS, preloadArtAssets } from '../render/ImageAssets.js';
 import { characterTextureManager } from '../render/CharacterTextureManager.js';
 
+const FIGHTER_CARD = { x: 52, y: 180, width: 154, height: 182, gapX: 14, gapY: 16 };
+
 export class CharacterSelectScene implements Scene {
   private index = 0;
+  private tapArmed = false;
   private time = 0;
-  private lock = 0;
+  private themeRequest = 0;
   private transitioning = false;
+  private errorMessage = '';
 
   constructor(
     private readonly input: InputManager,
     private readonly audio: AudioManager,
     initialCharacter: string,
-    private readonly confirm: (character: CharacterDef) => void,
+    private readonly confirm: (character: CharacterDef) => void | Promise<void>,
+    private readonly onError?: (error: unknown) => void,
+    private initialFailed = false,
+    private readonly onSelectionModeChange?: (active: boolean) => void,
+    private readonly goBack?: (character: CharacterDef) => void | Promise<void>,
   ) {
-    const initial = CHARACTERS.findIndex((character) => character.id === initialCharacter);
+    const canonicalId = getCharacter(initialCharacter).id;
+    const initial = CHARACTERS.findIndex((character) => character.id === canonicalId);
     this.index = initial >= 0 ? initial : 0;
   }
 
   enter(): void {
+    this.tapArmed = false; this.onSelectionModeChange?.(true);
+    this.transitioning = false;
+    this.errorMessage = this.initialFailed ? 'OPEN FAILED • CONFIRM TO RETRY' : '';
+    this.initialFailed = false;
     preloadArtAssets(['roster-mural', ...PLAYABLE_PORTRAIT_KEYS]);
     characterTextureManager.focusCharacter(CHARACTERS[this.index]!.id);
-    void this.audio.unlock().then(() => this.audio.startFrontendTheme?.('select')).catch(() => undefined);
+    const themeRequest = ++this.themeRequest;
+    void this.audio.unlock().then(() => {
+      if (themeRequest === this.themeRequest) this.audio.startFrontendTheme?.('select');
+    }).catch(() => undefined);
   }
-  exit(): void { this.audio.stopFrontendTheme?.(); }
+  exit(): void { this.onSelectionModeChange?.(false); this.themeRequest += 1; this.audio.stopFrontendTheme?.(); }
   resize(_width: number, _height: number): void {}
-  destroy(): void {}
+  destroy(): void { this.onSelectionModeChange?.(false); this.themeRequest += 1; }
 
   fixedUpdate(dt: number): void {
     this.time += dt;
     if (this.transitioning) return;
-    if (this.lock > 0) this.lock -= 1;
-    if (this.lock > 0) return;
 
     let next = this.index;
     if (this.input.pressed('left')) next -= 1;
@@ -44,18 +58,49 @@ export class CharacterSelectScene implements Scene {
     if (this.input.pressed('down')) next += 4;
     next = (next + CHARACTERS.length) % CHARACTERS.length;
     if (next !== this.index) {
-      this.index = next;
+      this.index = next; this.tapArmed = false;
+      this.errorMessage = '';
       characterTextureManager.focusCharacter(CHARACTERS[this.index]!.id);
-      this.lock = 6;
       this.audio.playMenuMove();
     }
 
+    if (this.goBack && (this.input.pressed('back') || this.input.pressed('lk'))) { this.runSelection(() => this.goBack!(CHARACTERS[this.index]!), 'OPEN FAILED • BACK TO RETRY'); return; }
+
     if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
       const character = CHARACTERS[this.index]!;
-      this.transitioning = true;
-      this.audio.playUiConfirm();
-      this.confirm(character);
+      this.confirmSelection(character);
     }
+  }
+
+  pointerTap(x: number, y: number): void {
+    if (this.transitioning) return;
+    for (let i = 0; i < CHARACTERS.length; i += 1) {
+      const left = FIGHTER_CARD.x + (i % 4) * (FIGHTER_CARD.width + FIGHTER_CARD.gapX);
+      const top = FIGHTER_CARD.y + Math.floor(i / 4) * (FIGHTER_CARD.height + FIGHTER_CARD.gapY);
+      if (x < left || x >= left + FIGHTER_CARD.width || y < top || y >= top + FIGHTER_CARD.height) continue;
+      if (i === this.index && this.tapArmed) this.confirmSelection(CHARACTERS[i]!);
+      else { this.index = i; this.tapArmed = true; this.errorMessage = ''; characterTextureManager.focusCharacter(CHARACTERS[i]!.id); this.audio.playMenuMove(); }
+      return;
+    }
+  }
+
+  private confirmSelection(character: CharacterDef): void {
+    this.runSelection(() => this.confirm(character), 'SAVE FAILED • CONFIRM TO RETRY');
+  }
+
+  private runSelection(action: () => void | Promise<void>, message: string): void {
+    this.transitioning = true;
+    this.errorMessage = '';
+    this.audio.playUiConfirm();
+    const request = this.themeRequest;
+    const failed = (error: unknown) => {
+      if (request !== this.themeRequest) return;
+      this.transitioning = false;
+      this.errorMessage = message;
+      try { this.onError?.(error); } catch { /* Keep retry usable if diagnostics fail. */ }
+    };
+    try { void Promise.resolve(action()).catch(failed); }
+    catch (error) { failed(error); }
   }
 
   render({ ctx, width, height }: RenderContext): void {
@@ -66,6 +111,12 @@ export class CharacterSelectScene implements Scene {
     this.drawHeader(ctx);
     this.drawGrid(ctx);
     this.drawSelected(ctx, CHARACTERS[this.index]!);
+    if (this.errorMessage) {
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ff9b9b';
+      ctx.font = '800 13px Arial, sans-serif';
+      ctx.fillText(this.errorMessage, 1216, 132);
+    }
     ctx.restore();
   }
 
@@ -135,12 +186,12 @@ export class CharacterSelectScene implements Scene {
   }
 
   private drawGrid(ctx: CanvasRenderingContext2D): void {
-    const startX = 52;
-    const startY = 180;
-    const cardW = 154;
-    const cardH = 182;
-    const gapX = 14;
-    const gapY = 16;
+    const startX = FIGHTER_CARD.x;
+    const startY = FIGHTER_CARD.y;
+    const cardW = FIGHTER_CARD.width;
+    const cardH = FIGHTER_CARD.height;
+    const gapX = FIGHTER_CARD.gapX;
+    const gapY = FIGHTER_CARD.gapY;
 
     for (let i = 0; i < CHARACTERS.length; i += 1) {
       const character = CHARACTERS[i]!;
@@ -245,6 +296,6 @@ export class CharacterSelectScene implements Scene {
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(255,255,255,.72)';
     ctx.font = '800 13px Arial, sans-serif';
-    ctx.fillText('← ↑ ↓ → SELECT    ENTER / START CONFIRM', 1218, 690);
+    ctx.textAlign = 'left'; ctx.fillText('TAP / ARROWS: SELECT • TAP AGAIN / CONFIRM: READY', 54, 594);
   }
 }

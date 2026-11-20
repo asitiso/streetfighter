@@ -1,0 +1,34 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "sheet.png",
+  "initial": {
+    "prompt": "shoulder-tackle-initial-prompt.txt",
+    "sheet": "shoulder-tackle-initial-sheet.png"
+  },
+  "final": {
+    "editTarget": "shoulder-tackle-initial-sheet.png",
+    "prompt": "shoulder-tackle-prompt.txt",
+    "sheet": "shoulder-tackle-sheet.png",
+    "sha256": "2D53001B2A5D3B43704E20CDDF25EECCC23A7400F0D996761F69C50F51B736BB"
+  },
+  "sourceSelection": {
+    "generated": 6,
+    "selected": 5,
+    "sourceOrder": [
+      1,
+      1,
+      2,
+      3,
+      4,
+      4,
+      5,
+      5,
+      1,
+      1,
+      1,
+      1
+    ],
+    "reason": "Reuse original guard for final4frames to remove backward recovery root shift."
+  },
+  "purpose": "Original shoulder tackle; corrected extra third hand in withdrawal pose5 and outer margins before installation."
+}

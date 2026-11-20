@@ -26,7 +26,11 @@ for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL','RYU','KEN','CHUN
   f.updatePlayer(down,duel);const s=animationSequenceSample(f,0);
   assert.equal(s?.sequence.kind,'crouch',`${id} needs authored crouch, even after a long idle`);
   assert.equal(s.frame,tick);assert.equal(s.contact,false);seen.add(s.frame);
-  draws.length=0;drawCombatFighter(ctx,f,0,0);const d=draws.find(a=>a[0].src===s.sequence.asset);assert.ok(d);canvasDraws++;
+  draws.length=0;drawCombatFighter(ctx,f,0,0);
+  // This model context has no compositing canvas: partial poses retain the legacy fallback,
+  // while a fully held playable crouch must keep the authored settled body.
+  const settled=tick===5?animationSequenceFor(id,'crouch-guard'):null;
+  const d=draws.find(a=>a[0].src===(settled?.asset??s.sequence.asset));assert.ok(d);canvasDraws++;
   assert.equal(d[1],s.frame*384);assert.deepEqual(d.slice(5),[-96,-220,192,224]);
   assert.deepEqual([f.x,f.y],[600,500]);assert.equal(f.state,'crouch');
  }

@@ -8,6 +8,7 @@ export class FixedStepLoop {
   private rafId = 0;
   private running = false;
   private tick = 0;
+  private runVersion = 0;
 
   constructor(
     private readonly fixedUpdate: FixedUpdate,
@@ -17,8 +18,10 @@ export class FixedStepLoop {
   start(): void {
     if (this.running) return;
     this.running = true;
+    // A new run must not consume unfinished catchup from the stopped frame.
+    this.accumulator = 0;
     this.lastTime = performance.now();
-    this.rafId = requestAnimationFrame(this.frame);
+    this.rafId = requestAnimationFrame(this.createFrame(++this.runVersion));
   }
 
   stop(): void {
@@ -30,22 +33,29 @@ export class FixedStepLoop {
     return this.tick;
   }
 
-  private frame = (now: number): void => {
-    if (!this.running) return;
+  // Capture the run once, so even an already-dispatched old callback is inert.
+  private createFrame(version: number): FrameRequestCallback {
+    const frame: FrameRequestCallback = (now) => {
+      if (!this.running || version !== this.runVersion) return;
 
-    const frameMs = Math.min(100, now - this.lastTime);
-    this.lastTime = now;
-    this.accumulator += frameMs;
+      const elapsedMs = now - this.lastTime;
+      const frameMs = Math.min(100, elapsedMs);
+      this.lastTime = now;
+      this.accumulator += frameMs;
 
-    let safety = 0;
-    while (this.accumulator >= this.stepMs && safety < 6) {
-      this.tick += 1;
-      this.fixedUpdate(this.stepMs / 1000, this.tick);
-      this.accumulator -= this.stepMs;
-      safety += 1;
-    }
+      let safety = 0;
+      while (this.accumulator >= this.stepMs && safety < 6) {
+        this.tick += 1;
+        this.accumulator -= this.stepMs;
+        this.fixedUpdate(this.stepMs / 1000, this.tick);
+        if (!this.running || version !== this.runVersion) return;
+        safety += 1;
+      }
 
-    this.renderUpdate(this.accumulator / this.stepMs, frameMs / 1000);
-    this.rafId = requestAnimationFrame(this.frame);
-  };
+      // Simulation catchup is capped; performance consumers need the real frame cost.
+      this.renderUpdate(this.accumulator / this.stepMs, elapsedMs / 1000);
+      if (this.running && version === this.runVersion) this.rafId = requestAnimationFrame(frame);
+    };
+    return frame;
+  }
 }

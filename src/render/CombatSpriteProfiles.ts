@@ -1,4 +1,5 @@
 import type { Fighter } from '../combat/Fighter.js';
+import { motionClipForFighter, neutralCrouchBlend } from './AnimationPoseLibrary.js';
 import { motionPolishProfile, plantedStep, softTriangle } from './MotionPolishProfiles.js';
 import { victimReactionSample } from './VictimReactionProfiles.js';
 import { locomotionProfile } from './LocomotionProfiles.js';
@@ -23,6 +24,20 @@ export function combatSpriteEnabledFor(characterId: string): boolean {
   return PLAYABLE.has(characterId);
 }
 
+// The existing six-tick crouch clock also owns low guard/parry transitions.
+export function defenseCrouchBlend(fighter: Fighter): number {
+  if (fighter.airborne || (fighter.state !== 'block' && fighter.state !== 'parry')) return 0;
+  const held = Math.max(0, Math.min(1, (fighter.crouchAnimationFrame + 1) / 6));
+  if (fighter.state !== 'parry' || fighter.lastHitZone !== 'leg') return held;
+  // A successful low tap owns its pose even after down was released.
+  // Use the reaction clock so hit-stop freezes entry and the final frame settles.
+  const duration = Math.max(1, fighter.parryAnimationDuration || 10);
+  const elapsed = Math.max(0, duration + fighter.stateFrame);
+  const entry = Math.min(1, (elapsed + 1) / 3);
+  const exit = Math.max(0, Math.min(1, (-fighter.stateFrame - 1) / 3));
+  return Math.max(held, Math.min(entry, exit));
+}
+
 export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePose {
   if (!combatSpriteEnabledFor(fighter.character.id)) return EMPTY;
   if (fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0 || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0) return EMPTY;
@@ -33,14 +48,15 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
   const velocityX = fighter.x - fighter.previousX;
   const velocityY = fighter.y - fighter.previousY;
   const speed = Math.min(1.7, Math.hypot(velocityX, velocityY) / 5.4);
-  const stateClock = fighter.stateFrame / 60;
+  const locomotionFrame = fighter.state === 'walk' ? fighter.walkAnimationFrame ?? fighter.stateFrame : fighter.stateFrame;
+  const stateClock = locomotionFrame / 60;
   const walkRate = (2.18 + speed * 1.7) * locomotion.walkCadence;
   const walkPhase01 = ((stateClock * walkRate) % 1 + 1) % 1;
   const footPlant = plantedStep(walkPhase01) * polish.footPlant * locomotion.heelPlant;
   const strideWave = Math.sin(walkPhase01 * Math.PI * 2);
   const counterStrideWave = Math.sin(walkPhase01 * Math.PI * 4 + Math.PI * .25);
   const stepLift = softTriangle(walkPhase01) * locomotion.stepLift;
-  const stateEntry = Math.max(0, 1 - fighter.stateFrame / 7);
+  const stateEntry = Math.max(0, 1 - locomotionFrame / 7);
   const breathe = (Math.sin(time * (2.65 + polish.bob * .35) * locomotion.idleRate) + Math.sin(time * (5.1 + polish.bob * .22) * locomotion.idleRate) * .18) * (1.15 + polish.bob * .75) * locomotion.idleShift;
   let offsetX = 0;
   let offsetY = breathe;
@@ -50,7 +66,8 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
   let alpha = 1;
   let torsoTwist = 0;
 
-  switch (fighter.state) {
+  const neutralCrouch = neutralCrouchBlend(fighter);
+  switch (neutralCrouch > 0 ? 'crouch' : fighter.state) {
     case 'idle': {
       const shift = (Math.sin(time * (1.8 + polish.bob * .25) * locomotion.idleRate) + Math.sin(time * 3.95 * locomotion.idleRate + .8) * .18) * (1.4 + polish.stride * .7) * locomotion.idleShift;
       const settle = stateEntry * Math.max(0, Math.min(1, Math.abs(velocityX) / 2.4 + Math.abs(velocityY) / 3.5 + (fighter.landingFrames > 0 ? .32 : 0)));
@@ -64,7 +81,7 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
     }
     case 'walk': {
       const direction = Math.sign(velocityX || fighter.facing);
-      const engage = Math.max(.32, Math.min(1, fighter.stateFrame / 6));
+      const engage = Math.max(.32, Math.min(1, locomotionFrame / 6));
       const stride = strideWave * (2.8 + speed * 3.6) * polish.stride * locomotion.strideLength * engage;
       const suspension = counterStrideWave * (1.1 + speed * 1.6) * locomotion.hipSway * .42;
       offsetX = stride + direction * speed * 1.8 * locomotion.dashDrive - fighter.facing * stateEntry * 1.6 * locomotion.dashLean;
@@ -76,12 +93,6 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
       break;
     }
     case 'crouch':
-      offsetY += 21 + polish.footPlant * 2.2;
-      offsetX -= fighter.facing * 1.5 * polish.lean;
-      scaleX = 1.045 + polish.footPlant * .014;
-      scaleY = .79;
-      rotation = -.014 * fighter.facing * polish.lean;
-      torsoTwist = -.025 * fighter.facing * polish.torsoTwist;
       break;
     case 'jump': {
       const rise = Math.max(-1, Math.min(1, fighter.jumpVelocity / Math.max(1, fighter.combatProfile.jumpVelocity)));
@@ -99,7 +110,7 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
     }
     case 'parry': {
       // Locked defense states count from negative remaining frames toward zero.
-      const pulse = Math.max(0, Math.min(1, 1 - Math.abs(fighter.stateFrame) / 10));
+      const pulse = motionClipForFighter(fighter, time).progress;
       offsetX = -fighter.facing * (3 + pulse * 2.4);
       offsetY -= 1.5 + pulse;
       rotation = -.055 * fighter.facing * polish.lean;
@@ -109,7 +120,8 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
       break;
     }
     case 'block': {
-      const recoil = Math.max(0, Math.min(1, -fighter.stateFrame / 12)) * polish.hitRecoil;
+      const duration = Math.max(1, fighter.guardAnimationDuration || 12);
+      const recoil = Math.max(0, Math.min(1, -fighter.stateFrame / duration)) * polish.hitRecoil;
       offsetX = -fighter.facing * (4 + recoil * 4.5);
       offsetY += 1.5 + recoil;
       rotation = -.045 * fighter.facing * polish.lean;
@@ -132,9 +144,9 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
     }
     case 'knockdown':
     case 'ko': {
-      const p = Math.max(.22, Math.min(1, Math.abs(fighter.stateFrame) / 28));
+      const p = motionClipForFighter(fighter, time).progress;
       offsetX = -fighter.facing * (12 + p * 16);
-      offsetY += 47 + p * 14;
+      offsetY = 47 + p * 14;
       rotation = -fighter.facing * (1.02 + p * .32);
       scaleX = 1.02;
       scaleY = .92;
@@ -156,7 +168,7 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
       break;
   }
 
-  if (!fighter.airborne && fighter.landingFrames > 0 && (fighter.state === 'idle' || fighter.state === 'walk')) {
+  if (!fighter.airborne && fighter.landingFrames > 0 && fighter.dashFrames <= 0 && (fighter.state === 'idle' || fighter.state === 'walk')) {
     const landingP = Math.max(0, Math.min(1, fighter.landingFrames / 8));
     const squash = landingP * locomotion.landingSquash;
     const settleWave = Math.sin((1 - landingP) * Math.PI) * locomotion.landingSettle;
@@ -177,5 +189,16 @@ export function combatSpritePose(fighter: Fighter, time: number): CombatSpritePo
     torsoTwist -= fighter.facing * dashP * .018 * locomotion.dashLean;
   }
 
+  if (neutralCrouch > 0) {
+    // The bitmap is already anchored at its feet: compress without sinking it.
+    offsetX -= fighter.facing * 1.5 * polish.lean * neutralCrouch;
+    scaleX *= 1 + (.045 + polish.footPlant * .014) * neutralCrouch;
+    scaleY *= 1 - .21 * neutralCrouch;
+    rotation -= .014 * fighter.facing * polish.lean * neutralCrouch;
+    torsoTwist -= .025 * fighter.facing * polish.torsoTwist * neutralCrouch;
+  }
+  const lowDefense = defenseCrouchBlend(fighter);
+  scaleX *= 1 + lowDefense * .05;
+  scaleY *= 1 - lowDefense * .21;
   return { useSprite:true, offsetX, offsetY, rotation, scaleX, scaleY, alpha, torsoTwist, footPlant, speed };
 }

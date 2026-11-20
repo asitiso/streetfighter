@@ -24,7 +24,7 @@ for (let tick = 1; tick <= 16; tick += 1) hitWorld.update(input, tick);
 if (hitWorld.enemy.hp >= 1000) fail('heavy punch did not damage target');
 
 const guardWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'belt');
-guardWorld.player.x = 500; guardWorld.player.y = 500; guardWorld.enemy.x = 570; guardWorld.enemy.y = 500; guardWorld.enemy.aiCooldown = 999; guardWorld.enemy.aiProfile.guardChance = 1;
+guardWorld.player.x = 500; guardWorld.player.y = 500; guardWorld.enemy.x = 570; guardWorld.enemy.y = 500; guardWorld.enemy.aiCooldown = 999; guardWorld.enemy.aiProfile = { ...guardWorld.enemy.aiProfile, guardChance: 1, parryChance: 0 };
 guardWorld.player.startMove(normalFor('hp'));
 for (let tick = 1; tick <= 12; tick += 1) guardWorld.update(input, tick);
 if (!guardWorld.events.some((event) => event.type === 'block')) fail('AI guard path not reached');
@@ -45,6 +45,8 @@ if (fighter.currentMove?.label !== 'HADOKEN') fail(`expected HADOKEN, got ${figh
 
 const projectileWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'belt');
 projectileWorld.player.x = 360; projectileWorld.enemy.x = 760; projectileWorld.player.y = 500; projectileWorld.enemy.y = 500; projectileWorld.enemy.aiCooldown = 999;
+// Damage fixture: AI defense has separate contact and flight coverage.
+projectileWorld.enemy.aiProfile = { ...projectileWorld.enemy.aiProfile, guardChance: 0, parryChance: 0 };
 projectileWorld.player.startMove(SPECIAL_MOVES.find((move) => move.label === 'HADOKEN'));
 for (let tick = 1; tick <= 60; tick += 1) projectileWorld.update(input, tick);
 if (projectileWorld.enemy.hp >= 1000) fail('projectile did not hit target');
@@ -108,7 +110,7 @@ if (tradeWorld.player.hp >= tradePlayerHp || tradeWorld.enemy.hp >= tradeEnemyHp
 
 const counterWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'duel');
 counterWorld.player.x = 500; counterWorld.enemy.x = 558; counterWorld.player.y = 500; counterWorld.enemy.y = 500;
-counterWorld.enemy.startMove(normalFor('hp')); counterWorld.player.startMove(normalFor('lp')); counterWorld.enemy.aiCooldown = 997; counterWorld.enemy.aiProfile.guardChance = 0; input.set();
+counterWorld.enemy.startMove(normalFor('hp')); counterWorld.player.startMove(normalFor('lp')); counterWorld.enemy.aiCooldown = 997; counterWorld.enemy.aiProfile = { ...counterWorld.enemy.aiProfile, guardChance: 0, parryChance: 0 }; input.set();
 for (let tick = 1; tick <= 7; tick += 1) counterWorld.update(input, tick);
 if (!counterWorld.events.some((event) => event.type === 'counter')) fail('counter-hit path not reached');
 

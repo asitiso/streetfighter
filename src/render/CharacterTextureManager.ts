@@ -1,6 +1,8 @@
+import { releasePoseBlendCanvas } from './PoseBlendBuffer.js';
 import { runtimeQuality } from '../core/RuntimeQuality.js';
+import { CHARACTERS, BOSS_CHARACTERS } from '../game/characters.js';
 import { APPROVED_HQ_CHARACTER_IDS, hqMasterApproved } from './HqCharacterMasterRegistry.js';
-import { animationTextureManager } from './AnimationTextureManager.js';
+import { animationTextureManager, liteAnimationTextureManager } from './AnimationTextureManager.js';
 import { preloadSpecialKeyPoses, releaseSpecialKeyPoses } from './SpecialKeyPoseLibrary.js';
 import {
   artImage,
@@ -60,7 +62,8 @@ class CharacterTextureManager {
     if (typeof localStorage !== 'undefined') {
       try { localStorage.setItem(STORAGE_KEY, mode); } catch { /* non-fatal */ }
     }
-    if (mode === 'lite') this.releaseHighExcept([]);
+    // Apply automatic retention immediately, including low-quality fallback.
+    this.refreshQuality();
   }
 
   cycle(direction: -1 | 1): CharacterTextureQuality {
@@ -97,16 +100,17 @@ class CharacterTextureManager {
     return Math.round(value / step) * step;
   }
 
-  preloadCharacter(characterId: string): void {
+  preloadCharacter(characterId: string, scope: 'movement' | 'ending' = 'movement'): void {
+    if (!this.wantsHd()) liteAnimationTextureManager.retryCharacter(characterId);
     if (this.wantsHd()) {
-      animationTextureManager.preloadCharacter(characterId, 'movement');
-      preloadSpecialKeyPoses(characterId);
+      animationTextureManager.preloadCharacter(characterId, scope);
+      if (scope === 'movement') preloadSpecialKeyPoses(characterId);
     }
     const liteCombat = combatSpriteKey(characterId);
     const liteAttack = attackAtlasKey(characterId);
     const keys: ArtAssetKey[] = [];
     if (liteCombat) keys.push(liteCombat);
-    if (liteAttack) keys.push(liteAttack);
+    if (liteAttack && scope === 'movement') keys.push(liteAttack);
     if (this.wantsHd()) {
       if (this.wantsHq(characterId)) {
         const hqCombat = combatSpriteHqKey(characterId);
@@ -115,15 +119,36 @@ class CharacterTextureManager {
       const hdCombat = combatSpriteHdKey(characterId);
       const hdAttack = attackAtlasHdKey(characterId);
       if (hdCombat) keys.push(hdCombat);
-      if (hdAttack) keys.push(hdAttack);
+      if (hdAttack && scope === 'movement') keys.push(hdAttack);
     }
     preloadArtAssets(keys);
   }
 
-  focusCharacter(characterId: string): void {
-    this.preloadCharacter(characterId);
-    this.recent = [characterId, ...this.recent.filter((id) => id !== characterId)].slice(0, 3);
-    if (this.mode !== 'hd') this.releaseHighExcept(this.recent);
+  focusEnding(characterId: string): void {
+    this.preloadCharacter(characterId, 'ending');
+    this.recent = [characterId, ...this.recent.filter(id => id !== characterId)].slice(0, 3);
+    this.refreshQuality();
+  }
+
+  focusCharacter(characterId: string, ...opponentIds: string[]): void {
+    const focused = [...new Set([characterId, ...opponentIds])];
+    for (const id of focused) this.preloadCharacter(id);
+    // Keep every current wave actor; menu/duel focus returns to the usual three.
+    this.recent = [...focused, ...this.recent.filter((id) => !focused.includes(id))].slice(0, Math.max(3, focused.length));
+    this.refreshQuality();
+  }
+
+  clearFocus(): void {
+    liteAnimationTextureManager.release();
+    this.recent = [];
+    this.refreshQuality();
+  }
+
+  refreshQuality(): void {
+    const hd = this.wantsHd();
+    if (hd) liteAnimationTextureManager.release();
+    if (!hd) releasePoseBlendCanvas();
+    if (this.mode !== 'hd') this.releaseHighExcept(hd ? this.recent : []);
   }
 
   combatSelection(characterId: string): CharacterTextureSelection | null {
@@ -191,7 +216,7 @@ class CharacterTextureManager {
 
   private releaseHighExcept(characterIds: readonly string[]): void {
     const keep = new Set(characterIds);
-    for (const id of PLAYABLE) {
+    for (const { id } of [...CHARACTERS, ...BOSS_CHARACTERS]) {
       if (keep.has(id)) continue;
       const hq = combatSpriteHqKey(id);
       const combat = combatSpriteHdKey(id);
@@ -206,5 +231,7 @@ class CharacterTextureManager {
 }
 
 export const characterTextureManager = new CharacterTextureManager();
+// Share the existing texture preference without a reverse manager import.
+animationTextureManager.setQualityPolicy(() => characterTextureManager.wantsHd());
 export const PLAYABLE_CHARACTER_TEXTURE_IDS: readonly PlayableId[] = PLAYABLE;
 export { APPROVED_HQ_CHARACTER_IDS };

@@ -35,9 +35,9 @@ for(const facing of [-1,1])for(const variant of ['ANTI_AIR','SA2']){
   w.update(quiet,tick);
  }
  assert.ok(peak>0&&airAttack&&landed);assert.equal(f.state,'idle');assert.equal(f.jumpHeight,0);assert.deepEqual([...contacts].sort(),[4,5,6,7]);assert.ok(seen.has(7)&&seen.has(8)&&seen.has(9),'Flight apex/descent and touchdown poses must be reached');coverage.push({variant,facing,frames:seen.size});
- f.startMove(move);f.airborne=true;f.jumpHeight=40;assert.equal(animationSequenceSample(f,0)?.sequence.id,seq.id,'Launched uppercut owns its flight');f.state='hit';assert.equal(animationSequenceSample(f,0)?.sequence.kind,'hit','Interruption returns to authored airborne hit reaction');
+ f.startMove(move);f.airborne=true;f.jumpHeight=40;assert.equal(animationSequenceSample(f,0)?.sequence.id,seq.id,'Launched uppercut owns its flight');f.state='hit';assert.equal(animationSequenceSample(f,0)?.sequence.kind,'fall','Interruption returns to authored airborne hit reaction');
  timelines[variant+' '+(facing===1?'RIGHT':'LEFT')]=rows;
 }
-assert.equal(animationSequenceKindForAttack('RYU',{id:'RYU_CMD_MP'}),null);
+assert.equal(animationSequenceKindForAttack('RYU',{id:'RYU_CMD_MP'}),'collarbone-breaker');
 assert.equal(reachedFrames.size,12,'Both unchanged move durations together must cover all stored poses');
 console.log('RYU_SHORYUKEN_PASS',{variants:2,facings:2,canvasDraws,contacts:[4,5,6,7],worldHeightAppliedOnce:true,coverage});

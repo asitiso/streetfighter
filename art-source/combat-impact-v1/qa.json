@@ -1,0 +1,298 @@
+{
+  "status": "passed",
+  "generator": "built-in imagegen",
+  "source": "art-source\\combat-impact-v1\\generated-atlas-v1.png",
+  "runtime": "public\\art\\fx\\combat-impact-v1.webp",
+  "size": [
+    1254,
+    1254
+  ],
+  "rows": [
+    "hit",
+    "guard",
+    "parry",
+    "counter"
+  ],
+  "columns": 4,
+  "frames": [
+    {
+      "row": 0,
+      "frame": 0,
+      "sourceRect": [
+        0,
+        0,
+        314,
+        314
+      ],
+      "coreBox": [
+        100,
+        107,
+        222,
+        216
+      ],
+      "rgbaSha256": "0ecccf1ff812bf864ffb32bb66ec3dcad733fbfc7bda9e25de0442c43f423b5b"
+    },
+    {
+      "row": 0,
+      "frame": 1,
+      "sourceRect": [
+        314,
+        0,
+        313,
+        314
+      ],
+      "coreBox": [
+        21,
+        49,
+        276,
+        271
+      ],
+      "rgbaSha256": "3906939296061d9f67145eeddebd0bf38783ae8e9da5f5adec535c9cbc629613"
+    },
+    {
+      "row": 0,
+      "frame": 2,
+      "sourceRect": [
+        627,
+        0,
+        313,
+        314
+      ],
+      "coreBox": [
+        35,
+        37,
+        275,
+        277
+      ],
+      "rgbaSha256": "3ff1d3e7e9532d6fd6eb954f900a17786d91d7de47ee873ea3b3f174f194d635"
+    },
+    {
+      "row": 0,
+      "frame": 3,
+      "sourceRect": [
+        940,
+        0,
+        314,
+        314
+      ],
+      "coreBox": [
+        52,
+        55,
+        256,
+        252
+      ],
+      "rgbaSha256": "5738d82f575daa043b5d95d28bb56ab0baf05b5572ecf98b1c0e1a0a84f2b420"
+    },
+    {
+      "row": 1,
+      "frame": 0,
+      "sourceRect": [
+        0,
+        314,
+        314,
+        313
+      ],
+      "coreBox": [
+        110,
+        91,
+        209,
+        223
+      ],
+      "rgbaSha256": "19b47c9cccdad10ea5a3510c3426be3def31e4942cf397cedb9fd5969a04099d"
+    },
+    {
+      "row": 1,
+      "frame": 1,
+      "sourceRect": [
+        314,
+        314,
+        313,
+        313
+      ],
+      "coreBox": [
+        36,
+        38,
+        236,
+        278
+      ],
+      "rgbaSha256": "8ebe8429aedeedb216eb801072423e47a98f7001ab08e67e567399ea6cd41192"
+    },
+    {
+      "row": 1,
+      "frame": 2,
+      "sourceRect": [
+        627,
+        314,
+        313,
+        313
+      ],
+      "coreBox": [
+        25,
+        27,
+        252,
+        278
+      ],
+      "rgbaSha256": "ada2f3e267263a052f1c63be2373e09a1d8a559a73a2a51e3faf5e5247a36fcc"
+    },
+    {
+      "row": 1,
+      "frame": 3,
+      "sourceRect": [
+        940,
+        314,
+        314,
+        313
+      ],
+      "coreBox": [
+        27,
+        31,
+        240,
+        270
+      ],
+      "rgbaSha256": "826d10e2994a74f859e85ccc8cf7f9e77edc59fee5ac6f2a0d4cf3ee7850da37"
+    },
+    {
+      "row": 2,
+      "frame": 0,
+      "sourceRect": [
+        0,
+        627,
+        314,
+        313
+      ],
+      "coreBox": [
+        95,
+        91,
+        222,
+        213
+      ],
+      "rgbaSha256": "1f9bea627798f4cc9970b248ee72543ebfa4993ddf7fa31c36e3bf46110ff6ca"
+    },
+    {
+      "row": 2,
+      "frame": 1,
+      "sourceRect": [
+        314,
+        627,
+        313,
+        313
+      ],
+      "coreBox": [
+        35,
+        35,
+        274,
+        270
+      ],
+      "rgbaSha256": "60f749288985fb168035af0f1b2e2ba485dba8831aeabe6877786abca899e301"
+    },
+    {
+      "row": 2,
+      "frame": 2,
+      "sourceRect": [
+        627,
+        627,
+        313,
+        313
+      ],
+      "coreBox": [
+        46,
+        41,
+        275,
+        266
+      ],
+      "rgbaSha256": "0b642940c1062dfbabf99aa691b20a226a9b68ce697dabf2c8c0b3a5736293b9"
+    },
+    {
+      "row": 2,
+      "frame": 3,
+      "sourceRect": [
+        940,
+        627,
+        314,
+        313
+      ],
+      "coreBox": [
+        43,
+        44,
+        269,
+        264
+      ],
+      "rgbaSha256": "705cedcf89e4738b47780fc598dda3eac6b56f9b6f8fcbf0fec25b452b574179"
+    },
+    {
+      "row": 3,
+      "frame": 0,
+      "sourceRect": [
+        0,
+        940,
+        314,
+        314
+      ],
+      "coreBox": [
+        86,
+        80,
+        236,
+        213
+      ],
+      "rgbaSha256": "50e910d0c2ee949f7625892759aa06f0971ad52776ea5cde91046317187e2b75"
+    },
+    {
+      "row": 3,
+      "frame": 1,
+      "sourceRect": [
+        314,
+        940,
+        313,
+        314
+      ],
+      "coreBox": [
+        23,
+        21,
+        276,
+        268
+      ],
+      "rgbaSha256": "7930153ffd2c217b3c9415c2836f40b31afabb0f957da15fdcf043c2e6a8f6bb"
+    },
+    {
+      "row": 3,
+      "frame": 2,
+      "sourceRect": [
+        627,
+        940,
+        313,
+        314
+      ],
+      "coreBox": [
+        22,
+        29,
+        277,
+        271
+      ],
+      "rgbaSha256": "7478668c1e6f03ccd5c0693dd0429ce3949e28e93fe316da91d88e2fa29013b8"
+    },
+    {
+      "row": 3,
+      "frame": 3,
+      "sourceRect": [
+        940,
+        940,
+        314,
+        314
+      ],
+      "coreBox": [
+        43,
+        39,
+        264,
+        250
+      ],
+      "rgbaSha256": "dbdbf01775367f8f3d41d272199d6671495d5221218482d5983e8dc54e93e857"
+    }
+  ],
+  "decodedBytes": 6290064,
+  "runtimeBytes": 1406262,
+  "runtimeSha256": "3574eb7cf180bf9d129c5f19f8f9fbfd3268374f07db662778d5fcf7414972a3",
+  "sourceSha256": "b4d7aa9917a0e31bdb24f72645ec84dcf71904eadc7e1cfbc7c9ece1ac2d38c8",
+  "transparencyPreserved": true,
+  "visiblePixelsLossless": true,
+  "distinctFrames": 16
+}

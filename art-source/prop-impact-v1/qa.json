@@ -1,0 +1,32 @@
+{
+  "width": 768,
+  "height": 512,
+  "cell": 128,
+  "frames": 24,
+  "bytes": 203930,
+  "decodedBytes": 1572864,
+  "sourceSha256": "fb14813a2ab70a324e5bb307391b7e8dc7c897932a46179277f05dd548b24e49",
+  "runtimeSha256": "f9b4bcbad196b22ddc9508ed9373c70773a704b064b173022ffd8e700801d830",
+  "rows": [
+    {
+      "material": "wood",
+      "frames": 6,
+      "uniqueFrames": 6
+    },
+    {
+      "material": "metal",
+      "frames": 6,
+      "uniqueFrames": 6
+    },
+    {
+      "material": "glass",
+      "frames": 6,
+      "uniqueFrames": 6
+    },
+    {
+      "material": "cloth",
+      "frames": 6,
+      "uniqueFrames": 6
+    }
+  ]
+}

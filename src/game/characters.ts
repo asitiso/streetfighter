@@ -45,5 +45,7 @@ export const BOSS_CHARACTERS: readonly CharacterDef[] = [
 ] as const;
 
 export function getCharacter(id: string): CharacterDef {
-  return CHARACTERS.find((character) => character.id === id) ?? BOSS_CHARACTERS.find((character) => character.id === id) ?? CHARACTERS[0]!;
+  // Keep older signed saves readable without rewriting their stored character ID.
+  const canonicalId = id === 'CHUN-LI' ? 'CHUNLI' : id;
+  return CHARACTERS.find((character) => character.id === canonicalId) ?? BOSS_CHARACTERS.find((character) => character.id === canonicalId) ?? CHARACTERS[0]!;
 }

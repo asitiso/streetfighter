@@ -18,7 +18,7 @@ for(const facing of [-1,1]) {
   fighter.updatePlayer(neutral,rules);
  }
  assert.ok(rise&&fall&&landed&&maxHeight>0);assert.deepEqual([...frames.jump],[0,1,2,3,4,5,6,7]);
- assert.ok(frames.jump.has(3)||frames.jump.has(4),'Apex tuck visible');assert.deepEqual([...frames.landing],[1,2,4,5],'Existing landing timing reaches compression, rebound and recovery');
+ assert.ok(frames.jump.has(3)||frames.jump.has(4),'Apex tuck visible');assert.deepEqual([...frames.landing],[0,1,2,3,4,5],'Every landing pose must remain visible through compression, rebound and recovery');
  assert.ok(frames.landing.has(1)||frames.landing.has(2),'Landing compression visible');
  console.log('IBUKI_AIR_FRAMES',{facing,jump:[...frames.jump],landing:[...frames.landing]});
 }

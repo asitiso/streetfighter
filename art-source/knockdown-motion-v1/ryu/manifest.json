@@ -1,0 +1,94 @@
+{
+  "character": "RYU",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.8512195121951219,
+  "sourceBounds": [
+    [
+      71,
+      99,
+      414,
+      441
+    ],
+    [
+      33,
+      169,
+      439,
+      442
+    ],
+    [
+      29,
+      266,
+      468,
+      445
+    ],
+    [
+      81,
+      180,
+      401,
+      436
+    ],
+    [
+      106,
+      114,
+      375,
+      437
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      111,
+      144,
+      402,
+      434
+    ],
+    [
+      83,
+      203,
+      429,
+      434
+    ],
+    [
+      69,
+      283,
+      444,
+      434
+    ],
+    [
+      121,
+      215,
+      392,
+      434
+    ],
+    [
+      142,
+      160,
+      370,
+      434
+    ],
+    [
+      135,
+      85,
+      366,
+      434
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/ryu.webp",
+  "bytes": 542700,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "1242d6b09a5e0c4762194aa80c4b5a61a2e5674e6f53ccbe25e1df10f2b7a14c",
+    "generation-reference.png": "20f5b35c1a81411cea08115dc322abbc6cfd0ac76a28565090034bd9bf45342f",
+    "reference-settle.png": "20f5b35c1a81411cea08115dc322abbc6cfd0ac76a28565090034bd9bf45342f",
+    "generation-prompt.txt": "798d24f1d1c75b8a3f5d9ed7ae829d2c0228af9c23166a55ca21132da0b13bae",
+    "spacing-edit-prompt.txt": "3ca39b53db6ae4d6cf39c5ac72b751a6008450ab3c94040cb5ba8b1b2d0d4b38",
+    "ryu.webp": "45b327f75df1c1efb81a338104afb7dbd6b72fc4231c98f1612bf36b681995b5"
+  }
+}

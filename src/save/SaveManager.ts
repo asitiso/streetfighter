@@ -4,7 +4,7 @@ export const SAVE_DB_NAME = 'ssc-save-data-v1';
 export const SAVE_SCHEMA_VERSION = 2;
 const PRIMARY_KEY = 'profile';
 const BACKUP_KEY = 'profile-backup';
-const ALLOWED_CHARACTERS = new Set(['RYU', 'KEN', 'CHUN-LI', 'ALEX', 'DUDLEY', 'MAKOTO', 'IBUKI', 'YUN']);
+const ALLOWED_CHARACTERS = new Set(['RYU', 'KEN', 'CHUNLI', 'CHUN-LI', 'ALEX', 'DUDLEY', 'MAKOTO', 'IBUKI', 'YUN']);
 
 export interface GameSave {
   schemaVersion: number;
@@ -276,64 +276,68 @@ export class SaveManager {
 
   async load(): Promise<GameSave> {
     if (!this.db) return { ...DEFAULT_SAVE };
-    const [rawPrimary, rawBackup] = await Promise.all([this.getRaw(PRIMARY_KEY), this.getRaw(BACKUP_KEY)]);
-    const recovery = recoverSaveRecords(rawPrimary, rawBackup);
-    this.lastHealth = recovery.health;
-    const decodedPrimary = decodeSaveRecord(rawPrimary);
-    if (recovery.health.source === 'backup') await this.putRaw(PRIMARY_KEY, encodeSaveRecord(recovery.save));
-    else if (decodedPrimary?.legacy || decodedPrimary?.issues.length) await this.putRaw(PRIMARY_KEY, encodeSaveRecord(recovery.save));
-    return recovery.save;
+    return this.transactSave();
   }
 
   async write(patch: Partial<GameSave>): Promise<GameSave> {
     if (!this.db) throw new Error('SaveManager not initialized');
-    const current = await this.load();
-    const sanitized = sanitizeGameSave({ ...current, ...patch, schemaVersion: SAVE_SCHEMA_VERSION });
-    const next = sanitized.save;
-    await this.writePrimaryAndBackup(encodeSaveRecord(next), encodeSaveRecord(current));
-    this.lastHealth = { source: 'primary', repaired: sanitized.issues.length > 0, issues: sanitized.issues, backupReady: true, schemaVersion: SAVE_SCHEMA_VERSION };
-    return next;
+    return this.transactSave((current) => sanitizeGameSave({ ...current, ...patch, schemaVersion: SAVE_SCHEMA_VERSION }));
   }
 
   async exportPortable(): Promise<{ filename: string; text: string }> {
     const save = await this.load();
     const pkg = createPortableSave(save);
     const stamp = pkg.exportedAt.replace(/[:.]/g, '-');
-    return { filename: `side-scroll-chronicles-save-${stamp}.json`, text: JSON.stringify(pkg, null, 2) };
+    return { filename: 'side-scroll-chronicles-save-' + stamp + '.json', text: JSON.stringify(pkg, null, 2) };
   }
 
   async importPortable(text: string): Promise<GameSave> {
     if (!this.db) throw new Error('SaveManager not initialized');
     const imported = decodePortableSave(text);
-    const current = await this.load();
-    await this.writePrimaryAndBackup(encodeSaveRecord(imported.save), encodeSaveRecord(current));
-    this.lastHealth = { source: 'primary', repaired: imported.issues.length > 0, issues: imported.issues, backupReady: true, schemaVersion: SAVE_SCHEMA_VERSION };
-    return imported.save;
+    return this.transactSave(() => imported);
   }
 
-  private getRaw(key: string): Promise<unknown> { return this.request<unknown>('readonly', (store) => store.get(key)); }
-  private putRaw(key: string, value: unknown): Promise<IDBValidKey> { return this.request<IDBValidKey>('readwrite', (store) => store.put(value, key)); }
-
-  private writePrimaryAndBackup(primary: StoredSaveRecord, backup: StoredSaveRecord): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  private transactSave(update?: (current: GameSave) => { save: GameSave; issues: string[] }): Promise<GameSave> {
+    return new Promise<GameSave>((resolve, reject) => {
       if (!this.db) { reject(new Error('Database unavailable')); return; }
+      // One store transaction serializes read/modify/write across connections.
+      // Recovery repair uses the same lock so it cannot overwrite a newer save.
       const tx = this.db.transaction('save', 'readwrite');
       const store = tx.objectStore('save');
-      store.put(backup, BACKUP_KEY);
-      store.put(primary, PRIMARY_KEY);
-      tx.oncomplete = () => resolve();
+      const primary = store.get(PRIMARY_KEY);
+      const backup = store.get(BACKUP_KEY);
+      let pending = 2;
+      let result: { save: GameSave; health: SaveHealth } | null = null;
+      const read = (): void => {
+        if (--pending > 0) return;
+        try {
+          const recovered = recoverSaveRecords(primary.result, backup.result);
+          if (update) {
+            const next = update(recovered.save);
+            result = { save: next.save, health: { source: 'primary', repaired: next.issues.length > 0, issues: next.issues, backupReady: true, schemaVersion: SAVE_SCHEMA_VERSION } };
+            store.put(encodeSaveRecord(recovered.save), BACKUP_KEY);
+            store.put(encodeSaveRecord(next.save), PRIMARY_KEY);
+          } else {
+            result = recovered;
+            const decoded = decodeSaveRecord(primary.result);
+            if (recovered.health.source === 'backup' || decoded?.legacy || decoded?.issues.length) {
+              store.put(encodeSaveRecord(recovered.save), PRIMARY_KEY);
+            }
+          }
+        } catch (error) {
+          reject(error);
+          try { tx.abort(); } catch { /* preserve the original failure */ }
+        }
+      };
+      primary.onsuccess = read;
+      backup.onsuccess = read;
+      tx.oncomplete = () => {
+        if (!result) { reject(new Error('Save transaction produced no data')); return; }
+        this.lastHealth = result.health;
+        resolve(result.save);
+      };
       tx.onerror = () => reject(tx.error ?? new Error('Save transaction failed'));
       tx.onabort = () => reject(tx.error ?? new Error('Save transaction aborted'));
-    });
-  }
-
-  private request<T>(mode: IDBTransactionMode, make: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-      if (!this.db) { reject(new Error('Database unavailable')); return; }
-      const tx = this.db.transaction('save', mode);
-      const request = make(tx.objectStore('save'));
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error ?? new Error('IndexedDB request failed'));
     });
   }
 }

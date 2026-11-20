@@ -39,12 +39,14 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
  shutil.copytree(ROOT/'art-source/roster-idle/ryu',source/'ryu')
  runtime=fixture/'public/art/animation-hq/ryu';shutil.copytree(ROOT/'public/art/animation-hq/ryu',runtime)
  path=runtime/'manifest.json';data=json.loads(path.read_text())
+ victory_records={r['id']:r.copy() for r in data['records'] if r['id']=='victory'};victory_frames=sum(r['frames'] for r in victory_records.values());victory_files={name:(runtime/(name+'.webp')).read_bytes() for name in victory_records}
+ air_records={r['id']:r.copy() for r in data['records'] if r['id'].startswith('air-')};air_frames=sum(r['frames'] for r in air_records.values());air_files={name:(runtime/(name+'.webp')).read_bytes() for name in air_records}
  data['records']=[r for r in data['records'] if r['id'] not in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick')]
  for r in data['records']:
   if r['id'] in ('walk-back','hit','stand-light','stand-heavy'):r.update(enabled=False,poseAuthored=False)
  for name in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):(runtime/f'{name}.webp').unlink()
  builder.update_frame_totals(data);path.write_text(json.dumps(data))
- assert data['frameTotal']==112 and data['enabledFrameTotal']==77
+ assert data['frameTotal']==112+air_frames+victory_frames and data['enabledFrameTotal']==77+air_frames+victory_frames
  binding={k:data[k] for k in ('source','sourcePath','sourceSize','sourceSha256')}
  staged={r['id']:r.copy() for r in data['records'] if r['id'] in ('hadoken','shoryuken')}
  staged_files={name:(runtime/f'{name}.webp').read_bytes() for name in staged}
@@ -88,8 +90,12 @@ with TemporaryDirectory(prefix='ryu-support-') as temp:
   assert [r['id'] for r in current['records']][:len(order)]==order,'Promotion reordered staged records'
  # Refresh the new low-guard record after its new attack peers exist.
  run('crouch')
- final=json.loads(path.read_text());assert [final[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[229,229,229,0]
- assert len(final['records'])==26
+ final=json.loads(path.read_text());assert [final[k] for k in ('frameTotal','enabledFrameTotal','fullFrameTotal','bridgeFrameTotal')]==[229+air_frames+victory_frames,229+air_frames+victory_frames,229+air_frames+victory_frames,0]
+ assert len(final['records'])==26+len(air_records)+len(victory_records)
+ assert victory_records=={r['id']:r for r in final['records'] if r['id'] in victory_records},'Ground promotion changed victory record'
+ assert victory_files=={name:(runtime/(name+'.webp')).read_bytes() for name in victory_files},'Ground promotion changed victory art'
+ assert air_records=={r['id']:r for r in final['records'] if r['id'] in air_records},'Ground promotion changed authored air records'
+ assert air_files=={name:(runtime/(name+'.webp')).read_bytes() for name in air_files},'Ground promotion changed authored air art'
  assert support_snapshot=={r['id']:r for r in final['records'] if r['id'] in support_snapshot},'Punch promotion changed support records'
  assert support_files=={name:(runtime/f'{name}.webp').read_bytes() for name in support_files},'Punch promotion changed support art'
  assert binding=={k:final[k] for k in binding},'Original approved-source binding changed'

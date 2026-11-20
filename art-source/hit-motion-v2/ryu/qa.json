@@ -1,0 +1,319 @@
+{
+  "character": "ryu",
+  "revision": "hit-motion-v2",
+  "source": "art-source/hit-motion-v2/ryu/generated-sheet-v2.png",
+  "sourceSha256": "257893E93A6EE4AF7586A206E7ED826C37FBB50D83DF661B3701A4F3172703EA",
+  "sourceGrid": [
+    2,
+    4
+  ],
+  "sourceOrder": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "runtimeSha256": "64680AABC76E71B50623B748C90F4EA382ED2CDEBCDECD86A7A19E09AF537835",
+  "runtimeBytes": 767776,
+  "encoding": {
+    "format": "webp",
+    "rgb": "lossless",
+    "quality": null,
+    "alphaLossless": true,
+    "visibleRgbPsnrDb": null
+  },
+  "uniqueDrawings": 8,
+  "previousUniqueDrawings": 6,
+  "previousCentroidStepMax": 16.066982,
+  "centroidStepReductionPercent": 36.77,
+  "decodedBytes": 5505024,
+  "decodedMemoryDelta": 0,
+  "poseQa": {
+    "affineResidualAverage": 0.040867,
+    "affineResidualMax": 0.079402,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "hit",
+    "limits": {
+      "startEndIoUMin": 0.62,
+      "peakRecoilIoUMin": 0.22,
+      "peakRecoilIoUMax": 0.78,
+      "centroidXRangeMin": 7.0,
+      "centroidXRangeMax": 95.0,
+      "centroidYRangeMin": 3.0,
+      "centroidYRangeMax": 75.0,
+      "centroidStepMax": 65.0,
+      "areaCvMax": 0.2,
+      "footCenterRangeMin": 12.0,
+      "footCenterRangeMax": 145.0,
+      "footWidthCvMax": 0.8,
+      "residualAverageMin": 0.012,
+      "residualAverageMax": 0.17,
+      "residualMaxMin": 0.028,
+      "residualMaxMax": 0.22
+    },
+    "startEndIoU": 0.939992,
+    "peakRecoilIoU": 0.600028,
+    "centroidXRange": 13.017196,
+    "centroidYRange": 8.646217,
+    "centroidStepMax": 10.159733,
+    "areaCv": 0.027813,
+    "footCenterRange": 20.460671,
+    "footWidthCv": 0.055495,
+    "residualAverage": 0.040867,
+    "residualMax": 0.079402,
+    "checks": {
+      "recoveryReturnsNearNeutral": true,
+      "peakRecoilDistinct": true,
+      "recoilTravelPresent": true,
+      "compressionPresent": true,
+      "noFrameJump": true,
+      "bodyVolumeStable": true,
+      "footSlideReadable": true,
+      "stanceNotExploded": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  },
+  "handoffQa": {
+    "idleToHit": {
+      "iou": 0.794547,
+      "centroidDistance": 5.596323,
+      "footCenterDelta": 0.745313,
+      "areaRatio": 0.991275,
+      "limits": {
+        "iouMin": 0.52,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 30.0,
+        "footCenterDeltaMax": 48.0,
+        "areaRatioMin": 0.7,
+        "areaRatioMax": 1.35
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "hitToIdle": {
+      "iou": 0.773129,
+      "centroidDistance": 7.470891,
+      "footCenterDelta": 0.138811,
+      "areaRatio": 0.993832,
+      "limits": {
+        "iouMin": 0.52,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 30.0,
+        "footCenterDeltaMax": 48.0,
+        "areaRatioMin": 0.7,
+        "areaRatioMax": 1.35
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    }
+  },
+  "normalization": {
+    "reference": "idle-recovery-height",
+    "referenceHeight": 349,
+    "sourceGuardHeight": 359,
+    "uniformScale": 0.9721448467966574,
+    "footBaselineReference": "installed-idle",
+    "footBaseline": 433,
+    "footAnchorReference": "single-recovery-foot-offset-retains-authored-recoil-travel",
+    "sourceShifts": [
+      [
+        -2,
+        13
+      ],
+      [
+        -2,
+        13
+      ],
+      [
+        -2,
+        13
+      ],
+      [
+        -2,
+        13
+      ],
+      [
+        -2,
+        13
+      ],
+      [
+        -2,
+        13
+      ],
+      [
+        -2,
+        13
+      ],
+      [
+        -2,
+        13
+      ]
+    ]
+  },
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        0,
+        0,
+        233,
+        359
+      ],
+      "sourceBodyHeight": 359,
+      "paste": [
+        76,
+        87
+      ],
+      "scaledSize": [
+        227,
+        349
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        0,
+        0,
+        233,
+        358
+      ],
+      "sourceBodyHeight": 358,
+      "paste": [
+        76,
+        88
+      ],
+      "scaledSize": [
+        227,
+        348
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        0,
+        0,
+        252,
+        354
+      ],
+      "sourceBodyHeight": 354,
+      "paste": [
+        68,
+        92
+      ],
+      "scaledSize": [
+        245,
+        344
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        0,
+        0,
+        286,
+        345
+      ],
+      "sourceBodyHeight": 345,
+      "paste": [
+        51,
+        101
+      ],
+      "scaledSize": [
+        278,
+        335
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        0,
+        0,
+        297,
+        345
+      ],
+      "sourceBodyHeight": 345,
+      "paste": [
+        46,
+        101
+      ],
+      "scaledSize": [
+        289,
+        335
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        0,
+        0,
+        265,
+        351
+      ],
+      "sourceBodyHeight": 351,
+      "paste": [
+        61,
+        95
+      ],
+      "scaledSize": [
+        258,
+        341
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        0,
+        0,
+        237,
+        360
+      ],
+      "sourceBodyHeight": 360,
+      "paste": [
+        75,
+        86
+      ],
+      "scaledSize": [
+        230,
+        350
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        0,
+        0,
+        235,
+        359
+      ],
+      "sourceBodyHeight": 359,
+      "paste": [
+        76,
+        87
+      ],
+      "scaledSize": [
+        228,
+        349
+      ]
+    }
+  ]
+}

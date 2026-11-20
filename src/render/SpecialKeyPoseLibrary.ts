@@ -40,10 +40,14 @@ export function specialKeyPoseOpacity(move: MoveData, moveFrame: number): number
   return (trail - (moveFrame - recoveryStart)) / (trail + 1);
 }
 
-export function preloadSpecialKeyPoses(characterId: string): void {
+function prepareSpecialKeyPoses(characterId: string, retryFailed: boolean): void {
   if (typeof Image === 'undefined') return;
   for (const asset of new Set(Object.values(SPECIALS_BY_CHARACTER[characterId] ?? {}))) {
-    if (images.has(asset)) continue;
+    const existing = images.get(asset);
+    if (existing) {
+      if (!retryFailed || !existing.complete || existing.naturalWidth > 0) continue;
+      existing.src = '';
+    }
     const image = new Image();
     image.decoding = 'async';
     image.src = asset;
@@ -51,9 +55,13 @@ export function preloadSpecialKeyPoses(characterId: string): void {
   }
 }
 
+export function preloadSpecialKeyPoses(characterId: string): void {
+  prepareSpecialKeyPoses(characterId, true);
+}
+
 export function specialKeyPoseImage(asset: string): HTMLImageElement | null {
   if (typeof Image === 'undefined') return null;
-  if (!images.has(asset)) preloadSpecialKeyPoses(asset.includes('/chunli/') ? 'CHUNLI' : 'KEN');
+  if (!images.has(asset)) prepareSpecialKeyPoses(asset.includes('/chunli/') ? 'CHUNLI' : 'KEN', false);
   const image = images.get(asset);
   return image?.complete && image.naturalWidth > 0 ? image : null;
 }

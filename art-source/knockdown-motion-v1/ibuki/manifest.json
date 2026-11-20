@@ -1,0 +1,94 @@
+{
+  "character": "IBUKI",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7589285714285714,
+  "sourceBounds": [
+    [
+      50,
+      62,
+      425,
+      450
+    ],
+    [
+      41,
+      166,
+      463,
+      451
+    ],
+    [
+      19,
+      272,
+      468,
+      452
+    ],
+    [
+      103,
+      191,
+      426,
+      473
+    ],
+    [
+      100,
+      113,
+      395,
+      474
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      115,
+      134,
+      399,
+      429
+    ],
+    [
+      96,
+      212,
+      417,
+      429
+    ],
+    [
+      86,
+      294,
+      427,
+      429
+    ],
+    [
+      134,
+      214,
+      379,
+      429
+    ],
+    [
+      144,
+      154,
+      368,
+      429
+    ],
+    [
+      153,
+      89,
+      386,
+      429
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/ibuki.webp",
+  "bytes": 474140,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "bf9c494f8f2c205a01814de62e086cbdeb1be95bd4039d76aa8cbb5a170dcc6d",
+    "generation-reference.png": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+    "reference-settle.png": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+    "generation-prompt.txt": "4c94984512be9b697e33333d053d73e901c03ba46e02eb0eed668bbb89fc8884",
+    "alpha-edit-prompt.txt": "6ac11526b29dee7acd8465d7c525d85b59dc4cab263ad554b5d59cae8af9371a",
+    "ibuki.webp": "92493a610ba60f2e79a31bba6def735ee1afca5067da1344fa195c6be5e24133"
+  }
+}

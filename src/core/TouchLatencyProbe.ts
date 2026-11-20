@@ -3,6 +3,7 @@ import { latencyStats, type TouchLatencyResult } from './DeviceCertification.js'
 export class TouchLatencyProbe {
   private samples: number[] = [];
   private active = false;
+  private session = 0;
   private target: HTMLElement | null = null;
   private callback: ((result: TouchLatencyResult) => void) | null = null;
 
@@ -16,6 +17,7 @@ export class TouchLatencyProbe {
   }
 
   stop(): void {
+    this.session += 1;
     if (this.target) this.target.removeEventListener('pointerdown', this.onPointerDown);
     this.active = false;
     this.target = null;
@@ -29,13 +31,15 @@ export class TouchLatencyProbe {
     if (!this.active || event.pointerType === 'mouse') return;
     const rawTime = event.timeStamp;
     const eventTime = rawTime > 1e12 ? rawTime - performance.timeOrigin : rawTime;
+    const session = this.session;
     requestAnimationFrame(() => {
+      if (!this.active || session !== this.session) return;
       const delta = Math.max(0, performance.now() - eventTime);
       if (Number.isFinite(delta) && delta < 500) this.samples.push(delta);
       const stats = latencyStats(this.samples);
       const result: TouchLatencyResult = { samples: [...this.samples], ...stats, measuredAt: new Date().toISOString() };
       this.callback?.(result);
-      if (this.samples.length >= 8) this.stop();
+      if (session === this.session && this.samples.length >= 8) this.stop();
     });
   };
 }

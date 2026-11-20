@@ -1,0 +1,13 @@
+Use case: stylized-concept. Production fighting-game FORWARD DASH sprite sheet. EXACTLY EIGHT individually drawn full-body figures in TWO ROWS FOUR COLUMNS, read top1,2,3,4 bottom5,6,7,8. TRUE alpha-zero transparent background. No floor, ground shadows, halos, text, grid, glow, particles or blur. Large clean empty margins around each complete body. Image1 horizontal idle strip:first figure is exact identity, style, costume and neutral anatomical-scale reference. Image2 horizontal currentdash strip:motion/style reference only; replace repetitions with genuinely different drawn intermediate poses. Ignore any colored background bars, they are invisible RGB beneathalpha.
+
+Same RIGHT-facing side-three-quarter camera, identical anatomical body scale, body volume, face and costume all8cells. Cell1 neutral reference, not runtime. Cells2..8 are SEVEN chronological dash poses:
+2 early push-off, only5% lower head than idle, knees slightly bent, torso begins leaning, hands in defensive guard with clear elbow contours.
+3 halfway acceleration, knees bend to about12% lower head, torso forward, one foot pushes behind, arms start natural counterbalance.
+4 drive strideA, about20% lower head through real hip/knee bending and forwardlean, bent lead knee overfoot, rear foot pushing behind; compact drive NOT a very wide outstretched split.
+5 drive strideB:swap rear/front knee and ankle/elbow articulation visibly, same head/hip height as4, no leap/hop; both poses distinct.
+6 early braking/gather, head12% lower, lead knee absorbs momentum and arms begin returning.
+7 late braking, head8% lower, feet gather, upright torso recovery.
+8 settled braced recovery, head5% lower than idle, slight forwardintent and slightly wider stance still clearly DIFFERENT fromcell1, ready to return toidle.
+
+Every runtime drawing2..8 unique. Joints, shoulder/hip counter-rotation, knee/ankle and elbow articulation must change, NOT the same body rigidly tilted or translated. Keep at least one foot close to common ground; no jumps/punches or large vertical bounces. World movement is in engine, do not slide root betweenpanels. Smooth adjacent body-mass steps ideally <5% standingheight, strong enough silhouette difference between initial push and drive. Maintain clean hand anatomy and consistent limb lengths/cloth volume.
+Subject: Yun: lean athletic Chinese martial artist, navy baseball cap with yellow bill, long dark braided ponytail, sleeveless ivory mandarin vest with frog buttons and goldtrim, loose dark trousers, yellow wristbands and dark kungfu shoes. Detailed painterly style/identity matchingreference. Compact low kungfu steps and genuine alternating ankle/knee/elbow articulation; open palms guard face/ribs, no strikes. Braid/cap/vest edges consistent.

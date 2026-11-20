@@ -1,0 +1,290 @@
+{
+  "version": "chunli-authored-attack-v1",
+  "source": "art-source/chunli-attack-atlas-v1/generated-sheet-v1.png",
+  "sourceSHA256": "251e4db716b2bb686db4cc12b00c17ba8d028cfa526907eda14ed9347f6cddf4",
+  "promptSHA256": "8a0dadb362cce2c2ce05ea52a7acfb5ba275b825ee5ee2d18447f602006c8598",
+  "backgroundRemovalPromptSHA256": null,
+  "referenceSHA256": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+  "sourceSize": [
+    1299,
+    1211
+  ],
+  "grid": [
+    5,
+    4
+  ],
+  "uniformScale": 1.31640625,
+  "footAnchor": [
+    191.5,
+    423
+  ],
+  "frames": [
+    {
+      "row": 0,
+      "column": 0,
+      "hdBBox": [
+        69,
+        86,
+        313,
+        424
+      ],
+      "hdRGBA": "67f987fe1ebf17ba1f3285c93f9c5c7a7754321cac4ae9827fad3e4ca07853fc",
+      "liteRGBA": "413a61d1d32549290afbbac4004e04d690b20127f769101578736aee39ff8a50"
+    },
+    {
+      "row": 0,
+      "column": 1,
+      "hdBBox": [
+        70,
+        86,
+        313,
+        423
+      ],
+      "hdRGBA": "b4525d7ab025c3092ee0e6d3af1b95b863e22629b7e8b0540bbb92662648f2ea",
+      "liteRGBA": "081b29d489f93cbfca52106464e0d1b56245f62bbb161349cbe897e3b8f96179"
+    },
+    {
+      "row": 0,
+      "column": 2,
+      "hdBBox": [
+        70,
+        104,
+        313,
+        423
+      ],
+      "hdRGBA": "8b011b03a3b403fbe9d79e3a06f687cf46ae3d0074b04a2e7cc1d2d9d0e30c45",
+      "liteRGBA": "f10435fe516ecfcf85b50f925ba8df9470cf893fef8a8544f31e337e317539f1"
+    },
+    {
+      "row": 0,
+      "column": 3,
+      "hdBBox": [
+        69,
+        96,
+        313,
+        423
+      ],
+      "hdRGBA": "0ab0d380159c681dde442ec31398cbb1786e9b730c7d296254a8e5fe1536870e",
+      "liteRGBA": "5a5a36c08f0def93257ce24d6f945068166bffe1412cd833f54c758f5a18c4fa"
+    },
+    {
+      "row": 0,
+      "column": 4,
+      "hdBBox": [
+        69,
+        86,
+        312,
+        424
+      ],
+      "hdRGBA": "c80f7e7ab4f333b5adfa99ccacfa56558c7862082a417191a3c9c3d01d70edba",
+      "liteRGBA": "7002a065ddee76fc162dbf17da23fd178d11ea7aa36ce5fe651708c4eaee2ef6"
+    },
+    {
+      "row": 1,
+      "column": 0,
+      "hdBBox": [
+        69,
+        90,
+        314,
+        424
+      ],
+      "hdRGBA": "9abf8f83c643a0723dd12ab9fd808935ae117f67294dd82c4e3143a3cfcb19f6",
+      "liteRGBA": "457998f43b30e6fdeb63a7f7f069899e732dd3f8086def959eb6284cba795bc1"
+    },
+    {
+      "row": 1,
+      "column": 1,
+      "hdBBox": [
+        68,
+        88,
+        315,
+        423
+      ],
+      "hdRGBA": "f6fb2609f4f97f7e8fc8f45b789843638e4504ae1b19b9845456e2d7e667246a",
+      "liteRGBA": "22da2173a15ef8a4da2105b791ecb9edb8d910c7a8a226578809bcc586b56e32"
+    },
+    {
+      "row": 1,
+      "column": 2,
+      "hdBBox": [
+        70,
+        89,
+        313,
+        423
+      ],
+      "hdRGBA": "dac64be730db8e5841bc743042785743092ec126e83aec50926440c560c1f0a4",
+      "liteRGBA": "60e1a9811534054fb4b00b423519ef209e100bc15584d387368b4bdba978c37f"
+    },
+    {
+      "row": 1,
+      "column": 3,
+      "hdBBox": [
+        69,
+        90,
+        313,
+        424
+      ],
+      "hdRGBA": "9780cf87505c0e29d4ad20a50295bfe48bc9283c5d2923db7d9ad4d71e6a40b5",
+      "liteRGBA": "83833da6fb6d1fd984a489da1e7d99191895041a8da68df40e33f758da3def48"
+    },
+    {
+      "row": 1,
+      "column": 4,
+      "hdBBox": [
+        68,
+        89,
+        314,
+        423
+      ],
+      "hdRGBA": "e7439a788323abc558e95ad4ef51eb72247a6c671d63bf491323fd5de02ae130",
+      "liteRGBA": "7c4818eea2e0dcab15d7bdbb5d91d5141c6ddac253bc89a2279c32a4f149e8d7"
+    },
+    {
+      "row": 2,
+      "column": 0,
+      "hdBBox": [
+        69,
+        102,
+        313,
+        424
+      ],
+      "hdRGBA": "4ec6bd0722f080135d31ae4d1d134e9d9a9fd5d27d178478c0fd8140ef71be12",
+      "liteRGBA": "8a17b48835814a012d786c2989af3a13430c5f91c2d74f4e9916882781203f78"
+    },
+    {
+      "row": 2,
+      "column": 1,
+      "hdBBox": [
+        69,
+        113,
+        313,
+        423
+      ],
+      "hdRGBA": "44ffd753bb2fb17861a366d49867f140195df69b9a7dbbce04b054bbab9131b0",
+      "liteRGBA": "e0b46b500916734985092c1119d90f425e46a7dbfdd147f9dcf7d88edd56a093"
+    },
+    {
+      "row": 2,
+      "column": 2,
+      "hdBBox": [
+        69,
+        107,
+        314,
+        423
+      ],
+      "hdRGBA": "bf4f787936c756bf2627eaa7039481c9b22b2f15105105817320cdd227ebcbd3",
+      "liteRGBA": "06741177c18bca5b998b964f7f3230bee401fc6b39ec7610ac5f7c9a1a51d6e2"
+    },
+    {
+      "row": 2,
+      "column": 3,
+      "hdBBox": [
+        70,
+        95,
+        313,
+        424
+      ],
+      "hdRGBA": "24610b561fc3443afe021d4bcd9d79c55974698e91b0cddba01c5399384e5426",
+      "liteRGBA": "8ce326868d36325815f3597a98b56473256dfe3f1583c9a275ba960db0a9f6ec"
+    },
+    {
+      "row": 2,
+      "column": 4,
+      "hdBBox": [
+        69,
+        91,
+        314,
+        423
+      ],
+      "hdRGBA": "39818f780cd46ca1beee30990952c6d29b17625d5b15f2dc4181637e32c83bb9",
+      "liteRGBA": "d33fbf560ef9e5a32dfc8fc5f427ddf09685a93a58626d5eecabfba8056facf0"
+    },
+    {
+      "row": 3,
+      "column": 0,
+      "hdBBox": [
+        69,
+        88,
+        314,
+        422
+      ],
+      "hdRGBA": "48b26aa5bca50a6206c9333a649eb6bd4c8dfed8000bf8db360f06895e2a9b06",
+      "liteRGBA": "8f9344fabb652651655348b3d7bedb4ae41681eca779622ac561f93fa030a446"
+    },
+    {
+      "row": 3,
+      "column": 1,
+      "hdBBox": [
+        69,
+        94,
+        325,
+        424
+      ],
+      "hdRGBA": "8e8317a9ea62df03d9ac0e69daba7d3fc05129f3aac52136bdb266390e82cfed",
+      "liteRGBA": "d96505f48fb0e48b73d879502c21b1c92c6eafda5127f4fd7b5f58005040b79f"
+    },
+    {
+      "row": 3,
+      "column": 2,
+      "hdBBox": [
+        68,
+        100,
+        314,
+        423
+      ],
+      "hdRGBA": "0902833db64ebcf6b0ba4b4d4534b4d080aeaae5636bdc6192df04da7d05d7e9",
+      "liteRGBA": "0d4415fd60108be15a1b8b2835c826b8d0794ce8110a03832b617a49416930c8"
+    },
+    {
+      "row": 3,
+      "column": 3,
+      "hdBBox": [
+        70,
+        92,
+        314,
+        423
+      ],
+      "hdRGBA": "ad58cf24d35d60cd171512dddea686910c759a14d977ddfe4c0e616213b22bb5",
+      "liteRGBA": "29c4c99e24056dd3af49620a92d707021d75a661516c9956cec153b5cc051b6a"
+    },
+    {
+      "row": 3,
+      "column": 4,
+      "hdBBox": [
+        69,
+        90,
+        314,
+        424
+      ],
+      "hdRGBA": "fff1a4eda6449bacebab772eeeee4a88f15d1a27071517d513f1176ede115d59",
+      "liteRGBA": "712ae9c40de1e8de3d3660a278bc5ebda68ebff4b9d0aa494d5a49dd42877e6d"
+    }
+  ],
+  "operations": [
+    "cell crop with transparent gutter",
+    "one uniform scale for all twenty poses",
+    "translation to common foot anchor",
+    "half-size LITE downsample",
+    "lossless WebP encoding"
+  ],
+  "runtime": {
+    "lite": {
+      "path": "/art/attack-atlases/chunli-authored-v1.webp",
+      "size": [
+        960,
+        896
+      ],
+      "bytes": 550962,
+      "sha256": "f64cf26f6b70110634795896eab5e4d512dd355cf6a87e38b5e85b69683548d1"
+    },
+    "hd": {
+      "path": "/art/attack-atlases-hd/chunli-authored-v1.webp",
+      "size": [
+        1920,
+        1792
+      ],
+      "bytes": 1810522,
+      "sha256": "68d9fc2e1e429c9dc94600ab97bd26f0cd183a5aa3f8f2b47a9d4a591d8ebcc0"
+    }
+  }
+}

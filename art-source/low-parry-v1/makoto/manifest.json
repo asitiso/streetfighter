@@ -1,0 +1,53 @@
+{
+  "character": "MAKOTO",
+  "kind": "crouch-parry",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "sharedScale": 0.6417582417582418,
+  "sourceBounds": [
+    [
+      53,
+      19,
+      412,
+      475
+    ],
+    [
+      53,
+      19,
+      429,
+      475
+    ],
+    [
+      53,
+      19,
+      445,
+      475
+    ],
+    [
+      53,
+      19,
+      414,
+      475
+    ],
+    [
+      53,
+      19,
+      413,
+      474
+    ]
+  ],
+  "recoveryFrame": 5,
+  "recoveryPixelIdentical": true,
+  "runtime": "public/art/animation-hq/makoto/crouch-parry-v1.webp",
+  "bytes": 507678,
+  "stageEntryBytes": 15999448,
+  "stageEntryCap": 16500000,
+  "sha256": {
+    "generated-sheet-v1.png": "a3235efb3f51aef3505ba414af9f327e7c4170574b4dd5c0eaf52defa3653777",
+    "reference-idle.png": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+    "reference-settle.png": "5cbf6a0b6e44b719e44a1214c9a354e516adf3a8e5efbcae7acfaa42f081cd7f",
+    "generation-prompt.txt": "00c5e33cc6f5ab32f0eee99aaba3daa47e39b0efadf85528573e486db6863b73",
+    "crouch-parry-v1.webp": "53daba260da576a0593133ddc8d75cf1dd8e2f7c72f2cb65a2f160d64ea4abe7"
+  }
+}

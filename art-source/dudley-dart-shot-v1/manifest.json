@@ -1,0 +1,36 @@
+{
+  "character": "DUDLEY",
+  "move": "DUDLEY_CMD_HK",
+  "kind": "dart-shot",
+  "asset": "/art/command-motion-v1/dudley-dart-shot.webp",
+  "frames": 12,
+  "frameSize": [
+    640,
+    448
+  ],
+  "phase": {
+    "startupEnd": 5,
+    "activeStart": 6,
+    "activeEnd": 7,
+    "recoveryStart": 8
+  },
+  "footFloor": 420,
+  "source": "generated-sheet-v2.png",
+  "sourceSha256": "c2beb92dd22b11e8618a114ea87cf15085677cde624e1042032b455ebe7d076c",
+  "assetSha256": "b906fa958593f3de299901ef13dc1252c2171f16f9ad0d598b76840c72b0f76c",
+  "bytes": 243672,
+  "guardSource": "/art/animation-hq/dudley/idle.webp",
+  "guardSourceSha256": "4b1a50902825af09b1985e43e3099aea6a9ab0b3a22f4691bd808ac304e88328",
+  "guardFrames": [
+    0,
+    11
+  ],
+  "tool": "built-in image_gen",
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.86,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "gameplayChanges": false
+}

@@ -30,14 +30,14 @@ for(const facing of [-1,1]) {
    fighter.updatePlayer({held:key=>stance==='crouching'&&key==='down',pressed:key=>key===button,released:()=>false},rules);
    assert.equal(fighter.state,'attack');
    const move=fighter.currentMove;
-   const expected=stance==='standing'?(button==='lp'?'stand-light':button==='mp'?'stand-medium':button==='hp'?'stand-heavy':button==='lk'?'stand-light-kick':button==='mk'?'stand-medium-kick':button==='hk'?'stand-heavy-kick':null):stance==='crouching'&&button==='lp'?'crouch-light':stance==='crouching'&&button==='mp'?'crouch-medium':stance==='crouching'&&button==='hp'?'crouch-heavy':stance==='crouching'&&button==='lk'?'crouch-light-kick':stance==='crouching'&&button==='mk'?'crouch-medium-kick':stance==='crouching'&&button==='hk'?'crouch-heavy-kick':null;
+   const expected=stance==='airborne'&&button==='mk'?'air-medium-kick':stance==='airborne'&&button==='mp'?'air-medium-punch':stance==='airborne'&&button==='lk'?'air-light-kick':stance==='airborne'&&button==='lp'?'air-light-punch':stance==='airborne'&&button==='hk'?'air-heavy-kick':stance==='airborne'&&button==='hp'?'air-heavy-punch':stance==='standing'?(button==='lp'?'stand-light':button==='mp'?'stand-medium':button==='hp'?'stand-heavy':button==='lk'?'stand-light-kick':button==='mk'?'stand-medium-kick':button==='hk'?'stand-heavy-kick':null):stance==='crouching'&&button==='lp'?'crouch-light':stance==='crouching'&&button==='mp'?'crouch-medium':stance==='crouching'&&button==='hp'?'crouch-heavy':stance==='crouching'&&button==='lk'?'crouch-light-kick':stance==='crouching'&&button==='mk'?'crouch-medium-kick':stance==='crouching'&&button==='hk'?'crouch-heavy-kick':null;
    let contact=false;
    while(fighter.state==='attack') {
     const sample=animationSequenceSample(fighter,0);
     assert.equal(sample?.sequence.kind??null,expected,`${stance} ${move.id} must keep its own attack visual`);
     if(fighter.moveFrame===move.startup) {
      calls.length=0;drawCombatFighter(ctx,fighter,0,0);
-     const strips=calls.filter(c=>(c[0].src?.includes('/animation-hq/ken/stand-')||c[0].src?.includes('/animation-hq/ken/crouch-light.webp')||c[0].src?.includes('/animation-hq/ken/crouch-medium.webp')||c[0].src?.includes('/animation-hq/ken/crouch-heavy.webp')||c[0].src?.includes('/animation-hq/ken/crouch-light-kick.webp')||c[0].src?.includes('/animation-hq/ken/crouch-medium-kick.webp')||c[0].src?.includes('/animation-hq/ken/crouch-heavy-kick.webp')));
+     const strips=calls.filter(c=>(c[0].src?.includes('/animation-hq/ken/air-medium-kick.webp')||c[0].src?.includes('/animation-hq/ken/air-medium-punch.webp')||c[0].src?.includes('/animation-hq/ken/air-light-kick.webp')||c[0].src?.includes('/animation-hq/ken/air-light-punch.webp')||c[0].src?.includes('/animation-hq/ken/air-heavy-kick.webp')||c[0].src?.includes('/animation-hq/ken/air-heavy-punch.webp')||c[0].src?.includes('/animation-hq/ken/stand-')||c[0].src?.includes('/animation-hq/ken/crouch-light.webp')||c[0].src?.includes('/animation-hq/ken/crouch-medium.webp')||c[0].src?.includes('/animation-hq/ken/crouch-heavy.webp')||c[0].src?.includes('/animation-hq/ken/crouch-light-kick.webp')||c[0].src?.includes('/animation-hq/ken/crouch-medium-kick.webp')||c[0].src?.includes('/animation-hq/ken/crouch-heavy-kick.webp')));
      assert.equal(strips.length,expected?1:0,`${stance} ${move.id}: Canvas must draw the correct attack family`);
     }
     contact ||= sample?.contact??false;
@@ -52,12 +52,12 @@ for(const facing of [-1,1]) {
  assert.equal(animationSequenceSample(fighter,0),null,'A ground punch must not replace airborne animation');
  fighter.airborne=false;fighter.currentMove=commandNormalFor('KEN','mk',true);
  assert.ok(fighter.currentMove,'Ken command kick fixture must exist');
- assert.equal(animationSequenceSample(fighter,0),null,'Command kick must retain its own visual');
- for(const [from,button] of [['5LP','mp'],['KEN_TC_RUSH_2','hp'],['5LK','mk'],['KEN_TC_KICK_2','hk']]) {
+ assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,'step-kick','Command kick must use its dedicated strip rather than standing MK');
+ for(const [from,button,kind] of [['5LP','mp','stand-medium'],['KEN_TC_RUSH_2','hp','stand-heavy'],['5LK','mk','stand-medium-kick'],['KEN_TC_KICK_2','hk','stand-heavy-kick']]) {
   fighter.currentMove=targetComboFollowUp('KEN',from,button);
   assert.ok(fighter.currentMove,'Target combo fixture must exist');
   fighter.moveFrame=fighter.currentMove.startup;
-  assert.equal(animationSequenceSample(fighter,0),null,`${fighter.currentMove.id} must retain its target combo visual`);
+  assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,kind,`${fighter.currentMove.id} must use its explicitly matched authored strike`);
  }
  const specials=specialMovesFor('KEN');
  for(const [move,kind] of [[specials.primary,'hadoken'],[specials.exPrimary,'hadoken'],[specials.antiAir,'shoryuken'],[specials.mobility,'tatsumaki'],[specials.super,'super-rush'],[superArtMoveFor('KEN',1),'shoryuken'],[superArtMoveFor('KEN',2),'shoryuken'],[superArtMoveFor('KEN',3),'super-rush']]) {

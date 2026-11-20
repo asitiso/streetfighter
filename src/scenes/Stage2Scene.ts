@@ -10,9 +10,11 @@ export class Stage2Scene extends Stage1Scene {
     audio: AudioManager,
     playerDef: CharacterDef,
     superArt: SuperArtDef,
-    onClear?: (result: StageResult) => void,
-    onDefeat?: () => void,
+    onClear?: (result: StageResult) => void | Promise<void>,
+    onDefeat?: () => void | Promise<void>,
+    onPauseChange?: (paused: boolean) => void,
+    onPostCombatChange?: (active: boolean) => void,
   ) {
-    super(input, audio, playerDef, superArt, 2, onClear, onDefeat);
+    super(input, audio, playerDef, superArt, 2, onClear, onDefeat, onPauseChange, onPostCombatChange);
   }
 }

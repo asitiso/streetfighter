@@ -1,6 +1,13 @@
+import { throwAttackerSample } from './ThrowAttackerProfiles.js';
+import { throwVictimSample, throwVictimHandoffSample, releasedThrowSample } from './ThrowVictimProfiles.js';
+import { superHitSample, superHitHandoffSample } from './SuperHitProfiles.js';
+import { airFallSample } from './AirFallProfiles.js';
+import { wallBounceSample, wallBounceHandoffSample } from './WallBounceProfiles.js';
+import { groundBounceSample, groundBounceHandoffSample } from './GroundBounceProfiles.js';
+import { acquirePoseBlendCanvas, releasePoseBlendCanvas } from './PoseBlendBuffer.js';
 import type { Fighter } from '../combat/Fighter.js';
 import type { CharacterDef } from '../game/characters.js';
-import { motionClipForFighter, sampleFighterMotion, type MotionClip } from './AnimationPoseLibrary.js';
+import { motionClipForFighter, sampleFighterMotion, neutralCrouchBlend, type MotionClip } from './AnimationPoseLibrary.js';
 import { fighterAnatomyProfile, fighterVisualProfile, superPoseProfile, type HandShape, type FootShape, type SuperPoseProfile } from './FighterVisualProfiles.js';
 import { sampleStrikePose } from './FighterKinematicsProfiles.js';
 import { bossMotionFor } from './BossAnimationProfiles.js';
@@ -8,17 +15,21 @@ import { throwMotionFor } from './ThrowAnimationProfiles.js';
 import { throwJointPoseFor } from './ThrowJointProfiles.js';
 import { superVictimPoseFor } from './SuperVictimProfiles.js';
 import { characterTextureManager } from './CharacterTextureManager.js';
-import { combatSpritePose } from './CombatSpriteProfiles.js';
+import { combatSpritePose, defenseCrouchBlend } from './CombatSpriteProfiles.js';
 import { attackSpriteSample, ATTACK_ATLAS_FRAME_HEIGHT, ATTACK_ATLAS_FRAME_WIDTH } from './AttackSpriteProfiles.js';
 import { contactVisualEnvelope, contactVisualProfile } from './ContactVisualProfiles.js';
 import { heroContactSample } from './HeroContactProfiles.js';
 import { victimReactionSample } from './VictimReactionProfiles.js';
 import { animationTransitionSample } from './AnimationTransitionProfiles.js';
-import { animationSequenceSample } from './AnimationTimingMapper.js';
-import { animationTextureManager } from './AnimationTextureManager.js';
+import { animationSequenceFor } from './AnimationSequenceLibrary.js';
+import { airHitHandoffSample, airAttackRecoverySample, animationSequenceSample, type AnimationSequenceSample } from './AnimationTimingMapper.js';
+import { animationTextureManager, liteAnimationTextureManager } from './AnimationTextureManager.js';
 import { animationFrameProfile } from './AnimationFrameProfiles.js';
 import { specialKeyPoseAsset, specialKeyPoseImage, specialKeyPoseOpacity } from './SpecialKeyPoseLibrary.js';
 
+
+const VECTOR_RIG_SCALE = .6;
+const VECTOR_RIG_LIFT = 34;
 
 interface NaturalizedRenderPose {
   offsetX: number;
@@ -38,7 +49,13 @@ interface MotionRenderMemory extends NaturalizedRenderPose {
   torsoVelocity: number;
   worldVelocityX: number;
   worldVelocityY: number;
-  lastTime: number;
+  lastAnimationFrame: number;
+  lastStateFrame: number;
+  lastMoveFrame: number;
+  lastMove: Fighter['currentMove'];
+  lastFacing: 1 | -1;
+  lastFlavour: 'sprite' | 'atlas';
+  lastReactionKey: string;
   lastState: string;
 }
 
@@ -50,10 +67,12 @@ function clamp(value: number, min: number, max: number): number {
 
 function naturalizeRenderPose(
   fighter: Fighter,
-  time: number,
   target: NaturalizedRenderPose,
   flavour: 'sprite' | 'atlas',
 ): NaturalizedRenderPose {
+  const reactionKey = [fighter.lastHitDirection, fighter.lastHitPower, fighter.lastHitZone, fighter.lastHitReaction,
+    fighter.visualHitSequenceIndex, fighter.visualHitSequenceTotal, fighter.visualHitSequenceFrames,
+    fighter.visualHitSequenceTotalFrames, fighter.wallBounceFrames, fighter.groundBounceFrames].join(':');
   const previous = MOTION_RENDER_MEMORY.get(fighter);
   const worldVelocityX = fighter.x - fighter.previousX;
   const worldVelocityY = fighter.y - fighter.previousY;
@@ -68,59 +87,88 @@ function naturalizeRenderPose(
       torsoVelocity: 0,
       worldVelocityX,
       worldVelocityY,
-      lastTime: time,
+      lastAnimationFrame: fighter.animationFrame,
+      lastStateFrame: fighter.stateFrame,
+      lastMoveFrame: fighter.moveFrame,
+      lastMove: fighter.currentMove,
+      lastFacing: fighter.facing,
+      lastFlavour: flavour,
+      lastReactionKey: reactionKey,
       lastState: fighter.state,
     };
     MOTION_RENDER_MEMORY.set(fighter, seeded);
     return target;
   }
 
-  const dtRaw = Number.isFinite(time - previous.lastTime) ? time - previous.lastTime : 1 / 60;
-  const dt = clamp(dtRaw > 0 ? dtRaw : 1 / 60, 1 / 180, 1 / 20);
-  const stateChanged = previous.lastState != fighter.state;
+  const stateChanged = previous.lastState !== fighter.state;
+  // A display redraw must not integrate the spring again. Reactions and
+  // move/path changes can occur during a frozen tick and still need to show.
+  const samePose = !stateChanged && previous.lastStateFrame === fighter.stateFrame
+    && previous.lastMoveFrame === fighter.moveFrame && previous.lastMove === fighter.currentMove
+    && previous.lastFacing === fighter.facing && previous.lastFlavour === flavour
+    && previous.lastReactionKey === reactionKey;
+  if (previous.lastAnimationFrame === fighter.animationFrame && samePose) return previous;
+  const elapsedFrames = fighter.animationFrame - previous.lastAnimationFrame;
+  // Match the game loop's six-tick catch-up budget. Hold the latest sampled
+  // target while integrating; unobserved intermediate poses are unavailable.
+  let integrationSteps = Math.max(1, Math.min(6, elapsedFrames));
+  // A move or reaction may have started on the last missed tick. Never
+  // backdate that new target through the entire interval between draws.
+  const poseRestarted = stateChanged || previous.lastMove !== fighter.currentMove
+    || previous.lastFlavour !== flavour || fighter.stateFrame < previous.lastStateFrame;
+  const visiblePoseAge = fighter.state === 'attack' && fighter.currentMove ? fighter.moveFrame
+    : fighter.state === 'hit' && fighter.hitAnimationDuration > 0 ? fighter.hitAnimationDuration + fighter.stateFrame
+    : poseRestarted ? Math.max(0, fighter.stateFrame) : null;
+  if (visiblePoseAge !== null) integrationSteps = Math.min(integrationSteps, Math.max(1, visiblePoseAge + 1));
   const accelX = worldVelocityX - previous.worldVelocityX;
   const accelY = worldVelocityY - previous.worldVelocityY;
   const speed = Math.hypot(worldVelocityX, worldVelocityY);
-  let response = flavour === 'atlas' ? 0.34 : 0.24;
-  if (fighter.airborne) response += 0.05;
-  if (stateChanged) response += flavour === 'atlas' ? 0.18 : 0.12;
-  if (fighter.state === 'hit' || fighter.state === 'block' || fighter.state === 'parry') response += 0.08;
-  response = clamp(response, 0.14, 0.58);
+  let baseResponse = flavour === 'atlas' ? 0.34 : 0.24;
+  if (fighter.airborne) baseResponse += 0.05;
+  if (fighter.state === 'hit' || fighter.state === 'block' || fighter.state === 'parry') baseResponse += 0.08;
   const damping = flavour === 'atlas' ? 0.56 : 0.62;
   const settle = clamp(1 - fighter.stateFrame / 8, 0, 1);
   const accelerationLeadX = -accelX * (flavour === 'atlas' ? 0.38 : 0.28);
   const accelerationLeadY = -accelY * (flavour === 'atlas' ? 0.22 : 0.16);
   const settleShiftX = settle * (fighter.state === 'idle' ? -fighter.facing * Math.min(2.2, Math.abs(previous.worldVelocityX) * 0.52) : 0);
-  const settleRotation = settle * (fighter.state === 'idle' ? fighter.facing * previous.worldVelocityX * 0.0026 : 0);
+  const settleRotation = settle * (fighter.state === 'idle' ? previous.worldVelocityX * 0.0026 : 0);
   const targetOffsetX = target.offsetX + accelerationLeadX + settleShiftX;
   const targetOffsetY = target.offsetY + accelerationLeadY;
-  const targetRotation = target.rotation - accelX * 0.0042 * fighter.facing + settleRotation;
+  const targetRotation = target.rotation - accelX * 0.0042 + settleRotation;
   const targetScaleX = target.scaleX + clamp(speed * 0.0028, 0, 0.018);
   const targetScaleY = target.scaleY - clamp(speed * 0.0018, 0, 0.012);
-  const targetTorsoTwist = target.torsoTwist - accelX * 0.01 * fighter.facing;
+  const targetTorsoTwist = target.torsoTwist - accelX * 0.01;
 
-  previous.velocityX = previous.velocityX * damping + (targetOffsetX - previous.offsetX) * response * 1.45;
-  previous.velocityY = previous.velocityY * damping + (targetOffsetY - previous.offsetY) * response * 1.45;
-  previous.rotationVelocity = previous.rotationVelocity * damping + (targetRotation - previous.rotation) * response * 1.35;
-  previous.scaleVelocityX = previous.scaleVelocityX * damping + (targetScaleX - previous.scaleX) * response * 1.2;
-  previous.scaleVelocityY = previous.scaleVelocityY * damping + (targetScaleY - previous.scaleY) * response * 1.2;
-  previous.torsoVelocity = previous.torsoVelocity * damping + (targetTorsoTwist - previous.torsoTwist) * response * 1.25;
+  for (let step = 0; step < integrationSteps; step += 1) {
+    const response = clamp(baseResponse + (stateChanged && step === 0 ? (flavour === 'atlas' ? 0.18 : 0.12) : 0), 0.14, 0.58);
+    previous.velocityX = previous.velocityX * damping + (targetOffsetX - previous.offsetX) * response * 1.45;
+    previous.velocityY = previous.velocityY * damping + (targetOffsetY - previous.offsetY) * response * 1.45;
+    previous.rotationVelocity = previous.rotationVelocity * damping + (targetRotation - previous.rotation) * response * 1.35;
+    previous.scaleVelocityX = previous.scaleVelocityX * damping + (targetScaleX - previous.scaleX) * response * 1.2;
+    previous.scaleVelocityY = previous.scaleVelocityY * damping + (targetScaleY - previous.scaleY) * response * 1.2;
+    previous.torsoVelocity = previous.torsoVelocity * damping + (targetTorsoTwist - previous.torsoTwist) * response * 1.25;
 
-  const gain = dt * 60;
-  previous.offsetX += (targetOffsetX - previous.offsetX) * response + previous.velocityX * gain;
-  previous.offsetY += (targetOffsetY - previous.offsetY) * response + previous.velocityY * gain;
-  previous.rotation += (targetRotation - previous.rotation) * response + previous.rotationVelocity * gain;
-  previous.scaleX += (targetScaleX - previous.scaleX) * response + previous.scaleVelocityX * gain;
-  previous.scaleY += (targetScaleY - previous.scaleY) * response + previous.scaleVelocityY * gain;
-  previous.torsoTwist += (targetTorsoTwist - previous.torsoTwist) * response + previous.torsoVelocity * gain;
+    previous.offsetX += (targetOffsetX - previous.offsetX) * response + previous.velocityX;
+    previous.offsetY += (targetOffsetY - previous.offsetY) * response + previous.velocityY;
+    previous.rotation += (targetRotation - previous.rotation) * response + previous.rotationVelocity;
+    previous.scaleX += (targetScaleX - previous.scaleX) * response + previous.scaleVelocityX;
+    previous.scaleY += (targetScaleY - previous.scaleY) * response + previous.scaleVelocityY;
+    previous.torsoTwist += (targetTorsoTwist - previous.torsoTwist) * response + previous.torsoVelocity;
 
-  previous.scaleX = clamp(previous.scaleX, 0.88, 1.18);
-  previous.scaleY = clamp(previous.scaleY, 0.82, 1.2);
-  previous.rotation = clamp(previous.rotation, -1.5, 1.5);
-  previous.torsoTwist = clamp(previous.torsoTwist, -0.42, 0.42);
+    previous.scaleX = clamp(previous.scaleX, 0.88, 1.18);
+    previous.scaleY = clamp(previous.scaleY, 0.82, 1.2);
+    previous.rotation = clamp(previous.rotation, -1.5, 1.5);
+    previous.torsoTwist = clamp(previous.torsoTwist, -0.42, 0.42);
+  }
   previous.worldVelocityX = worldVelocityX;
   previous.worldVelocityY = worldVelocityY;
-  previous.lastTime = time;
+  previous.lastAnimationFrame = fighter.animationFrame;
+  previous.lastStateFrame = fighter.stateFrame;
+  previous.lastMoveFrame = fighter.moveFrame;
+  previous.lastMove = fighter.currentMove;
+  previous.lastFacing = fighter.facing;
+  previous.lastFlavour = flavour;
+  previous.lastReactionKey = reactionKey;
   previous.lastState = fighter.state;
 
   return {
@@ -204,7 +252,7 @@ export function drawCharacterPreview(
 
   if (pose === 'signature') {
     ctx.save();
-    ctx.globalAlpha = .13 + attackPulse * .12;
+    ctx.globalAlpha *= .13 + attackPulse * .12;
     ctx.translate(-facing * 22, 0);
     drawShadow(ctx);
     drawPreviewSignaturePose(ctx, character, time - .06, attackPulse * .75);
@@ -293,7 +341,7 @@ function drawAtlasFrame(
   const smoothing = ctx.imageSmoothingEnabled;
   const smoothingQuality = ctx.imageSmoothingQuality;
   characterTextureManager.configureSampling(ctx, hd);
-  ctx.globalAlpha = alpha;
+  ctx.globalAlpha *= alpha;
   const sourceFrameWidth = Math.max(1, image.naturalWidth / 5);
   const sourceFrameHeight = Math.max(1, image.naturalHeight / 4);
   ctx.drawImage(
@@ -312,49 +360,142 @@ function drawAtlasFrame(
 }
 
 
-function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
-  if (!characterTextureManager.wantsHd()) return false;
-  const sample = animationSequenceSample(fighter, time);
+function sequenceImageWidth(image: HTMLImageElement | ImageBitmap): number {
+  return 'naturalWidth' in image ? image.naturalWidth : image.width;
+}
+
+function sequenceImageHeight(image: HTMLImageElement | ImageBitmap): number {
+  return 'naturalHeight' in image ? image.naturalHeight : image.height;
+}
+
+const LITE_RISING_RECOVERY_KINDS = new Set(['shoryuken', 'tensei-ranka', 'rocket-uppercut', 'stun-gun-headbutt', 'abare-tosanami', 'you-hou']);
+
+function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number, override?: AnimationSequenceSample, showShadow = true, groundedPresentation = false): boolean {
+  const hd = characterTextureManager.wantsHd();
+  const liteCinematicKo = !hd && groundedPresentation && override?.sequence.kind === 'ko' ? override : null;
+  const liteThrow = !hd && !override && !groundedPresentation
+    ? throwVictimSample(fighter) ?? throwAttackerSample(fighter) : null;
+  const liteSuperHit = !hd && !override && !groundedPresentation ? superHitSample(fighter) : null;
+  const liteBounce = !hd && !override && !groundedPresentation
+    ? wallBounceSample(fighter) ?? groundBounceSample(fighter) : null;
+  const liteEscape = !hd && !override && !groundedPresentation && fighter.throwEscapeFrames > 0
+    ? animationSequenceSample(fighter, time) : null;
+  const liteDefense = !hd && !override && !groundedPresentation && fighter.hp > 0
+    && !fighter.airborne && fighter.jumpHeight <= 0 && defenseCrouchBlend(fighter) === 0
+    && (fighter.state === 'block' || fighter.state === 'parry') ? animationSequenceSample(fighter, time) : null;
+  const liteGroundReaction = !hd && !override && !groundedPresentation
+    && (fighter.state === 'knockdown' || (fighter.state === 'hit' && fighter.hp > 0)
+      || (fighter.state === 'ko' && fighter.hp <= 0))
+    && !fighter.airborne && fighter.jumpHeight <= 0 ? animationSequenceSample(fighter, time) : null;
+  const liteAirReaction = !hd && !override && !groundedPresentation
+    && (((fighter.state === 'knockdown' || fighter.state === 'hit') && fighter.hp > 0)
+      || (fighter.state === 'ko' && fighter.hp <= 0)) ? airFallSample(fighter) : null;
+  const liteBody = liteCinematicKo ?? liteThrow ?? liteSuperHit ?? liteBounce
+    ?? (liteEscape?.sequence.kind === 'throw-escape' ? liteEscape : null)
+    ?? (liteDefense?.sequence.kind === 'guard' || liteDefense?.sequence.kind === 'parry' ? liteDefense : null) ?? liteAirReaction
+    ?? (liteGroundReaction?.sequence.kind === 'knockdown' || liteGroundReaction?.sequence.kind === 'hit'
+      || liteGroundReaction?.sequence.kind === 'ko' ? liteGroundReaction : null);
+  const recovery = !liteBody && fighter.state !== 'attack';
+  if (!hd && !liteBody && (fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0
+    || fighter.currentMove?.kind === 'throw' || fighter.currentMove?.level === 'throw')) return false;
+  if (!hd && recovery && (!fighter.visualRecoveryMoveId || !(fighter.state === 'jump'
+    || (!fighter.airborne && fighter.landingFrames > 0 && (fighter.state === 'idle' || fighter.state === 'walk'))))) return false;
+  let sample = liteBody ?? override ?? animationSequenceSample(fighter, time) ?? airFallSample(fighter) ?? superHitSample(fighter) ?? wallBounceSample(fighter) ?? groundBounceSample(fighter) ?? throwVictimSample(fighter) ?? releasedThrowSample(fighter) ?? throwAttackerSample(fighter);
   if (!sample) return false;
-  const texture = animationTextureManager.selection(sample.sequence);
+  if (!hd && recovery && !LITE_RISING_RECOVERY_KINDS.has(sample.sequence.kind)) return false;
+  // Reuse only an already prepared attack strip; landing never starts new work.
+  let texture = hd ? animationTextureManager.selection(sample.sequence) : liteAnimationTextureManager.selection(sample.sequence, recovery);
+  // Prepare only this body's grounded recovery, through the same bounded queue.
+  if ((liteAirReaction && (fighter.state === 'knockdown' || fighter.state === 'ko')) || (liteThrow?.sequence.kind === 'throw-victim' && fighter.state === 'knockdown' && fighter.hp > 0
+    && !fighter.airborne && fighter.jumpHeight <= 0 && fighter.superVictimFrames <= 0)) {
+    const next = animationSequenceFor(fighter.character.id, fighter.state === 'ko' ? 'ko' : 'knockdown', true);
+    if (next) liteAnimationTextureManager.selection(next);
+  }
+  if ((sample.sequence.kind === 'ko' || sample.sequence.kind === 'knockdown' || sample.sequence.kind === 'fall' || sample.sequence.kind === 'super-hit' || sample.sequence.kind === 'throw-victim' || sample.sequence.kind === 'throw-attacker' || ('throwAttacker' in sample && sample.throwAttacker === true)) && (!texture
+    || (hd && (sequenceImageWidth(texture.image) !== sample.sequence.frameWidth * sample.sequence.frameCount
+      || sequenceImageHeight(texture.image) !== sample.sequence.frameHeight)))) return false;
+  if (sample.sequence.kind === 'throw-escape' && (!texture
+    || (hd && (sequenceImageWidth(texture.image) !== sample.sequence.frameWidth * sample.sequence.frameCount
+      || sequenceImageHeight(texture.image) !== sample.sequence.frameHeight)))) {
+    if (!hd) return false;
+    // Keep the established art style while the supplemental recovery strip is unavailable.
+    const idle = animationSequenceFor(fighter.character.id, 'idle');
+    if (!idle) return false;
+    sample = { sequence: idle, frame: 0, progress: 0, contact: false };
+    texture = animationTextureManager.selection(idle);
+  }
   if (!texture) return false;
   const image = texture.image;
   const sequence = sample.sequence;
-  const frameWidth = image.naturalWidth / Math.max(1, sequence.frameCount);
-  const frameHeight = image.naturalHeight;
+  const wall = !groundedPresentation && 'wallBounce' in sample && sample.wallBounce === true
+    ? victimReactionSample(fighter) : null;
+  const ground = !groundedPresentation && 'groundBounce' in sample && sample.groundBounce === true
+    ? victimReactionSample(fighter) : null;
+  const thrown = !groundedPresentation && 'throwVictim' in sample && sample.throwVictim === true
+    ? throwMotionFor(fighter.throwSyncStyle, 'victim', fighter.throwSyncProgress, fighter.throwSyncDirection) : null;
+  const grabbing = !groundedPresentation && 'throwAttacker' in sample && sample.throwAttacker === true
+    ? throwMotionFor(fighter.throwSyncStyle, 'attacker', fighter.throwSyncProgress, fighter.throwSyncDirection) : null;
+  const thrownReaction = thrown ? victimReactionSample(fighter) : null;
+  const reaction = thrown && thrownReaction
+    ? { x:thrown.x + thrownReaction.offsetX, y:thrown.y + thrownReaction.offsetY, rotation:thrown.rotation + thrownReaction.rotation, scaleX:thrownReaction.scaleX, scaleY:thrownReaction.scaleY, flash:0 }
+    : grabbing
+    ? { x:grabbing.x, y:grabbing.y, rotation:grabbing.rotation, scaleX:1, scaleY:1, flash:0 }
+    : ground
+    ? { x:ground.offsetX, y:ground.offsetY, rotation:ground.rotation - fighter.facing * .22, scaleX:ground.scaleX, scaleY:ground.scaleY, flash:0 }
+    : wall
+    ? { x:wall.offsetX, y:wall.offsetY, rotation:wall.rotation + fighter.facing * .36, scaleX:wall.scaleX, scaleY:wall.scaleY, flash:0 }
+    : !groundedPresentation && sequence.kind === 'super-hit'
+      ? superVictimPoseFor(fighter.superVictimMotif, fighter.superVictimProgress, fighter.superVictimDirection, fighter.superVictimHitIndex, fighter.superVictimHitTotal) : null;
+  const frameWidth = sequenceImageWidth(image) / Math.max(1, sequence.frameCount);
+  const frameHeight = sequenceImageHeight(image);
   const velocity = fighter.x - fighter.previousX;
   const stable = fighter.state === 'idle' && Math.abs(velocity) < .2 && fighter.jumpHeight <= 1;
-  const baseX = characterTextureManager.snapCoordinate(x, true, stable);
-  const baseY = characterTextureManager.snapCoordinate(y, true, stable);
+  const baseX = characterTextureManager.snapCoordinate(x, hd, stable);
+  const baseY = characterTextureManager.snapCoordinate(y, hd, stable);
 
   ctx.save();
-  ctx.translate(baseX, baseY);
-  ctx.save();
-  ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
-  drawShadow(ctx);
-  ctx.restore();
+  ctx.translate(baseX + (wall || ground || thrown || grabbing ? 0 : reaction?.x ?? 0), baseY + (wall || ground || thrown || grabbing ? 0 : reaction?.y ?? 0));
+  if (showShadow) {
+    ctx.save();
+    ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
+    drawShadow(ctx);
+    ctx.restore();
+  }
+  // Bounce recoil moves the body while its shadow stays on the physical ground.
+  if ((wall || ground || thrown || grabbing) && reaction) ctx.translate(reaction.x, reaction.y);
   // Every authored body follows gameplay height, including interrupted attacks
   // and airborne hit reactions. The shadow above stays on the ground.
-  ctx.translate(0, -fighter.jumpHeight);
+  ctx.translate(0, groundedPresentation ? 0 : -fighter.jumpHeight);
+  if (reaction) {
+    const pivot = VECTOR_RIG_LIFT * fighter.character.heightScale;
+    ctx.translate(0, -pivot);
+    ctx.rotate(reaction.rotation);
+    ctx.scale(reaction.scaleX, reaction.scaleY);
+    ctx.translate(0, pivot);
+  }
 
+  const lowDefense = groundedPresentation || sequence.kind === 'crouch-guard' || sequence.kind === 'crouch-parry' ? 0 : defenseCrouchBlend(fighter);
+  ctx.scale(1 + lowDefense * .05, 1 - lowDefense * .21);
   const frameProfile = animationFrameProfile(fighter.character.id, sequence.kind);
   const lockStrength = sequence.footLock ? frameProfile.footLockStrength : 0;
   if (lockStrength > 0) {
     const anchorX = frameProfile.anchorX[sample.frame] ?? 0;
     const anchorY = frameProfile.anchorY[sample.frame] ?? 0;
-    // Anchor data uses source pixels; all sequence canvases draw at half scale * .88.
+    // Match the body scale on each axis when converting source-pixel anchors to world space.
     const sourceToWorld = .44;
     ctx.translate(
-      fighter.facing * anchorX * lockStrength * sourceToWorld,
-      anchorY * lockStrength * sourceToWorld,
+      fighter.facing * fighter.character.widthScale * anchorX * lockStrength * sourceToWorld,
+      fighter.character.heightScale * anchorY * lockStrength * sourceToWorld,
     );
   }
 
   ctx.scale(fighter.facing * fighter.character.widthScale * .88, fighter.character.heightScale * .88);
-  if (fighter.hitFlash > 0) ctx.filter = 'brightness(2.1) saturate(.5)';
+  if (reaction && (fighter.hitFlash > 0 || reaction.flash > .18)) {
+    ctx.filter = `brightness(${fighter.hitFlash > 0 ? 2.35 : 1.65 + reaction.flash * .7}) saturate(${fighter.hitFlash > 0 ? .4 : .72})`;
+  } else if (!groundedPresentation && fighter.hitFlash > 0) ctx.filter = 'brightness(2.1) saturate(.5)';
   const smoothing = ctx.imageSmoothingEnabled;
   const smoothingQuality = ctx.imageSmoothingQuality;
-  characterTextureManager.configureSampling(ctx, true);
+  characterTextureManager.configureSampling(ctx, hd);
   ctx.drawImage(
     image,
     sample.frame * frameWidth,
@@ -368,6 +509,165 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
   );
   ctx.imageSmoothingEnabled = smoothing;
   ctx.imageSmoothingQuality = smoothingQuality;
+  ctx.restore();
+  return true;
+}
+
+
+
+/** Sample a frozen cinematic body without changing its live combat state. */
+export function drawGroundedKoCinematic(ctx: CanvasRenderingContext2D, fighter: Fighter, elapsedTicks: number): boolean {
+  const sequence = animationSequenceFor(fighter.character.id, 'ko');
+  if (!sequence?.poseAuthored) return false;
+  const elapsed = Math.max(0, elapsedTicks);
+  const progress = Math.min(1, elapsed * sequence.fps / (60 * sequence.frameCount));
+  const sample = { sequence, frame: Math.min(sequence.frameCount - 1, Math.floor(elapsed * sequence.fps / 60)), progress, contact: false };
+  return drawHighFrameSequenceSprite(ctx, fighter, fighter.x, fighter.y, 0, sample, true, true);
+}
+
+function crouchAttackRecoveryBlend(fighter: Fighter): number {
+  const move = fighter.currentMove;
+  if (fighter.state !== 'attack' || !move || fighter.airborne || move.kind !== 'melee'
+    || !/^2(?:LP|MP|HP|LK|MK|HK)$/.test(move.id) || fighter.dashFrames > 0
+    || fighter.landingFrames > 0 || fighter.throwEscapeFrames > 0 || move.recovery < 1) return 0;
+  if (fighter.moveFrame < move.startup + move.active) return 0;
+  const end = move.startup + move.active + move.recovery;
+  const window = Math.min(6, move.recovery);
+  return window <= 1 ? 1 : Math.max(0, Math.min(1, (fighter.moveFrame - (end - window)) / (window - 1)));
+}
+
+function drawAuthoredCrouchSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+  const guarding = fighter.state === 'block';
+  const parrying = fighter.state === 'parry';
+  const defensive = guarding || parrying;
+  const recovery = crouchAttackRecoveryBlend(fighter);
+  const blend = defensive ? defenseCrouchBlend(fighter) : recovery > 0 ? recovery : neutralCrouchBlend(fighter);
+  if (blend <= 0 || !characterTextureManager.wantsHd()) return false;
+  const sample = animationSequenceSample(fighter, time);
+  if (!sample || (recovery > 0 ? !sample.sequence.kind.startsWith('crouch-')
+    : sample.sequence.kind !== (guarding ? 'guard' : parrying ? 'parry' : 'crouch'))) return false;
+  const sequence = animationSequenceFor(fighter.character.id, parrying ? 'crouch-parry' : 'crouch-guard');
+  if (!sequence) return false;
+  const texture = animationTextureManager.selection(sequence);
+  if (!texture || texture.image.naturalWidth !== sequence.frameWidth * sequence.frameCount
+    || texture.image.naturalHeight !== sequence.frameHeight) return false;
+  // A supplemental strip must never hide the established fallback while loading.
+  if (blend < 1 && !animationTextureManager.selection(sample.sequence)) return false;
+  const lowSample = {
+    ...sample, sequence, frame: defensive
+      ? Math.min(sequence.frameCount - 1, Math.floor(sample.progress * sequence.frameCount))
+      : sequence.frameCount - 1,
+  };
+  if (blend >= 1) return drawHighFrameSequenceSprite(ctx, fighter, x, y, time, lowSample);
+  return drawBlendedSequenceSprite(ctx, fighter, x, y, time, sample, lowSample, blend);
+}
+
+function drawAuthoredSuperHitHandoffSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+  if (!characterTextureManager.wantsHd()) return false;
+  const handoff = superHitHandoffSample(fighter);
+  if (!handoff) return false;
+  for (const sample of [handoff.previous, handoff.current]) {
+    const texture = animationTextureManager.selection(sample.sequence);
+    if (!texture || texture.image.naturalWidth !== sample.sequence.frameWidth * sample.sequence.frameCount
+      || texture.image.naturalHeight !== sample.sequence.frameHeight) return false;
+  }
+  return drawBlendedSequenceSprite(ctx, fighter, x, y, time, handoff.previous, handoff.current, handoff.blend);
+}
+
+function drawAuthoredWallBounceHandoffSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+  if (!characterTextureManager.wantsHd()) return false;
+  const handoff = wallBounceHandoffSample(fighter);
+  if (!handoff) return false;
+  for (const sample of [handoff.previous, handoff.current]) {
+    const texture = animationTextureManager.selection(sample.sequence);
+    if (!texture || texture.image.naturalWidth !== sample.sequence.frameWidth * sample.sequence.frameCount
+      || texture.image.naturalHeight !== sample.sequence.frameHeight) return false;
+  }
+  return drawBlendedSequenceSprite(ctx, fighter, x, y, time, handoff.previous, handoff.current, handoff.blend);
+}
+
+function drawAuthoredGroundBounceHandoffSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+  if (!characterTextureManager.wantsHd()) return false;
+  const handoff = groundBounceHandoffSample(fighter);
+  if (!handoff) return false;
+  for (const sample of [handoff.previous, handoff.current]) {
+    const texture = animationTextureManager.selection(sample.sequence);
+    if (!texture || texture.image.naturalWidth !== sample.sequence.frameWidth * sample.sequence.frameCount
+      || texture.image.naturalHeight !== sample.sequence.frameHeight) return false;
+  }
+  return drawBlendedSequenceSprite(ctx, fighter, x, y, time, handoff.previous, handoff.current, handoff.blend);
+}
+
+function drawAuthoredThrowVictimHandoffSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+  if (!characterTextureManager.wantsHd()) return false;
+  const handoff = throwVictimHandoffSample(fighter);
+  if (!handoff) return false;
+  for (const sample of [handoff.previous, handoff.current]) {
+    const texture = animationTextureManager.selection(sample.sequence);
+    if (!texture || texture.image.naturalWidth !== sample.sequence.frameWidth * sample.sequence.frameCount
+      || texture.image.naturalHeight !== sample.sequence.frameHeight) return false;
+  }
+  return drawBlendedSequenceSprite(ctx, fighter, x, y, time, handoff.previous, handoff.current, handoff.blend);
+}
+
+function drawAuthoredAirHitHandoffSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+  if (!characterTextureManager.wantsHd()) return false;
+  const handoff = airHitHandoffSample(fighter);
+  if (!handoff) return false;
+  for (const sample of [handoff.previous, handoff.current]) {
+    const texture = animationTextureManager.selection(sample.sequence);
+    if (!texture || texture.image.naturalWidth !== sample.sequence.frameWidth * sample.sequence.frameCount
+      || texture.image.naturalHeight !== sample.sequence.frameHeight) return false;
+  }
+  return drawBlendedSequenceSprite(ctx, fighter, x, y, time, handoff.previous, handoff.current, handoff.blend);
+}
+
+function drawAuthoredAirRecoverySprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+  if (!characterTextureManager.wantsHd()) return false;
+  const recovery = airAttackRecoverySample(fighter, time);
+  if (!recovery) return false;
+  for (const sample of [recovery.previous, recovery.current]) {
+    const texture = animationTextureManager.selection(sample.sequence);
+    if (!texture || texture.image.naturalWidth !== sample.sequence.frameWidth * sample.sequence.frameCount
+      || texture.image.naturalHeight !== sample.sequence.frameHeight) return false;
+  }
+  return drawBlendedSequenceSprite(ctx, fighter, x, y, time, recovery.previous, recovery.current, recovery.blend);
+}
+
+function drawBlendedSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number,
+  sample: AnimationSequenceSample, lowSample: AnimationSequenceSample, blend: number): boolean {
+  const poseBlendCanvas = acquirePoseBlendCanvas();
+  const buffer = poseBlendCanvas?.getContext('2d') as CanvasRenderingContext2D | null;
+  if (!buffer) return false;
+  const matrix = ctx.getTransform?.();
+  // Match display density while bounding this reusable transition buffer to 16 MiB.
+  const density = matrix ? Math.max(1, Math.min(4, Math.max(Math.hypot(matrix.a, matrix.b), Math.hypot(matrix.c, matrix.d)))) : 1;
+  const extent = Math.ceil(512 * density);
+  if (poseBlendCanvas!.width !== extent || poseBlendCanvas!.height !== extent) {
+    poseBlendCanvas!.width = poseBlendCanvas!.height = extent;
+  }
+  buffer.setTransform(extent / 512, 0, 0, extent / 512, 0, 0);
+  // Add premultiplied pose weights offscreen so overlapping opaque pixels stay
+  // opaque. Apply the caller's opacity once when compositing the finished body.
+  buffer.clearRect(0, 0, 512, 512);
+  buffer.save();
+  buffer.globalAlpha = 1 - blend;
+  drawHighFrameSequenceSprite(buffer, fighter, 256, 448, time, sample, false);
+  buffer.globalCompositeOperation = 'lighter';
+  buffer.globalAlpha = blend;
+  drawHighFrameSequenceSprite(buffer, fighter, 256, 448, time, lowSample, false);
+  buffer.restore();
+  const stable = fighter.state === 'idle' && Math.abs(fighter.x - fighter.previousX) < .2 && fighter.jumpHeight <= 1;
+  const baseX = characterTextureManager.snapCoordinate(x, true, stable);
+  const baseY = characterTextureManager.snapCoordinate(y, true, stable);
+  ctx.save();
+  ctx.translate(baseX, baseY);
+  ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
+  drawShadow(ctx);
+  ctx.restore();
+  ctx.save();
+  characterTextureManager.configureSampling(ctx, true);
+  ctx.drawImage(poseBlendCanvas!, 0, 0, extent, extent, baseX - 256, baseY - 448, 512, 512);
   ctx.restore();
   return true;
 }
@@ -414,13 +714,13 @@ function drawSpecialKeyPoseSprite(ctx: CanvasRenderingContext2D, fighter: Fighte
   return true;
 }
 
-function drawAttackAtlasSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number): boolean {
+function drawAttackAtlasSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, _time: number): boolean {
   const texture = characterTextureManager.attackSelection(fighter.character.id);
   if (!texture) return false;
   const image = texture.image;
   const sample = attackSpriteSample(fighter);
   if (!sample.useAtlas) return false;
-  const renderPose = naturalizeRenderPose(fighter, time, {
+  const renderPose = naturalizeRenderPose(fighter, {
     offsetX: sample.offsetX,
     offsetY: sample.offsetY,
     rotation: sample.rotation,
@@ -453,7 +753,7 @@ function drawAttackAtlasSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
       const echoAlpha = sample.afterimage * (.14 / i);
       ctx.save();
       ctx.translate(
-        fighter.facing * (renderPose.offsetX - i * (8 + sample.smear * 7)) - travel * i,
+        renderPose.offsetX - fighter.facing * i * (8 + sample.smear * 7) - travel * i,
         renderPose.offsetY + i * .7,
       );
       ctx.rotate(renderPose.rotation * .72);
@@ -469,7 +769,7 @@ function drawAttackAtlasSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
   if (sample.smear > .18) {
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
-    ctx.translate(fighter.facing * (renderPose.offsetX - 10 * sample.smear) - travel, renderPose.offsetY);
+    ctx.translate(renderPose.offsetX - fighter.facing * 10 * sample.smear - travel, renderPose.offsetY);
     ctx.rotate(renderPose.rotation * .6);
     ctx.scale(fighter.facing * baseScaleX * (1 + sample.smear * .12), baseScaleY * (1 - sample.smear * .025));
     ctx.filter = 'blur(1.6px) brightness(1.45) saturate(1.15)';
@@ -477,7 +777,7 @@ function drawAttackAtlasSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
     ctx.restore();
   }
 
-  ctx.translate(fighter.facing * renderPose.offsetX, renderPose.offsetY);
+  ctx.translate(renderPose.offsetX, renderPose.offsetY);
   ctx.rotate(renderPose.rotation);
   ctx.scale(fighter.facing * fighter.character.widthScale * .88 * renderPose.scaleX, fighter.character.heightScale * .88 * renderPose.scaleY);
   if (fighter.hitFlash > 0) ctx.filter = 'brightness(2.1) saturate(.5)';
@@ -492,7 +792,12 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
   const image = texture.image;
   const pose = combatSpritePose(fighter, time);
   if (!pose.useSprite) return false;
-  const renderPose = naturalizeRenderPose(fighter, time, pose, 'sprite');
+  // Keep gameplay lift outside the spring, just as authored HQ bodies do.
+  // combatSpritePose includes it only in its jump state; preserve that API
+  // while smoothing the local pose independently of world-space height.
+  const renderPose = naturalizeRenderPose(fighter, {
+    ...pose, offsetY: pose.offsetY + (fighter.state === 'jump' ? fighter.jumpHeight : 0),
+  }, 'sprite');
 
   const velocity = fighter.x - fighter.previousX;
   const stableHdBase = texture.hd && Math.abs(velocity) < .28 && fighter.jumpHeight <= 1 && fighter.dashFrames <= 0;
@@ -505,6 +810,7 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
   ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
   drawShadow(ctx);
   ctx.restore();
+  ctx.translate(0, -fighter.jumpHeight);
 
   const motionStrength = Math.min(1, Math.abs(velocity) / 5.8 + (fighter.dashFrames > 0 ? .65 : 0));
   const victimEcho = fighter.state === 'hit' ? victimReactionSample(fighter) : null;
@@ -514,7 +820,7 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
     for (let i = 2; i >= 1; i -= 1) {
       ctx.save();
       ctx.translate(
-        fighter.facing * renderPose.offsetX + fighter.lastHitDirection * i * (6 + victimEcho.echo * 9),
+        renderPose.offsetX + fighter.lastHitDirection * i * (6 + victimEcho.echo * 9),
         renderPose.offsetY - i * (1.2 + victimEcho.sequencePulse * 1.8),
       );
       ctx.rotate(renderPose.rotation - victimEcho.rotation * .28 * i);
@@ -522,7 +828,7 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
         fighter.facing * fighter.character.widthScale * .88 * renderPose.scaleX,
         fighter.character.heightScale * .88 * renderPose.scaleY,
       );
-      ctx.globalAlpha = victimEcho.echo * (.09 / i);
+      ctx.globalAlpha *= victimEcho.echo * (.09 / i);
       ctx.filter = i === 2 ? 'blur(1.3px) brightness(1.35)' : 'brightness(1.18)';
       const smoothing = ctx.imageSmoothingEnabled;
       const smoothingQuality = ctx.imageSmoothingQuality;
@@ -540,7 +846,7 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
     for (let i = 2; i >= 1; i -= 1) {
       ctx.save();
       ctx.translate(
-        fighter.facing * renderPose.offsetX - velocity * i * 1.9 - fighter.facing * i * 2.5,
+        renderPose.offsetX - velocity * i * 1.9 - fighter.facing * i * 2.5,
         renderPose.offsetY + i * .6,
       );
       ctx.rotate(renderPose.rotation - renderPose.torsoTwist * .25);
@@ -548,7 +854,7 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
         fighter.facing * fighter.character.widthScale * .88 * renderPose.scaleX,
         fighter.character.heightScale * .88 * renderPose.scaleY,
       );
-      ctx.globalAlpha = motionStrength * (.08 / i);
+      ctx.globalAlpha *= motionStrength * (.08 / i);
       ctx.filter = i === 2 ? 'blur(1.1px) brightness(1.25)' : 'brightness(1.12)';
       const smoothing = ctx.imageSmoothingEnabled;
       const smoothingQuality = ctx.imageSmoothingQuality;
@@ -561,10 +867,10 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
     ctx.restore();
   }
 
-  ctx.translate(fighter.facing * renderPose.offsetX, renderPose.offsetY);
+  ctx.translate(renderPose.offsetX, renderPose.offsetY);
   ctx.rotate(renderPose.rotation + renderPose.torsoTwist * .16);
   ctx.scale(fighter.facing * fighter.character.widthScale * .88 * renderPose.scaleX, fighter.character.heightScale * .88 * renderPose.scaleY);
-  ctx.globalAlpha = pose.alpha;
+  ctx.globalAlpha *= pose.alpha;
   if (fighter.hitFlash > 0) ctx.filter = 'brightness(2.1) saturate(.5)';
   const smoothing = ctx.imageSmoothingEnabled;
   const smoothingQuality = ctx.imageSmoothingQuality;
@@ -590,17 +896,27 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
 }
 
 export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighter, alpha: number, time: number): void {
+  if (!characterTextureManager.wantsHd()) releasePoseBlendCanvas();
+  // Every body route, including loaded fallback sprites, shares the freeze clock.
+  time = fighter.animationFrame / 60;
   const x = fighter.previousX + (fighter.x - fighter.previousX) * alpha;
   const y = fighter.previousY + (fighter.y - fighter.previousY) * alpha;
   const transition = animationTransitionSample(fighter);
   ctx.save();
   if (transition.active) {
     ctx.translate(x, y);
-    ctx.translate(fighter.facing * transition.offsetX, transition.offsetY);
+    ctx.translate(transition.offsetX, transition.offsetY);
     ctx.rotate(transition.rotation);
     ctx.scale(transition.scaleX, transition.scaleY);
     ctx.translate(-x, -y);
   }
+  if (drawAuthoredThrowVictimHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
+  if (drawAuthoredSuperHitHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
+  if (drawAuthoredWallBounceHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
+  if (drawAuthoredGroundBounceHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
+  if (drawAuthoredAirHitHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
+  if (drawAuthoredAirRecoverySprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
+  if (drawAuthoredCrouchSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawHighFrameSequenceSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawSpecialKeyPoseSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
   if (drawAttackAtlasSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }
@@ -612,6 +928,7 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
   const superVictim = superVictimActive ? superVictimPoseFor(fighter.superVictimMotif, fighter.superVictimProgress, fighter.superVictimDirection, fighter.superVictimHitIndex, fighter.superVictimHitTotal) : { x:0, y:0, rotation:0, scaleX:1, scaleY:1, armOpen:0, legKick:0, flash:0 };
   const move = fighter.currentMove;
   const anatomy = fighterAnatomyProfile(fighter.character.id);
+  const neutralCrouch = neutralCrouchBlend(fighter);
   const motion = sampleFighterMotion(fighter, time);
   const motionState = motionClipForFighter(fighter, time);
   const animationPhase = combatAnimationPhase(fighter);
@@ -620,12 +937,21 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
   const attackP = move ? Math.min(1, attackFrame / totalFrames) : 0;
   const active = fighter.isMoveActive();
   const strikePose = move && fighter.state === 'attack' && move.button ? sampleStrikePose(fighter.character.id, move.button, attackP, active, move) : null;
-  const moving = fighter.state === 'walk';
-  const idleBreath = fighter.state === 'idle' ? Math.sin(time * 3.25) * 2.4 : 0;
-  const walkBounce = moving ? Math.abs(Math.sin(time * 11.5)) * 3.2 : 0;
-  const stride = moving ? Math.sin(time * 11.5) * 13 : 0;
-  const crouch = fighter.state === 'crouch' ? 22 : 0;
-  const hitPhase = fighter.state === 'hit' ? Math.min(1, Math.abs(fighter.stateFrame) / 18) : 0;
+  const moving = fighter.state === 'walk' && neutralCrouch === 0;
+  const idleBreath = fighter.state === 'idle' ? Math.sin(time * 3.25) * 2.4 * (1 - neutralCrouch) : 0;
+  const walkTime = fighter.walkAnimationFrame === null ? time : fighter.walkAnimationFrame / 60;
+  const walkBounce = moving ? Math.abs(Math.sin(walkTime * 11.5)) * 3.2 : 0;
+  const stride = moving ? Math.sin(walkTime * 11.5) * 13 : 0;
+  const crouchedAttack = fighter.state === 'attack' && !fighter.airborne && !!move?.id.startsWith('2');
+  const lowDefense = defenseCrouchBlend(fighter);
+  // Match body descent to the folded legs' cosine shortening at every blend step.
+  const neutralFold = Math.max(lowDefense, neutralCrouch);
+  const foldedDrop = 98 * (1 - Math.cos(65 * neutralFold * Math.PI / 180))
+    * VECTOR_RIG_SCALE * anatomy.legScale * fighter.character.heightScale * motion.scaleY;
+  const crouch = crouchedAttack ? 34 : foldedDrop;
+  const hitDuration = fighter.hitAnimationDuration > 0 && fighter.wallBounceFrames <= 0 && fighter.groundBounceFrames <= 0
+    ? fighter.hitAnimationDuration : 18;
+  const hitPhase = fighter.state === 'hit' ? Math.min(1, Math.abs(fighter.stateFrame) / hitDuration) : 0;
   const hitDirectionLocal = fighter.lastHitDirection * fighter.facing;
   const zoneLean = fighter.lastHitZone === 'head' ? 1.16 : fighter.lastHitZone === 'leg' ? .68 : fighter.lastHitZone === 'launch' ? 1.24 : fighter.lastHitZone === 'throw' ? 1.38 : 1;
   const reactionLeanScale = (fighter.lastHitReaction === 'low' ? .72 : fighter.lastHitReaction === 'launch' ? 1.22 : fighter.lastHitReaction === 'throw' ? 1.35 : fighter.lastHitReaction === 'high' ? 1.08 : 1) * zoneLean;
@@ -650,8 +976,9 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
   if (move?.id.endsWith('_MOBILITY') && fighter.state === 'attack' && attackP > .12 && attackP < .78) {
     for (let i = 3; i >= 1; i -= 1) {
       ctx.save();
-      ctx.globalAlpha = .08 * i;
-      ctx.translate(-fighter.facing * i * 19, -fighter.jumpHeight);
+      ctx.globalAlpha *= .08 * i;
+      ctx.translate(-fighter.facing * i * 19, -fighter.jumpHeight - VECTOR_RIG_LIFT * fighter.character.heightScale);
+      ctx.scale(VECTOR_RIG_SCALE, VECTOR_RIG_SCALE);
       ctx.scale(fighter.facing * fighter.character.widthScale, fighter.character.heightScale);
       drawGhostPose(ctx, fighter.character, time - i * .08);
       ctx.restore();
@@ -662,6 +989,11 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
     fighter.facing * (bodyLunge + motion.bodyX) + (!superVictimActive && victimReaction.active ? victimReaction.offsetX : 0),
     -fighter.jumpHeight - idleBreath - walkBounce + crouch + throwPair.crouch + motion.bodyY + motion.crouch + reactionY + (move && fighter.state === 'attack' && !active ? (1 - startupT) * 3 : 0) + (!superVictimActive && victimReaction.active ? victimReaction.offsetY : 0),
   );
+  // Every vector fallback uses the same legacy rig, including air normals.
+  // Match authored body size without scaling world height, partner offsets
+  // or the ground shadow drawn above.
+  ctx.translate(0, -VECTOR_RIG_LIFT * fighter.character.heightScale);
+  ctx.scale(VECTOR_RIG_SCALE, VECTOR_RIG_SCALE);
   const phaseTilt = animationPhase === 'anticipation' ? -.028 : animationPhase === 'contact' ? .032 : animationPhase === 'follow-through' ? .018 : animationPhase === 'recovery' ? -.01 : 0;
   const contactProfile = contactVisualProfile(fighter);
   const contactEnvelope = contactVisualEnvelope(fighter);
@@ -686,7 +1018,8 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
   );
   if (fighter.hitFlash > 0 || superVictim.flash > .18) ctx.filter = `brightness(${fighter.hitFlash > 0 ? 2.35 : 1.65 + superVictim.flash * .7}) saturate(${fighter.hitFlash > 0 ? .4 : .72})`;
   if (fighter.state === 'knockdown' || fighter.state === 'ko') {
-    const downProgress = Math.max(0, Math.min(1, 1 - Math.abs(Math.min(0, fighter.stateFrame)) / 34));
+    const downDuration = fighter.state === 'ko' ? 90 : Math.max(1, fighter.knockdownAnimationDuration || 34);
+    const downProgress = Math.max(0, Math.min(1, 1 - Math.abs(Math.min(0, fighter.stateFrame)) / downDuration));
     const koStyle = (fighter.character.id === 'ALEX' || fighter.character.id === 'URIEN' ? 1.12 : fighter.character.id === 'IBUKI' || fighter.character.id === 'YUN' ? .88 : 1) * anatomy.koSpin;
     const koDirection = fighter.character.id === 'CHUNLI' || fighter.character.id === 'MAKOTO' ? .9 : 1;
     ctx.rotate(-Math.PI * (.24 + downProgress * .3) * koStyle * koDirection);
@@ -708,6 +1041,14 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
   } else if (superVictimActive) {
     drawJointedLeg(ctx, -17, fighter.character.primary, -12 - superVictim.legKick * 24, 18 + superVictim.legKick * 16, 1, fighter.character, -superVictim.legKick * 18);
     drawJointedLeg(ctx, 18, fighter.character.primary, 14 + superVictim.legKick * 28, -10 - superVictim.legKick * 12, 1, fighter.character, superVictim.legKick * 22);
+  } else if (crouchedAttack || neutralFold > 0) {
+    // Fold the support leg instead of lowering a standing leg through the floor.
+    const fold = crouchedAttack ? 1 : neutralFold;
+    drawJointedLeg(ctx, -17, fighter.character.primary, -65 * fold, 130 * fold, 1, fighter.character);
+    const kick = move?.button?.endsWith('k')
+      ? Math.min(1, fighter.moveFrame / Math.max(1, move.startup))
+        * Math.max(0, Math.min(1, (move.startup + move.active + move.recovery - 1 - fighter.moveFrame) / Math.max(1, move.recovery - 1))) : 0;
+    drawJointedLeg(ctx, 17, fighter.character.primary, 65 * fold + kick * 15, -130 * fold + kick * 120, 1 + kick * .12, fighter.character);
   } else if (fighter.state === 'victory') {
     drawLeg(ctx, -20, fighter.character.primary, -10, fighter.character);
     drawLeg(ctx, 19, fighter.character.primary, 8, fighter.character);
@@ -726,7 +1067,7 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
     const ankle = strikePose?.ankleAngle ?? 0;
     drawJointedLeg(ctx, -17, fighter.character.primary, -7 - (strikePose?.hipAngle ?? 0) * .16, 12 + (strikePose?.kneeAngle ?? 0) * .08, 1, fighter.character, -ankle * .35);
     if (active && (fighter.character.id === 'CHUNLI' || fighter.character.id === 'KEN' || fighter.character.id === 'IBUKI' || fighter.character.id === 'YUN')) {
-      for (let smear = 2; smear >= 1; smear -= 1) { ctx.save(); ctx.globalAlpha = .08 * smear; ctx.rotate(-.52 + extend * .31 - smear * .045); drawExtendedLimb(ctx, 8, -59, 108 + extend * 58, fighter.character.accent, 15); ctx.restore(); }
+      for (let smear = 2; smear >= 1; smear -= 1) { ctx.save(); ctx.globalAlpha *= .08 * smear; ctx.rotate(-.52 + extend * .31 - smear * .045); drawExtendedLimb(ctx, 8, -59, 108 + extend * 58, fighter.character.accent, 15); ctx.restore(); }
     }
     drawJointedLeg(ctx, 17, fighter.character.primary, hip, knee, legReach, fighter.character, ankle);
   } else {
@@ -844,7 +1185,7 @@ function drawSignatureSuperPose(ctx: CanvasRenderingContext2D, fighter: Fighter,
   ctx.save(); ctx.rotate(profile.leadAngle + Math.sin(activeT * Math.PI) * .04); drawStyledExtendedLimb(ctx, 18, -116, leadLength, c.primary, c.id === 'ALEX' ? 21 : 16, c, hand); ctx.restore();
   ctx.save(); ctx.rotate(profile.rearAngle - Math.sin(activeT * Math.PI) * .025); drawStyledExtendedLimb(ctx, 3, -98, rearLength, c.secondary, c.id === 'ALEX' ? 19 : 14, c, profile.family === 'throw' ? 'grab' : hand); ctx.restore();
   if (profile.family === 'barrage' || profile.family === 'spiral') {
-    for (let i = 1; i <= 2; i += 1) { ctx.save(); ctx.globalAlpha = .12 / i; ctx.rotate(profile.leadAngle - i * .08); drawExtendedLimb(ctx, 16 - i * 4, -114 + i * 2, leadLength * (1 - i * .08), c.accent, 10 + i); ctx.restore(); }
+    for (let i = 1; i <= 2; i += 1) { ctx.save(); ctx.globalAlpha *= .12 / i; ctx.rotate(profile.leadAngle - i * .08); drawExtendedLimb(ctx, 16 - i * 4, -114 + i * 2, leadLength * (1 - i * .08), c.accent, 10 + i); ctx.restore(); }
   }
   return true;
 }
@@ -877,14 +1218,14 @@ function drawAttackPose(ctx: CanvasRenderingContext2D, fighter: Fighter, moveId:
   const phase = combatAnimationPhase(fighter);
   const jointPose = sampleStrikePose(c.id, move?.button ?? 'hp', attackP, active, move);
   if (!active && frame < startup) {
-    ctx.save(); ctx.globalAlpha = .55; ctx.rotate(.18 * (1 - startupT)); drawExtendedLimb(ctx, -4, -98, 45 + startupT * 20, c.secondary, 12); ctx.restore();
-    ctx.save(); ctx.globalAlpha = .2 + (1 - startupT) * .16; ctx.rotate(-.14); drawExtendedLimb(ctx, 7, -106, 42 + startupT * 15, c.accent, 9); ctx.restore();
+    ctx.save(); ctx.globalAlpha *= .55; ctx.rotate(.18 * (1 - startupT)); drawExtendedLimb(ctx, -4, -98, 45 + startupT * 20, c.secondary, 12); ctx.restore();
+    ctx.save(); ctx.globalAlpha *= .2 + (1 - startupT) * .16; ctx.rotate(-.14); drawExtendedLimb(ctx, 7, -106, 42 + startupT * 15, c.accent, 9); ctx.restore();
   }
   if (phase === 'follow-through') {
-    ctx.save(); ctx.globalAlpha = .18 * (1 - recoveryT); ctx.rotate(.2); drawExtendedLimb(ctx, 8, -108, 96 + power * 36, c.accent, 11); ctx.restore();
+    ctx.save(); ctx.globalAlpha *= .18 * (1 - recoveryT); ctx.rotate(.2); drawExtendedLimb(ctx, 8, -108, 96 + power * 36, c.accent, 11); ctx.restore();
   }
   if (active && (move?.multiHit || move?.technique === 'target' || c.id === 'DUDLEY' || c.id === 'YUN')) {
-    for (let smear = 3; smear >= 1; smear -= 1) { ctx.save(); ctx.globalAlpha = .055 * smear; ctx.rotate(-.2 - smear * .04); drawExtendedLimb(ctx, 20 - smear * 5, -112 + smear * 3, 84 + power * 44, c.accent, 10 + smear); ctx.restore(); }
+    for (let smear = 3; smear >= 1; smear -= 1) { ctx.save(); ctx.globalAlpha *= .055 * smear; ctx.rotate(-.2 - smear * .04); drawExtendedLimb(ctx, 20 - smear * 5, -112 + smear * 3, 84 + power * 44, c.accent, 10 + smear); ctx.restore(); }
   }
   if (move?.kind === 'projectile' && !move.superCost) {
     const gather = 1 - Math.min(1, startupT);
@@ -915,7 +1256,7 @@ function drawAttackPose(ctx: CanvasRenderingContext2D, fighter: Fighter, moveId:
     return;
   }
   if (move?.technique === 'target') {
-    ctx.save(); ctx.globalAlpha = .42; ctx.rotate(.08); drawExtendedLimb(ctx, 12, -105, 92 + power * 36, c.accent, 12); ctx.restore();
+    ctx.save(); ctx.globalAlpha *= .42; ctx.rotate(.08); drawExtendedLimb(ctx, 12, -105, 92 + power * 36, c.accent, 12); ctx.restore();
     ctx.save(); ctx.rotate(-.16 + power * .12); drawExtendedLimb(ctx, 18, -118, 94 + power * 58, c.primary, 16); ctx.restore();
     return;
   }
@@ -997,11 +1338,11 @@ function drawCharacterNormalFlavor(ctx: CanvasRenderingContext2D, fighter: Fight
   drawMotionArm(ctx, 1, c, pose.shoulderAngle, pose.elbowAngle, pose.reach, hand, pose.wristAngle);
 
   if (c.id === 'DUDLEY' && fighter.isMoveActive()) {
-    ctx.save(); ctx.globalAlpha = .16; drawMotionArm(ctx, 1, c, pose.shoulderAngle - .1, pose.elbowAngle - .14, pose.reach * .94, hand, pose.wristAngle * .8); ctx.restore();
+    ctx.save(); ctx.globalAlpha *= .16; drawMotionArm(ctx, 1, c, pose.shoulderAngle - .1, pose.elbowAngle - .14, pose.reach * .94, hand, pose.wristAngle * .8); ctx.restore();
   } else if (c.id === 'MAKOTO' && fighter.isMoveActive()) {
-    ctx.save(); ctx.globalAlpha = .14; ctx.translate(10 * power, 0); drawMotionArm(ctx, 1, c, pose.shoulderAngle, pose.elbowAngle, pose.reach * 1.04, hand, pose.wristAngle); ctx.restore();
+    ctx.save(); ctx.globalAlpha *= .14; ctx.translate(10 * power, 0); drawMotionArm(ctx, 1, c, pose.shoulderAngle, pose.elbowAngle, pose.reach * 1.04, hand, pose.wristAngle); ctx.restore();
   } else if ((c.id === 'IBUKI' || c.id === 'YUN') && fighter.isMoveActive()) {
-    ctx.save(); ctx.globalAlpha = .1; ctx.translate(-8, 2); drawMotionArm(ctx, 1, c, pose.shoulderAngle - .08, pose.elbowAngle - .08, pose.reach * .93, hand, pose.wristAngle * 1.08); ctx.restore();
+    ctx.save(); ctx.globalAlpha *= .1; ctx.translate(-8, 2); drawMotionArm(ctx, 1, c, pose.shoulderAngle - .08, pose.elbowAngle - .08, pose.reach * .93, hand, pose.wristAngle * 1.08); ctx.restore();
   }
   return true;
 }
@@ -1055,24 +1396,27 @@ function drawHitReactionArms(ctx: CanvasRenderingContext2D, fighter: Fighter, ph
   const zoneScale = zone === 'head' ? 1.18 : zone === 'leg' ? .72 : zone === 'launch' ? 1.28 : zone === 'throw' ? 1.4 : 1;
   const recoil = anatomy.hitTwist * kindScale * zoneScale;
   const verticalBias = zone === 'leg' ? .42 : zone === 'launch' ? -.48 : zone === 'head' ? -.12 : zone === 'throw' ? .2 : 0;
-  ctx.save(); ctx.rotate(direction * (-.95 * recoil - phase * .22 * recoil) + verticalBias); drawStyledExtendedLimb(ctx, 8, -109, 62 * anatomy.armScale, c.primary, 14 * anatomy.armScale, c, fighterHandShape(c, 'neutral')); ctx.restore();
-  ctx.save(); ctx.rotate(direction * (.72 * recoil + phase * .18 * recoil) - verticalBias * .6); drawStyledExtendedLimb(ctx, 2, -92, 58 * anatomy.armScale, c.primary, 13 * anatomy.armScale, c, fighterHandShape(c, 'neutral')); ctx.restore();
+  const shoulder = 29 * anatomy.shoulderScale;
+  ctx.save(); ctx.translate(-shoulder, -125); ctx.rotate(direction * (-.95 * recoil - phase * .22 * recoil) + verticalBias); drawStyledExtendedLimb(ctx, 0, 0, 62 * anatomy.armScale, c.primary, 14 * anatomy.armScale, c, fighterHandShape(c, 'neutral')); ctx.restore();
+  ctx.save(); ctx.translate(shoulder, -125); ctx.rotate(direction * (.72 * recoil + phase * .18 * recoil) - verticalBias * .6); drawStyledExtendedLimb(ctx, 0, 0, 58 * anatomy.armScale, c.primary, 13 * anatomy.armScale, c, fighterHandShape(c, 'neutral')); ctx.restore();
 }
 
 function drawKnockdownArms(ctx: CanvasRenderingContext2D, c: CharacterDef): void {
   const anatomy = fighterAnatomyProfile(c.id);
-  ctx.save(); ctx.rotate(-1.42 * anatomy.koSpin); drawStyledExtendedLimb(ctx, 7, -108, 64 * anatomy.armScale, c.primary, 14 * anatomy.armScale, c, fighterHandShape(c, 'neutral')); ctx.restore();
-  ctx.save(); ctx.rotate(.92 * anatomy.koSpin); drawStyledExtendedLimb(ctx, 0, -91, 58 * anatomy.armScale, c.primary, 13 * anatomy.armScale, c, fighterHandShape(c, 'neutral')); ctx.restore();
+  const shoulder = 29 * anatomy.shoulderScale;
+  ctx.save(); ctx.translate(-shoulder, -125); ctx.rotate(-1.42 * anatomy.koSpin); drawStyledExtendedLimb(ctx, 0, 0, 64 * anatomy.armScale, c.primary, 14 * anatomy.armScale, c, fighterHandShape(c, 'neutral')); ctx.restore();
+  ctx.save(); ctx.translate(shoulder, -125); ctx.rotate(.92 * anatomy.koSpin); drawStyledExtendedLimb(ctx, 0, 0, 58 * anatomy.armScale, c.primary, 13 * anatomy.armScale, c, fighterHandShape(c, 'neutral')); ctx.restore();
 }
 
 function drawGuardArms(ctx: CanvasRenderingContext2D, c: CharacterDef): void {
-  ctx.save(); ctx.rotate(-.65); drawExtendedLimb(ctx, 12, -113, 58, c.primary, 14); ctx.restore();
-  ctx.save(); ctx.rotate(-.42); drawExtendedLimb(ctx, 1, -92, 58, c.primary, 14); ctx.restore();
+  const shoulder = 29 * fighterAnatomyProfile(c.id).shoulderScale;
+  ctx.save(); ctx.translate(-shoulder, -125); ctx.rotate(-.65); drawExtendedLimb(ctx, 0, 0, 58, c.primary, 14); ctx.restore();
+  ctx.save(); ctx.translate(shoulder, -125); ctx.rotate(-2.35); drawExtendedLimb(ctx, 0, 0, 58, c.primary, 14); ctx.restore();
 }
 
 function drawParryArms(ctx: CanvasRenderingContext2D, c: CharacterDef): void {
   drawArm(ctx, -1, c, .2);
-  ctx.save(); ctx.rotate(-.24); drawExtendedLimb(ctx, 18, -112, 58, c.primary, 14); ctx.restore();
+  ctx.save(); ctx.translate(29 * fighterAnatomyProfile(c.id).shoulderScale, -125); ctx.rotate(-.24); drawExtendedLimb(ctx, 0, 0, 58, c.primary, 14); ctx.restore();
 }
 
 function drawGhostPose(ctx: CanvasRenderingContext2D, c: CharacterDef, time: number): void {
@@ -1297,7 +1641,7 @@ function drawSpecialLowerBody(ctx: CanvasRenderingContext2D, fighter: Fighter, c
   }
   if (clip === 'spin') {
     const sweep = Math.sin(progress * Math.PI * 2);
-    ctx.save(); ctx.globalAlpha = .16; ctx.strokeStyle = c.accent; ctx.lineWidth = 12; ctx.lineCap = 'round';
+    ctx.save(); ctx.globalAlpha *= .16; ctx.strokeStyle = c.accent; ctx.lineWidth = 12; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.arc(3, -58, 92, -1.1 + progress * Math.PI * 1.3, .3 + progress * Math.PI * 1.3); ctx.stroke(); ctx.restore();
     drawJointedLeg(ctx, -15, c.primary, rear * .4, 28, .96, c);
     drawJointedLeg(ctx, 15, c.primary, sweep * 68 - 12, -8 + Math.cos(progress * Math.PI * 2) * 24, 1.24, c);

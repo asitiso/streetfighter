@@ -1,0 +1,59 @@
+{
+  "character": "CHUNLI",
+  "kind": "crouch-guard",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "footBaseline": 420,
+  "sharedScale": 0.65,
+  "sourceCells": [
+    [
+      81,
+      82,
+      434,
+      490
+    ],
+    [
+      75,
+      87,
+      428,
+      490
+    ],
+    [
+      69,
+      97,
+      421,
+      490
+    ],
+    [
+      80,
+      80,
+      435,
+      483
+    ],
+    [
+      75,
+      84,
+      429,
+      483
+    ],
+    [
+      69,
+      82,
+      421,
+      484
+    ]
+  ],
+  "operations": [
+    "alpha-silhouette crop with 3px padding",
+    "shared uniform scale",
+    "center and foot alignment",
+    "lossless horizontal packing"
+  ],
+  "runtime": "public/art/animation-hq/chunli/crouch-guard-v1.webp",
+  "sha256": {
+    "generated-sheet-v1.png": "d056cec32c992c2465e81c28ff8b0af1fb89a02c3662792a968bbf62e250eebd",
+    "reference-idle.png": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+    "crouch-guard-v1.webp": "b15a9d64d600f5e5142cee72b367f6ed401fe1551fdb17893e77f84b887b3126"
+  }
+}

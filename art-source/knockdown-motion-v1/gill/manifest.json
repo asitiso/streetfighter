@@ -1,0 +1,132 @@
+{
+  "character": "GILL",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7887323943661971,
+  "sourceRects": [
+    [
+      0,
+      0,
+      512,
+      512
+    ],
+    [
+      512,
+      0,
+      995,
+      512
+    ],
+    [
+      995,
+      0,
+      1536,
+      512
+    ],
+    [
+      0,
+      512,
+      512,
+      1024
+    ],
+    [
+      512,
+      512,
+      1024,
+      1024
+    ],
+    [
+      1024,
+      512,
+      1536,
+      1024
+    ]
+  ],
+  "sourceBounds": [
+    [
+      88,
+      107,
+      437,
+      431
+    ],
+    [
+      52,
+      142,
+      453,
+      420
+    ],
+    [
+      26,
+      254,
+      488,
+      416
+    ],
+    [
+      101,
+      145,
+      450,
+      423
+    ],
+    [
+      93,
+      76,
+      413,
+      439
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      118,
+      166,
+      394,
+      422
+    ],
+    [
+      99,
+      202,
+      414,
+      422
+    ],
+    [
+      74,
+      293,
+      439,
+      422
+    ],
+    [
+      118,
+      202,
+      393,
+      422
+    ],
+    [
+      130,
+      135,
+      383,
+      422
+    ],
+    [
+      159,
+      86,
+      354,
+      422
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/gill.webp",
+  "bytes": 520980,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "c4a9d22b8d2373b32e1671ff9de73608cbc94a63cf95c9a292a2486184071bb2",
+    "generation-reference.png": "4faa5fc1c1fcf5177743e293ca35eb0449ebcb80a39a502b987821b1980992fa",
+    "reference-settle.png": "4faa5fc1c1fcf5177743e293ca35eb0449ebcb80a39a502b987821b1980992fa",
+    "generation-prompt.txt": "9357d89ecf87c91cbb5b190c840907937a82571d8b48fbe45600733e7f1bff72",
+    "layout-alpha-edit-prompt.txt": "c1f07ebdf9c05f183213231e46df18ca5c45386c64c25d891f6a13df5a7f6230",
+    "gill.webp": "2f4befc9ddaaf183bd3c024f3ae60118fa5a1d8fac05bdd924f205abcdb89ded"
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "passed": true,
+  "actual": {
+    "move": "MAKOTO_CMD_HP",
+    "moveFrame": 11,
+    "frame": 5,
+    "kind": "forward-chop",
+    "contact": true,
+    "loaded": true,
+    "trusted": [
+      true
+    ],
+    "capturedFrames": 33
+  },
+  "asset": {
+    "passed": true,
+    "width": 7680,
+    "height": 448,
+    "frames": 12,
+    "distinct": 12,
+    "guardMean": 3.9545812549225516,
+    "guardAlphaMean": 0,
+    "seamMean": 0.16383928571428572,
+    "records": [
+      {
+        "frame": 0,
+        "minX": 214,
+        "maxX": 425,
+        "minY": 90,
+        "maxY": 421,
+        "visible": 30472,
+        "hash": 1549243325
+      },
+      {
+        "frame": 1,
+        "minX": 198,
+        "maxX": 430,
+        "minY": 90,
+        "maxY": 420,
+        "visible": 33313,
+        "hash": 53054623
+      },
+      {
+        "frame": 2,
+        "minX": 200,
+        "maxX": 441,
+        "minY": 95,
+        "maxY": 421,
+        "visible": 34295,
+        "hash": 4080195031
+      },
+      {
+        "frame": 3,
+        "minX": 223,
+        "maxX": 452,
+        "minY": 94,
+        "maxY": 421,
+        "visible": 34775,
+        "hash": 1235258949
+      },
+      {
+        "frame": 4,
+        "minX": 237,
+        "maxX": 468,
+        "minY": 97,
+        "maxY": 421,
+        "visible": 33396,
+        "hash": 984424264
+      },
+      {
+        "frame": 5,
+        "minX": 249,
+        "maxX": 534,
+        "minY": 100,
+        "maxY": 421,
+        "visible": 36030,
+        "hash": 4243261778
+      },
+      {
+        "frame": 6,
+        "minX": 249,
+        "maxX": 550,
+        "minY": 100,
+        "maxY": 421,
+        "visible": 36137,
+        "hash": 2185172175
+      },
+      {
+        "frame": 7,
+        "minX": 237,
+        "maxX": 516,
+        "minY": 102,
+        "maxY": 421,
+        "visible": 35096,
+        "hash": 3126337426
+      },
+      {
+        "frame": 8,
+        "minX": 230,
+        "maxX": 478,
+        "minY": 99,
+        "maxY": 421,
+        "visible": 34416,
+        "hash": 2892234631
+      },
+      {
+        "frame": 9,
+        "minX": 221,
+        "maxX": 457,
+        "minY": 95,
+        "maxY": 421,
+        "visible": 33601,
+        "hash": 4191924562
+      },
+      {
+        "frame": 10,
+        "minX": 214,
+        "maxX": 434,
+        "minY": 92,
+        "maxY": 421,
+        "visible": 33840,
+        "hash": 3357454341
+      },
+      {
+        "frame": 11,
+        "minX": 214,
+        "maxX": 425,
+        "minY": 90,
+        "maxY": 421,
+        "visible": 30472,
+        "hash": 1504727013
+      }
+    ]
+  },
+  "rendering": {
+    "passed": true,
+    "reachableFrames": 12,
+    "frameToTick": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        5,
+        11
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        7,
+        15
+      ],
+      [
+        8,
+        19
+      ],
+      [
+        9,
+        22
+      ],
+      [
+        10,
+        26
+      ],
+      [
+        11,
+        29
+      ]
+    ],
+    "fallbackVisiblePixels": 5440,
+    "hqRestored": true
+  },
+  "runtimeExceptions": []
+}

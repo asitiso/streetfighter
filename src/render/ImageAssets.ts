@@ -1,4 +1,9 @@
 export type ArtAssetKey =
+  | 'hit-impact-atlas'
+  | 'prop-impact-v1'
+  | 'stage-ambient-v1'
+  | 'stage-props-v1'
+  | 'combat-impact-atlas'
   | 'title-keyart'
   | 'roster-mural'
   | 'stage-1'
@@ -60,13 +65,18 @@ export type ArtAssetKey =
   | 'attack-yun-hd';
 
 export const ART_ASSET_PATHS: Record<ArtAssetKey, string> = {
+  'hit-impact-atlas': '/art/fx/hit-impact-v2.webp',
+  'combat-impact-atlas': '/art/fx/combat-impact-v1.webp',
   'title-keyart': '/art/title-keyart.png',
   'roster-mural': '/art/roster-mural.png',
-  'stage-1': '/art/stage1-newyork.png',
-  'stage-2': '/art/stage2-hongkong.png',
-  'stage-3': '/art/stage3-japan.png',
-  'stage-4': '/art/stage4-london.png',
-  'stage-5': '/art/stage5-secretsociety.png',
+  'prop-impact-v1': '/art/prop-impact-v1/atlas.webp',
+  'stage-ambient-v1': '/art/stage-ambient-v1/atlas.webp',
+  'stage-props-v1': '/art/stage-props-v1/atlas.webp',
+  'stage-1': '/art/stage-backgrounds-v2/newyork.webp',
+  'stage-2': '/art/stage-backgrounds-v2/hongkong.webp',
+  'stage-3': '/art/stage-backgrounds-v2/japan.webp',
+  'stage-4': '/art/stage-backgrounds-v2/london.webp',
+  'stage-5': '/art/stage-backgrounds-v2/society.webp',
   'ending-keyart': '/art/ending-keyart.png',
   'foreground-1': '/art/foregrounds/stage1-foreground.webp',
   'foreground-2': '/art/foregrounds/stage2-foreground.webp',
@@ -83,42 +93,42 @@ export const ART_ASSET_PATHS: Record<ArtAssetKey, string> = {
   'portrait-yun': '/art/portraits/yun.webp',
   'portrait-urien': '/art/portraits/urien.webp',
   'portrait-gill': '/art/portraits/gill.webp',
-  'sprite-ryu': '/art/combat-sprites/ryu.webp',
-  'sprite-ken': '/art/combat-sprites/ken.webp',
-  'sprite-chunli': '/art/combat-sprites/chunli.webp',
-  'sprite-alex': '/art/combat-sprites/alex.webp',
-  'sprite-dudley': '/art/combat-sprites/dudley.webp',
-  'sprite-makoto': '/art/combat-sprites/makoto.webp',
-  'sprite-ibuki': '/art/combat-sprites/ibuki.webp',
-  'sprite-yun': '/art/combat-sprites/yun.webp',
-  'sprite-ryu-hd': '/art/combat-sprites-hd/ryu.webp',
-  'sprite-ken-hd': '/art/combat-sprites-hd/ken.webp',
-  'sprite-chunli-hd': '/art/combat-sprites-hd/chunli.webp',
-  'sprite-alex-hd': '/art/combat-sprites-hd/alex.webp',
-  'sprite-dudley-hd': '/art/combat-sprites-hd/dudley.webp',
-  'sprite-makoto-hd': '/art/combat-sprites-hd/makoto.webp',
-  'sprite-ibuki-hd': '/art/combat-sprites-hd/ibuki.webp',
-  'sprite-yun-hd': '/art/combat-sprites-hd/yun.webp',
+  'sprite-ryu': '/art/combat-sprites/ryu-authored-v1.png',
+  'sprite-ken': '/art/combat-sprites/ken-authored-v1.png',
+  'sprite-chunli': '/art/combat-sprites/chunli-authored-v1.png',
+  'sprite-alex': '/art/combat-sprites/alex-authored-v1.png',
+  'sprite-dudley': '/art/combat-sprites/dudley-authored-v1.png',
+  'sprite-makoto': '/art/combat-sprites/makoto-authored-v1.png',
+  'sprite-ibuki': '/art/combat-sprites/ibuki-authored-v1.png',
+  'sprite-yun': '/art/combat-sprites/yun-authored-v1.png',
+  'sprite-ryu-hd': '/art/combat-sprites-hd/ryu-authored-v1.png',
+  'sprite-ken-hd': '/art/combat-sprites-hd/ken-authored-v1.png',
+  'sprite-chunli-hd': '/art/combat-sprites-hd/chunli-authored-v1.png',
+  'sprite-alex-hd': '/art/combat-sprites-hd/alex-authored-v1.png',
+  'sprite-dudley-hd': '/art/combat-sprites-hd/dudley-authored-v1.png',
+  'sprite-makoto-hd': '/art/combat-sprites-hd/makoto-authored-v1.png',
+  'sprite-ibuki-hd': '/art/combat-sprites-hd/ibuki-authored-v1.png',
+  'sprite-yun-hd': '/art/combat-sprites-hd/yun-authored-v1.png',
   'sprite-ryu-hq': '/art/combat-sprites-hq/ryu.webp',
   'sprite-ken-hq': '/art/combat-sprites-hq/ken.webp',
   'sprite-chunli-hq': '/art/combat-sprites-hq/chunli.webp',
   'sprite-ibuki-hq': '/art/combat-sprites-hq/ibuki.webp',
-  'attack-ryu': '/art/attack-atlases/ryu.webp',
-  'attack-ken': '/art/attack-atlases/ken.webp',
-  'attack-chunli': '/art/attack-atlases/chunli.webp',
-  'attack-alex': '/art/attack-atlases/alex.webp',
-  'attack-dudley': '/art/attack-atlases/dudley.webp',
-  'attack-makoto': '/art/attack-atlases/makoto.webp',
-  'attack-ibuki': '/art/attack-atlases/ibuki.webp',
-  'attack-yun': '/art/attack-atlases/yun.webp',
-  'attack-ryu-hd': '/art/attack-atlases-hd/ryu.webp',
-  'attack-ken-hd': '/art/attack-atlases-hd/ken.webp',
-  'attack-chunli-hd': '/art/attack-atlases-hd/chunli.webp',
-  'attack-alex-hd': '/art/attack-atlases-hd/alex.webp',
-  'attack-dudley-hd': '/art/attack-atlases-hd/dudley.webp',
-  'attack-makoto-hd': '/art/attack-atlases-hd/makoto.webp',
-  'attack-ibuki-hd': '/art/attack-atlases-hd/ibuki.webp',
-  'attack-yun-hd': '/art/attack-atlases-hd/yun.webp',
+  'attack-ryu': '/art/attack-atlases/ryu-authored-v1.webp',
+  'attack-ken': '/art/attack-atlases/ken-authored-v1.webp',
+  'attack-chunli': '/art/attack-atlases/chunli-authored-v1.webp',
+  'attack-alex': '/art/attack-atlases/alex-authored-v1.webp',
+  'attack-dudley': '/art/attack-atlases/dudley-authored-v1.webp',
+  'attack-makoto': '/art/attack-atlases/makoto-authored-v1.webp',
+  'attack-ibuki': '/art/attack-atlases/ibuki-authored-v1.webp',
+  'attack-yun': '/art/attack-atlases/yun-authored-v1.webp',
+  'attack-ryu-hd': '/art/attack-atlases-hd/ryu-authored-v1.webp',
+  'attack-ken-hd': '/art/attack-atlases-hd/ken-authored-v1.webp',
+  'attack-chunli-hd': '/art/attack-atlases-hd/chunli-authored-v1.webp',
+  'attack-alex-hd': '/art/attack-atlases-hd/alex-authored-v1.webp',
+  'attack-dudley-hd': '/art/attack-atlases-hd/dudley-authored-v1.webp',
+  'attack-makoto-hd': '/art/attack-atlases-hd/makoto-authored-v1.webp',
+  'attack-ibuki-hd': '/art/attack-atlases-hd/ibuki-authored-v1.webp',
+  'attack-yun-hd': '/art/attack-atlases-hd/yun-authored-v1.webp',
 };
 
 interface ArtAssetEntry {
@@ -145,7 +155,11 @@ function ensureEntry(key: ArtAssetKey): ArtAssetEntry | null {
 }
 
 export function preloadArtAssets(keys: readonly ArtAssetKey[]): void {
-  for (const key of keys) ensureEntry(key);
+  for (const key of keys) {
+    // Screen preparation may retry failures; render reads keep their fallback.
+    if (cache.get(key)?.failed) unloadArtAsset(key);
+    ensureEntry(key);
+  }
 }
 
 export function artImage(key: ArtAssetKey): HTMLImageElement | null {

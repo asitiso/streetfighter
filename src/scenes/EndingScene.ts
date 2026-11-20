@@ -3,14 +3,27 @@ import type { RenderContext, Scene } from '../core/Scene.js';
 import type { CharacterDef, SuperArtDef } from '../game/characters.js';
 import type { InputManager } from '../input/InputManager.js';
 import { drawCombatFighter } from '../render/Visuals.js';
+import { characterTextureManager } from '../render/CharacterTextureManager.js';
 import { Fighter } from '../combat/Fighter.js';
 import type { StageResult } from '../game/StageResult.js';
 import { campaignTotals, formatClearTime } from '../game/StageResult.js';
 import { endingProfileFor } from '../game/EndingProfiles.js';
 import { artImage, preloadArtAssets } from '../render/ImageAssets.js';
 
+export interface EndingResumeState {
+  readonly time: number;
+  readonly stateFrame: number;
+  readonly animationFrame: number;
+}
+
+const HERO_REVEAL_DELAY = .55;
+const HERO_REVEAL_DURATION = 1.1;
+
 export class EndingScene implements Scene {
   private time = 0;
+  private returning = false;
+  private returnError = "";
+  private entryId = 0;
   private readonly hero: Fighter;
   private readonly ending;
   private readonly totals;
@@ -21,28 +34,60 @@ export class EndingScene implements Scene {
     private readonly character: CharacterDef,
     private readonly superArt: SuperArtDef,
     results: readonly StageResult[],
-    private readonly onFinish: () => void,
+    private readonly onFinish: (resume: EndingResumeState) => void | Promise<void>,
+    private readonly onError?: (error: unknown) => void,
+    resume?: EndingResumeState,
+    private initialFailed = false,
+    private readonly onControlsChange?: (endingMode: boolean) => void,
   ) {
     this.hero = new Fighter(character, 'player', 640, 538, 1, superArt);
     this.hero.enterVictoryPose();
+    if (resume) {
+      this.time = resume.time;
+      this.hero.stateFrame = resume.stateFrame;
+      this.hero.animationFrame = resume.animationFrame;
+    }
     this.ending = endingProfileFor(character.id);
     this.totals = campaignTotals(results);
   }
 
   enter(): void {
+    this.entryId += 1;
+    this.returning = false;
+    this.returnError = this.initialFailed ? 'RETURN FAILED • PRESS START / ENTER / ATTACK TO RETRY' : '';
+    this.initialFailed = false;
+    this.onControlsChange?.(true);
+    characterTextureManager.focusEnding(this.character.id);
     preloadArtAssets(['ending-keyart']);
     this.audio.playStagePulse();
     this.audio.playEndingTransition?.();
     this.audio.startFrontendTheme?.('ending');
   }
-  exit(): void { this.audio.stopFrontendTheme?.(); this.audio.stopSoundscape?.(); }
+  exit(): void { this.entryId += 1; this.onControlsChange?.(false); this.audio.stopFrontendTheme?.(); this.audio.stopSoundscape?.(); }
   resize(_width: number, _height: number): void {}
-  destroy(): void {}
+  destroy(): void { this.entryId += 1; this.onControlsChange?.(false); }
 
   fixedUpdate(dt: number): void {
     this.time += dt;
-    this.hero.stateFrame += 1;
-    if (this.time > 6.8 && (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp'))) this.onFinish();
+    if (this.time >= HERO_REVEAL_DELAY + HERO_REVEAL_DURATION) {
+      this.hero.stateFrame += 1;
+      this.hero.animationFrame += 1;
+    }
+    if (!this.returning && (this.input.pressed('start') || this.input.touchPressed('start') || this.input.pressed('confirm') || this.input.pressed('back')
+      || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')
+      || this.input.pressed('lk') || this.input.pressed('mk') || this.input.pressed('hk'))) {
+      this.returning = true;
+      this.returnError = '';
+      const entry = this.entryId;
+      const failed = (error: unknown) => {
+        if (entry !== this.entryId) return;
+        this.returning = false;
+        this.returnError = 'RETURN FAILED • PRESS START / ENTER / ATTACK TO RETRY';
+        try { this.onError?.(error); } catch { /* Keep retry usable if diagnostics fail. */ }
+      };
+      try { void Promise.resolve(this.onFinish({ time: this.time, stateFrame: this.hero.stateFrame, animationFrame: this.hero.animationFrame })).catch(failed); }
+      catch (error) { failed(error); }
+    }
   }
 
   render({ ctx, width, height }: RenderContext, alpha: number): void {
@@ -103,7 +148,7 @@ export class EndingScene implements Scene {
   }
 
   private drawHero(ctx: CanvasRenderingContext2D, alpha: number): void {
-    const enter = Math.min(1, Math.max(0, (this.time - .55) / 1.1));
+    const enter = Math.min(1, Math.max(0, (this.time - HERO_REVEAL_DELAY) / HERO_REVEAL_DURATION));
     ctx.save(); ctx.globalAlpha = enter; ctx.translate(0, (1-enter) * 22); drawCombatFighter(ctx, this.hero, alpha, this.time); ctx.restore();
   }
 
@@ -142,8 +187,8 @@ export class EndingScene implements Scene {
 
   private drawPrompt(ctx: CanvasRenderingContext2D): void {
     const pulse = .55 + Math.sin(this.time * 4) * .25;
-    ctx.textAlign = 'center'; ctx.fillStyle = `rgba(255,255,255,${this.time > 6.8 ? pulse : .18})`; ctx.font = '800 14px Arial, sans-serif';
-    ctx.fillText(this.time > 6.8 ? 'PRESS START TO RETURN TO TITLE' : 'BATTLE RECORD ARCHIVED', 640, 650);
-    ctx.fillStyle = 'rgba(255,255,255,.34)'; ctx.font = '700 10px ui-monospace, monospace'; ctx.fillText('STAGE SELECT + BATTLE RECORD UNLOCKED', 640, 682);
+    ctx.textAlign = 'center'; ctx.fillStyle = `rgba(255,255,255,${pulse})`; ctx.font = '800 14px Arial, sans-serif';
+    ctx.fillText(this.returnError || (this.returning ? 'RETURNING TO TITLE...' : 'PRESS START / ENTER / ATTACK TO RETURN TO TITLE'), 640, 600);
+    ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.font = '700 10px ui-monospace, monospace'; ctx.fillText('STAGE SELECT + BATTLE RECORD UNLOCKED', 640, 210);
   }
 }

@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
+import {CombatWorld} from '../dist/assets/combat/CombatWorld.js';
+import {normalFor} from '../dist/assets/combat/MoveLibrary.js';
+import {animationTransitionSample as sample} from '../dist/assets/render/AnimationTransitionProfiles.js';
+const q={held:()=>false,pressed:()=>false,released:()=>false},down={...q,held:k=>k==='down'},record=process.argv.includes('--record-controls'),rows=[];let cases=0,frames=0,controls=0,interruptions=0;
+for(const c of [...CHARACTERS,...BOSS_CHARACTERS])for(const face of [-1,1])for(const button of ['lp','mp','hp','lk','mk','hk']){const w=new CombatWorld(c,c,'duel'),f=w.player;f.facing=face;for(let n=0;n<8;n++){f.updatePlayer(down,w.rules);sample(f);}f.updatePlayer({...down,pressed:k=>k===button},w.rules);assert.equal(f.currentMove.id,'2'+button.toUpperCase());for(let n=0;n<7;n++){const before=JSON.stringify(f),s=sample(f);assert.equal(JSON.stringify(f),before);if(!record){assert.equal(s.active,false,c.id+' '+f.currentMove?.id+' already owns its crouched silhouette');assert.equal(s.offsetY,0);}f.updatePlayer(down,w.rules);frames++;}cases++;
+ for(const kind of ['crouch-attack','dash-attack','landing-attack','parry-punish','attack-neutral','landing-neutral']){const g=new CombatWorld(c,c,'duel').player;g.facing=face;g.state=kind==='crouch-attack'?'crouch':kind==='dash-attack'?'walk':kind==='parry-punish'?'parry':kind==='attack-neutral'?'attack':'jump';g.airborne=g.state==='jump';g.dashFrames=kind==='dash-attack'?4:0;sample(g);g.state=kind.endsWith('neutral')?'idle':'attack';g.airborne=false;g.dashFrames=0;g.landingFrames=kind.startsWith('landing')?8:0;g.currentMove=g.state==='attack'?normalFor(button,false,c.id):null;const expected=sample(g);assert.equal(expected.kind,kind);rows.push([c.id,face,button,kind,expected]);controls++;
+ if(g.state==='attack'){g.currentMove=normalFor(button,true,c.id);g.moveFrame=0;const snap=JSON.stringify(g),actual=sample(g);assert.equal(JSON.stringify(g),snap);if(!record)assert.equal(actual.active,false,'Stale transition must release on crouched follow-up');interruptions++;}}
+}
+if(record)console.log(JSON.stringify(rows));else console.log('CROUCH_TRANSITION_OWNERSHIP_PASS',JSON.stringify({cases,frames,controls,interruptions,characters:10,facings:2,buttons:6}));

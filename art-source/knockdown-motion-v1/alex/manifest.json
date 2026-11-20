@@ -1,0 +1,93 @@
+{
+  "character": "ALEX",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7461024498886414,
+  "sourceBounds": [
+    [
+      41,
+      92,
+      429,
+      460
+    ],
+    [
+      15,
+      152,
+      470,
+      451
+    ],
+    [
+      12,
+      244,
+      487,
+      452
+    ],
+    [
+      66,
+      157,
+      422,
+      465
+    ],
+    [
+      90,
+      104,
+      407,
+      468
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      112,
+      148,
+      400,
+      422
+    ],
+    [
+      86,
+      199,
+      426,
+      422
+    ],
+    [
+      79,
+      267,
+      433,
+      422
+    ],
+    [
+      123,
+      193,
+      389,
+      422
+    ],
+    [
+      138,
+      150,
+      375,
+      422
+    ],
+    [
+      142,
+      87,
+      370,
+      422
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/alex.webp",
+  "bytes": 499516,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "61526be484d535311d9e6f70ab48602eaaf94cd5e4828b2985c38b8d1efa2d18",
+    "generation-reference.png": "0030e6d6e72c7817d0988bf1e18fd5dd90b445d01a776451ed6a57e5e6d8cb48",
+    "reference-settle.png": "0030e6d6e72c7817d0988bf1e18fd5dd90b445d01a776451ed6a57e5e6d8cb48",
+    "generation-prompt.txt": "12918526b199f29f3f7227045a9e543dd2af7baf39096ab82724d5c28e2706fb",
+    "alex.webp": "612ea765a8c1e3892fbbe9cab33cd8a4a76ca89a2c2b76e2b04fa2f15e6b9450"
+  }
+}

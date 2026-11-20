@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "method": "Copy existing approved original bytes; no image editing or synthesis",
+  "sources": [
+    {
+      "id": "ALEX",
+      "source": "art-source/throw-escape-motion-v1/alex/reference-idle.png",
+      "size": [
+        384,
+        448
+      ],
+      "bytes": 116850,
+      "sha256": "0030e6d6e72c7817d0988bf1e18fd5dd90b445d01a776451ed6a57e5e6d8cb48",
+      "runtime": [
+        "/art/combat-sprites/alex-authored-v1.png",
+        "/art/combat-sprites-hd/alex-authored-v1.png"
+      ]
+    },
+    {
+      "id": "DUDLEY",
+      "source": "art-source/throw-escape-motion-v1/dudley/reference-idle.png",
+      "size": [
+        384,
+        448
+      ],
+      "bytes": 76612,
+      "sha256": "143274e6b6efa911332800e44b0003b7b77c02904729e462bc7b5c39727bcf96",
+      "runtime": [
+        "/art/combat-sprites/dudley-authored-v1.png",
+        "/art/combat-sprites-hd/dudley-authored-v1.png"
+      ]
+    }
+  ]
+}

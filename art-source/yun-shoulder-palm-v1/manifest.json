@@ -1,0 +1,36 @@
+{
+  "character": "YUN",
+  "move": "YUN_CMD_HP",
+  "kind": "shoulder-palm",
+  "asset": "/art/command-motion-v1/yun-shoulder-palm.webp",
+  "frames": 12,
+  "frameSize": [
+    640,
+    448
+  ],
+  "phase": {
+    "startupEnd": 3,
+    "activeStart": 4,
+    "activeEnd": 6,
+    "recoveryStart": 7
+  },
+  "footFloor": 420,
+  "source": "generated-sheet-v2.png",
+  "sourceSha256": "1089b7f8da0fe62bfbfeff4bfdd930434ce2a9e3dfc2fc69b4a4f74e48df50b7",
+  "assetSha256": "2faec86315b0512292922115f472e0a3c046d33272fb828fda047884d133297b",
+  "bytes": 359818,
+  "guardSource": "/art/animation-hq/yun/idle.webp",
+  "guardSourceSha256": "1b9b80488123c2640f474fea57a4fc004353f72fa9cf559a97522e986c3b7e09",
+  "guardFrames": [
+    0,
+    11
+  ],
+  "tool": "built-in image_gen",
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.86,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "gameplayChanges": false
+}

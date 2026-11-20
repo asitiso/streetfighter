@@ -83,11 +83,11 @@ export type TransitionPolishProfile = {
 };
 
 const TRANSITIONS: Record<number, TransitionPolishProfile> = {
-  1: { introFrames: 108, duelFrames: 258, duelPrepareAt: 144, clearFrames: 222, clearDispatchAt: 72, finalClearFrames: 228, finalClearDispatchAt: 30 },
-  2: { introFrames: 112, duelFrames: 264, duelPrepareAt: 148, clearFrames: 226, clearDispatchAt: 74, finalClearFrames: 228, finalClearDispatchAt: 30 },
-  3: { introFrames: 114, duelFrames: 266, duelPrepareAt: 150, clearFrames: 230, clearDispatchAt: 76, finalClearFrames: 228, finalClearDispatchAt: 30 },
-  4: { introFrames: 116, duelFrames: 270, duelPrepareAt: 152, clearFrames: 234, clearDispatchAt: 78, finalClearFrames: 228, finalClearDispatchAt: 30 },
-  5: { introFrames: 122, duelFrames: 282, duelPrepareAt: 158, clearFrames: 240, clearDispatchAt: 82, finalClearFrames: 228, finalClearDispatchAt: 36 },
+  1: { introFrames: 36, duelFrames: 90, duelPrepareAt: 30, clearFrames: 222, clearDispatchAt: 72, finalClearFrames: 228, finalClearDispatchAt: 30 },
+  2: { introFrames: 36, duelFrames: 90, duelPrepareAt: 30, clearFrames: 226, clearDispatchAt: 74, finalClearFrames: 228, finalClearDispatchAt: 30 },
+  3: { introFrames: 36, duelFrames: 90, duelPrepareAt: 30, clearFrames: 230, clearDispatchAt: 76, finalClearFrames: 228, finalClearDispatchAt: 30 },
+  4: { introFrames: 36, duelFrames: 90, duelPrepareAt: 30, clearFrames: 234, clearDispatchAt: 78, finalClearFrames: 228, finalClearDispatchAt: 30 },
+  5: { introFrames: 36, duelFrames: 90, duelPrepareAt: 30, clearFrames: 240, clearDispatchAt: 82, finalClearFrames: 228, finalClearDispatchAt: 36 },
 };
 
 export function transitionPolishProfile(stageId: number): TransitionPolishProfile {

@@ -1,0 +1,151 @@
+{
+  "character": "YUN",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7567567567567568,
+  "sourceBounds": [
+    [
+      88,
+      98,
+      459,
+      464
+    ],
+    [
+      41,
+      99,
+      472,
+      458
+    ],
+    [
+      55,
+      78,
+      404,
+      464
+    ],
+    [
+      86,
+      50,
+      447,
+      473
+    ],
+    [
+      48,
+      72,
+      445,
+      474
+    ],
+    [
+      96,
+      32,
+      397,
+      476
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      109,
+      144,
+      390,
+      422
+    ],
+    [
+      79,
+      151,
+      405,
+      422
+    ],
+    [
+      101,
+      130,
+      365,
+      422
+    ],
+    [
+      121,
+      102,
+      395,
+      422
+    ],
+    [
+      101,
+      117,
+      402,
+      422
+    ],
+    [
+      137,
+      86,
+      365,
+      422
+    ],
+    [
+      149,
+      86,
+      364,
+      422
+    ],
+    [
+      149,
+      87,
+      364,
+      422
+    ]
+  ],
+  "centroidTargetX": 249.65094602498033,
+  "centroids": [
+    [
+      249.86303255669134,
+      290.7716625669711
+    ],
+    [
+      250.00536918255898,
+      292.7194956209011
+    ],
+    [
+      249.65728860104838,
+      285.26243881123366
+    ],
+    [
+      249.8512414708237,
+      272.3111869333393
+    ],
+    [
+      250.0983570963655,
+      274.53900048620994
+    ],
+    [
+      249.1534685378958,
+      266.05611889898285
+    ],
+    [
+      249.65094602498033,
+      264.8995794607044
+    ],
+    [
+      252.94357899916102,
+      267.9201816995783
+    ]
+  ],
+  "groundAnchor": 422,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/yun/idle.webp",
+  "idleFollowupSha256": "1b9b80488123c2640f474fea57a4fc004353f72fa9cf559a97522e986c3b7e09",
+  "runtime": "public/art/throw-attacker-v1/yun.webp",
+  "bytes": 635234,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "6ec1e316fe809e5c08552573dce786498f2de817ef1a4f3978cb24142d6e81ac",
+    "generation-reference.png": "d880f7b6acbd8f1806fae793d5267c74c6360c9db2913227a679085a54469b68",
+    "generation-prompt.txt": "b6bd44cec1b180ff3a515194160ceb0b9400711aec4fbdfbffc55dada7526821",
+    "yun.webp": "adb0d5843a5ace61584c72122797ee0c6d2aac6f56276ae839342dd4dc622793"
+  }
+}

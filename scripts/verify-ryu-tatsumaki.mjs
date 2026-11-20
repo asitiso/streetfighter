@@ -34,8 +34,8 @@ for(const facing of [-1,1])for(const button of ['lk','mk','hk']){
   w.update(quiet,tick);
  }
  assert.equal(seen.size,12);assert.deepEqual([...contacts].sort((a,b)=>a-b),[3,4,5,6,7,8]);assert.equal(f.state,'idle');assert.ok(Math.abs(f.x-startX-facing*combatProfileFor('RYU').mobilitySpeed*move.active)<1e-7,'Authored art must retain exact mobility distance');
- f.startMove(move);f.airborne=true;f.jumpHeight=40;assert.equal(animationSequenceSample(f,0),null,'Grounded spin must retain aerial fallback');f.state='hit';assert.equal(animationSequenceSample(f,0)?.sequence.kind,'hit');
+ f.startMove(move);f.airborne=true;f.jumpHeight=40;assert.equal(animationSequenceSample(f,0),null,'Grounded spin must retain aerial fallback');f.state='hit';assert.equal(animationSequenceSample(f,0)?.sequence.kind,'fall');
  timelines[button.toUpperCase()+' '+(facing===1?'RIGHT':'LEFT')]=rows;
 }
-assert.equal(animationSequenceKindForAttack('RYU',{id:'RYU_CMD_MP'}),null);assert.equal(animationSequenceKindForAttack('KEN',{id:'RYU_MOBILITY'}),null);
+assert.equal(animationSequenceKindForAttack('RYU',{id:'RYU_CMD_MP'}),'collarbone-breaker');assert.equal(animationSequenceKindForAttack('KEN',{id:'RYU_MOBILITY'}),null);
 console.log('RYU_TATSUMAKI_PASS',{buttons:3,facings:2,canvasDraws,contacts:[3,4,5,6,7,8],distancePreserved:true,groundedPhysics:true});

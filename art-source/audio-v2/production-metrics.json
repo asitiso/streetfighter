@@ -1,0 +1,177 @@
+[
+  {
+    "file": "public\\audio\\score-v2\\title-theme.ogg",
+    "seconds": 26.666666666666668,
+    "peak": 0.8007313013076782,
+    "rms": 0.16197989881038666,
+    "bytes": 443659
+  },
+  {
+    "file": "public\\audio\\score-v2\\select-theme.ogg",
+    "seconds": 24.0,
+    "peak": 0.8289092779159546,
+    "rms": 0.15670084953308105,
+    "bytes": 436651
+  },
+  {
+    "file": "public\\audio\\score-v2\\stage1-theme.ogg",
+    "seconds": 48.0,
+    "peak": 0.8038892149925232,
+    "rms": 0.1609051376581192,
+    "bytes": 826518
+  },
+  {
+    "file": "public\\audio\\score-v2\\stage2-theme.ogg",
+    "seconds": 46.82927437641723,
+    "peak": 0.8334356546401978,
+    "rms": 0.15604762732982635,
+    "bytes": 841747
+  },
+  {
+    "file": "public\\audio\\score-v2\\stage3-theme.ogg",
+    "seconds": 47.4074149659864,
+    "peak": 0.7941902279853821,
+    "rms": 0.16469049453735352,
+    "bytes": 800689
+  },
+  {
+    "file": "public\\audio\\score-v2\\stage4-theme.ogg",
+    "seconds": 46.82927437641723,
+    "peak": 0.8158453106880188,
+    "rms": 0.16687101125717163,
+    "bytes": 800839
+  },
+  {
+    "file": "public\\audio\\score-v2\\stage5-theme.ogg",
+    "seconds": 45.714285714285715,
+    "peak": 0.8149111866950989,
+    "rms": 0.16577452421188354,
+    "bytes": 759915
+  },
+  {
+    "file": "public\\audio\\score-v2\\final-boss-theme.ogg",
+    "seconds": 44.651156462585035,
+    "peak": 0.7830386161804199,
+    "rms": 0.1645238846540451,
+    "bytes": 755204
+  },
+  {
+    "file": "public\\audio\\score-v2\\ending-theme.ogg",
+    "seconds": 32.0,
+    "peak": 0.8146207928657532,
+    "rms": 0.1627843827009201,
+    "bytes": 539120
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\whoosh.ogg",
+    "seconds": 1.9838321995464852,
+    "peak": 0.7916005849838257,
+    "rms": 0.1330469250679016,
+    "bytes": 22872
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\hit-light-0.ogg",
+    "seconds": 0.41070294784580497,
+    "peak": 0.7099056839942932,
+    "rms": 0.11137871444225311,
+    "bytes": 8108
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\hit-heavy-0.ogg",
+    "seconds": 0.44090702947845806,
+    "peak": 0.6753795742988586,
+    "rms": 0.1311562955379486,
+    "bytes": 8729
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\hit-light-1.ogg",
+    "seconds": 0.43206349206349204,
+    "peak": 0.6651013493537903,
+    "rms": 0.09904509782791138,
+    "bytes": 8510
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\hit-heavy-1.ogg",
+    "seconds": 0.4310657596371882,
+    "peak": 0.7970978021621704,
+    "rms": 0.12822362780570984,
+    "bytes": 8700
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\hit-light-2.ogg",
+    "seconds": 0.46467120181405897,
+    "peak": 0.7931941747665405,
+    "rms": 0.11026180535554886,
+    "bytes": 9078
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\hit-heavy-2.ogg",
+    "seconds": 0.4890702947845805,
+    "peak": 0.757978081703186,
+    "rms": 0.11624070256948471,
+    "bytes": 8437
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\block-0.ogg",
+    "seconds": 0.3189342403628118,
+    "peak": 0.7643645405769348,
+    "rms": 0.1446419060230255,
+    "bytes": 7011
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\parry-0.ogg",
+    "seconds": 0.2426984126984127,
+    "peak": 0.7089897394180298,
+    "rms": 0.09902055561542511,
+    "bytes": 7072
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\block-1.ogg",
+    "seconds": 0.3558049886621315,
+    "peak": 0.7875530123710632,
+    "rms": 0.14319393038749695,
+    "bytes": 7536
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\parry-1.ogg",
+    "seconds": 0.23020408163265307,
+    "peak": 0.6955101490020752,
+    "rms": 0.08156616985797882,
+    "bytes": 6947
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\super-start.ogg",
+    "seconds": 1.9838321995464852,
+    "peak": 0.7362780570983887,
+    "rms": 0.11152108013629913,
+    "bytes": 22768
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\super-impact.ogg",
+    "seconds": 2.023832199546485,
+    "peak": 0.7239547371864319,
+    "rms": 0.06984475255012512,
+    "bytes": 22707
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\ko.ogg",
+    "seconds": 0.7822222222222223,
+    "peak": 0.5985584259033203,
+    "rms": 0.08823572099208832,
+    "bytes": 11002
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\ui.ogg",
+    "seconds": 0.07267573696145124,
+    "peak": 0.5998680591583252,
+    "rms": 0.08477206528186798,
+    "bytes": 5180
+  },
+  {
+    "file": "public\\audio\\sfx-v2\\victory.ogg",
+    "seconds": 0.32068027210884353,
+    "peak": 0.530703067779541,
+    "rms": 0.08558226376771927,
+    "bytes": 7781
+  }
+]

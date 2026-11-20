@@ -1,0 +1,53 @@
+{
+  "character": "KEN",
+  "kind": "crouch-parry",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "sharedScale": 0.620253164556962,
+  "sourceBounds": [
+    [
+      73,
+      47,
+      436,
+      443
+    ],
+    [
+      71,
+      47,
+      481,
+      443
+    ],
+    [
+      73,
+      48,
+      462,
+      443
+    ],
+    [
+      72,
+      48,
+      435,
+      442
+    ],
+    [
+      73,
+      48,
+      435,
+      442
+    ]
+  ],
+  "recoveryFrame": 5,
+  "recoveryPixelIdentical": true,
+  "runtime": "public/art/animation-hq/ken/crouch-parry-v1.webp",
+  "bytes": 458848,
+  "stageEntryBytes": 19645300,
+  "stageEntryCap": 20000000,
+  "sha256": {
+    "generated-sheet-v1.png": "4a4015ad25f42f643ef07362a90e6eadd9e59a12ea84f47eef763b5010384280",
+    "reference-idle.png": "32d8b78c4b4f99442071b1109621959e6904344de82b7afbe5c5ce8b39f4ff99",
+    "reference-settle.png": "3204739e111856935dc9865c6dcc2bdc8c142962ee055af48a4b2de2540face4",
+    "generation-prompt.txt": "ea344a0f6b947fb59417e31d89211dcacee99f2d9c8c9b5e6c8ef7a638d7d7ce",
+    "crouch-parry-v1.webp": "7bee1e12c5b50104debd156d82ab3dc75a0f32db2339cdea6f3871d75fbbfc24"
+  }
+}

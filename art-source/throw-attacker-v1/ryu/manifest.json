@@ -1,0 +1,151 @@
+{
+  "character": "RYU",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.758695652173913,
+  "sourceBounds": [
+    [
+      53,
+      30,
+      435,
+      464
+    ],
+    [
+      11,
+      79,
+      485,
+      464
+    ],
+    [
+      36,
+      55,
+      424,
+      462
+    ],
+    [
+      63,
+      48,
+      431,
+      477
+    ],
+    [
+      28,
+      45,
+      479,
+      477
+    ],
+    [
+      64,
+      17,
+      413,
+      477
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      125,
+      105,
+      415,
+      434
+    ],
+    [
+      72,
+      142,
+      432,
+      434
+    ],
+    [
+      99,
+      126,
+      393,
+      434
+    ],
+    [
+      121,
+      108,
+      400,
+      434
+    ],
+    [
+      92,
+      107,
+      435,
+      434
+    ],
+    [
+      128,
+      84,
+      393,
+      434
+    ],
+    [
+      135,
+      85,
+      366,
+      434
+    ],
+    [
+      133,
+      85,
+      364,
+      434
+    ]
+  ],
+  "centroidTargetX": 258.7745980268339,
+  "centroids": [
+    [
+      258.63733047453337,
+      273.6748959425718
+    ],
+    [
+      258.4434786843446,
+      288.7684028825102
+    ],
+    [
+      258.74452680084653,
+      293.26075103720314
+    ],
+    [
+      258.4185429509229,
+      277.86145782050136
+    ],
+    [
+      259.1391609534389,
+      280.1418389041255
+    ],
+    [
+      258.9255908861496,
+      271.391677507129
+    ],
+    [
+      258.7745980268339,
+      264.2314047785763
+    ],
+    [
+      257.3893648940084,
+      265.1637871196514
+    ]
+  ],
+  "groundAnchor": 434,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/ryu/idle.webp",
+  "idleFollowupSha256": "be622d9b6611f977855989cde19542dec4ce91980f81536fe36d9d2def395ff2",
+  "runtime": "public/art/throw-attacker-v1/ryu.webp",
+  "bytes": 746934,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "8103ebcab3696739f694b45f7b954803a5ad691870a36af009f06a4481498fff",
+    "generation-reference.png": "20f5b35c1a81411cea08115dc322abbc6cfd0ac76a28565090034bd9bf45342f",
+    "generation-prompt.txt": "0dbac198793b628f24459eeef446535daaeffeea0540ed9933f0b0fb0649abb7",
+    "ryu.webp": "324537ce57a61ce1acdd533cfbef180546ceb35f57303eb9278fa3e0be0a8832"
+  }
+}

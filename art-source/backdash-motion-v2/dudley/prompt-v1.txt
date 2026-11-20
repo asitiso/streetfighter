@@ -1,0 +1,12 @@
+Production fighting-game BACKWARD DASH original sprite sheet of Dudley, muscular dark-skinned boxer with short hair and moustache, white rolled-sleeve shirt, green vest and trousers, blue boxing gloves, black shoes. Reference1 is neutral identity/style; reference2 action reference ONLY, ignore colored invisible RGB streaks. Match detailed painterly original shading/anatomy.
+Exactly EIGHT isolated complete figures in TWO ROWS FOUR COLUMNS, reading left-right then next row, consistent camera and body scale; facing RIGHT throughout while retreating LEFT.
+Cell1 neutral guard standing reference.
+Cell2 initial compression knees bent5%, high wide protective guard with elbows out to sides, hands beside temples; distinct arm silhouette versus running guard.
+Cell3 acceleration backward: weight moves LEFT, torso upright or subtly left, rear LEFT knee bends and front RIGHT foot pushes, guard begins closing.
+Cell4 early retreat drive: rear LEFT knee deeply bent, front RIGHT leg extends forward-right; pelvis down12%, torso center LEFT of midpoint of foot spread; gaze stays RIGHT. Protective guard no attack.
+Cell5 late retreat drive: distinct articulated intermediate, front RIGHT knee begins retracting20%, rear knee partly straightens, torso still left of spread feet, hands compact guard. Keep root transition gradual.
+Cell6 braking: forward knee draws partway toward body, hips begin rising, weight on rear leg, arms tuck.
+Cell7 settling: two planted feet nearly recovered guard, knees flex5%, torso nearly upright.
+Cell8 final recovery: protective compact guard, knees bent8%, slightly wider feet than neutral, clearly a settling stance transitioning to cell1, not copy of initial guard.
+All7action drawings genuinely different; joint articulation (knees/hips/elbows), never repeated or global warps. Smooth small centroid steps, no abrupt drive-to-recovery jump, no flip toward movement direction. Keep outfit/face/hair/body size consistent. No kicks/punches/effects.
+All8fullfigures safely inside cells with generous gutters, no body touching edges, no extra limbs. True alpha-zero transparent background, no shadow/floor/glow/outline/text. Landscape1536x1024.

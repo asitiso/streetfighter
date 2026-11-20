@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import{CombatWorld}from'../dist/assets/combat/CombatWorld.js';
+import{CHARACTERS,BOSS_CHARACTERS,getCharacter}from'../dist/assets/game/characters.js';
+import{airNormalFor}from'../dist/assets/combat/TechniqueLibrary.js';
+import{normalFor,specialMovesFor,superArtMoveFor,throwMoveFor}from'../dist/assets/combat/MoveLibrary.js';
+const recordOnly=process.argv.includes('--record'),roster=[...CHARACTERS,...BOSS_CHARACTERS],quiet={held:()=>false,pressed:()=>false,released:()=>false},heights=[[0,0],[60,0],[0,60],[50,80],[120,120],[150,90],[0,150]],traces=[];
+let contactCases=0,tradeCases=0,missControls=0,groundVictimControls=0,launchControls=0,juggleChecks=0,superChecks=0,actualTradeCases=0,projectileControls=0;
+function near(actual,expected,label){assert(Math.abs(actual-expected)<1e-8,label+': '+actual+' vs '+expected);}
+function state(w,label){return{label,fighters:[w.player,w.enemy].map(f=>({x:f.x,y:f.y,previousX:f.previousX,previousY:f.previousY,state:f.state,stateFrame:f.stateFrame,airborne:f.airborne,jumpHeight:f.jumpHeight,jumpVelocity:f.jumpVelocity,hp:f.hp,superGauge:f.superGauge,hitStop:f.hitStop,move:f.currentMove?.id??null,moveFrame:f.moveFrame,attackConnected:f.attackConnected,victims:[...f.attackVictims],victimFrames:[...f.attackVictimFrames],victimHits:[...f.attackVictimHits],juggleHits:f.juggleHits,hitDuration:f.hitAnimationDuration,guardDuration:f.guardAnimationDuration,parryDuration:f.parryAnimationDuration,lastHitDirection:f.lastHitDirection,lastHitZone:f.lastHitZone,lastHitReaction:f.lastHitReaction,throwSyncFrames:f.throwSyncFrames,superVictimFrames:f.superVictimFrames})),combo:[w.playerComboHits,w.playerComboDamage,w.enemyComboHits,w.enemyComboDamage,w.totalPlayerDamage,w.totalEnemyDamage,w.maxPlayerComboHits],events:w.events.map(({y,...e})=>e)};}
+for(const c of roster)for(const mode of ['duel','belt'])for(const facing of [-1,1])for(const [ah,dh]of heights)for(const variant of ['ordinary','counter','launch','super','block','parry','red-parry','throw'])for(const route of ['direct','trade']){
+ if(['block','parry','red-parry'].includes(variant)&&(dh!==0||route==='trade'))continue;if(variant==='throw'&&(ah!==0||dh!==0))continue;
+ const supers=CHARACTERS.includes(c)?c.superArts.map(s=>superArtMoveFor(c.id,s.id,s.gauge)):[],superMove=supers.find(m=>m.kind==='melee');
+ if(variant==='super'&&!superMove)continue;
+ const move=variant==='launch'?specialMovesFor(c.id).antiAir:variant==='super'?superMove:variant==='throw'?throwMoveFor(c.id):ah>0?airNormalFor(c.id,'hp'):normalFor('hp',false,c.id);
+ const w=new CombatWorld(c,getCharacter('RYU'),mode),a=w.player,d=w.enemy;a.x=a.previousX=600;d.x=d.previousX=600+facing*40;a.y=a.previousY=500;d.y=d.previousY=mode==='belt'?510:500;a.facing=facing;d.facing=-facing;a.airborne=ah>0;d.airborne=dh>0;a.jumpHeight=ah;d.jumpHeight=dh;a.superGauge=1000;d.state='hit';d.stateFrame=-20;a.startMove(move);a.moveFrame=move.startup;
+ if(variant==='counter'){d.startMove(dh>0?airNormalFor('RYU','lp'):normalFor('lp',false,'RYU'));d.moveFrame=0;}
+ if(['block','parry','red-parry','throw'].includes(variant)){d.state='idle';d.stateFrame=0;if(variant==='block')w.enemyDefenseDecision=()=>true;if(variant==='parry')d.parryWindow=6;if(variant==='red-parry')d.redParryWindow=3;}
+ const expectedY=Math.min(a.y,d.y)-92-dh,beforeHP=d.hp,intent=w.captureDuelTradeIntent(a,d);
+ if(route==='trade'){if(intent){if(!recordOnly)near(intent.impactY,expectedY,c.id+' captured pre-hit height');w.resolveDuelTradeIntent(intent);tradeCases++;}}else{w.resolveAttack(a,d,quiet);}
+ const event=w.events.find(e=>['hit','air-hit','command-hit','target-hit','counter','block','parry','red-parry'].includes(e.type));
+ if(event){if(!recordOnly)near(event.y,expectedY,c.id+' '+variant+' '+route+' victim anchor');contactCases++;if(dh===0)groundVictimControls++;if(move.launch&&beforeHP>d.hp)launchControls++;for(const e of w.events){if(e.type==='juggle'){if(!recordOnly)near(e.y,expectedY-Math.min(60,d.jumpHeight*.35),'juggle follows contact');juggleChecks++;}if(e.type==='super-impact'){if(!recordOnly)near(e.y,expectedY,'super follows contact');superChecks++;}}}else missControls++;
+ traces.push(state(w,[c.id,mode,facing,ah,dh,variant,route]));
+}
+for(const c of roster)for(const mode of ['duel'])for(const facing of [-1,1])for(const [ah,dh]of [[80,80],[120,120],[130,70],[70,130]]){
+ const w=new CombatWorld(c,c,mode),a=w.player,d=w.enemy;a.x=a.previousX=600;d.x=d.previousX=600+facing*40;a.y=a.previousY=d.y=d.previousY=500;a.facing=facing;d.facing=-facing;a.airborne=d.airborne=true;a.jumpHeight=ah;d.jumpHeight=dh;a.jumpVelocity=d.jumpVelocity=0;a.startMove(airNormalFor(c.id,'hp'));d.startMove(airNormalFor(c.id,'hp'));a.moveFrame=a.currentMove.startup-1;d.moveFrame=d.currentMove.startup-1;const ap=a.hp,dp=d.hp;w.update(quiet,0);assert(a.hp<ap&&d.hp<dp,c.id+' '+mode+' actual air trade must connect both sides');for(const e of w.events.filter(e=>e.type==='air-hit'))if(!recordOnly)near(e.y,500-92-(e.attackerSide==='player'?dh:ah),'actual simultaneous air contact');traces.push(state(w,['actual-trade',c.id,mode,facing,ah,dh]));actualTradeCases++;
+}
+for(const c of roster)for(const mode of ['duel','belt'])for(const facing of [-1,1])for(const dh of [0,120]){
+ const primary=specialMovesFor(c.id).primary;if(primary.kind!=='projectile')continue;const w=new CombatWorld(c,getCharacter('RYU'),mode),a=w.player,d=w.enemy;d.x=600;d.y=500;d.jumpHeight=dh;d.airborne=dh>0;d.state='hit';a.facing=facing;w.spawnScriptedProjectile(a,primary);const p=w.projectiles[0];p.x=d.x-p.vx;p.y=d.y-88-dh*.9;p.vy=0;const expected=p.y;w.updateProjectiles(quiet);const event=w.events.find(e=>e.type==='hit');assert(event,'Projectile control must hit');near(event.y,expected,'Projectile retains exact collision point');traces.push(state(w,['projectile',c.id,mode,facing,dh]));projectileControls++;
+}
+if(recordOnly)console.log(JSON.stringify(traces));else console.log('AIR_IMPACT_ANCHOR_PASS',{contactCases,tradeCases,missControls,groundVictimControls,launchControls,juggleChecks,superChecks,actualTradeCases,projectileControls,recordedSimulationCases:traces.length});

@@ -1,0 +1,36 @@
+{
+  "character": "RYU",
+  "move": "RYU_CMD_MP",
+  "kind": "collarbone-breaker",
+  "asset": "/art/command-motion-v1/ryu-collarbone-breaker.webp",
+  "frames": 12,
+  "frameSize": [
+    640,
+    448
+  ],
+  "phase": {
+    "startupEnd": 4,
+    "activeStart": 5,
+    "activeEnd": 6,
+    "recoveryStart": 7
+  },
+  "footFloor": 433,
+  "source": "generated-sheet-v2.png",
+  "sourceSha256": "5a5c8cccbcf5da14d0028f92affcc4f9bf94dde79e7f5a6960f74ad1c84272ec",
+  "assetSha256": "c361828965fd5219744ebca336204ed017d3974663d7eee98e2e2c23eef65bf3",
+  "bytes": 306402,
+  "guardSource": "/art/animation-hq/ryu/idle.webp",
+  "guardSourceSha256": "be622d9b6611f977855989cde19542dec4ce91980f81536fe36d9d2def395ff2",
+  "guardFrames": [
+    0,
+    11
+  ],
+  "tool": "built-in image_gen",
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.78,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "gameplayChanges": false
+}

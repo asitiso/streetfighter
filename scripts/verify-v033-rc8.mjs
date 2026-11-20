@@ -37,7 +37,7 @@ const stageSource = await readFile(new URL('../src/scenes/Stage1Scene.ts', impor
 for (const token of ['drawStageColorGrade', 'stagePresentationProfile', 'hitSparkProfile', 'introEyebrow']) assert.ok(stageSource.includes(token), `missing stage presentation ${token}`);
 assert.ok(stageSource.includes('FINAL DUEL // GILL') || stageSource.includes('drawBossHud'), 'missing final boss HUD presentation');
 const audioSource = await readFile(new URL('../src/core/AudioManager.ts', import.meta.url), 'utf8');
-for (const token of ["bossShift", "level === 'final' ? 1.55", 'musicTarget', 'sfxTarget']) assert.ok(audioSource.includes(token), `missing audio polish ${token}`);
+for (const token of ["/audio/score-v2/final-boss-theme.ogg", 'musicTarget', 'sfxTarget']) assert.ok(audioSource.includes(token), `missing audio polish ${token}`);
 const appSource = await readFile(new URL('../src/core/GameApp.ts', import.meta.url), 'utf8');
 for (const token of ['loadingProfile', 'loading-kicker', 'loading-detail']) assert.ok(appSource.includes(token), `missing loading polish ${token}`);
 const css = await readFile(new URL('../src/styles.css', import.meta.url), 'utf8');

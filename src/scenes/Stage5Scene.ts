@@ -5,7 +5,7 @@ import { Stage1Scene } from './Stage1Scene.js';
 import type { StageResult } from '../game/StageResult.js';
 
 export class Stage5Scene extends Stage1Scene {
-  constructor(input: InputManager, audio: AudioManager, playerDef: CharacterDef, superArt: SuperArtDef, onClear?: (result: StageResult) => void, onDefeat?: () => void) {
-    super(input, audio, playerDef, superArt, 5, onClear, onDefeat);
+  constructor(input: InputManager, audio: AudioManager, playerDef: CharacterDef, superArt: SuperArtDef, onClear?: (result: StageResult) => void | Promise<void>, onDefeat?: () => void | Promise<void>, onPauseChange?: (paused: boolean) => void, onPostCombatChange?: (active: boolean) => void) {
+    super(input, audio, playerDef, superArt, 5, onClear, onDefeat, onPauseChange, onPostCombatChange);
   }
 }

@@ -18,6 +18,16 @@ export class InputManager {
     held: false, pressed: false, released: false, keyboardHeld: false, touchHeld: false, touchPressed: false, touchReleased: false, gamepadHeld: false,
   }]));
 
+  // Source edges let an aborted touch discard only its own pending press.
+  private readonly physicalPresses = new Set<Action>();
+  private readonly completedTouchPresses = new Set<Action>();
+  private readonly completedTouchEdges = new Set<Action>();
+
+  private historyVersion = 0;
+
+  private readonly keyboardKeys = new Set<string>();
+  private readonly directionHistory: Set<Action>[] = [];
+
   private keyMap = new Map<string, Action>([
     ['ArrowLeft', 'left'], ['KeyA', 'left'], ['ArrowRight', 'right'], ['KeyD', 'right'],
     ['ArrowUp', 'up'], ['KeyW', 'up'], ['ArrowDown', 'down'], ['KeyS', 'down'],
@@ -28,6 +38,9 @@ export class InputManager {
   constructor() {
     window.addEventListener('keydown', this.onKeyDown, { passive: false });
     window.addEventListener('keyup', this.onKeyUp, { passive: false });
+    window.addEventListener('blur', this.onBlur);
+    window.addEventListener('pagehide', this.onBlur);
+    if (typeof document !== 'undefined') document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
   prepareTick(): void {
@@ -35,6 +48,10 @@ export class InputManager {
   }
 
   endTick(): void {
+    this.physicalPresses.clear();
+    this.completedTouchPresses.clear();
+    this.completedTouchEdges.clear();
+    this.directionHistory.length = 0;
     for (const state of this.states.values()) {
       state.pressed = false;
       state.released = false;
@@ -46,11 +63,67 @@ export class InputManager {
   setTouch(action: Action, held: boolean): void {
     const state = this.states.get(action);
     if (!state || state.touchHeld === held) return;
+    const wasHeld = state.held;
+    if (!held) this.completeTouchPress(action);
     state.touchHeld = held;
     if (held) state.touchPressed = true;
     else state.touchReleased = true;
     this.reconcile(state);
+    if (state.held !== wasHeld) this.recordDirection(action);
   }
+
+  completeTouchPress(action: Action): void {
+    const state = this.states.get(action);
+    if (state?.touchPressed) {
+      this.completedTouchPresses.add(action);
+      if (state.pressed) this.completedTouchEdges.add(action);
+    }
+  }
+
+  cancelTouch(action: Action): void {
+    const state = this.states.get(action);
+    if (!state) return;
+    const wasHeld = state.held;
+    const pendingTouch = state.touchPressed;
+    if (state.touchHeld) state.touchReleased = true;
+    state.touchHeld = false;
+    state.touchPressed = this.completedTouchPresses.has(action);
+    this.reconcile(state);
+    if (pendingTouch) state.pressed &&= this.completedTouchEdges.has(action) || this.physicalPresses.has(action);
+    if (state.held !== wasHeld) this.recordDirection(action);
+  }
+
+  // A pad drag changes one direction set atomically, without intermediate keys.
+  setTouchDirections(directions: readonly Action[]): void {
+    const previousDirections = this.directionHistory.length === 0
+      ? new Set<Action>((['left','right','up','down'] as const).filter(action => this.held(action))) : undefined;
+    let changed = false;
+    for (const action of ['left', 'right', 'up', 'down'] as const) {
+      const state = this.states.get(action)!;
+      const held = directions.includes(action);
+      if (state.touchHeld === held) continue;
+      const wasHeld = state.held;
+      state.touchHeld = held;
+      if (held) state.touchPressed = true;
+      else state.touchReleased = true;
+      this.reconcile(state);
+      changed ||= state.held !== wasHeld;
+    }
+    if (changed) this.recordDirection(undefined, previousDirections);
+  }
+
+  // Scene boundaries invalidate command sequences without releasing held devices.
+  resetCommandHistory(): void {
+    this.historyVersion += 1;
+    this.directionHistory.length = 0;
+  }
+
+  get historyEpoch(): number { return this.historyVersion; }
+
+  directionChanges(): readonly ReadonlySet<Action>[] { return this.directionHistory; }
+
+  // Compatibility for input consumers that previously read keyboard-only history.
+  keyboardDirectionChanges(): readonly ReadonlySet<Action>[] { return this.directionChanges(); }
 
   held(action: Action): boolean { return this.states.get(action)?.held ?? false; }
   pressed(action: Action): boolean { return this.states.get(action)?.pressed ?? false; }
@@ -62,16 +135,44 @@ export class InputManager {
   destroy(): void {
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('blur', this.onBlur);
+    window.removeEventListener('pagehide', this.onBlur);
+    if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
+
+  private onVisibilityChange = (): void => {
+    if (document.hidden) this.onBlur();
+  };
+
+  private onBlur = (): void => {
+    this.resetCommandHistory();
+    this.keyboardKeys.clear();
+    this.physicalPresses.clear();
+    this.completedTouchPresses.clear();
+    this.completedTouchEdges.clear();
+    for (const state of this.states.values()) {
+      state.keyboardHeld = false;
+      this.reconcile(state);
+      state.pressed = false;
+      state.touchPressed = false;
+    }
+  };
 
   private onKeyDown = (event: KeyboardEvent): void => {
     const action = this.keyMap.get(event.code);
     if (!action) return;
     event.preventDefault();
+    // Focus loss clears keyboard ownership; OS repeat must not recreate a press.
+    if (event.repeat) return;
     const state = this.states.get(action)!;
-    if (state.keyboardHeld) return;
+    if (this.keyboardKeys.has(event.code)) return;
+    const wasHeld = state.held;
+    const freshPhysical = !state.keyboardHeld;
+    this.keyboardKeys.add(event.code);
     state.keyboardHeld = true;
     this.reconcile(state);
+    if (freshPhysical && state.pressed) this.physicalPresses.add(action);
+    if (state.held !== wasHeld) this.recordDirection(action);
   };
 
   private onKeyUp = (event: KeyboardEvent): void => {
@@ -79,12 +180,41 @@ export class InputManager {
     if (!action) return;
     event.preventDefault();
     const state = this.states.get(action)!;
-    state.keyboardHeld = false;
+    const wasHeld = state.held;
+    this.keyboardKeys.delete(event.code);
+    state.keyboardHeld = [...this.keyboardKeys].some((code) => this.keyMap.get(code) === action);
     this.reconcile(state);
+    if (state.held !== wasHeld) this.recordDirection(action);
   };
 
+  private recordDirection(action?: Action, previousDirections?: ReadonlySet<Action>): void {
+    if (action !== undefined && action !== 'left' && action !== 'right' && action !== 'up' && action !== 'down') return;
+    const held = new Set<Action>();
+    for (const direction of ['left', 'right', 'up', 'down'] as const) {
+      if (this.held(direction)) held.add(direction);
+    }
+    if (this.directionHistory.length === 0) {
+      // The queue may begin while a direction is already held (new scene/buffer).
+      // Preserve its real pre-change state instead of assuming a neutral start.
+      const before = new Set(previousDirections ?? held);
+      if (action !== undefined) {
+        if (held.has(action)) before.delete(action);
+        else before.add(action);
+      }
+      this.directionHistory.push(before);
+    }
+    this.directionHistory.push(held);
+    if (this.directionHistory.length > 32) this.directionHistory.shift();
+  }
+
   private pollGamepad(): void {
-    const pad = navigator.getGamepads?.()[0];
+    let pad: Gamepad | null | undefined;
+    try {
+      pad = Array.from(navigator.getGamepads?.() ?? [])
+        .find((candidate) => candidate && candidate.connected !== false);
+    } catch {
+      // Browser policy or device failures must not stop keyboard/touch polling.
+    }
     if (!pad) {
       for (const action of ACTIONS) {
         const state = this.states.get(action)!;
@@ -118,6 +248,7 @@ export class InputManager {
     if (state.gamepadHeld === held) return;
     state.gamepadHeld = held;
     this.reconcile(state);
+    if (held && state.pressed) this.physicalPresses.add(action);
   }
 
   private reconcile(state: ActionState): void {

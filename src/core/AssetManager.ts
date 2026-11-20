@@ -1,39 +1,185 @@
+import { PRODUCED_SFX_ASSETS } from './SampledSfxBank.js';
 import { runtimeQuality } from './RuntimeQuality.js';
+import { CHARACTERS, BOSS_CHARACTERS } from '../game/characters.js';
+import { animationSequencesFor } from '../render/AnimationSequenceLibrary.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v172';
+export const GAME_CACHE_NAME = 'game-cache-v688';
+
+const THROW_ATTACKER_ASSETS = ['/art/throw-attacker-v1/ken.webp', '/art/throw-attacker-v1/ryu.webp', '/art/throw-attacker-v1/chunli.webp', '/art/throw-attacker-v1/alex.webp', '/art/throw-attacker-v1/dudley.webp', '/art/throw-attacker-v1/makoto.webp', '/art/throw-attacker-v1/ibuki.webp', '/art/throw-attacker-v1/yun.webp', '/art/throw-attacker-v1/urien.webp', '/art/throw-attacker-v1/gill.webp'];
+const THROW_VICTIM_ASSETS = ['/art/throw-victim-v1/ken.webp', '/art/throw-victim-v1/ryu.webp', '/art/throw-victim-v1/chunli.webp', '/art/throw-victim-v1/alex.webp', '/art/throw-victim-v1/dudley.webp', '/art/throw-victim-v1/makoto.webp', '/art/throw-victim-v1/ibuki.webp', '/art/throw-victim-v1/yun.webp', '/art/throw-victim-v1/urien.webp', '/art/throw-victim-v1/gill.webp'];
+const SUPER_HIT_ASSETS = ['/art/super-hit-v1/urien.webp', '/art/super-hit-v1/gill.webp', '/art/super-hit-v1/ryu.webp', '/art/super-hit-v1/ken.webp', '/art/super-hit-v1/chunli.webp', '/art/super-hit-v1/ibuki.webp', '/art/super-hit-v1/alex.webp', '/art/super-hit-v1/dudley.webp', '/art/super-hit-v1/makoto.webp', '/art/super-hit-v1/yun.webp'];
+const AIR_FALL_ASSETS = ['/art/air-fall-v1/urien.webp', '/art/air-fall-v1/gill.webp', '/art/air-fall-v1/ryu.webp', '/art/air-fall-v1/ken.webp', '/art/air-fall-v1/chunli.webp', '/art/air-fall-v1/ibuki.webp', '/art/air-fall-v1/alex.webp', '/art/air-fall-v1/dudley.webp', '/art/air-fall-v1/makoto.webp', '/art/air-fall-v1/yun.webp'];
+const KNOCKDOWN_ASSETS = ['/art/knockdown-motion-v1/ken.webp', '/art/knockdown-motion-v1/ryu.webp', '/art/knockdown-motion-v1/chunli.webp', '/art/knockdown-motion-v1/ibuki.webp', '/art/knockdown-motion-v1/alex.webp', '/art/knockdown-motion-v1/dudley.webp', '/art/knockdown-motion-v1/makoto.webp', '/art/knockdown-motion-v1/yun.webp', '/art/knockdown-motion-v1/urien.webp', '/art/knockdown-motion-v1/gill.webp'];
+
+const PROP_IMPACT_ASSETS = ['/art/prop-impact-v1/atlas.webp', '/assets/render/PropImpactAssets.js'];
+
+const STAGE_AMBIENT_ASSETS = ['/art/stage-ambient-v1/atlas.webp', '/assets/render/StageAmbientAssets.js'];
+
+const STAGE_PROP_ASSETS = ['/art/stage-props-v1/atlas.webp', '/assets/render/StagePropAssets.js', '/assets/render/StagePropAtlasData.js'];
+
+export const THROW_ESCAPE_ASSETS = ['ryu','ken','chunli','alex','dudley','makoto','ibuki','yun','urien','gill'].map(id => '/art/throw-escape-v1/' + id + '.webp');
 
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
-    '/art/title-keyart.png', '/art/roster-mural.png', '/audio/title-theme.ogg', '/audio/select-theme.ogg',
+    ...PRODUCED_SFX_ASSETS,
+    '/art/title-keyart.png', '/art/roster-mural.png', '/audio/score-v2/title-theme.ogg', '/audio/score-v2/select-theme.ogg',
     '/art/portraits/ryu.webp', '/art/portraits/ken.webp', '/art/portraits/chunli.webp', '/art/portraits/alex.webp',
     '/art/portraits/dudley.webp', '/art/portraits/makoto.webp', '/art/portraits/ibuki.webp', '/art/portraits/yun.webp',
-    '/art/combat-sprites/ryu.webp', '/art/combat-sprites/ken.webp', '/art/combat-sprites/chunli.webp', '/art/combat-sprites/alex.webp',
-    '/art/combat-sprites/dudley.webp', '/art/combat-sprites/makoto.webp', '/art/combat-sprites/ibuki.webp', '/art/combat-sprites/yun.webp',
-    '/art/attack-atlases/ryu.webp', '/art/attack-atlases/ken.webp', '/art/attack-atlases/chunli.webp', '/art/attack-atlases/alex.webp',
-    '/art/attack-atlases/dudley.webp', '/art/attack-atlases/makoto.webp', '/art/attack-atlases/ibuki.webp', '/art/attack-atlases/yun.webp',
+    '/art/combat-sprites/ryu-authored-v1.png', '/art/combat-sprites/ken-authored-v1.png', '/art/combat-sprites/chunli-authored-v1.png', '/art/combat-sprites/alex-authored-v1.png',
+    '/art/combat-sprites/dudley-authored-v1.png', '/art/combat-sprites/makoto-authored-v1.png', '/art/combat-sprites/ibuki-authored-v1.png', '/art/combat-sprites/yun-authored-v1.png',
+    '/art/attack-atlases/ryu-authored-v1.webp', '/art/attack-atlases/ken-authored-v1.webp', '/art/attack-atlases/chunli-authored-v1.webp', '/art/attack-atlases/alex-authored-v1.webp',
+    '/art/attack-atlases/dudley-authored-v1.webp', '/art/attack-atlases/makoto-authored-v1.webp', '/art/attack-atlases/ibuki-authored-v1.webp', '/art/attack-atlases/yun-authored-v1.webp',
   ],
   'character-hd': [
     '/art/character-quality-manifest.json',
-    '/art/combat-sprites-hd/ryu.webp', '/art/combat-sprites-hd/ken.webp', '/art/combat-sprites-hd/chunli.webp', '/art/combat-sprites-hd/alex.webp',
-    '/art/combat-sprites-hd/dudley.webp', '/art/combat-sprites-hd/makoto.webp', '/art/combat-sprites-hd/ibuki.webp', '/art/combat-sprites-hd/yun.webp',
-    '/art/attack-atlases-hd/ryu.webp', '/art/attack-atlases-hd/ken.webp', '/art/attack-atlases-hd/chunli.webp', '/art/attack-atlases-hd/alex.webp',
-    '/art/attack-atlases-hd/dudley.webp', '/art/attack-atlases-hd/makoto.webp', '/art/attack-atlases-hd/ibuki.webp', '/art/attack-atlases-hd/yun.webp',
+    '/art/combat-sprites-hd/ryu-authored-v1.png', '/art/combat-sprites-hd/ken-authored-v1.png', '/art/combat-sprites-hd/chunli-authored-v1.png', '/art/combat-sprites-hd/alex-authored-v1.png',
+    '/art/combat-sprites-hd/dudley-authored-v1.png', '/art/combat-sprites-hd/makoto-authored-v1.png', '/art/combat-sprites-hd/ibuki-authored-v1.png', '/art/combat-sprites-hd/yun-authored-v1.png',
+    '/art/attack-atlases-hd/ryu-authored-v1.webp', '/art/attack-atlases-hd/ken-authored-v1.webp', '/art/attack-atlases-hd/chunli-authored-v1.webp', '/art/attack-atlases-hd/alex-authored-v1.webp',
+    '/art/attack-atlases-hd/dudley-authored-v1.webp', '/art/attack-atlases-hd/makoto-authored-v1.webp', '/art/attack-atlases-hd/ibuki-authored-v1.webp', '/art/attack-atlases-hd/yun-authored-v1.webp',
   ],
   'character-hq': [
+    ...KNOCKDOWN_ASSETS,
+    ...AIR_FALL_ASSETS,
+    ...SUPER_HIT_ASSETS,
+    ...THROW_ATTACKER_ASSETS,
+    ...THROW_VICTIM_ASSETS,
+    '/art/ko-motion-v1/ryu.webp',
+    '/art/ko-motion-v1/ken.webp',
+    '/art/ko-motion-v1/chunli.webp',
+    '/art/ko-motion-v1/ibuki.webp',
+    '/art/ko-motion-v1/alex.webp',
+    '/art/ko-motion-v1/dudley.webp',
+    '/art/ko-motion-v1/makoto.webp',
+    '/art/ko-motion-v1/yun.webp',
+    '/art/ko-motion-v1/urien.webp',
+    '/art/ko-motion-v1/gill.webp',
+    '/art/command-motion-v1/yun-shoulder-palm.webp',
+    '/art/command-motion-v1/ibuki-spin-heel.webp',
+    '/art/command-motion-v1/makoto-forward-chop.webp',
+    '/art/command-motion-v1/dudley-dart-shot.webp',
+    '/art/command-motion-v1/alex-lariat-press.webp',
+    '/art/command-motion-v1/ryu-collarbone-breaker.webp',
+    '/art/command-motion-v1/chunli-forward-backfist.webp',
+    '/art/command-motion-v1/ken-step-kick.webp',
+    ...THROW_ESCAPE_ASSETS,
+    '/art/animation-hq/makoto/air-medium-kick.webp',
+    '/art/animation-hq/makoto/air-medium-punch.webp',
+    '/art/animation-hq/makoto/air-light-kick.webp',
+    '/art/animation-hq/makoto/air-light-punch.webp',
+    '/art/animation-hq/makoto/air-heavy-kick.webp',
+    '/art/animation-hq/makoto/air-heavy-punch.webp',
+    '/art/animation-hq/dudley/air-medium-kick.webp',
+    '/art/animation-hq/dudley/air-medium-punch.webp',
+    '/art/animation-hq/dudley/air-light-kick.webp',
+    '/art/animation-hq/dudley/air-light-punch.webp',
+    '/art/animation-hq/dudley/air-heavy-kick.webp',
+    '/art/animation-hq/dudley/air-heavy-punch.webp',
+    '/art/animation-hq/alex/air-heavy-punch.webp',
+    '/art/animation-hq/alex/air-heavy-kick.webp',
+    '/art/animation-hq/alex/air-light-punch.webp',
+    '/art/animation-hq/alex/air-light-kick.webp',
+    '/art/animation-hq/alex/air-medium-punch.webp',
+    '/art/animation-hq/alex/air-medium-kick.webp',
+    '/art/animation-hq/chunli/air-light-punch.webp',
+    '/art/animation-hq/chunli/air-light-kick.webp',
+    '/art/animation-hq/chunli/air-medium-punch.webp',
+    '/art/animation-hq/chunli/air-medium-kick.webp',
+    '/art/animation-hq/chunli/air-heavy-kick.webp',
+    '/art/animation-hq/chunli/air-heavy-punch.webp',
+    '/art/animation-hq/ryu/air-medium-kick.webp',
+    '/art/animation-hq/ryu/air-medium-punch.webp',
+    '/art/animation-hq/ryu/air-light-kick.webp',
+    '/art/animation-hq/ryu/air-light-punch.webp',
+    '/art/animation-hq/ryu/air-heavy-kick.webp',
+    '/art/animation-hq/ryu/air-heavy-punch.webp',
+    '/art/animation-hq/ken/air-medium-kick.webp',
+    '/art/animation-hq/ken/air-medium-punch.webp',
+    '/art/animation-hq/ken/victory.webp',
+    '/art/animation-hq/ryu/victory.webp',
+    '/art/animation-hq/chunli/victory.webp',
+    '/art/animation-hq/ibuki/victory.webp',
+    '/art/animation-hq/alex/victory.webp',
+    '/art/animation-hq/dudley/victory.webp',
+    '/art/animation-hq/makoto/victory.webp',
+    '/art/animation-hq/yun/victory.webp',
+    '/art/animation-hq/gill/victory.webp',
+    '/art/animation-hq/urien/victory.webp',
+    '/art/animation-hq/ken/air-light-kick.webp',
+    '/art/animation-hq/ken/air-light-punch.webp',
+    '/art/animation-hq/ken/air-heavy-kick.webp',
+    '/art/animation-hq/ken/air-heavy-punch.webp',
+    '/art/animation-hq/yun/genei-jin-install.webp',
+    '/art/animation-hq/makoto/tanden-renki.webp',
+    '/art/animation-hq/makoto/abare-tosanami.webp',
+    '/art/animation-hq/alex/stun-gun-headbutt.webp',
+    '/art/animation-hq/dudley/rocket-uppercut.webp',
+    '/art/animation-hq/yun/you-hou.webp',
+    '/art/animation-hq/yun/sourai-rengeki.webp',
+    '/art/animation-hq/dudley/rolling-thunder.webp',
+    '/art/animation-hq/alex/boomerang-raid.webp',
+    '/art/animation-hq/alex/hyper-bomb.webp',
+    '/art/animation-hq/yun/genei-jin.webp',
+    '/art/animation-hq/makoto/seichusen-godanzuki.webp',
+    '/art/animation-hq/ibuki/air-light-kick.webp',
+    '/art/animation-hq/ibuki/air-medium-punch.webp',
+    '/art/animation-hq/ibuki/air-medium-kick.webp',
+    '/art/animation-hq/ibuki/air-light-punch.webp',
+    '/art/animation-hq/ibuki/air-heavy-kick.webp',
+    '/art/animation-hq/ibuki/air-heavy-punch.webp',
+    '/art/animation-hq/gill/air-medium-kick.webp',
+    '/art/animation-hq/gill/air-medium-punch.webp',
+    '/art/animation-hq/gill/air-light-kick.webp',
+    '/art/animation-hq/gill/air-light-punch.webp',
+    '/art/animation-hq/gill/air-heavy-kick.webp',
+    '/art/animation-hq/gill/air-heavy-punch.webp',
+    '/art/animation-hq/gill/seraphic-storm.webp',
+    '/art/animation-hq/urien/aegis-reflector.webp',
+    '/art/animation-hq/dudley/corkscrew-blow.webp',
+    '/art/animation-hq/makoto/tsurugi.webp',
+    '/art/animation-hq/gill/lariat-rush.webp',
+    '/art/animation-hq/urien/shoulder-tackle.webp',
+    '/art/animation-hq/yun/shoulder-tackle.webp',
+    '/art/animation-hq/alex/shoryuken.webp',
+    '/art/animation-hq/urien/shoryuken.webp',
+    '/art/animation-hq/yun/shoryuken.webp',
+    '/art/animation-hq/gill/shoryuken.webp',
+    '/art/animation-hq/makoto/shoryuken.webp',
+    '/art/animation-hq/dudley/shoryuken.webp',
+    '/art/animation-hq/gill/hadoken.webp',
+    '/art/animation-hq/urien/air-medium-kick.webp',
+    '/art/animation-hq/urien/air-medium-punch.webp',
+    '/art/animation-hq/urien/air-light-kick.webp',
+    '/art/animation-hq/urien/air-light-punch.webp',
+    '/art/animation-hq/urien/air-heavy-kick.webp',
+    '/art/animation-hq/urien/air-heavy-punch.webp',
+    '/art/animation-hq/urien/hadoken.webp',
     '/art/animation-hq/alex/slash-elbow.webp', '/art/animation-hq/alex/flash-chop.webp', '/art/animation-hq/alex/crouch.webp', '/art/animation-hq/alex/crouch-light.webp', '/art/animation-hq/alex/crouch-medium.webp', '/art/animation-hq/alex/crouch-heavy.webp', '/art/animation-hq/alex/crouch-light-kick.webp', '/art/animation-hq/alex/crouch-medium-kick.webp', '/art/animation-hq/alex/crouch-heavy-kick.webp', '/art/animation-hq/alex/stand-light.webp', '/art/animation-hq/alex/stand-medium.webp', '/art/animation-hq/alex/stand-light-kick.webp', '/art/animation-hq/alex/stand-medium-kick.webp', '/art/animation-hq/alex/stand-heavy-kick.webp', '/art/animation-hq/alex/stand-heavy.webp',
-    '/art/animation-hq/dudley/ducking-straight.webp', '/art/animation-hq/dudley/crouch.webp', '/art/animation-hq/dudley/crouch-light.webp', '/art/animation-hq/dudley/crouch-medium.webp', '/art/animation-hq/dudley/crouch-heavy.webp', '/art/animation-hq/dudley/crouch-light-kick.webp', '/art/animation-hq/dudley/crouch-medium-kick.webp', '/art/animation-hq/dudley/crouch-heavy-kick.webp', '/art/animation-hq/dudley/stand-light.webp', '/art/animation-hq/dudley/stand-medium.webp', '/art/animation-hq/dudley/stand-light-kick.webp', '/art/animation-hq/dudley/stand-medium-kick.webp', '/art/animation-hq/dudley/stand-heavy-kick.webp', '/art/animation-hq/dudley/stand-heavy.webp',
-    '/art/animation-hq/makoto/crouch.webp', '/art/animation-hq/makoto/crouch-light.webp', '/art/animation-hq/makoto/crouch-medium.webp', '/art/animation-hq/makoto/crouch-heavy.webp', '/art/animation-hq/makoto/crouch-light-kick.webp', '/art/animation-hq/makoto/crouch-medium-kick.webp', '/art/animation-hq/makoto/crouch-heavy-kick.webp', '/art/animation-hq/makoto/stand-light.webp', '/art/animation-hq/makoto/stand-medium.webp', '/art/animation-hq/makoto/stand-light-kick.webp', '/art/animation-hq/makoto/stand-medium-kick.webp', '/art/animation-hq/makoto/stand-heavy-kick.webp', '/art/animation-hq/makoto/stand-heavy.webp',
-    '/art/animation-hq/yun/crouch.webp', '/art/animation-hq/yun/crouch-light.webp', '/art/animation-hq/yun/crouch-medium.webp', '/art/animation-hq/yun/crouch-heavy.webp', '/art/animation-hq/yun/crouch-light-kick.webp', '/art/animation-hq/yun/crouch-medium-kick.webp', '/art/animation-hq/yun/crouch-heavy-kick.webp', '/art/animation-hq/yun/stand-light.webp', '/art/animation-hq/yun/stand-medium.webp', '/art/animation-hq/yun/stand-light-kick.webp', '/art/animation-hq/yun/stand-medium-kick.webp', '/art/animation-hq/yun/stand-heavy-kick.webp', '/art/animation-hq/yun/stand-heavy.webp',
+    '/art/animation-hq/dudley/machine-gun-blow.webp', '/art/animation-hq/dudley/ducking-straight.webp', '/art/animation-hq/dudley/crouch.webp', '/art/animation-hq/dudley/crouch-light.webp', '/art/animation-hq/dudley/crouch-medium.webp', '/art/animation-hq/dudley/crouch-heavy.webp', '/art/animation-hq/dudley/crouch-light-kick.webp', '/art/animation-hq/dudley/crouch-medium-kick.webp', '/art/animation-hq/dudley/crouch-heavy-kick.webp', '/art/animation-hq/dudley/stand-light.webp', '/art/animation-hq/dudley/stand-medium.webp', '/art/animation-hq/dudley/stand-light-kick.webp', '/art/animation-hq/dudley/stand-medium-kick.webp', '/art/animation-hq/dudley/stand-heavy-kick.webp', '/art/animation-hq/dudley/stand-heavy.webp',
+    '/art/animation-hq/makoto/hayate.webp', '/art/animation-hq/makoto/crouch.webp', '/art/animation-hq/makoto/crouch-light.webp', '/art/animation-hq/makoto/crouch-medium.webp', '/art/animation-hq/makoto/crouch-heavy.webp', '/art/animation-hq/makoto/crouch-light-kick.webp', '/art/animation-hq/makoto/crouch-medium-kick.webp', '/art/animation-hq/makoto/crouch-heavy-kick.webp', '/art/animation-hq/makoto/stand-light.webp', '/art/animation-hq/makoto/stand-medium.webp', '/art/animation-hq/makoto/stand-light-kick.webp', '/art/animation-hq/makoto/stand-medium-kick.webp', '/art/animation-hq/makoto/stand-heavy-kick.webp', '/art/animation-hq/makoto/stand-heavy.webp',
+    '/art/animation-hq/yun/air-medium-kick.webp',
+    '/art/animation-hq/yun/air-medium-punch.webp',
+    '/art/animation-hq/yun/air-light-kick.webp',
+    '/art/animation-hq/yun/air-light-punch.webp',
+    '/art/animation-hq/yun/air-heavy-kick.webp',
+    '/art/animation-hq/yun/air-heavy-punch.webp',
+    '/art/animation-hq/yun/palm-rush.webp', '/art/animation-hq/yun/crouch.webp', '/art/animation-hq/yun/crouch-light.webp', '/art/animation-hq/yun/crouch-medium.webp', '/art/animation-hq/yun/crouch-heavy.webp', '/art/animation-hq/yun/crouch-light-kick.webp', '/art/animation-hq/yun/crouch-medium-kick.webp', '/art/animation-hq/yun/crouch-heavy-kick.webp', '/art/animation-hq/yun/stand-light.webp', '/art/animation-hq/yun/stand-medium.webp', '/art/animation-hq/yun/stand-light-kick.webp', '/art/animation-hq/yun/stand-medium-kick.webp', '/art/animation-hq/yun/stand-heavy-kick.webp', '/art/animation-hq/yun/stand-heavy.webp',
     '/art/animation-hq/urien/crouch.webp', '/art/animation-hq/urien/crouch-light.webp', '/art/animation-hq/urien/crouch-medium.webp', '/art/animation-hq/urien/crouch-heavy.webp', '/art/animation-hq/urien/crouch-light-kick.webp', '/art/animation-hq/urien/crouch-medium-kick.webp', '/art/animation-hq/urien/crouch-heavy-kick.webp', '/art/animation-hq/urien/stand-light.webp', '/art/animation-hq/urien/stand-medium.webp', '/art/animation-hq/urien/stand-light-kick.webp', '/art/animation-hq/urien/stand-medium-kick.webp', '/art/animation-hq/urien/stand-heavy-kick.webp', '/art/animation-hq/urien/stand-heavy.webp',
     '/art/animation-hq/gill/crouch.webp', '/art/animation-hq/gill/crouch-light.webp', '/art/animation-hq/gill/crouch-medium.webp', '/art/animation-hq/gill/crouch-heavy.webp', '/art/animation-hq/gill/crouch-light-kick.webp', '/art/animation-hq/gill/crouch-medium-kick.webp', '/art/animation-hq/gill/crouch-heavy-kick.webp', '/art/animation-hq/gill/stand-light.webp', '/art/animation-hq/gill/stand-medium.webp', '/art/animation-hq/gill/stand-light-kick.webp', '/art/animation-hq/gill/stand-medium-kick.webp', '/art/animation-hq/gill/stand-heavy-kick.webp', '/art/animation-hq/gill/stand-heavy.webp',
     '/art/animation-hq/ryu/crouch.webp', '/art/animation-hq/ryu/crouch-light.webp', '/art/animation-hq/ryu/crouch-medium.webp', '/art/animation-hq/ryu/crouch-heavy.webp', '/art/animation-hq/ryu/crouch-light-kick.webp', '/art/animation-hq/ryu/crouch-medium-kick.webp', '/art/animation-hq/ryu/crouch-heavy-kick.webp',
+    '/art/animation-hq/ryu/crouch-parry-v1.webp', '/art/animation-hq/ryu/crouch-guard-v1.webp',
     '/art/animation-hq/ryu/guard.webp', '/art/animation-hq/ryu/parry.webp',
+    '/art/animation-hq/alex/crouch-parry-v1.webp', '/art/animation-hq/alex/crouch-guard-v1.webp',
     '/art/animation-hq/alex/guard.webp', '/art/animation-hq/alex/parry.webp',
+    '/art/animation-hq/dudley/crouch-parry-v1.webp', '/art/animation-hq/dudley/crouch-guard-v1.webp',
     '/art/animation-hq/dudley/guard.webp', '/art/animation-hq/dudley/parry.webp',
+    '/art/animation-hq/makoto/crouch-parry-v1.webp', '/art/animation-hq/makoto/crouch-guard-v1.webp',
     '/art/animation-hq/makoto/guard.webp', '/art/animation-hq/makoto/parry.webp',
+    '/art/animation-hq/yun/crouch-parry-v1.webp', '/art/animation-hq/yun/crouch-guard-v1.webp',
     '/art/animation-hq/yun/guard.webp', '/art/animation-hq/yun/parry.webp',
+    '/art/animation-hq/urien/crouch-guard-v1.webp', '/art/animation-hq/gill/crouch-guard-v1.webp',
+    '/art/animation-hq/urien/crouch-parry-v1.webp', '/art/animation-hq/gill/crouch-parry-v1.webp',
     '/art/animation-hq/urien/guard.webp', '/art/animation-hq/urien/parry.webp',
     '/art/animation-hq/gill/guard.webp', '/art/animation-hq/gill/parry.webp',
     '/art/animation-hq/alex/hit.webp',
@@ -70,6 +216,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     // Staged-disabled Ryu specials stay on disk until their authored art is ready.
     '/art/animation-hq/ken/manifest.json',
     '/art/animation-hq/ken/crouch.webp',
+    '/art/animation-hq/ken/crouch-parry-v1.webp', '/art/animation-hq/ken/crouch-guard-v1.webp',
     '/art/animation-hq/ken/crouch-light.webp',
     '/art/animation-hq/ken/crouch-medium.webp',
     '/art/animation-hq/ken/crouch-heavy.webp',
@@ -82,7 +229,7 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/special-keyposes/ken/tatsumaki.webp', '/art/special-keyposes/ken/super-rush.webp',
     '/art/special-keyposes/chunli/kikoken.webp', '/art/special-keyposes/chunli/spinning-bird-kick.webp',
     '/art/animation-hq/chunli/manifest.json',
-    '/art/animation-hq/chunli/stand-medium.webp', '/art/animation-hq/chunli/guard.webp', '/art/animation-hq/chunli/parry.webp', '/art/animation-hq/chunli/crouch-heavy-kick.webp', '/art/animation-hq/chunli/crouch-medium-kick.webp', '/art/animation-hq/chunli/crouch-light-kick.webp', '/art/animation-hq/chunli/crouch-heavy.webp', '/art/animation-hq/chunli/crouch-medium.webp', '/art/animation-hq/chunli/crouch-light.webp', '/art/animation-hq/chunli/crouch.webp', '/art/animation-hq/chunli/idle.webp', '/art/animation-hq/chunli/walk.webp', '/art/animation-hq/chunli/walk-back.webp',
+    '/art/animation-hq/chunli/stand-medium.webp', '/art/animation-hq/chunli/crouch-parry-v1.webp', '/art/animation-hq/chunli/crouch-guard-v1.webp', '/art/animation-hq/chunli/guard.webp', '/art/animation-hq/chunli/parry.webp', '/art/animation-hq/chunli/crouch-heavy-kick.webp', '/art/animation-hq/chunli/crouch-medium-kick.webp', '/art/animation-hq/chunli/crouch-light-kick.webp', '/art/animation-hq/chunli/crouch-heavy.webp', '/art/animation-hq/chunli/crouch-medium.webp', '/art/animation-hq/chunli/crouch-light.webp', '/art/animation-hq/chunli/crouch.webp', '/art/animation-hq/chunli/idle.webp', '/art/animation-hq/chunli/walk.webp', '/art/animation-hq/chunli/walk-back.webp',
     '/art/animation-hq/chunli/stand-light-kick.webp',
     '/art/animation-hq/chunli/stand-medium-kick.webp',
     '/art/animation-hq/chunli/stand-heavy-kick.webp',
@@ -92,18 +239,77 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/animation-hq/ibuki/stand-light-kick.webp',
     '/art/animation-hq/ibuki/stand-medium-kick.webp',
     '/art/animation-hq/ibuki/stand-heavy-kick.webp',
+    '/art/animation-hq/ibuki/crouch-parry-v1.webp', '/art/animation-hq/ibuki/crouch-guard-v1.webp',
     '/art/animation-hq/ibuki/guard.webp', '/art/animation-hq/ibuki/parry.webp', '/art/animation-hq/ibuki/crouch-heavy-kick.webp', '/art/animation-hq/ibuki/crouch-medium-kick.webp', '/art/animation-hq/ibuki/crouch-light-kick.webp', '/art/animation-hq/ibuki/crouch-heavy.webp', '/art/animation-hq/ibuki/crouch-medium.webp', '/art/animation-hq/ibuki/crouch-light.webp', '/art/animation-hq/ibuki/crouch.webp', '/art/animation-hq/ibuki/idle.webp', '/art/animation-hq/ibuki/walk.webp', '/art/animation-hq/ibuki/walk-back.webp',
     '/art/animation-hq/ibuki/dash-back.webp', '/art/animation-hq/ibuki/dash.webp', '/art/animation-hq/ibuki/jump.webp', '/art/animation-hq/ibuki/landing.webp', '/art/animation-hq/ibuki/hit.webp', '/art/animation-hq/ibuki/stand-light.webp', '/art/animation-hq/ibuki/stand-heavy.webp', '/art/animation-hq/ibuki/hadoken.webp', '/art/animation-hq/ibuki/shoryuken.webp', '/art/animation-hq/ibuki/tatsumaki.webp', '/art/animation-hq/ibuki/yoroi-doroshi.webp', '/art/animation-hq/ibuki/super-rush.webp',
   ],
-  'stage-1': ['/assets/scenes/Stage1Scene.js', '/art/stage1-newyork.png', '/art/foregrounds/stage1-foreground.webp', '/audio/stage1-theme.ogg'],
-  'stage-2': ['/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage2Scene.js', '/art/stage2-hongkong.png', '/art/foregrounds/stage2-foreground.webp', '/audio/stage2-theme.ogg'],
-  'stage-3': ['/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage3Scene.js', '/art/stage3-japan.png', '/art/foregrounds/stage3-foreground.webp', '/audio/stage3-theme.ogg'],
-  'stage-4': ['/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage4Scene.js', '/art/stage4-london.png', '/art/foregrounds/stage4-foreground.webp', '/audio/stage4-theme.ogg'],
-  'stage-5': ['/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage5Scene.js', '/art/stage5-secretsociety.png', '/art/foregrounds/stage5-foreground.webp', '/art/portraits/urien.webp', '/art/portraits/gill.webp', '/audio/stage5-theme.ogg', '/audio/final-boss-theme.ogg'],
-  'ending': ['/assets/scenes/EndingScene.js', '/assets/game/EndingProfiles.js', '/art/ending-keyart.png', '/audio/ending-theme.ogg'],
+  'stage-1': [
+    ...THROW_ESCAPE_ASSETS,
+    ...STAGE_PROP_ASSETS,
+    ...STAGE_AMBIENT_ASSETS,
+    ...PROP_IMPACT_ASSETS,
+    ...KNOCKDOWN_ASSETS,
+    ...AIR_FALL_ASSETS,
+    ...SUPER_HIT_ASSETS,
+    ...THROW_ATTACKER_ASSETS,
+    ...THROW_VICTIM_ASSETS,
+    '/art/fx/hit-impact-v2.webp', '/art/fx/combat-impact-v1.webp', '/assets/render/CombatImpactAssets.js', '/assets/scenes/Stage1Scene.js', '/art/stage-backgrounds-v2/newyork.webp', '/art/foregrounds/stage1-foreground.webp', '/audio/score-v2/stage1-theme.ogg'],
+  'stage-2': [
+    ...THROW_ESCAPE_ASSETS,
+    ...STAGE_PROP_ASSETS,
+    ...STAGE_AMBIENT_ASSETS,
+    ...PROP_IMPACT_ASSETS,
+    ...KNOCKDOWN_ASSETS,
+    ...AIR_FALL_ASSETS,
+    ...SUPER_HIT_ASSETS,
+    ...THROW_ATTACKER_ASSETS,
+    ...THROW_VICTIM_ASSETS,
+    '/art/fx/hit-impact-v2.webp', '/art/fx/combat-impact-v1.webp', '/assets/render/CombatImpactAssets.js', '/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage2Scene.js', '/art/stage-backgrounds-v2/hongkong.webp', '/art/foregrounds/stage2-foreground.webp', '/audio/score-v2/stage2-theme.ogg'],
+  'stage-3': [
+    ...THROW_ESCAPE_ASSETS,
+    ...STAGE_PROP_ASSETS,
+    ...STAGE_AMBIENT_ASSETS,
+    ...PROP_IMPACT_ASSETS,
+    ...KNOCKDOWN_ASSETS,
+    ...AIR_FALL_ASSETS,
+    ...SUPER_HIT_ASSETS,
+    ...THROW_ATTACKER_ASSETS,
+    ...THROW_VICTIM_ASSETS,
+    '/art/fx/hit-impact-v2.webp', '/art/fx/combat-impact-v1.webp', '/assets/render/CombatImpactAssets.js', '/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage3Scene.js', '/art/stage-backgrounds-v2/japan.webp', '/art/foregrounds/stage3-foreground.webp', '/audio/score-v2/stage3-theme.ogg'],
+  'stage-4': [
+    ...THROW_ESCAPE_ASSETS,
+    ...STAGE_PROP_ASSETS,
+    ...STAGE_AMBIENT_ASSETS,
+    ...PROP_IMPACT_ASSETS,
+    ...KNOCKDOWN_ASSETS,
+    ...AIR_FALL_ASSETS,
+    ...SUPER_HIT_ASSETS,
+    ...THROW_ATTACKER_ASSETS,
+    ...THROW_VICTIM_ASSETS,
+    '/art/fx/hit-impact-v2.webp', '/art/fx/combat-impact-v1.webp', '/assets/render/CombatImpactAssets.js', '/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage4Scene.js', '/art/stage-backgrounds-v2/london.webp', '/art/foregrounds/stage4-foreground.webp', '/audio/score-v2/stage4-theme.ogg'],
+  'stage-5': [
+    '/art/animation-hq/urien/crouch-guard-v1.webp', '/art/animation-hq/gill/crouch-guard-v1.webp',
+    '/art/animation-hq/urien/crouch-parry-v1.webp', '/art/animation-hq/gill/crouch-parry-v1.webp',
+    ...THROW_ESCAPE_ASSETS,
+    ...STAGE_PROP_ASSETS,
+    ...STAGE_AMBIENT_ASSETS,
+    ...PROP_IMPACT_ASSETS,
+    ...KNOCKDOWN_ASSETS,
+    ...AIR_FALL_ASSETS,
+    ...SUPER_HIT_ASSETS,
+    ...THROW_ATTACKER_ASSETS,
+    ...THROW_VICTIM_ASSETS,
+    '/art/fx/hit-impact-v2.webp', '/art/fx/combat-impact-v1.webp', '/assets/render/CombatImpactAssets.js', '/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage5Scene.js', '/art/stage-backgrounds-v2/society.webp', '/art/foregrounds/stage5-foreground.webp', '/art/portraits/urien.webp', '/art/portraits/gill.webp', '/audio/score-v2/stage5-theme.ogg', '/audio/score-v2/final-boss-theme.ogg'],
+  'ending': ['/assets/scenes/EndingScene.js', '/assets/game/EndingProfiles.js', '/art/ending-keyart.png', '/audio/score-v2/ending-theme.ogg'],
 };
 
+// Explicit offline preparation includes all enabled character poses and their
+// support textures. These remain outside the normal startup/stage preload lists.
 export const CAMPAIGN_OFFLINE_URLS = Array.from(new Set([
+  ...ASSET_GROUPS['character-hd'],
+  ...ASSET_GROUPS['character-hq'],
+  ...[...CHARACTERS, ...BOSS_CHARACTERS].flatMap(character =>
+    animationSequencesFor(character.id, true).map(sequence => sequence.asset)),
   '/art/special-keyposes/ken/hadoken.webp', '/art/special-keyposes/ken/shoryuken.webp',
   '/art/special-keyposes/ken/tatsumaki.webp', '/art/special-keyposes/ken/super-rush.webp',
   '/art/special-keyposes/chunli/kikoken.webp', '/art/special-keyposes/chunli/spinning-bird-kick.webp',
@@ -268,13 +474,14 @@ export class AssetManager {
 
     const source = `
 const specs = ${JSON.stringify(specs)};
+const documentUrl = ${JSON.stringify(window.location.href)};
 const now = () => typeof performance !== 'undefined' ? performance.now() : Date.now();
 (async () => {
   const steps = [];
   for (const spec of specs) {
     const started = now();
     try {
-      const mod = await import(spec.url);
+      const mod = await import(new URL(spec.url, documentUrl).href);
       const ready = typeof mod[spec.exportName] === 'function';
       steps.push({ ...spec, ready, durationMs: Math.max(0, now() - started), ...(ready ? {} : { error: 'EXPECTED EXPORT MISSING' }) });
     } catch (error) {
@@ -347,6 +554,7 @@ const now = () => typeof performance !== 'undefined' ? performance.now() : Date.
   }
 
   private modulePreload(url: string): void {
+    if (!url.startsWith('/assets/') || !url.endsWith('.js')) return;
     if (typeof document === 'undefined' || document.querySelector(`link[data-game-preload="${url}"]`)) return;
     const link = document.createElement('link');
     link.rel = 'modulepreload';

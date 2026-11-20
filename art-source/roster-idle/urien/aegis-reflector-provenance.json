@@ -1,0 +1,57 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "sheet.png",
+  "base": {
+    "prompt": "aegis-reflector-prompt.txt",
+    "sheet": "aegis-reflector-sheet.png",
+    "sha256": "4E7B5709844C7DADEEA8FAA0CCA528988CC9EF78881707EC82C344E82B4D48A8"
+  },
+  "recoveryOverride": {
+    "editTarget": "aegis-reflector-sheet.png",
+    "prompt": "aegis-reflector-recovery-pair-prompt.txt",
+    "sheet": "aegis-reflector-recovery-pair.png",
+    "frames": [
+      7,
+      8
+    ],
+    "sourcePose": 2,
+    "referencePose": 1,
+    "uniformScale": 0.59280742,
+    "sha256": "0C235E910CF9D97DBF884B18ECB27B8DB0E94D428AA041BAFF190604D451B01E"
+  },
+  "sourceSelection": {
+    "baseGenerated": 6,
+    "recoveryPairGenerated": 2,
+    "selected": 5,
+    "sourceOrder": [
+      1,
+      2,
+      2,
+      3,
+      4,
+      4,
+      5,
+      5,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "correction": {
+    "beforeRecoveryHeights": [
+      335,
+      291,
+      291,
+      335
+    ],
+    "afterRecoveryHeights": [
+      335,
+      334,
+      334,
+      335
+    ],
+    "other10FramesVisiblePixelsPreserved": true
+  },
+  "mechanics": "Exactboss URIEN_SUPER casting only; original projectile/gauge/freeze/physics unchanged."
+}

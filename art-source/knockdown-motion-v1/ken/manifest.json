@@ -1,0 +1,93 @@
+{
+  "character": "KEN",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7738927738927739,
+  "sourceBounds": [
+    [
+      30,
+      145,
+      465,
+      474
+    ],
+    [
+      39,
+      209,
+      437,
+      475
+    ],
+    [
+      30,
+      301,
+      485,
+      478
+    ],
+    [
+      57,
+      230,
+      434,
+      463
+    ],
+    [
+      98,
+      126,
+      376,
+      463
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      88,
+      165,
+      424,
+      420
+    ],
+    [
+      102,
+      215,
+      410,
+      420
+    ],
+    [
+      81,
+      284,
+      432,
+      420
+    ],
+    [
+      110,
+      240,
+      402,
+      420
+    ],
+    [
+      149,
+      160,
+      364,
+      420
+    ],
+    [
+      145,
+      88,
+      368,
+      420
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/ken.webp",
+  "bytes": 449918,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "6390054216bcdb58f29eeafe5a14941ecc5fdb05559ccc2870500aee5827b874",
+    "generation-reference.png": "32d8b78c4b4f99442071b1109621959e6904344de82b7afbe5c5ce8b39f4ff99",
+    "reference-settle.png": "32d8b78c4b4f99442071b1109621959e6904344de82b7afbe5c5ce8b39f4ff99",
+    "generation-prompt.txt": "df9bf8adff977258be3e94070e3b26e638e7959a0b3420fdccaae4cf0267f415",
+    "ken.webp": "f8178f7c68eed9489448e3226ac5a8d2f489539c296d734c6b32846dc3fabfa9"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "character": "IBUKI",
+  "move": "IBUKI_CMD_MK",
+  "kind": "spin-heel",
+  "asset": "/art/command-motion-v1/ibuki-spin-heel.webp",
+  "frames": 12,
+  "frameSize": [
+    640,
+    448
+  ],
+  "phase": {
+    "startupEnd": 3,
+    "activeStart": 4,
+    "activeEnd": 6,
+    "recoveryStart": 7
+  },
+  "footFloor": 428,
+  "source": "generated-sheet-v4.png",
+  "sourceSha256": "6bb062d24e9b9914b6a9dcf169627deab76963806ea7bad19f1f84f590750ae7",
+  "assetSha256": "9d1498ba756f9e49f8ba73b1e73c341dc6080e2cd465539d804fc55ff4260524",
+  "bytes": 439360,
+  "guardSource": "/art/animation-hq/ibuki/idle.webp",
+  "guardSourceSha256": "c4ff25f474d662307da3a03ac83c072a1ce91ca8503c213b2af9722f01cf3bc4",
+  "guardFrames": [
+    0,
+    11
+  ],
+  "tool": "built-in image_gen",
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.86,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "gameplayChanges": false
+}

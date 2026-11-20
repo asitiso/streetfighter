@@ -1,0 +1,10 @@
+Create NEW original transparent fighting-game spritesheet, referenceONLYUrienidentity/paintedstyle/compactairguard.1024x1536canvas, exactly6isolatedfullbodyposes2columns×3rows, faceRIGHT. Consistentheadsize/headaxis/torsoheight,430–450pxfiguresper512rowwithmargins. TrueRGBAalpha,nobackground/shadows/ground/text/grid/effects.
+Urien extremelymuscularbronzeadultman,shortwhitehair,sternface,goldneckcollar/goldwristbracers,white/navyshortwaistclothgoldtrim/beltmedallion,barefeet/closedfists. Samecostume/bodymass,noshoes/gloves.
+AIR MK MEDIUMairborne bare-foot sidekick: moreextendedthanbentkneelightkick, shorterthanfullheavykick. Bothhandsclosedguardface/chest; rearlegtuckedunderhips. Lowest15%onlycompactbarefeet/ankles, knees/calveswellaboveankleheight,nospreadfeet.
+1top-left compactairguard matchingreference,tuckedknees/feetclose.
+2top-right coilhips/liftleadknee, leadheelclosetohip, toesatleast90sourcepxabovelowestrearfoot, handsstayguarded. No wideankleband.
+3middle-left unfoldleadkneehalfwayRIGHT, rotatehips,rearlegfolded, guardhands.
+4middle-right CONTACT: mediumsidekickRIGHTatWAIST/UPPERHIPheight(55–62%downbodyfromhead). LeadkneealmostextendedBUTSTILLBENTabout140degrees, notfullheavylockedleg. Barefootfrontaroundsourcex950intheRIGHTcell, NOTcanvasx1000edge. ToeandheelroughlySAMEHEIGHT, pointtoesRIGHT, notupwardverticalsole. Targettoetipneary800–820 inMIDDLErow, clearlyBELOWguardhandsbutabovefoldedrearfoot. Footextends~140sourcepixelsbeyondguardhands. Keephead/torso/hipregistration; bodyheightequalguard, norescaling. Rearfootunderhipstightlyfolded, no punches.
+5bottom-left pullheelback/rebendknee, uncoilhips, compactfootcluster, guard.
+6bottom-right recoverreferenceairguard,clothsettle.
+Sixrealhip/knee/anklearticulatedfullbodydrawings, coherentmusclevolume, exactlytwoarms/twolegs/noextra limbs/toes. Allfiguresinowncells, genuinealpha0emptybackground.

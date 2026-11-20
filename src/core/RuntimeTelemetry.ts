@@ -47,7 +47,7 @@ export class RuntimeTelemetry {
   private fpsWindowLongFrames = 0;
 
   sampleFrame(dtSeconds: number): void {
-    if (!Number.isFinite(dtSeconds) || dtSeconds <= 0 || dtSeconds > .5) return;
+    if (!Number.isFinite(dtSeconds) || dtSeconds <= 0) return;
     this.totalFrames += 1;
     this.totalSeconds += dtSeconds;
     const ms = dtSeconds * 1000;

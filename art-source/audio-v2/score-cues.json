@@ -1,0 +1,74 @@
+[
+  {
+    "key": "title-theme",
+    "bpm": 144,
+    "bars": 16,
+    "rootMidi": 38,
+    "arrangement": "rock",
+    "seed": 11
+  },
+  {
+    "key": "select-theme",
+    "bpm": 160,
+    "bars": 16,
+    "rootMidi": 40,
+    "arrangement": "funk",
+    "seed": 22
+  },
+  {
+    "key": "stage1-theme",
+    "bpm": 160,
+    "bars": 32,
+    "rootMidi": 38,
+    "arrangement": "street",
+    "seed": 31
+  },
+  {
+    "key": "stage2-theme",
+    "bpm": 164,
+    "bars": 32,
+    "rootMidi": 40,
+    "arrangement": "funk",
+    "seed": 42
+  },
+  {
+    "key": "stage3-theme",
+    "bpm": 162,
+    "bars": 32,
+    "rootMidi": 33,
+    "arrangement": "rock",
+    "seed": 53
+  },
+  {
+    "key": "stage4-theme",
+    "bpm": 164,
+    "bars": 32,
+    "rootMidi": 38,
+    "arrangement": "temple",
+    "seed": 64
+  },
+  {
+    "key": "stage5-theme",
+    "bpm": 168,
+    "bars": 32,
+    "rootMidi": 36,
+    "arrangement": "industrial",
+    "seed": 75
+  },
+  {
+    "key": "final-boss-theme",
+    "bpm": 172,
+    "bars": 32,
+    "rootMidi": 40,
+    "arrangement": "boss",
+    "seed": 86
+  },
+  {
+    "key": "ending-theme",
+    "bpm": 120,
+    "bars": 16,
+    "rootMidi": 36,
+    "arrangement": "ending",
+    "seed": 97
+  }
+]

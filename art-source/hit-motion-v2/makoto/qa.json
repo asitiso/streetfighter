@@ -1,0 +1,319 @@
+{
+  "character": "makoto",
+  "revision": "hit-motion-v2",
+  "source": "art-source/hit-motion-v2/makoto/generated-sheet-v1.png",
+  "sourceSha256": "23CE08A4A4BF8DBC1993E9B542232C116A3A4A1D521BD744DD8807D3EF88F41C",
+  "sourceGrid": [
+    2,
+    4
+  ],
+  "sourceOrder": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "runtimeSha256": "C365F6EE007CBD52D01DCF9E768B65C3D8D0DD734C51F6265823941C558A4D5B",
+  "runtimeBytes": 347340,
+  "encoding": {
+    "format": "webp",
+    "rgb": "lossy",
+    "quality": 100,
+    "alphaLossless": true,
+    "visibleRgbPsnrDb": 41.057
+  },
+  "uniqueDrawings": 8,
+  "previousUniqueDrawings": 6,
+  "previousCentroidStepMax": 24.455315,
+  "centroidStepReductionPercent": 67.49,
+  "decodedBytes": 5505024,
+  "decodedMemoryDelta": 0,
+  "poseQa": {
+    "affineResidualAverage": 0.032963,
+    "affineResidualMax": 0.057611,
+    "fullPoseAverageThreshold": 0.008,
+    "fullPoseMaxThreshold": 0.018,
+    "poseAuthoredPass": true
+  },
+  "semanticQa": {
+    "kind": "hit",
+    "limits": {
+      "startEndIoUMin": 0.62,
+      "peakRecoilIoUMin": 0.22,
+      "peakRecoilIoUMax": 0.78,
+      "centroidXRangeMin": 7.0,
+      "centroidXRangeMax": 95.0,
+      "centroidYRangeMin": 3.0,
+      "centroidYRangeMax": 75.0,
+      "centroidStepMax": 65.0,
+      "areaCvMax": 0.2,
+      "footCenterRangeMin": 12.0,
+      "footCenterRangeMax": 145.0,
+      "footWidthCvMax": 0.8,
+      "residualAverageMin": 0.012,
+      "residualAverageMax": 0.17,
+      "residualMaxMin": 0.028,
+      "residualMaxMax": 0.22
+    },
+    "startEndIoU": 0.927796,
+    "peakRecoilIoU": 0.586074,
+    "centroidXRange": 8.945439,
+    "centroidYRange": 6.687685,
+    "centroidStepMax": 7.951375,
+    "areaCv": 0.022184,
+    "footCenterRange": 21.941655,
+    "footWidthCv": 0.017089,
+    "residualAverage": 0.032963,
+    "residualMax": 0.057611,
+    "checks": {
+      "recoveryReturnsNearNeutral": true,
+      "peakRecoilDistinct": true,
+      "recoilTravelPresent": true,
+      "compressionPresent": true,
+      "noFrameJump": true,
+      "bodyVolumeStable": true,
+      "footSlideReadable": true,
+      "stanceNotExploded": true,
+      "authoredMotionAverage": true,
+      "authoredMotionPeak": true
+    },
+    "semanticQaPass": true
+  },
+  "handoffQa": {
+    "idleToHit": {
+      "iou": 0.818568,
+      "centroidDistance": 5.276398,
+      "footCenterDelta": 1.359608,
+      "areaRatio": 1.015,
+      "limits": {
+        "iouMin": 0.52,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 30.0,
+        "footCenterDeltaMax": 48.0,
+        "areaRatioMin": 0.7,
+        "areaRatioMax": 1.35
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    },
+    "hitToIdle": {
+      "iou": 0.786217,
+      "centroidDistance": 6.998176,
+      "footCenterDelta": 0.666497,
+      "areaRatio": 0.970666,
+      "limits": {
+        "iouMin": 0.52,
+        "iouMax": 1.0,
+        "centroidDistanceMax": 30.0,
+        "footCenterDeltaMax": 48.0,
+        "areaRatioMin": 0.7,
+        "areaRatioMax": 1.35
+      },
+      "checks": {
+        "silhouetteCue": true,
+        "scaleContinuity": true,
+        "rootContinuity": true,
+        "footContinuity": true
+      },
+      "pass": true
+    }
+  },
+  "normalization": {
+    "reference": "idle-recovery-height",
+    "referenceHeight": 337,
+    "sourceGuardHeight": 368,
+    "uniformScale": 0.9157608695652174,
+    "footBaselineReference": "installed-idle",
+    "footBaseline": 421,
+    "footAnchorReference": "single-recovery-foot-offset-retains-authored-recoil-travel",
+    "sourceShifts": [
+      [
+        -6,
+        1
+      ],
+      [
+        -6,
+        1
+      ],
+      [
+        -6,
+        1
+      ],
+      [
+        -6,
+        1
+      ],
+      [
+        -6,
+        1
+      ],
+      [
+        -6,
+        1
+      ],
+      [
+        -6,
+        1
+      ],
+      [
+        -6,
+        1
+      ]
+    ]
+  },
+  "metrics": [
+    {
+      "frame": 1,
+      "sourceBBox": [
+        0,
+        0,
+        240,
+        369
+      ],
+      "sourceBodyHeight": 369,
+      "paste": [
+        76,
+        86
+      ],
+      "scaledSize": [
+        220,
+        338
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceBBox": [
+        0,
+        0,
+        242,
+        369
+      ],
+      "sourceBodyHeight": 369,
+      "paste": [
+        75,
+        86
+      ],
+      "scaledSize": [
+        222,
+        338
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceBBox": [
+        0,
+        0,
+        245,
+        369
+      ],
+      "sourceBodyHeight": 369,
+      "paste": [
+        74,
+        86
+      ],
+      "scaledSize": [
+        224,
+        338
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceBBox": [
+        0,
+        0,
+        261,
+        349
+      ],
+      "sourceBodyHeight": 349,
+      "paste": [
+        66,
+        104
+      ],
+      "scaledSize": [
+        239,
+        320
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceBBox": [
+        0,
+        0,
+        258,
+        355
+      ],
+      "sourceBodyHeight": 355,
+      "paste": [
+        68,
+        99
+      ],
+      "scaledSize": [
+        236,
+        325
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceBBox": [
+        0,
+        0,
+        244,
+        362
+      ],
+      "sourceBodyHeight": 362,
+      "paste": [
+        74,
+        92
+      ],
+      "scaledSize": [
+        223,
+        332
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceBBox": [
+        0,
+        0,
+        241,
+        368
+      ],
+      "sourceBodyHeight": 368,
+      "paste": [
+        76,
+        87
+      ],
+      "scaledSize": [
+        221,
+        337
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceBBox": [
+        0,
+        0,
+        240,
+        368
+      ],
+      "sourceBodyHeight": 368,
+      "paste": [
+        76,
+        87
+      ],
+      "scaledSize": [
+        220,
+        337
+      ]
+    }
+  ]
+}

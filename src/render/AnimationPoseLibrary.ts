@@ -273,14 +273,29 @@ function sampleTimeline(clip: MotionClip, progress: number): MotionPose {
   };
 }
 
+export function neutralCrouchBlend(fighter: Fighter): number {
+  const neutral = fighter.state === 'idle' || fighter.state === 'walk' || fighter.state === 'crouch';
+  if (!neutral || fighter.airborne || fighter.dashFrames > 0 || fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0
+    || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0 || fighter.throwEscapeFrames > 0
+    || (fighter.landingFrames > 0 && fighter.state !== 'crouch')) return 0;
+  // Manually posed previews may have no tracked crouch clock.
+  if (fighter.crouchAnimationFrame < 0) return fighter.state === 'crouch' ? 1 : 0;
+  return Math.max(0, Math.min(1, (fighter.crouchAnimationFrame + 1) / 6));
+}
+
 export function motionClipForFighter(fighter: Fighter, time: number): { clip: MotionClip; progress: number } {
   if (fighter.throwSyncFrames > 0 && fighter.throwSyncRole === 'victim') return { clip: 'throwVictim', progress: fighter.throwSyncProgress };
   if (fighter.throwSyncFrames > 0 && fighter.throwSyncRole === 'attacker' && fighter.state !== 'attack') return { clip: 'throw', progress: fighter.throwSyncProgress };
   if (fighter.state === 'victory') return { clip: 'victory', progress: Math.min(1, fighter.stateFrame / 72) };
   if (fighter.state === 'ko') return { clip: 'ko', progress: Math.min(1, Math.max(0, (fighter.stateFrame + 90) / 90)) };
-  if (fighter.state === 'knockdown') return { clip: 'ko', progress: Math.min(.82, Math.max(0, (fighter.stateFrame + 34) / 34)) };
-  if (fighter.throwEscapeFrames > 0) return { clip: 'throwEscape', progress: clamp01(1 - fighter.throwEscapeFrames / 12) };
-  if (fighter.landingFrames > 0) return { clip: 'landing', progress: clamp01(1 - fighter.landingFrames / 8) };
+  if (fighter.state === 'knockdown') {
+    const duration = Math.max(1, fighter.knockdownAnimationDuration || 34);
+    return { clip: 'ko', progress: Math.min(.82, Math.max(0, (fighter.stateFrame + duration) / duration)) };
+  }
+  if (fighter.throwEscapeFrames > 0 && !fighter.airborne && fighter.dashFrames <= 0
+    && (fighter.state === 'idle' || fighter.state === 'walk' || fighter.state === 'crouch')) return { clip: 'throwEscape', progress: clamp01(1 - fighter.throwEscapeFrames / 12) };
+  if (fighter.landingFrames > 0 && !fighter.airborne && fighter.dashFrames <= 0
+    && fighter.state === 'idle') return { clip: 'landing', progress: clamp01(1 - fighter.landingFrames / 8) };
   if (fighter.dashFrames > 0) return { clip: 'dash', progress: clamp01(1 - fighter.dashFrames / 8) };
   if (fighter.state === 'attack' && fighter.currentMove) {
     const move = fighter.currentMove;
@@ -296,14 +311,27 @@ export function motionClipForFighter(fighter: Fighter, time: number): { clip: Mo
     }
     return { clip: 'special', progress };
   }
-  if (fighter.state === 'parry') return { clip: 'parry', progress: clamp01(1 - Math.abs(fighter.stateFrame) / 10) };
-  if (fighter.state === 'hit' || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0) return { clip: 'hit', progress: clamp01(1 - Math.abs(fighter.stateFrame) / 20) };
+  if (fighter.state === 'parry') {
+    const duration = Math.max(1, fighter.parryAnimationDuration || 10);
+    return { clip: 'parry', progress: clamp01(1 - Math.abs(fighter.stateFrame) / duration) };
+  }
+  if (fighter.state === 'hit' || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0) {
+    const duration = fighter.hitAnimationDuration;
+    const progress = fighter.state === 'hit' && fighter.stateFrame < 0 && duration > 0
+      && fighter.wallBounceFrames <= 0 && fighter.groundBounceFrames <= 0
+      ? clamp01((duration + fighter.stateFrame) / Math.max(1, duration - 1))
+      : clamp01(1 - Math.abs(fighter.stateFrame) / 20);
+    return { clip: 'hit', progress };
+  }
   if (fighter.airborne || fighter.state === 'jump') {
     const velocity = fighter.jumpVelocity;
     const progress = velocity > 6 ? .16 : velocity > 2 ? .3 : velocity > -2 ? .49 : velocity > -6 ? .68 : .84;
     return { clip: 'jump', progress };
   }
-  if (fighter.state === 'walk') return { clip: 'walk', progress: ((time * 1.78) % 1 + 1) % 1 };
+  if (fighter.state === 'walk' && neutralCrouchBlend(fighter) === 0) {
+    const walkTime = fighter.walkAnimationFrame === null ? time : fighter.walkAnimationFrame / 60;
+    return { clip: 'walk', progress: ((walkTime * 1.78) % 1 + 1) % 1 };
+  }
   return { clip: 'idle', progress: ((time * .43) % 1 + 1) % 1 };
 }
 

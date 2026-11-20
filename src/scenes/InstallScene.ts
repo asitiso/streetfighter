@@ -6,21 +6,33 @@ import type { PwaInstallManager } from '../core/PwaInstallManager.js';
 export class InstallScene implements Scene {
   private message = '';
   private busy = false;
+  private entryId = 0;
   constructor(
     private readonly input: InputManager,
     private readonly audio: AudioManager,
     private readonly install: PwaInstallManager,
     private readonly onBack: () => void,
   ) {}
-  enter(): void { this.audio.playStagePulse(); }
-  exit(): void {}
+  enter(): void { this.entryId += 1; this.busy = false; this.message = ''; this.audio.playStagePulse(); }
+  exit(): void { this.entryId += 1; }
   resize(): void {}
-  destroy(): void {}
+  destroy(): void { this.entryId += 1; }
   fixedUpdate(): void {
     if (this.input.pressed('back') || this.input.pressed('lk')) { this.onBack(); return; }
     if ((this.input.pressed('lp') || this.input.pressed('confirm') || this.input.touchPressed('start')) && !this.busy && this.install.state() === 'available') {
-      this.busy = true;
-      void this.install.prompt().then((result) => { this.message = result === 'accepted' ? 'INSTALL ACCEPTED' : result === 'dismissed' ? 'INSTALL DISMISSED' : 'USE BROWSER INSTALL MENU'; this.busy = false; });
+      void this.requestInstall();
+    }
+  }
+  private async requestInstall(): Promise<void> {
+    const entry = this.entryId;
+    this.busy = true;
+    try {
+      const result = await this.install.prompt();
+      if (entry === this.entryId) this.message = result === 'accepted' ? 'INSTALL ACCEPTED' : result === 'dismissed' ? 'INSTALL DISMISSED' : 'USE BROWSER INSTALL MENU';
+    } catch {
+      if (entry === this.entryId) this.message = 'INSTALL UNAVAILABLE • USE BROWSER MENU';
+    } finally {
+      if (entry === this.entryId) this.busy = false;
     }
   }
   render({ ctx, width, height }: RenderContext): void {

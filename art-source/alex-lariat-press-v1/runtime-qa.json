@@ -1,0 +1,192 @@
+{
+  "passed": true,
+  "actual": {
+    "move": "ALEX_CMD_HP",
+    "moveFrame": 13,
+    "frame": 5,
+    "kind": "lariat-press",
+    "contact": true,
+    "loaded": true,
+    "trusted": [
+      true
+    ],
+    "capturedFrames": 39
+  },
+  "asset": {
+    "passed": true,
+    "width": 7680,
+    "height": 448,
+    "frames": 12,
+    "distinct": 12,
+    "guardMean": 3.977673237753883,
+    "guardAlphaMean": 0,
+    "seamMean": 0.1707728794642857,
+    "records": [
+      {
+        "frame": 0,
+        "minX": 206,
+        "maxX": 432,
+        "minY": 87,
+        "maxY": 420,
+        "visible": 35712,
+        "hash": 625925686
+      },
+      {
+        "frame": 1,
+        "minX": 205,
+        "maxX": 451,
+        "minY": 90,
+        "maxY": 420,
+        "visible": 42273,
+        "hash": 567499407
+      },
+      {
+        "frame": 2,
+        "minX": 213,
+        "maxX": 481,
+        "minY": 89,
+        "maxY": 420,
+        "visible": 46505,
+        "hash": 1510725057
+      },
+      {
+        "frame": 3,
+        "minX": 221,
+        "maxX": 510,
+        "minY": 85,
+        "maxY": 420,
+        "visible": 46022,
+        "hash": 2548448877
+      },
+      {
+        "frame": 4,
+        "minX": 232,
+        "maxX": 516,
+        "minY": 87,
+        "maxY": 420,
+        "visible": 44943,
+        "hash": 2648186665
+      },
+      {
+        "frame": 5,
+        "minX": 242,
+        "maxX": 560,
+        "minY": 87,
+        "maxY": 420,
+        "visible": 45936,
+        "hash": 994586754
+      },
+      {
+        "frame": 6,
+        "minX": 238,
+        "maxX": 556,
+        "minY": 87,
+        "maxY": 420,
+        "visible": 46408,
+        "hash": 227945563
+      },
+      {
+        "frame": 7,
+        "minX": 230,
+        "maxX": 520,
+        "minY": 89,
+        "maxY": 420,
+        "visible": 44735,
+        "hash": 1101669722
+      },
+      {
+        "frame": 8,
+        "minX": 222,
+        "maxX": 504,
+        "minY": 89,
+        "maxY": 420,
+        "visible": 42964,
+        "hash": 1805521938
+      },
+      {
+        "frame": 9,
+        "minX": 209,
+        "maxX": 481,
+        "minY": 89,
+        "maxY": 420,
+        "visible": 41372,
+        "hash": 3083357845
+      },
+      {
+        "frame": 10,
+        "minX": 201,
+        "maxX": 460,
+        "minY": 87,
+        "maxY": 420,
+        "visible": 41715,
+        "hash": 951717894
+      },
+      {
+        "frame": 11,
+        "minX": 206,
+        "maxX": 432,
+        "minY": 87,
+        "maxY": 420,
+        "visible": 35712,
+        "hash": 3117765030
+      }
+    ]
+  },
+  "rendering": {
+    "passed": true,
+    "reachableFrames": 12,
+    "frameToTick": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        8
+      ],
+      [
+        4,
+        10
+      ],
+      [
+        5,
+        13
+      ],
+      [
+        6,
+        15
+      ],
+      [
+        7,
+        18
+      ],
+      [
+        8,
+        22
+      ],
+      [
+        9,
+        26
+      ],
+      [
+        10,
+        30
+      ],
+      [
+        11,
+        34
+      ]
+    ],
+    "fallbackVisiblePixels": 10196,
+    "hqRestored": true
+  },
+  "runtimeExceptions": []
+}

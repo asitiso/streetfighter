@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { verifyServiceWorker } from './service-worker-fixture.mjs';
 import { readFileSync } from 'node:fs';
 import { createDeviceCertification, DEVICE_CERT_TESTS, certificationSummary, latencyStats } from '../dist/assets/core/DeviceCertification.js';
 import { selectPreviousGameCache } from '../dist/assets/core/PwaUpdateManager.js';
@@ -71,12 +72,11 @@ assert.ok(sw.includes("type === 'ROLLBACK_PREVIOUS'"));
 assert.ok(sw.includes("type === 'GET_UPDATE_STATUS'"));
 assert.ok(sw.includes("type === 'RESTORE_CURRENT'"));
 assert.ok(sw.includes('ROLLBACK_MARKER'));
-assert.ok(sw.includes('pinCurrentShell'));
-assert.ok(sw.includes('APP_SHELL.includes(pathname)'));
+const workerBehavior = await verifyServiceWorker(sw, GAME_CACHE_NAME);
 assert.ok(sw.includes("type === 'RESTORE_CURRENT'"));
 assert.ok(sw.includes('previousGameCache'));
 const installBlock = sw.slice(sw.indexOf("self.addEventListener('install'"), sw.indexOf("self.addEventListener('activate'"));
-assert.ok(!installBlock.includes('self.skipWaiting()'), 'update worker must wait for in-app apply');
+assert.ok(installBlock.includes('self.skipWaiting()'), 'fresh-code policy activates the installed worker');
 assert.ok(!sw.includes('indexedDB'));
 for (const module of ['DeviceCertification.js','TouchLatencyProbe.js','PwaUpdateManager.js','DeviceCertificationScene.js','PwaUpdateScene.js']) {
   assert.ok(sw.includes(module), `${module} missing from app shell`);
@@ -97,4 +97,5 @@ console.log('V028_RC3_PASS', {
   acceptance: `${matrix.passed}/${matrix.total}`,
   previousCache: selectPreviousGameCache(['game-cache-v027','game-cache-v026'], GAME_CACHE_NAME),
   rollbackProtocol: 'ready',
+  workerBehavior,
 });

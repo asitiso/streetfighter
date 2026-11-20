@@ -1,0 +1,10 @@
+Create NEW original transparent fighting-game animation spritesheet from Yun reference identity/style only.1024x1536canvas, exactly6isolatedfullbodyposes2columns×3rows, faceRIGHT. Consistentheadsize/capaxis/torsoheight, bodyheight430–450per512row, clearcellmargins. Truealpha,noletters/grid/background/groundshadow/effects.
+Yun navycap/yellowbill,longbraid,ivorysleevelesskungfuvest yellowtrim/navybuttons,navybaggytrousers yellowstripes,yellowwristwraps/blackfingerlessgloves,blacksliponshoes.
+FLYING KICK medium airborne SIDE KICK. Moreextendedthan bentkneelightkick, shorterthan longheavyroundhouse. Bothhands guard face/chest, rearlegtightlytuckedunderhips, head/hipsregistered.
+1top-left airborneguard bothkneesbent,twofeetcloseunderhips, handsclosedguard.
+2top-right coilhips/liftleadknee, heelclosehip, rearshoe snug underhips. KeepLOWEST15%silhouette NARROW<=110sourcepixels, not widefeet; raisedfrontfoot at least70sourcepixelsABOVElowestrearshoe, so lowpantcuffs don'tspread.
+3middle-left unfoldleadkneehalfwayRIGHT, turnhip, guardedhands,narrowrearshoe.
+4middle-right CONTACT: mediumsidekickRIGHT, leadlegextendswithslightlybentknee, shoeheel/outeredgefrontmost atwaistlevel52–62%downbodyheight. Footonlyabout140SOURCEpixelsbeyondguardedhands (notlongheavy200+). Aimrightmosttoe atsourcex~970inrightcell; don'treachcanvasrightedge. Heeltoecompactblackshoe,rightleg nearlyhorizontal/slightdownangle,rearfootfoldedunderhips, torso slightcounterleanwithoutheadshift. Bothhandskeepguard, notpunch. Entirebodyheightunchanged, donotrescalecontactbody. Leadshoe clearlybeyondkneeandhands, rearshoewellbehind.
+5bottom-left retractheel/rebendknee/unwindhips, feetregroupunderhips, guard.
+6bottom-right recoverairguard withbraid/vestsettle.
+Realshoulder/hip/knee/anklearticulation nottranslatedcopies. Coherentvolume/loosecloth,no inflatedlowknees. Exactlytwoarms/twolegs, allbodies fullywithincells. Genuine transparentalpha.

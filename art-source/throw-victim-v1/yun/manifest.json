@@ -1,0 +1,133 @@
+{
+  "character": "YUN",
+  "kind": "throw-victim",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.6222222222222223,
+  "sourceRowSplit": 540,
+  "sourceColumnSplits": [
+    0,
+    550,
+    1024,
+    1536
+  ],
+  "sourceBounds": [
+    [
+      152,
+      94,
+      387,
+      515
+    ],
+    [
+      65,
+      28,
+      409,
+      514
+    ],
+    [
+      103,
+      85,
+      370,
+      428
+    ],
+    [
+      80,
+      46,
+      527,
+      393
+    ],
+    [
+      26,
+      57,
+      440,
+      452
+    ],
+    [
+      88,
+      122,
+      434,
+      413
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      182,
+      130,
+      328,
+      392
+    ],
+    [
+      160,
+      117,
+      374,
+      419
+    ],
+    [
+      169,
+      161,
+      335,
+      374
+    ],
+    [
+      126,
+      151,
+      404,
+      367
+    ],
+    [
+      133,
+      146,
+      390,
+      392
+    ],
+    [
+      146,
+      161,
+      361,
+      342
+    ]
+  ],
+  "centroidTarget": [
+    255.5,
+    264.8995794607044
+  ],
+  "centroids": [
+    [
+      255.74397116145371,
+      264.595003895334
+    ],
+    [
+      255.1913618676927,
+      265.1556692111044
+    ],
+    [
+      255.3570288014942,
+      265.2875882952663
+    ],
+    [
+      255.88712314955788,
+      265.07463790052344
+    ],
+    [
+      255.95004325645812,
+      265.0755471212574
+    ],
+    [
+      255.3651263932597,
+      264.49494971165876
+    ]
+  ],
+  "centroidLockPass": true,
+  "uniqueDrawings": 6,
+  "noClippingPass": true,
+  "runtime": "public/art/throw-victim-v1/yun.webp",
+  "bytes": 344216,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "19e94377f7b40e956fe66be3caab1ddabeb476f998e5657f6d08c5a18150cf6a",
+    "generation-reference.png": "d880f7b6acbd8f1806fae793d5267c74c6360c9db2913227a679085a54469b68",
+    "generation-prompt.txt": "f54540cb35af6f2c52b215c2b7967a9ca7b586a5c7371aa6bab9c93ba97e6429",
+    "yun.webp": "bb0bcfad3044ab13692a886ed6ffe6a0ddd14872e23838ae7567acb24a23d251"
+  }
+}

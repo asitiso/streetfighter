@@ -1,0 +1,289 @@
+{
+  "version": "yun-authored-attack-v1",
+  "source": "art-source/yun-attack-atlas-v1/generated-sheet-v1.png",
+  "sourceSHA256": "1b3f2eb6bc1931bca085e5a5551ba89182b0a1bf2f89b7483d38a9ebe7a02dd0",
+  "promptSHA256": "2ff8bde0549f0701701ac734de6b4c756d2b67240d145a0b4addad962a89e5b1",
+  "referenceSHA256": "d880f7b6acbd8f1806fae793d5267c74c6360c9db2913227a679085a54469b68",
+  "sourceSize": [
+    1298,
+    1212
+  ],
+  "grid": [
+    5,
+    4
+  ],
+  "uniformScale": 1.2584269662921348,
+  "footAnchor": [
+    192.0,
+    422
+  ],
+  "frames": [
+    {
+      "row": 0,
+      "column": 0,
+      "hdBBox": [
+        78,
+        87,
+        306,
+        422
+      ],
+      "hdRGBA": "a14dfac9aec85393aa9f86b423d7691f93af9a54abce7d00753caa002798c1c6",
+      "liteRGBA": "ef1670c44f99860109f123cc04b424d05f823fd5f0131528e5e610c2ac9724c3"
+    },
+    {
+      "row": 0,
+      "column": 1,
+      "hdBBox": [
+        76,
+        86,
+        304,
+        422
+      ],
+      "hdRGBA": "d4be534c384d7d1ec38bdc422d780bc1e4a1c15e333484e1681fdec82018db87",
+      "liteRGBA": "7c7c727bb1b2204e3499e0ae5fd528fa926e9eb8f57fb84c74a2f4b3c1dfb110"
+    },
+    {
+      "row": 0,
+      "column": 2,
+      "hdBBox": [
+        75,
+        106,
+        309,
+        422
+      ],
+      "hdRGBA": "8b37b7975549784d284f3e0490e53987284dade04d8e6f3d0cd86c7838eb786a",
+      "liteRGBA": "ac10cefc68feece98df0d171d25164a3b538f587f85d80240dcab1425071b328"
+    },
+    {
+      "row": 0,
+      "column": 3,
+      "hdBBox": [
+        74,
+        106,
+        308,
+        422
+      ],
+      "hdRGBA": "7bdabd9da78e4a55cf93154e256465bc49f9ec2cb9866c33542635e1bff005c1",
+      "liteRGBA": "b91532331a497653bf602d68a093eb101aed653e1c3a9f3fcef9be559c318267"
+    },
+    {
+      "row": 0,
+      "column": 4,
+      "hdBBox": [
+        80,
+        87,
+        304,
+        422
+      ],
+      "hdRGBA": "b81810f7253645a03ba15913a6e7e158b2f547895761337901f1b0b725ee64ae",
+      "liteRGBA": "08d514d3124794f6748ddd5355ad0a3469afaa75210eb44956bbe9f9a547152b"
+    },
+    {
+      "row": 1,
+      "column": 0,
+      "hdBBox": [
+        79,
+        102,
+        303,
+        422
+      ],
+      "hdRGBA": "9cffa5c1a41b914781cd728c6763eb6446d64fca252a0f229cc91184b5bc92bf",
+      "liteRGBA": "553642ecc0339f8b2e0e1979a6974f2d18fe6cf678be4a086b7b09e4e2122747"
+    },
+    {
+      "row": 1,
+      "column": 1,
+      "hdBBox": [
+        78,
+        88,
+        306,
+        421
+      ],
+      "hdRGBA": "5ad810e3e143c2edc5834ca5c934dafecc2476efbd1524a46ca0ca23c8c8641e",
+      "liteRGBA": "87318a43bca6a4d179107c50b7018ce5661d3877c3417d896a660422e1d32ad6"
+    },
+    {
+      "row": 1,
+      "column": 2,
+      "hdBBox": [
+        74,
+        93,
+        309,
+        422
+      ],
+      "hdRGBA": "a49712eb3f449f125d50e937932b205458321690a1689f57e33a6f48ccd479c3",
+      "liteRGBA": "5bdf8a3fb9fec8b6c7c852f4981534cf76c00c85a2abf376cdfbebe01ddd5e7a"
+    },
+    {
+      "row": 1,
+      "column": 3,
+      "hdBBox": [
+        72,
+        91,
+        310,
+        422
+      ],
+      "hdRGBA": "138bf6a18a83cc5b5aad7706198ea30de9fdcb76c35beadeef9f854616ab5cce",
+      "liteRGBA": "90b89a087cf71d3c03b83da22ed6a00a9646a2df0082212a1d5922df9ec6605d"
+    },
+    {
+      "row": 1,
+      "column": 4,
+      "hdBBox": [
+        78,
+        94,
+        306,
+        423
+      ],
+      "hdRGBA": "6e55a3f96782a31bf42fec3040fa353d6b23d5de14f5bb03f34c9fc148ac680e",
+      "liteRGBA": "f56b310faecc172ab849a29acfd2d7c31f66ea229117d40b54d9d0d3aec853d3"
+    },
+    {
+      "row": 2,
+      "column": 0,
+      "hdBBox": [
+        79,
+        102,
+        303,
+        422
+      ],
+      "hdRGBA": "f852c1a12b0f3f3816202b327c4c5ca3f5037f6081ed68b7205a10ae956148ba",
+      "liteRGBA": "d090359ed4d105f66ae69b396bfc517efd98ae461b176439fc217b55f4555c35"
+    },
+    {
+      "row": 2,
+      "column": 1,
+      "hdBBox": [
+        81,
+        111,
+        303,
+        422
+      ],
+      "hdRGBA": "4e73ecec96b8fbb21a52ab894f96c024f719f9ec0915beb48876d6204cfbb96b",
+      "liteRGBA": "825b996114506cc63bd7ad2a0f778555d8dcea7b05e68989c9a4edf2863e6d2c"
+    },
+    {
+      "row": 2,
+      "column": 2,
+      "hdBBox": [
+        71,
+        90,
+        312,
+        422
+      ],
+      "hdRGBA": "b2552aa3f40984215df4b3d26a689763d1a158e5cb24587c8934eadbfcb01d3a",
+      "liteRGBA": "6eca5d20bd65a1539434396c9ab9ec849469b049d612f16dc97728c281c53e5b"
+    },
+    {
+      "row": 2,
+      "column": 3,
+      "hdBBox": [
+        72,
+        100,
+        311,
+        422
+      ],
+      "hdRGBA": "8956338b3e269708c349327432098cd1e3945f82fb89f939426f635596a8b86e",
+      "liteRGBA": "ea96aa025f43541496268011ec0568c713717d2754d2db3c168586a2eb1df5a2"
+    },
+    {
+      "row": 2,
+      "column": 4,
+      "hdBBox": [
+        76,
+        86,
+        306,
+        422
+      ],
+      "hdRGBA": "c624cf128c80a310f8de50782e15e2d0617e5a75998e37afedbcb0b27b626156",
+      "liteRGBA": "b79d5d4bffbab9ebcfd960f0665a745e4637169d5bba299696143ef8d4dee6f8"
+    },
+    {
+      "row": 3,
+      "column": 0,
+      "hdBBox": [
+        77,
+        87,
+        306,
+        422
+      ],
+      "hdRGBA": "9979535a06945bcc63d556ec4008f9c3a988cf7075113b731a4a12dfc2c881ff",
+      "liteRGBA": "e78f7b42e8eb0aaf2eb9fa96e2a216c5f7a37c43a256a94f26da9824ef22224e"
+    },
+    {
+      "row": 3,
+      "column": 1,
+      "hdBBox": [
+        75,
+        99,
+        314,
+        422
+      ],
+      "hdRGBA": "b2615a5b6e93a896637077b18e878c15be2565000dd83f4c377c6803eca51d74",
+      "liteRGBA": "98a7bb82134ccb7efe1f372c1d28ca0199cc2d47ff6b8200e34dd7c55c9fda57"
+    },
+    {
+      "row": 3,
+      "column": 2,
+      "hdBBox": [
+        74,
+        97,
+        311,
+        422
+      ],
+      "hdRGBA": "3957720ca031b229c8fdaf64b92a5db3522666d3103783949b6465256af11e92",
+      "liteRGBA": "7290b75389cd5ec9eb96e02f0095ec9a2d617dab7cc0a583f1d2ae77e037d629"
+    },
+    {
+      "row": 3,
+      "column": 3,
+      "hdBBox": [
+        72,
+        101,
+        311,
+        422
+      ],
+      "hdRGBA": "a24d3f2026e4f41df574af8a0ef3c8e80ab32bea232ee4b6b537c91a7ff02148",
+      "liteRGBA": "2784acaae20151a46ff966f2ef5878149484e2d973e844a28c51f8fdf2527d2c"
+    },
+    {
+      "row": 3,
+      "column": 4,
+      "hdBBox": [
+        79,
+        87,
+        303,
+        422
+      ],
+      "hdRGBA": "7d028d3d186a00257d6807cdfbe73d9239d1c6e6a9e27504290aa230f3a36e42",
+      "liteRGBA": "ade8051647a1beee1cb7cd99722aef8d092243341a7bbdfb259c567b77d92859"
+    }
+  ],
+  "operations": [
+    "cell crop with transparent gutter",
+    "one uniform scale for all twenty poses",
+    "translation to common foot anchor",
+    "half-size LITE downsample",
+    "lossless WebP encoding"
+  ],
+  "runtime": {
+    "lite": {
+      "path": "/art/attack-atlases/yun-authored-v1.webp",
+      "size": [
+        960,
+        896
+      ],
+      "bytes": 564318,
+      "sha256": "e38724b700428f1f1b28cb73d2561a04b987950fcbb059b8dcb68fe2a1c9a791"
+    },
+    "hd": {
+      "path": "/art/attack-atlases-hd/yun-authored-v1.webp",
+      "size": [
+        1920,
+        1792
+      ],
+      "bytes": 1865478,
+      "sha256": "b5e6161f9d0865d7a1c1b029db21c936667dd2a681ba3d97d3f49b925b45cbde"
+    }
+  }
+}

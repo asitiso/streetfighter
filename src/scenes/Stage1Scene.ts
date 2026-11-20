@@ -4,11 +4,14 @@ import type { CharacterDef, SuperArtDef } from '../game/characters.js';
 import { getCharacter } from '../game/characters.js';
 import type { InputManager } from '../input/InputManager.js';
 import { CombatWorld } from '../combat/CombatWorld.js';
-import type { CombatEvent } from '../combat/CombatTypes.js';
+import type { CombatEvent, EnvironmentProp } from '../combat/CombatTypes.js';
 import type { Fighter } from '../combat/Fighter.js';
+import { drawPropImpact } from '../render/PropImpactAssets.js';
+import { drawStageAmbient } from '../render/StageAmbientAssets.js';
+import { drawStagePropSprite } from '../render/StagePropAssets.js';
 import { specialMovesFor } from '../combat/MoveLibrary.js';
 import { techniqueCatalogFor } from '../combat/TechniqueLibrary.js';
-import { drawCharacterPreview, drawCombatFighter } from '../render/Visuals.js';
+import { drawCharacterPreview, drawCombatFighter, drawGroundedKoCinematic } from '../render/Visuals.js';
 import { superCameraProfileForMotif } from '../render/SuperCameraProfiles.js';
 import { bossCinematicPose, type BossCinematicKind } from '../render/BossCinematicProfiles.js';
 import { finalKoPose } from '../render/FinalSequenceProfiles.js';
@@ -22,12 +25,17 @@ import { bossHudPhaseProfile, fxPolishProfile, stageDepthProfile, transitionPoli
 import { cinematicTimingForEvent } from '../render/CinematicTimingProfiles.js';
 import { artImage, characterPortraitKey, PLAYABLE_ATTACK_ATLAS_KEYS, PLAYABLE_COMBAT_SPRITE_KEYS, preloadArtAssets, stageArtKey, stageForegroundKey } from '../render/ImageAssets.js';
 import { characterTextureManager } from '../render/CharacterTextureManager.js';
-import { animationTextureManager } from '../render/AnimationTextureManager.js';
+import { animationTextureManager, liteAnimationTextureManager } from '../render/AnimationTextureManager.js';
+import { animationSequenceFor } from '../render/AnimationSequenceLibrary.js';
 import { closeSpacingStrength, fighterReadabilityProfile, foregroundOcclusionAlpha } from '../render/FighterReadabilityProfiles.js';
 import { signatureMoveProfile } from '../render/SignatureMoveProfiles.js';
 import { locomotionProfile } from '../render/LocomotionProfiles.js';
 import { contactVisualEnvelope, contactVisualProfile } from '../render/ContactVisualProfiles.js';
 import { heroContactSample } from '../render/HeroContactProfiles.js';
+import { drawCombatImpact } from '../render/CombatImpactAssets.js';
+
+const WAVE_BREAK_FRAMES = 54;
+const DEFEAT_PRESENTATION_FRAMES = { ko: 120, 'double-ko': 120, 'time-over': 90 } as const;
 
 export class Stage1Scene implements Scene {
   private world: CombatWorld;
@@ -44,11 +52,15 @@ export class Stage1Scene implements Scene {
   private cameraX = 0;
   private beltState: 'fight' | 'travel' = 'fight';
   private clearDispatched = false;
+  private routeRequest = 0;
+  private routeError = '';
   private finalKoFrames = 0;
   private defeatFrames = 0;
   private defeatDispatched = false;
+  private defeatRetryQueued = false;
   private defeatReason: 'ko' | 'double-ko' | 'time-over' = 'ko';
   private paused = false;
+  private fightersFrozenLastTick = false;
   private gillPhase: 1 | 2 | 3 = 1;
   private gillPhaseBanner = 0;
   private bossPatternCooldown = 0;
@@ -93,8 +105,10 @@ export class Stage1Scene implements Scene {
     readonly playerDef: CharacterDef,
     readonly superArt: SuperArtDef,
     private readonly stageId: 1 | 2 | 3 | 4 | 5 = 1,
-    private readonly onClear?: (result: StageResult) => void,
-    private readonly onDefeat?: () => void,
+    private readonly onClear?: (result: StageResult) => void | Promise<void>,
+    private readonly onDefeat?: () => void | Promise<void>,
+    private readonly onPauseChange?: (paused: boolean) => void,
+    private readonly onPostCombatChange?: (active: boolean) => void,
   ) {
     this.stageLength = stageId === 1 ? 3560 : stageId === 2 ? 3820 : stageId === 3 ? 4020 : stageId === 4 ? 4140 : 4320;
     this.introFrames = transitionPolishProfile(stageId).introFrames;
@@ -105,6 +119,9 @@ export class Stage1Scene implements Scene {
   }
 
   enter(): void {
+    this.onPostCombatChange?.(false);
+    this.defeatRetryQueued = false;
+    this.routeRequest += 1;
     const preload = [stageArtKey(this.stageId), stageForegroundKey(this.stageId)] as Array<ReturnType<typeof stageArtKey> | ReturnType<typeof stageForegroundKey> | NonNullable<ReturnType<typeof characterPortraitKey>>>;
     const playerPortrait = characterPortraitKey(this.playerDef.id);
     if (playerPortrait) preload.push(playerPortrait);
@@ -114,39 +131,62 @@ export class Stage1Scene implements Scene {
       if (urienPortrait) preload.push(urienPortrait);
       if (gillPortrait) preload.push(gillPortrait);
     }
-    preloadArtAssets([...preload, ...PLAYABLE_COMBAT_SPRITE_KEYS, ...PLAYABLE_ATTACK_ATLAS_KEYS]);
-    characterTextureManager.focusCharacter(this.playerDef.id);
-    characterTextureManager.preloadCharacter(this.world.enemy.character.id);
-    if (characterTextureManager.wantsHd()) {
-      animationTextureManager.preloadCharacter(this.playerDef.id, 'combat');
-      animationTextureManager.preloadCharacter(this.world.enemy.character.id, 'combat');
-    }
+    preloadArtAssets(['stage-props-v1', 'hit-impact-atlas', 'combat-impact-atlas', ...preload, ...PLAYABLE_COMBAT_SPRITE_KEYS, ...PLAYABLE_ATTACK_ATLAS_KEYS]);
+    this.prepareCombatTextures();
+    if (runtimeQuality.current.secondaryFx) preloadArtAssets(['stage-ambient-v1', 'prop-impact-v1']);
     this.audio.playStagePulse();
     this.audio.playStageIntro?.(this.stageId);
     this.audio.startStageSoundscape?.(this.stageId);
     this.audio.setStageIntensity?.('belt');
   }
-  exit(): void { this.audio.setPaused?.(false); this.audio.stopSoundscape?.(); }
+  exit(): void { this.defeatRetryQueued = false; this.routeRequest += 1; this.audio.setPaused?.(false); this.onPauseChange?.(false); this.onPostCombatChange?.(false); this.audio.stopSoundscape?.(); }
   resize(_width: number, _height: number): void {}
-  destroy(): void {}
+  destroy(): void { this.defeatRetryQueued = false; this.routeRequest += 1; this.onPauseChange?.(false); this.onPostCombatChange?.(false); }
+
+  private routeRetryPressed(): boolean {
+    return this.input.pressed('start') || this.input.pressed('confirm')
+      || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')
+      || this.input.pressed('lk') || this.input.pressed('mk') || this.input.pressed('hk');
+  }
+
+  private dispatchRoute(route: 'clear' | 'defeat'): void {
+    if (route === 'clear') this.clearDispatched = true;
+    else this.defeatDispatched = true;
+    this.routeError = '';
+    const request = this.routeRequest;
+    const failed = () => {
+      if (request !== this.routeRequest) return;
+      if (route === 'clear') this.clearDispatched = false;
+      else this.defeatDispatched = false;
+      this.routeError = 'SAVE FAILED • PRESS START / ENTER / ATTACK TO RETRY';
+    };
+    try { void Promise.resolve(route === 'clear' ? this.onClear?.(this.stageResult()) : this.onDefeat?.()).catch(failed); }
+    catch { failed(); }
+  }
 
   fixedUpdate(dt: number, tick: number): void {
+    this.fightersFrozenLastTick = this.paused || this.world.superFreezeFrames > 0;
     if (this.phase === 'defeat') {
+      this.advancePostCombatEffects();
+      if (!this.defeatDispatched && !this.routeError && this.routeRetryPressed()) this.defeatRetryQueued = true;
       if (this.defeatFrames > 0) {
+        this.updateKnockedOutFighters();
         this.defeatFrames = Math.max(0, this.defeatFrames - 1);
         this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 2);
         this.cameraFocusX = this.world.player.x;
         this.cameraFocusY = this.world.player.y - 105;
         this.cameraFocusZoom = 1.1;
-      } else if (!this.defeatDispatched && (this.input.pressed('start') || this.input.pressed('confirm') || this.input.pressed('lp') || this.input.pressed('lk'))) {
-        this.defeatDispatched = true;
-        this.onDefeat?.();
+      } else if (!this.defeatDispatched && (this.defeatRetryQueued || this.routeRetryPressed())) {
+        this.defeatRetryQueued = false;
+        this.dispatchRoute('defeat');
       }
       return;
     }
     const pauseAllowed = this.introFrames <= 0 && (this.phase === 'belt' || this.phase === 'duel' || this.phase === 'final-duel');
     if (pauseAllowed && this.input.pressed('start')) {
       this.paused = !this.paused;
+      this.onPauseChange?.(this.paused);
+      this.input.resetCommandHistory?.();
       this.audio.setPaused?.(this.paused);
       return;
     }
@@ -161,21 +201,36 @@ export class Stage1Scene implements Scene {
       const intensity = this.phase === 'final-duel' || this.phase === 'final-transition' ? 'final' : this.phase === 'duel' || this.phase === 'transition' ? 'duel' : 'belt';
       this.audio.playStageBeat?.(this.stageId, beat, intensity);
     }
+    // Reuse the freeze buffer for quick taps just before combat becomes ready.
+    const readyFrames = this.introFrames > 0 ? this.introFrames
+      : this.phase === 'transition' || this.phase === 'final-transition' ? this.phaseFrames
+      : this.phase === 'belt' ? this.waveBreakFrames : 0;
+    if (readyFrames > 0 && readyFrames <= 6) this.world.player.captureInput(this.input, tick, true, this.world.rules);
     if (this.introFrames > 0) { this.introFrames -= 1; return; }
 
     if (this.phase === 'transition') {
+      if (this.phaseFrames === transitionPolishProfile(this.stageId).duelFrames) characterTextureManager.preloadCharacter(this.stageBossDef().id);
+      this.advancePostCombatEffects();
+      this.settlePlayerAfterCombat();
+      this.updateKnockedOutFighters();
       this.phaseFrames -= 1;
       if (this.phaseFrames === transitionPolishProfile(this.stageId).duelPrepareAt) this.prepareDuel();
       if (this.phaseFrames <= 0) this.phase = 'duel';
       return;
     }
     if (this.phase === 'final-transition') {
+      if (this.phaseFrames === transitionPolishProfile(this.stageId).duelFrames) characterTextureManager.preloadCharacter('GILL');
+      this.advancePostCombatEffects();
+      this.settlePlayerAfterCombat();
+      this.updateKnockedOutFighters();
       this.phaseFrames -= 1;
       if (this.phaseFrames === transitionPolishProfile(this.stageId).duelPrepareAt) this.prepareFinalDuel();
       if (this.phaseFrames <= 0) this.phase = 'final-duel';
       return;
     }
     if (this.phase === 'final-ko') {
+      this.advancePostCombatEffects();
+      this.settlePlayerAfterCombat();
       this.finalKoFrames = Math.max(0, this.finalKoFrames - 1);
       this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 2);
       this.cameraFocusX = this.world.enemy.x;
@@ -186,13 +241,25 @@ export class Stage1Scene implements Scene {
       return;
     }
     if (this.phase === 'clear') {
+      this.advancePostCombatEffects();
+      this.updateKnockedOutFighters();
+      const player = this.world.player;
+      if (player.state === 'victory') {
+        player.stateFrame += 1;
+        player.animationFrame += 1;
+      } else {
+        this.settlePlayerAfterCombat();
+        if (!player.airborne) player.enterVictoryPose();
+      }
       this.phaseFrames = Math.max(0, this.phaseFrames - 1);
       const timing = transitionPolishProfile(this.stageId);
       const dispatchAt = this.stageId === 5 ? timing.finalClearDispatchAt : timing.clearDispatchAt;
-      if (!this.clearDispatched && this.phaseFrames <= dispatchAt) { this.clearDispatched = true; this.onClear?.(this.stageResult()); }
+      if (!this.clearDispatched && this.phaseFrames <= dispatchAt && (!this.routeError || this.routeRetryPressed())) this.dispatchRoute('clear');
       return;
     }
     if (this.phase === 'belt' && this.waveBreakFrames > 0) {
+      this.advancePostCombatEffects();
+      this.settlePlayerAfterCombat(true);
       this.waveBreakFrames -= 1;
       if (this.waveBreakFrames === 0) this.beltState = 'fight';
       this.updateCamera();
@@ -204,8 +271,9 @@ export class Stage1Scene implements Scene {
     if (timerActive && !combatFrozen) this.stageTime = Math.max(0, this.stageTime - dt);
     if (timerActive && !combatFrozen && this.stageTime <= 0) {
       this.phase = 'defeat';
+      this.onPostCombatChange?.(true);
       this.defeatReason = 'time-over';
-      this.defeatFrames = 90;
+      this.defeatFrames = DEFEAT_PRESENTATION_FRAMES['time-over'];
       this.defeatDispatched = false;
       this.world.projectiles.length = 0;
       this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 90);
@@ -225,6 +293,7 @@ export class Stage1Scene implements Scene {
     for (const event of this.world.events) {
       if (event.audioPlayed) continue;
       event.audioPlayed = true;
+      if (event.type === 'super-flash' && event.power > 0) this.prepareSuperHitTextures();
       this.triggerCameraForEvent(event);
       if (event.type === 'hit' || event.type === 'counter') this.audio.playHit(event.power);
       else if (event.type === 'air-hit') this.audio.playAirHit?.(event.power);
@@ -246,8 +315,9 @@ export class Stage1Scene implements Scene {
 
     if (this.world.player.hp <= 0) {
       this.phase = 'defeat';
+      this.onPostCombatChange?.(true);
       this.defeatReason = this.world.livingEnemies.length === 0 ? 'double-ko' : 'ko';
-      this.defeatFrames = 120;
+      this.defeatFrames = DEFEAT_PRESENTATION_FRAMES[this.defeatReason];
       this.defeatDispatched = false;
       this.world.projectiles.length = 0;
       this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 120);
@@ -276,6 +346,7 @@ export class Stage1Scene implements Scene {
         this.world.rules.arenaLeft = Math.max(96, this.areaStarts[this.beltWave - 1] + 120);
         this.world.rules.arenaRight = this.areaStarts[this.beltWave] + 260;
       } else {
+        this.world.projectiles.length = 0;
         this.phase = 'transition';
         this.phaseFrames = transitionPolishProfile(this.stageId).duelFrames;
         this.audio.playDuelTransition?.(false);
@@ -283,8 +354,10 @@ export class Stage1Scene implements Scene {
       }
     } else if (this.phase === 'belt' && this.beltState === 'travel' && this.world.player.x >= this.areaStarts[this.beltWave] + 150) {
       this.spawnBeltWave(this.beltWave);
-      this.waveBreakFrames = 54;
+      this.prepareCombatTextures();
+      this.waveBreakFrames = WAVE_BREAK_FRAMES;
     } else if (this.phase === 'duel' && this.world.enemy.hp <= 0) {
+      this.world.projectiles.length = 0;
       if (this.stageId === 5) {
         this.phase = 'final-transition';
         this.phaseFrames = transitionPolishProfile(this.stageId).duelFrames;
@@ -292,12 +365,14 @@ export class Stage1Scene implements Scene {
         this.audio.setStageIntensity?.('final');
       } else {
         this.phase = 'clear';
+        this.onPostCombatChange?.(true);
         this.phaseFrames = transitionPolishProfile(this.stageId).clearFrames;
-        this.world.player.enterVictoryPose();
+        if (!this.world.player.airborne) this.world.player.enterVictoryPose();
         this.audio.playStageClear?.(false);
       }
     } else if (this.phase === 'final-duel' && this.world.enemy.hp <= 0) {
       this.phase = 'final-ko';
+      this.onPostCombatChange?.(true);
       this.finalKoFrames = 180;
       this.audio.playFinalKo?.();
       this.world.projectiles.length = 0;
@@ -314,6 +389,8 @@ export class Stage1Scene implements Scene {
   render({ ctx, width, height }: RenderContext, alpha: number): void {
     ctx.save();
     ctx.scale(width / 1280, height / 720);
+    // Keep camera overscan and weather inside the game viewport, including letterboxed layouts.
+    ctx.beginPath(); ctx.rect(0, 0, 1280, 720); ctx.clip();
     const scroll = this.world.rules.mode === 'belt' ? this.cameraX : 0;
     const camera = this.cameraPresentation(scroll);
     ctx.save();
@@ -329,27 +406,42 @@ export class Stage1Scene implements Scene {
     this.drawStageLighting(ctx);
     this.drawFinalArenaEscalation(ctx);
     this.drawBossArenaAura(ctx);
-    this.drawProps(ctx);
     // Large near-field art stays behind the fighters. Only small dynamic foreground props may pass in front,
     // and those props fade locally around combatants to preserve silhouettes.
     this.drawStageForegroundArt(ctx, scroll);
     this.drawDepthParallax(ctx, scroll, 'near');
+    // Frozen ticks keep old movement endpoints; do not replay that movement each render.
+    const fighterAlpha = this.paused || this.fightersFrozenLastTick || this.world.superFreezeFrames > 0 ? 1 : alpha;
     const fighters = [...this.world.enemies, this.world.player].filter((fighter) => !(this.phase === 'final-ko' && fighter.character.id === 'GILL')).sort((a, b) => a.y - b.y);
+    const props = [...this.world.props].sort((a, b) => a.y - b.y);
+    let propIndex = 0;
+    const focusedEnemy = this.world.rules.mode === 'belt' ? this.world.focusedEnemy : null;
     this.drawFighterContrastFields(ctx, fighters);
     this.drawCloseSpacingSeparation(ctx, fighters);
     for (let index = 0; index < fighters.length; index += 1) {
       const fighter = fighters[index]!;
+      // Ground depth determines occlusion; jumping keeps the same floor lane.
+      while (propIndex < props.length && props[propIndex]!.y <= fighter.y) this.drawProp(ctx, props[propIndex++]!);
       if (fighter.installFrames > 0) this.drawInstallAura(ctx, fighter);
       this.drawFighterFloorReflection(ctx, fighter);
       this.drawFighterGroundInteraction(ctx, fighter);
       this.drawFighterStageShadow(ctx, fighter);
+      if (fighter === focusedEnemy) this.drawFocusedEnemyMarker(ctx, fighter);
       this.drawFighterReadabilityAccent(ctx, fighter);
       this.drawAttackMotionArc(ctx, fighter);
       this.drawHeroContactSequence(ctx, fighter);
       this.drawSignatureContactBloom(ctx, fighter);
-      drawCombatFighter(ctx, fighter, alpha, this.time + index * .17);
+      // Defeat advances KO bodies only; survivors retain stale movement endpoints.
+      const bodyAlpha = this.phase === 'defeat' && fighter.state !== 'ko' ? 1 : fighterAlpha;
+      // Final cinematic uses a separate clock; keep its completed body through clear.
+      const heldFinalKo = this.stageId === 5 && this.phase === 'clear' && fighter === this.world.enemy
+        && fighter.character.id === 'GILL' && fighter.state === 'ko';
+      if (!heldFinalKo || !drawGroundedKoCinematic(ctx, fighter, 180)) {
+        drawCombatFighter(ctx, fighter, bodyAlpha, this.time + index * .17);
+      }
       this.drawFighterRimLight(ctx, fighter);
     }
+    this.drawProps(ctx, props, propIndex);
     this.drawFinalKoSequence(ctx);
     this.drawProjectiles(ctx);
     this.drawFx(ctx);
@@ -372,6 +464,14 @@ export class Stage1Scene implements Scene {
     this.drawHelp(ctx);
     this.drawDefeat(ctx);
     this.drawPause(ctx);
+    if (this.routeError) {
+      ctx.fillStyle = 'rgba(3,6,10,.92)';
+      ctx.fillRect(340, 180, 600, 44);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ff9b9b';
+      ctx.font = '800 14px Arial, sans-serif';
+      ctx.fillText(this.routeError, 640, 208);
+    }
     ctx.restore();
   }
 
@@ -381,6 +481,7 @@ export class Stage1Scene implements Scene {
     if (this.cameraKickFrames > 0) this.cameraKickFrames -= 1;
     else this.cameraKickPower = 0;
     if (this.cameraFocusFrames > 0) this.cameraFocusFrames -= 1;
+    if (this.cameraFocusFrames === 0) this.cameraFocusZoom += (1 - this.cameraFocusZoom) * .15;
     if (this.cameraSlowFrames > 0) this.cameraSlowFrames -= 1;
     if (this.cameraLetterboxFrames > 0) this.cameraLetterboxFrames -= 1;
     if (this.superCameraFrames > 0) this.superCameraFrames -= 1;
@@ -476,14 +577,13 @@ export class Stage1Scene implements Scene {
       else zoom = Math.max(zoom, fitZoom);
     }
     if (this.cameraFocusFrames > 0) {
-      const strength = Math.min(.34, .13 + this.cameraFocusFrames / 110);
+      const settle = Math.min(1, this.cameraFocusFrames / 6);
+      const strength = Math.min(.34, .13 + this.cameraFocusFrames / 110) * settle * settle * (3 - 2 * settle);
       const focusScreenX = this.cameraFocusX - scroll;
       panX += (640 - focusScreenX) * strength;
       panY += (356 - this.cameraFocusY) * strength * .48;
-      zoom = Math.max(zoom, this.cameraFocusZoom);
-    } else {
-      this.cameraFocusZoom += (1 - this.cameraFocusZoom) * .15;
     }
+    zoom = Math.max(zoom, this.cameraFocusZoom);
     if (this.cameraCatchFrames > 0 && this.cameraCatchTotal > 0) {
       const progress = 1 - this.cameraCatchFrames / this.cameraCatchTotal;
       const catchEase = Math.sin(Math.min(1, progress) * Math.PI * .5) * (1 - progress * .34);
@@ -751,7 +851,7 @@ export class Stage1Scene implements Scene {
 
   private drawWaveCard(ctx: CanvasRenderingContext2D): void {
     if (this.phase !== 'belt' || this.waveBreakFrames <= 0) return;
-    const progress = 1 - this.waveBreakFrames / 90;
+    const progress = 1 - this.waveBreakFrames / WAVE_BREAK_FRAMES;
     const alpha = Math.sin(Math.min(1, progress * 1.5) * Math.PI) * .86;
     ctx.fillStyle = `rgba(5,7,11,${alpha * .55})`; ctx.fillRect(0, 0, 1280, 720);
     ctx.textAlign = 'center';
@@ -768,72 +868,82 @@ export class Stage1Scene implements Scene {
     return { ...base, name, primary, secondary, accent, heightScale, widthScale };
   }
 
-  private drawProps(ctx: CanvasRenderingContext2D): void {
-    for (const prop of [...this.world.props].sort((a, b) => a.y - b.y)) {
-      ctx.save();
-      ctx.translate(prop.x, prop.y);
-      if (prop.broken) {
-        ctx.globalAlpha = .65;
-        ctx.fillStyle = '#4a3b35';
-        for (let i = 0; i < 5; i += 1) { ctx.save(); ctx.rotate(i * .8); ctx.fillRect(8 + i * 4, -4, 25, 8); ctx.restore(); }
-        ctx.restore();
-        continue;
-      }
-      ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(0, 5, prop.width * .58, prop.depth * .38, 0, 0, Math.PI * 2); ctx.fill();
-      if (prop.id.startsWith('trash')) {
-        ctx.fillStyle = '#5c6670'; ctx.strokeStyle = '#252b32'; ctx.lineWidth = 4; ctx.fillRect(-21, -58, 42, 58); ctx.strokeRect(-21, -58, 42, 58);
-        ctx.fillStyle = '#7c8790'; ctx.fillRect(-25, -63, 50, 9);
-      } else if (prop.id.startsWith('stall')) {
-        ctx.fillStyle = '#722b50'; ctx.strokeStyle = '#2b1a2a'; ctx.lineWidth = 5; ctx.fillRect(-58, -56, 116, 56); ctx.strokeRect(-58, -56, 116, 56);
-        ctx.fillStyle = '#d9a648'; ctx.fillRect(-64, -64, 128, 10);
-        ctx.strokeStyle = '#d9a648'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-50, -64); ctx.lineTo(-42, -104); ctx.lineTo(42, -104); ctx.lineTo(50, -64); ctx.stroke();
-        ctx.fillStyle = '#ef3f7a'; ctx.fillRect(-39, -100, 78, 24);
-        ctx.fillStyle = '#fff1d2'; ctx.font = '900 11px Arial Black, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('NIGHT FOOD', 0, -83);
-      } else if (prop.id.startsWith('vending')) {
-        ctx.fillStyle = '#d8d8cf'; ctx.strokeStyle = '#30343b'; ctx.lineWidth = 5; ctx.fillRect(-30, -92, 60, 92); ctx.strokeRect(-30, -92, 60, 92);
-        ctx.fillStyle = '#e14e4a'; ctx.fillRect(-23, -82, 46, 25); ctx.fillStyle = '#77c5df'; ctx.fillRect(-21, -50, 42, 35);
-        ctx.fillStyle = '#f5e6b1'; for (let i = 0; i < 3; i += 1) ctx.fillRect(-16 + i * 13, -43, 8, 18);
-      } else if (prop.id.startsWith('lantern')) {
-        ctx.strokeStyle = '#2f2a2a'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -96); ctx.stroke();
-        ctx.fillStyle = '#d8433f'; ctx.beginPath(); ctx.ellipse(0, -78, 24, 30, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#f0c359'; ctx.fillRect(-18, -82, 36, 6);
-      } else if (prop.id.startsWith('bag')) {
-        ctx.strokeStyle = '#5c6168'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(0, -118); ctx.lineTo(0, -94); ctx.stroke();
-        ctx.fillStyle = '#7d3036'; ctx.strokeStyle = '#2d2528'; ctx.lineWidth = 5; ctx.beginPath(); ctx.roundRect(-24, -96, 48, 86, 18); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#d0a44a'; ctx.fillRect(-19, -64, 38, 8);
-      } else if (prop.id.startsWith('bin')) {
-        ctx.fillStyle = '#344957'; ctx.strokeStyle = '#1d2931'; ctx.lineWidth = 5; ctx.fillRect(-22, -58, 44, 58); ctx.strokeRect(-22, -58, 44, 58);
-        ctx.fillStyle = '#556e7b'; ctx.fillRect(-26, -64, 52, 9);
-      } else if (prop.id.startsWith('console')) {
-        ctx.fillStyle = '#354455'; ctx.strokeStyle = '#161d26'; ctx.lineWidth = 5; ctx.fillRect(-40, -70, 80, 70); ctx.strokeRect(-40, -70, 80, 70);
-        ctx.fillStyle = '#64d1e6'; ctx.fillRect(-29, -58, 58, 28); ctx.fillStyle = '#d9bd61'; ctx.fillRect(-23, -20, 18, 7); ctx.fillRect(5, -20, 18, 7);
-      } else if (prop.id.startsWith('tank')) {
-        ctx.fillStyle = '#45566d'; ctx.strokeStyle = '#1d2632'; ctx.lineWidth = 5; ctx.beginPath(); ctx.roundRect(-25, -92, 50, 92, 18); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = 'rgba(105,217,238,.55)'; ctx.fillRect(-16, -70, 32, 48); ctx.fillStyle = '#d9bd61'; ctx.fillRect(-22, -12, 44, 7);
-      } else if (prop.id.startsWith('crate')) {
-        ctx.fillStyle = '#8c6039'; ctx.strokeStyle = '#3d2a20'; ctx.lineWidth = 5; ctx.fillRect(-31, -55, 62, 55); ctx.strokeRect(-31, -55, 62, 55);
-        ctx.beginPath(); ctx.moveTo(-27, -50); ctx.lineTo(27, -5); ctx.moveTo(27, -50); ctx.lineTo(-27, -5); ctx.stroke();
-      } else {
-        ctx.fillStyle = '#a53c42'; ctx.strokeStyle = '#47252b'; ctx.lineWidth = 4; ctx.beginPath(); ctx.roundRect(-16, -46, 32, 46, 8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#d8b050'; ctx.fillRect(-22, -37, 44, 8);
-      }
-      const ratio = prop.hp / prop.maxHp;
-      if (ratio < .98) { ctx.fillStyle = 'rgba(0,0,0,.62)'; ctx.fillRect(-28, -76, 56, 5); ctx.fillStyle = ratio > .45 ? '#e8bd56' : '#d65a52'; ctx.fillRect(-28, -76, 56 * ratio, 5); }
-      ctx.restore();
-    }
+  private drawProps(ctx: CanvasRenderingContext2D, props: readonly EnvironmentProp[] = [...this.world.props].sort((a, b) => a.y - b.y), start = 0): void {
+    for (let index = start; index < props.length; index += 1) this.drawProp(ctx, props[index]!);
   }
 
-  private drawStageBackdropArt(ctx: CanvasRenderingContext2D): void {
-    const art = artImage(stageArtKey(this.stageId));
-    if (!art) return;
+  private drawProp(ctx: CanvasRenderingContext2D, prop: EnvironmentProp): void {
     ctx.save();
-    ctx.globalAlpha = .94;
-    ctx.drawImage(art, 0, 0, this.stageLength, 720);
-    ctx.fillStyle = 'rgba(7,10,16,.12)';
-    ctx.fillRect(0, 0, this.stageLength, 720);
+    ctx.translate(prop.x, prop.y);
+    if (prop.broken) {
+      if (drawStagePropSprite(ctx, prop)) { ctx.restore(); return; }
+      ctx.globalAlpha = .65;
+      ctx.fillStyle = '#4a3b35';
+      for (let i = 0; i < 5; i += 1) { ctx.save(); ctx.rotate(i * .8); ctx.fillRect(8 + i * 4, -4, 25, 8); ctx.restore(); }
+      ctx.restore();
+      return;
+    }
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(0, 5, prop.width * .58, prop.depth * .38, 0, 0, Math.PI * 2); ctx.fill();
+    if (!drawStagePropSprite(ctx, prop)) {
+    if (prop.id.startsWith('trash')) {
+      ctx.fillStyle = '#5c6670'; ctx.strokeStyle = '#252b32'; ctx.lineWidth = 4; ctx.fillRect(-21, -58, 42, 58); ctx.strokeRect(-21, -58, 42, 58);
+      ctx.fillStyle = '#7c8790'; ctx.fillRect(-25, -63, 50, 9);
+    } else if (prop.id.startsWith('stall')) {
+      ctx.fillStyle = '#722b50'; ctx.strokeStyle = '#2b1a2a'; ctx.lineWidth = 5; ctx.fillRect(-58, -56, 116, 56); ctx.strokeRect(-58, -56, 116, 56);
+      ctx.fillStyle = '#d9a648'; ctx.fillRect(-64, -64, 128, 10);
+      ctx.strokeStyle = '#d9a648'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-50, -64); ctx.lineTo(-42, -104); ctx.lineTo(42, -104); ctx.lineTo(50, -64); ctx.stroke();
+      ctx.fillStyle = '#ef3f7a'; ctx.fillRect(-39, -100, 78, 24);
+      ctx.fillStyle = '#fff1d2'; ctx.font = '900 11px Arial Black, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('NIGHT FOOD', 0, -83);
+    } else if (prop.id.startsWith('vending')) {
+      ctx.fillStyle = '#d8d8cf'; ctx.strokeStyle = '#30343b'; ctx.lineWidth = 5; ctx.fillRect(-30, -92, 60, 92); ctx.strokeRect(-30, -92, 60, 92);
+      ctx.fillStyle = '#e14e4a'; ctx.fillRect(-23, -82, 46, 25); ctx.fillStyle = '#77c5df'; ctx.fillRect(-21, -50, 42, 35);
+      ctx.fillStyle = '#f5e6b1'; for (let i = 0; i < 3; i += 1) ctx.fillRect(-16 + i * 13, -43, 8, 18);
+    } else if (prop.id.startsWith('lantern')) {
+      ctx.strokeStyle = '#2f2a2a'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -96); ctx.stroke();
+      ctx.fillStyle = '#d8433f'; ctx.beginPath(); ctx.ellipse(0, -78, 24, 30, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#f0c359'; ctx.fillRect(-18, -82, 36, 6);
+    } else if (prop.id.startsWith('bag')) {
+      ctx.strokeStyle = '#5c6168'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(0, -118); ctx.lineTo(0, -94); ctx.stroke();
+      ctx.fillStyle = '#7d3036'; ctx.strokeStyle = '#2d2528'; ctx.lineWidth = 5; ctx.beginPath(); ctx.roundRect(-24, -96, 48, 86, 18); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#d0a44a'; ctx.fillRect(-19, -64, 38, 8);
+    } else if (prop.id.startsWith('bin')) {
+      ctx.fillStyle = '#344957'; ctx.strokeStyle = '#1d2931'; ctx.lineWidth = 5; ctx.fillRect(-22, -58, 44, 58); ctx.strokeRect(-22, -58, 44, 58);
+      ctx.fillStyle = '#556e7b'; ctx.fillRect(-26, -64, 52, 9);
+    } else if (prop.id.startsWith('console')) {
+      ctx.fillStyle = '#354455'; ctx.strokeStyle = '#161d26'; ctx.lineWidth = 5; ctx.fillRect(-40, -70, 80, 70); ctx.strokeRect(-40, -70, 80, 70);
+      ctx.fillStyle = '#64d1e6'; ctx.fillRect(-29, -58, 58, 28); ctx.fillStyle = '#d9bd61'; ctx.fillRect(-23, -20, 18, 7); ctx.fillRect(5, -20, 18, 7);
+    } else if (prop.id.startsWith('tank')) {
+      ctx.fillStyle = '#45566d'; ctx.strokeStyle = '#1d2632'; ctx.lineWidth = 5; ctx.beginPath(); ctx.roundRect(-25, -92, 50, 92, 18); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(105,217,238,.55)'; ctx.fillRect(-16, -70, 32, 48); ctx.fillStyle = '#d9bd61'; ctx.fillRect(-22, -12, 44, 7);
+    } else if (prop.id.startsWith('crate')) {
+      ctx.fillStyle = '#8c6039'; ctx.strokeStyle = '#3d2a20'; ctx.lineWidth = 5; ctx.fillRect(-31, -55, 62, 55); ctx.strokeRect(-31, -55, 62, 55);
+      ctx.beginPath(); ctx.moveTo(-27, -50); ctx.lineTo(27, -5); ctx.moveTo(27, -50); ctx.lineTo(-27, -5); ctx.stroke();
+    } else {
+      ctx.fillStyle = '#a53c42'; ctx.strokeStyle = '#47252b'; ctx.lineWidth = 4; ctx.beginPath(); ctx.roundRect(-16, -46, 32, 46, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#d8b050'; ctx.fillRect(-22, -37, 44, 8);
+    }
+    }
+    const ratio = prop.hp / prop.maxHp;
+    if (ratio < .98) { ctx.fillStyle = 'rgba(0,0,0,.62)'; ctx.fillRect(-28, -76, 56, 5); ctx.fillStyle = ratio > .45 ? '#e8bd56' : '#d65a52'; ctx.fillRect(-28, -76, 56 * ratio, 5); }
     ctx.restore();
   }
 
+  private drawStageBackdropArt(ctx: CanvasRenderingContext2D): boolean {
+    const art = artImage(stageArtKey(this.stageId));
+    if (!art) return false;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, this.stageLength, 720); ctx.clip();
+    ctx.globalAlpha = 1;
+    const width = this.world.rules.mode === 'belt' ? this.stageLength : 2160;
+    const x = this.world.rules.mode === 'belt' ? 0 : -440;
+    ctx.drawImage(art, x, -100, width, 820);
+    ctx.fillStyle = 'rgba(7,10,16,.12)';
+    ctx.fillRect(0, 0, this.stageLength, 720);
+    ctx.restore();
+    return true;
+  }
+
   private drawStageBackdrop(ctx: CanvasRenderingContext2D): void {
+    if (this.drawStageBackdropArt(ctx)) return;
     if (this.stageId === 2) { this.drawHongKong(ctx); return; }
     if (this.stageId === 3) { this.drawJapan(ctx); return; }
     if (this.stageId === 4) { this.drawLondon(ctx); return; }
@@ -1024,6 +1134,7 @@ export class Stage1Scene implements Scene {
   }
 
   private drawArenaFloor(ctx: CanvasRenderingContext2D): void {
+    if (artImage(stageArtKey(this.stageId))) return;
     const g = ctx.createLinearGradient(0, 510, 0, 720);
     g.addColorStop(0, 'rgba(44,52,61,.96)');
     g.addColorStop(1, '#171d24');
@@ -1062,6 +1173,11 @@ export class Stage1Scene implements Scene {
       ctx.fillStyle = 'rgba(255,255,255,.68)';
       ctx.font = '800 11px Arial, sans-serif';
       ctx.fillText(`${this.world.playerComboDamage} DAMAGE`, x + 2, y + 24);
+      ctx.textAlign = 'right'; ctx.fillStyle = '#ffd773'; ctx.font = '900 10px Arial, sans-serif';
+      const tier = this.world.playerComboHits >= 10 ? 'RUSH' : this.world.playerComboHits >= 5 ? 'COMBO' : this.world.playerComboHits >= 2 ? 'CHAIN' : 'LINK';
+      ctx.fillText(tier, x + 166, y);
+      ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(x + 2, y + 31, 166, 3);
+      ctx.fillStyle = '#ffd773'; ctx.fillRect(x + 2, y + 31, 166 * this.world.comboLinkProgress, 3);
       ctx.restore();
     } else if (this.world.lastPlayerHitTimer > 0) {
       const p = Math.min(1, this.world.lastPlayerHitTimer / 12);
@@ -1087,8 +1203,12 @@ export class Stage1Scene implements Scene {
     }
 
     if (player.currentMove) {
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = 'rgba(8,10,15,.75)'; ctx.beginPath(); ctx.roundRect(485, 112, 310, 40, 9); ctx.fill();
-      ctx.fillStyle = player.currentMove.color; ctx.font = '900 17px Arial Black, sans-serif'; ctx.fillText(player.currentMove.label, 640, 139);
+      ctx.fillStyle = player.currentMove.color; ctx.font = '900 17px Arial Black, sans-serif'; ctx.fillText(player.currentMove.label, 640, 139, 278);
+      ctx.restore();
     }
     if (this.world.rules.mode === 'duel' && enemy.aiCornerPressureFrames > 0) {
       ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(255,144,96,.9)'; ctx.font = '900 11px Arial Black, sans-serif';
@@ -1133,6 +1253,13 @@ export class Stage1Scene implements Scene {
     ctx.restore();
   }
 
+  private drawFocusedEnemyMarker(ctx: CanvasRenderingContext2D, fighter: Fighter): void {
+    ctx.save(); ctx.strokeStyle = 'rgba(255,215,115,.86)'; ctx.fillStyle = '#ffd773'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(fighter.x, fighter.y + 3, 28, 8, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(fighter.x - 5, fighter.y + 13); ctx.lineTo(fighter.x + 5, fighter.y + 13); ctx.lineTo(fighter.x, fighter.y + 18); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
   private drawBeltHud(ctx: CanvasRenderingContext2D, player: Fighter): void {
     const presentation = stagePresentationProfile(this.stageId);
     const layout = hudModeProfile('belt');
@@ -1147,16 +1274,21 @@ export class Stage1Scene implements Scene {
     this.drawHudHp(ctx, 104, 69, Math.max(210, layout.playerPanelWidth - 55), player.hp / player.maxHp, presentation.hudAccent, false);
     this.drawSuperMeter(ctx, player, 104, 93, 255, false, '#51c7f4');
 
-    const threatX = 1005;
-    ctx.fillStyle = 'rgba(7,10,15,.86)'; ctx.beginPath(); ctx.roundRect(threatX, 18, 249, 92, 12); ctx.fill();
-    ctx.strokeStyle = `${presentation.hudEnemy}55`; ctx.stroke();
-    ctx.textAlign = 'right'; ctx.fillStyle = presentation.hudEnemy; ctx.font = '900 11px Arial Black, sans-serif'; ctx.fillText('THREAT GRID', 1238, 41);
-    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.font = '800 9px ui-monospace, monospace'; ctx.fillText(`AREA ${this.beltWave + 1}/${this.beltWaveCount} • ${this.defeatedEnemies} DOWN`, 1238, 56);
-    for (let i = 0; i < this.world.enemies.length; i += 1) {
-      const e = this.world.enemies[i]!; const y = 67 + i * 9;
-      ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(1050, y, 186, 5);
-      ctx.fillStyle = e.hp > 0 ? presentation.hudEnemy : '#39414c'; ctx.fillRect(1050, y, 186 * Math.max(0, e.hp / e.maxHp), 5);
+    const threatX = 1005, target = this.world.focusedEnemy;
+    ctx.fillStyle = 'rgba(7,10,15,.9)'; ctx.beginPath(); ctx.roundRect(threatX, 18, 249, 92, 12); ctx.fill();
+    ctx.strokeStyle = presentation.hudEnemy + '66'; ctx.stroke();
+    ctx.textAlign = 'left'; ctx.fillStyle = '#ffd773'; ctx.font = '900 10px Arial, sans-serif'; ctx.fillText('TARGET', 1020, 35);
+    ctx.textAlign = 'right'; ctx.fillStyle = '#e6e9ee'; ctx.fillText(this.world.livingEnemies.length + ' FOES LEFT', 1238, 35);
+    if (target) {
+      this.drawHudPortrait(ctx, target.character, 1020, 45, 34, false, presentation.hudEnemy);
+      ctx.textAlign = 'left'; ctx.fillStyle = '#fff5e8'; ctx.font = '900 18px Arial Black, sans-serif'; ctx.fillText(target.character.name, 1065, 57, 173);
+      this.drawHudHp(ctx, 1065, 67, 173, target.hp / target.maxHp, presentation.hudEnemy, false);
+      ctx.textAlign = 'right'; ctx.fillStyle = '#f3e9db'; ctx.font = '800 10px Arial, sans-serif'; ctx.fillText(Math.max(0, Math.ceil(target.hp)) + ' / ' + target.maxHp, 1238, 98);
+    } else {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#ffe39e'; ctx.font = '900 18px Arial Black, sans-serif'; ctx.fillText('AREA CLEAR', 1130, 70);
     }
+    ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.font = '800 9px ui-monospace, monospace';
+    ctx.fillText('AREA ' + (this.beltWave + 1) + '/' + this.beltWaveCount + ' • ' + this.defeatedEnemies + ' DOWN', 1020, 98);
     ctx.textAlign = 'center'; ctx.fillStyle = '#fff7e8'; ctx.font = '900 31px Impact, sans-serif'; ctx.fillText(String(Math.ceil(this.stageTime)).padStart(2, '0'), 640, 49);
     ctx.fillStyle = presentation.hudAccent; ctx.fillRect(606, 58, 68, 2);
     ctx.fillStyle = 'rgba(255,255,255,.48)'; ctx.font = '800 9px ui-monospace, monospace'; ctx.fillText('SCROLL FORWARD // CLEAR ACTIVE THREATS', 640, 77);
@@ -1313,17 +1445,20 @@ export class Stage1Scene implements Scene {
 
   private drawFx(ctx: CanvasRenderingContext2D): void {
     for (const event of this.world.events) {
+      if (drawPropImpact(ctx, event)) continue;
       const fx = fxPolishProfile(event);
       const rawP = Math.max(0, Math.min(1, event.ttl / fx.baseTtl));
       const p = Math.pow(rawP, fx.fadePower);
       const fxScale = fx.size;
-      if (fx.afterglow > 0 && event.type !== 'ko') {
+      const authoredImpact = (this.phase === 'belt' || this.phase === 'duel' || this.phase === 'final-duel') && drawCombatImpact(ctx, event);
+      if (!authoredImpact && fx.afterglow > 0 && event.type !== 'ko') {
         ctx.save(); ctx.globalCompositeOperation = 'screen';
         const glow = ctx.createRadialGradient(event.x, event.y, 2, event.x, event.y, 28 + event.power * .08 * fxScale);
         glow.addColorStop(0, `rgba(255,242,204,${p * fx.afterglow})`); glow.addColorStop(1, 'rgba(255,242,204,0)');
         ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(event.x, event.y, 32 + event.power * .09 * fxScale, 0, Math.PI * 2); ctx.fill(); ctx.restore();
       }
       if (event.type === 'parry' || event.type === 'red-parry') {
+        if (authoredImpact) continue;
         ctx.save();
         ctx.translate(event.x, event.y);
         ctx.globalCompositeOperation = 'screen';
@@ -1339,31 +1474,33 @@ export class Stage1Scene implements Scene {
         }
         ctx.restore();
       } else if (event.type === 'hit' || event.type === 'air-hit' || event.type === 'command-hit' || event.type === 'target-hit' || event.type === 'counter' || event.type === 'block' || event.type === 'throw-escape') {
-        ctx.save(); ctx.translate(event.x, event.y); ctx.rotate(this.time * 5);
-        const spark = event.type === 'block' ? `rgba(180,200,226,${p})` : event.type === 'counter' ? `rgba(255,94,75,${p})` : event.type === 'throw-escape' ? `rgba(136,240,220,${p})` : event.type === 'air-hit' ? `rgba(136,222,255,${p})` : event.type === 'command-hit' ? `rgba(255,166,83,${p})` : event.type === 'target-hit' ? `rgba(255,237,112,${p})` : `rgba(255,210,82,${p})`;
-        ctx.fillStyle = spark;
-        const shape = hitSparkProfile(event);
-        const rays = Math.max(shape.rays, combatFxDensity(runtimeQuality.currentTier, event.power));
-        ctx.rotate(shape.rotation);
-        if (shape.shape === 'ring' || shape.shape === 'guard') {
-          ctx.strokeStyle = spark; ctx.lineWidth = shape.width;
-          ctx.beginPath(); ctx.arc(0, 0, (shape.core + (1 - p) * 34) * fxScale, 0, Math.PI * 2); ctx.stroke();
-          if (shape.shape === 'guard') { ctx.beginPath(); ctx.arc(0, 0, (shape.core + 14) * fxScale, -.8, .8); ctx.stroke(); }
-        }
-        for (let i = 0; i < rays; i += 1) {
-          ctx.save(); ctx.rotate(Math.PI * 2 * i / rays);
-          if (shape.shape === 'cross' && i % 2) ctx.rotate(.32);
-          if (shape.shape === 'shards') { ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(shape.length * fxScale, -shape.width * fxScale); ctx.lineTo(shape.length * .72 * fxScale, shape.width * fxScale); ctx.closePath(); ctx.fill(); }
-          else ctx.fillRect(shape.core * .45, -shape.width * .5, (shape.length + event.power * .05) * fxScale, shape.width * fxScale);
+        if (!authoredImpact) {
+          ctx.save(); ctx.translate(event.x, event.y); ctx.rotate(this.time * 5);
+          const spark = event.type === 'block' ? `rgba(180,200,226,${p})` : event.type === 'counter' ? `rgba(255,94,75,${p})` : event.type === 'throw-escape' ? `rgba(136,240,220,${p})` : event.type === 'air-hit' ? `rgba(136,222,255,${p})` : event.type === 'command-hit' ? `rgba(255,166,83,${p})` : event.type === 'target-hit' ? `rgba(255,237,112,${p})` : `rgba(255,210,82,${p})`;
+          ctx.fillStyle = spark;
+          const shape = hitSparkProfile(event);
+          const rays = Math.max(shape.rays, combatFxDensity(runtimeQuality.currentTier, event.power));
+          ctx.rotate(shape.rotation);
+          if (shape.shape === 'ring' || shape.shape === 'guard') {
+            ctx.strokeStyle = spark; ctx.lineWidth = shape.width;
+            ctx.beginPath(); ctx.arc(0, 0, (shape.core + (1 - p) * 34) * fxScale, 0, Math.PI * 2); ctx.stroke();
+            if (shape.shape === 'guard') { ctx.beginPath(); ctx.arc(0, 0, (shape.core + 14) * fxScale, -.8, .8); ctx.stroke(); }
+          }
+          for (let i = 0; i < rays; i += 1) {
+            ctx.save(); ctx.rotate(Math.PI * 2 * i / rays);
+            if (shape.shape === 'cross' && i % 2) ctx.rotate(.32);
+            if (shape.shape === 'shards') { ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(shape.length * fxScale, -shape.width * fxScale); ctx.lineTo(shape.length * .72 * fxScale, shape.width * fxScale); ctx.closePath(); ctx.fill(); }
+            else ctx.fillRect(shape.core * .45, -shape.width * .5, (shape.length + event.power * .05) * fxScale, shape.width * fxScale);
+            ctx.restore();
+          }
           ctx.restore();
         }
-        ctx.restore();
-        if (event.type === 'counter' || event.type === 'throw-escape' || event.type === 'command-hit' || event.type === 'target-hit') {
+        // Routine move names already live in the HUD; keep bodies and impacts unobscured.
+        if (event.type === 'counter' || event.type === 'throw-escape') {
           ctx.textAlign = 'center';
           ctx.font = '900 18px Arial Black, sans-serif';
-          ctx.fillStyle = event.type === 'counter' ? `rgba(255,110,92,${p})` : event.type === 'throw-escape' ? `rgba(155,255,230,${p})` : event.type === 'command-hit' ? `rgba(255,190,110,${p})` : `rgba(255,244,145,${p})`;
-          const text = event.type === 'counter' ? 'COUNTER!' : event.type === 'throw-escape' ? 'THROW ESCAPE!' : event.type === 'command-hit' ? (event.label ?? 'COMMAND NORMAL') : (event.label ?? 'TARGET COMBO');
-          ctx.fillText(text, event.x, event.y - 34);
+          ctx.fillStyle = event.type === 'counter' ? `rgba(255,110,92,${p})` : `rgba(155,255,230,${p})`;
+          ctx.fillText(event.type === 'counter' ? 'COUNTER!' : 'THROW ESCAPE!', event.x, event.y - 34);
         }
       } else if (event.type === 'super-impact') {
         ctx.save(); ctx.translate(event.x, event.y); ctx.globalCompositeOperation = 'screen';
@@ -1417,6 +1554,31 @@ export class Stage1Scene implements Scene {
           ctx.fillText(event.type === 'enemy-collision' ? 'COLLISION!' : `${event.label ?? 'OBJECT'} BREAK!`, event.x, event.y - 28);
         }
       } else if (event.type === 'ko') {
+        // drawDefeat owns the screen-space result, including double KOs.
+        if (this.phase === 'defeat') continue;
+        // Mob defeats stay in world space; match-wide cues obscure a scrolling fight.
+        if (this.world.rules.mode === 'belt' && this.world.player.hp > 0) {
+          const radius = 18 + (1 - rawP) * 26;
+          ctx.save();
+          ctx.globalCompositeOperation = 'screen';
+          ctx.strokeStyle = `rgba(255,196,111,${p * .8})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(event.x, event.y, radius, 0, Math.PI * 2); ctx.stroke();
+          for (let i = 0; i < 6; i += 1) {
+            const angle = i * Math.PI / 3;
+            ctx.beginPath();
+            ctx.moveTo(event.x + Math.cos(angle) * (radius + 4), event.y + Math.sin(angle) * (radius + 4));
+            ctx.lineTo(event.x + Math.cos(angle) * (radius + 14), event.y + Math.sin(angle) * (radius + 14));
+            ctx.stroke();
+          }
+          ctx.restore();
+          ctx.save();
+          ctx.textAlign = 'center'; ctx.font = '900 24px Impact, sans-serif';
+          ctx.globalAlpha = p; ctx.lineWidth = 4; ctx.strokeStyle = '#53202b'; ctx.fillStyle = '#ffedbd';
+          ctx.strokeText('K.O.', event.x, event.y - 24); ctx.fillText('K.O.', event.x, event.y - 24);
+          ctx.restore();
+          continue;
+        }
         ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = `rgba(255,220,145,${p * .10})`; ctx.fillRect(0, 0, 1280, 720); ctx.strokeStyle = `rgba(255,105,85,${p * .65})`; ctx.lineWidth = 5; for (let i = 0; i < 10; i += 1) { const x = 140 + i * 112; ctx.beginPath(); ctx.moveTo(x, 170); ctx.lineTo(640 + (x - 640) * .35, 540); ctx.stroke(); } ctx.restore(); ctx.textAlign = 'center'; ctx.font = '900 108px Impact, sans-serif'; ctx.fillStyle = `rgba(255,236,190,${Math.min(1, p * 1.8)})`; ctx.strokeStyle = '#8b1e2b'; ctx.lineWidth = 10; ctx.strokeText('K.O.', 640, 360); ctx.fillText('K.O.', 640, 360); ctx.font = '900 14px Arial Black, sans-serif'; ctx.fillStyle = `rgba(255,214,143,${p})`; ctx.fillText('FINAL HIT', 640, 398);
       }
     }
@@ -1529,7 +1691,7 @@ export class Stage1Scene implements Scene {
   private drawIntro(ctx: CanvasRenderingContext2D): void {
     if (this.introFrames <= 0) return;
     const presentation = stagePresentationProfile(this.stageId);
-    const p = 1 - this.introFrames / 105;
+    const p = 1 - this.introFrames / transitionPolishProfile(this.stageId).introFrames;
     const reveal = Math.min(1, p * 2.8);
     const exit = Math.max(0, (p - .72) / .28);
     ctx.save();
@@ -1589,6 +1751,48 @@ export class Stage1Scene implements Scene {
   }
 
 
+  private settlePlayerAfterCombat(preserveInstall = false): void {
+    const player = this.world.player;
+    player.updateAiDirected(this.world.enemy, this.world.rules, {
+      role: 'wait', desiredX: player.x, desiredY: player.y,
+      attackAllowed: false, rangedAllowed: false,
+    }, preserveInstall);
+    if (player.airborne && player.state === 'idle') player.state = 'jump';
+  }
+
+  private advancePostCombatEffects(): void {
+    this.world.advanceEffects();
+    if (this.hitPulse > 0) this.hitPulse -= 1;
+    if (this.bossPatternFlash > 0) this.bossPatternFlash -= 1;
+    if (this.gillPhaseBanner > 0) this.gillPhaseBanner -= 1;
+  }
+
+  private updateKnockedOutFighters(): void {
+    for (const fighter of [this.world.player, ...this.world.enemies]) {
+      if (fighter.state === 'ko') fighter.updatePlayer(this.input, this.world.rules);
+    }
+  }
+
+  private prepareSuperHitTextures(): void {
+    if (characterTextureManager.wantsHd()) return;
+    const owners = new Set([this.world.player, ...this.world.enemies]
+      .filter(fighter => fighter.hp > 0).map(fighter => fighter.character.id));
+    for (const id of owners) {
+      const sequence = animationSequenceFor(id, 'super-hit', true);
+      if (sequence) liteAnimationTextureManager.selection(sequence);
+    }
+  }
+
+  private prepareCombatTextures(): void {
+    const opponentIds = this.world.enemies.map((enemy) => enemy.character.id);
+    characterTextureManager.focusCharacter(this.playerDef.id, ...opponentIds);
+    if (characterTextureManager.wantsHd()) {
+      for (const id of new Set([this.playerDef.id, ...opponentIds])) {
+        animationTextureManager.preloadCharacter(id, 'combat');
+      }
+    }
+  }
+
   private prepareDuel(): void {
     this.absorbWorldMetrics();
     const hp = Math.max(1, this.world.player.hp);
@@ -1606,7 +1810,9 @@ export class Stage1Scene implements Scene {
     duel.player.hp = hp;
     duel.player.superGauge = gauge;
     duel.enemy.hp = 1000;
+    duel.enemy.maxHp = 1000;
     this.world = duel;
+    this.prepareCombatTextures();
     this.stageTime = 99;
     this.cameraX = 0;
     this.cameraFocusFrames = 54;
@@ -1633,6 +1839,7 @@ export class Stage1Scene implements Scene {
     this.gillPhase = 1;
     this.gillPhaseBanner = 90;
     this.world = duel;
+    this.prepareCombatTextures();
     this.stageTime = 99;
     this.cameraX = 0;
     this.cameraFocusFrames = 78;
@@ -1643,6 +1850,12 @@ export class Stage1Scene implements Scene {
     this.cameraSlowFrames = 18;
     this.bossPatternCooldown = 140;
     this.bossPatternIndex = 0;
+  }
+
+  private canStartBossPattern(boss: Fighter): boolean {
+    if (boss.airborne || boss.hitStop > 0) return false;
+    return boss.state === 'idle' || boss.state === 'walk' || boss.state === 'crouch'
+      || (boss.state === 'attack' && boss.moveEffectTriggered && boss.currentMove?.kind === 'projectile');
   }
 
   private startBossScriptedMove(boss: Fighter, move: ReturnType<typeof specialMovesFor>['primary']): void {
@@ -1656,7 +1869,7 @@ export class Stage1Scene implements Scene {
     const boss = this.world.enemy;
     if (boss.character.id !== 'URIEN' || boss.hp <= 0) return;
     this.bossPatternCooldown -= 1;
-    if (this.bossPatternCooldown > 0 || (boss.state === 'attack' && !(boss.moveEffectTriggered && boss.currentMove?.kind === 'projectile')) || boss.hitStop > 0) return;
+    if (this.bossPatternCooldown > 0 || !this.canStartBossPattern(boss)) return;
     const specials = specialMovesFor('URIEN');
     const pattern = this.bossPatternIndex++ % 3;
     if (pattern === 0) {
@@ -1686,7 +1899,7 @@ export class Stage1Scene implements Scene {
     const boss = this.world.enemy;
     if (boss.character.id !== 'GILL' || boss.hp <= 0) return;
     this.bossPatternCooldown -= 1;
-    if (this.bossPatternCooldown > 0 || (boss.state === 'attack' && !(boss.moveEffectTriggered && boss.currentMove?.kind === 'projectile')) || boss.hitStop > 0) return;
+    if (this.bossPatternCooldown > 0 || !this.canStartBossPattern(boss)) return;
 
     const specials = specialMovesFor('GILL');
     // Keep Gill readable while making each phase materially broader:
@@ -2125,6 +2338,7 @@ export class Stage1Scene implements Scene {
   }
 
   private drawStageSetDressing(ctx: CanvasRenderingContext2D): void {
+    if (artImage(stageArtKey(this.stageId))) return;
     const profile = stageVisualProfile(this.stageId);
     const motionScale = runtimeQuality.current.backgroundMotionScale;
     const midCount = qualityDetailCount(profile.midDetail, motionScale);
@@ -2286,6 +2500,16 @@ export class Stage1Scene implements Scene {
     ctx.font = '900 13px Arial Black, sans-serif'; ctx.fillText(`FINAL BOSS • PHASE ${this.gillPhase} • ${Math.ceil(boss.hp)} / ${boss.maxHp}`, 640, 130);
     if (this.gillPhaseBanner <= 0) return;
     const p = Math.min(1, this.gillPhaseBanner / 45);
+    const message = this.gillPhase === 1 ? 'THE FINAL DUEL BEGINS' : this.gillPhase === 2 ? 'ATTACK TEMPO INCREASED • SUPER READY' : 'MAXIMUM PRESSURE • SUPER FREQUENCY UP';
+    // Once combat resumes, keep the warning above the actors instead of covering them.
+    if (this.world.superFreezeFrames <= 0) {
+      ctx.save(); ctx.globalAlpha = p;
+      ctx.fillStyle = 'rgba(12,8,22,.88)'; ctx.beginPath(); ctx.roundRect(370, 148, 540, 36, 9); ctx.fill();
+      ctx.fillStyle = this.gillPhase === 3 ? '#ffb07b' : '#d6eaff'; ctx.font = '900 14px Arial Black, sans-serif';
+      ctx.fillText(message, 640, 171);
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = `rgba(6,5,14,${Math.min(.62, p * .62)})`; ctx.fillRect(0, 170, 1280, 330);
     ctx.fillStyle = this.gillPhase === 3 ? `rgba(255,126,88,${p * .22})` : `rgba(105,172,255,${p * .18})`;
     ctx.beginPath(); ctx.arc(640, 335, 180 + (1 - p) * 120, 0, Math.PI * 2); ctx.fill();
@@ -2294,7 +2518,7 @@ export class Stage1Scene implements Scene {
     ctx.fillStyle = '#fff'; ctx.font = '900 54px Impact, sans-serif';
     ctx.fillText(this.gillPhase === 1 ? 'GILL' : this.gillPhase === 2 ? 'PHASE II — AWAKENED' : 'FINAL SEGMENT', 640, 330);
     ctx.fillStyle = this.gillPhase === 3 ? '#ffb07b' : '#d6eaff'; ctx.font = '900 17px Arial Black, sans-serif';
-    ctx.fillText(this.gillPhase === 1 ? 'THE FINAL DUEL BEGINS' : this.gillPhase === 2 ? 'ATTACK TEMPO INCREASED • SUPER READY' : 'MAXIMUM PRESSURE • SUPER FREQUENCY UP', 640, 372);
+    ctx.fillText(message, 640, 372);
   }
 
   private drawBossPatternFlash(ctx: CanvasRenderingContext2D): void {
@@ -2407,7 +2631,7 @@ export class Stage1Scene implements Scene {
     ctx.fillStyle = `rgba(241,189,81,${.95 * reveal})`; ctx.fillRect(456, 446, 368 * sweep, 3);
     ctx.fillStyle = `rgba(255,255,255,${.48 * reveal})`; ctx.font = '900 10px Arial Black, sans-serif';
     ctx.fillText(this.stageId === 5 ? `GILL DEFEATED • PARRY ${result.parries} • SUPER ${result.supersUsed} • ENDING ROUTE OPEN` : `PARRY ${result.parries} • THROW ${result.throwsLanded} • SUPER ${result.supersUsed} • NEXT STAGE READY`, 640, 478);
-    if (this.stageId === 5) {
+    if (this.stageId === 5 && !this.routeError) {
       const bridge = Math.max(0, Math.min(1, (p - .48) / .52));
       ctx.save(); ctx.globalCompositeOperation = 'screen';
       ctx.strokeStyle = `rgba(255,225,154,${bridge * .22})`; ctx.lineWidth = 3;
@@ -2428,10 +2652,10 @@ export class Stage1Scene implements Scene {
 
   private drawDefeat(ctx: CanvasRenderingContext2D): void {
     if (this.phase !== 'defeat') return;
-    const total = 120;
+    const total = DEFEAT_PRESENTATION_FRAMES[this.defeatReason];
     const elapsed = total - this.defeatFrames;
     const reveal = Math.max(0, Math.min(1, elapsed / 18));
-    const retryReveal = Math.max(0, Math.min(1, (elapsed - 36) / 22));
+    const retryReveal = this.defeatRetryQueued ? 1 : Math.max(0, Math.min(1, (elapsed - 36) / 22));
     ctx.save();
     ctx.fillStyle = `rgba(3,4,8,${.58 * reveal})`;
     ctx.fillRect(0, 0, 1280, 720);
@@ -2445,7 +2669,7 @@ export class Stage1Scene implements Scene {
     ctx.fillText(defeatTitle, 640, 350);
     ctx.fillStyle = `rgba(241,189,81,${retryReveal})`;
     ctx.font = '900 16px Arial Black, sans-serif';
-    ctx.fillText(this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / ENTER / ATTACK TO RETRY', 640, 406);
+    ctx.fillText(this.defeatRetryQueued ? 'RETRY QUEUED' : this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / ENTER / ATTACK TO RETRY', 640, 406);
     ctx.fillStyle = `rgba(255,255,255,${.62 * retryReveal})`;
     ctx.font = '800 11px Arial, sans-serif';
     ctx.fillText('CHARACTER / SUPER ART / CAMPAIGN PROGRESS KEPT', 640, 430);
@@ -2467,6 +2691,7 @@ export class Stage1Scene implements Scene {
     ctx.fillStyle = 'rgba(255,255,255,.68)';
     ctx.font = '800 11px Arial, sans-serif';
     ctx.fillText('SPACE / JUMP : JUMP   •   ↑ ↓ : DEPTH MOVE IN BELT MODE', 640, 416);
+    this.drawControlGuide(ctx);
     ctx.restore();
   }
 
@@ -2599,8 +2824,15 @@ export class Stage1Scene implements Scene {
       if (pose.wing > .04) { ctx.strokeStyle = `rgba(255,242,183,${pose.wing * .5})`; ctx.lineWidth = 6; for (const side of [-1,1]) { ctx.beginPath(); ctx.moveTo(side * 16, -132); ctx.quadraticCurveTo(side * (85 + pose.wing * 70), -190, side * (126 + pose.wing * 74), -74); ctx.stroke(); } }
       ctx.restore();
     }
-    drawCharacterPreview(ctx, boss.character, 0, 0, 1.08, boss.facing, this.time + progress, progress < .3 ? 'parry' : 'signature');
     ctx.restore();
+    if (!drawGroundedKoCinematic(ctx, boss, 180 - this.finalKoFrames)) {
+      ctx.save();
+      ctx.translate(boss.x + pose.x, boss.y + pose.y);
+      ctx.rotate(pose.rotation);
+      ctx.scale(pose.scale, pose.scale);
+      drawCharacterPreview(ctx, boss.character, 0, 0, 1.08, boss.facing, this.time + progress, progress < .3 ? 'parry' : 'signature');
+      ctx.restore();
+    }
 
     ctx.save(); ctx.globalCompositeOperation = 'screen';
     const fade = 1 - progress;
@@ -2618,6 +2850,10 @@ export class Stage1Scene implements Scene {
   }
 
   private drawBackgroundMotion(ctx: CanvasRenderingContext2D): void {
+    if (artImage(stageArtKey(this.stageId))) {
+      drawStageAmbient(ctx, this.stageId, this.time, this.world.rules.mode, this.stageLength, this.world.rules.mode === 'belt' ? this.cameraX : 0);
+      return;
+    }
     const quality = runtimeQuality.current;
     const count = (base: number) => Math.max(1, Math.round(base * quality.backgroundMotionScale));
     ctx.save();
@@ -2647,6 +2883,7 @@ export class Stage1Scene implements Scene {
   }
 
   private drawStageForegroundArt(ctx: CanvasRenderingContext2D, scroll: number): void {
+    if (artImage(stageArtKey(this.stageId))) return;
     const art = artImage(stageForegroundKey(this.stageId));
     if (!art) return;
     const profile = stageDepthProfile(this.stageId);
@@ -2666,6 +2903,7 @@ export class Stage1Scene implements Scene {
   }
 
   private drawForegroundMotion(ctx: CanvasRenderingContext2D, fighters: readonly Fighter[]): void {
+    if (artImage(stageArtKey(this.stageId))) return;
     if (!runtimeQuality.current.secondaryFx) return;
     ctx.save();
     const t = this.time;
@@ -2694,6 +2932,7 @@ export class Stage1Scene implements Scene {
   }
 
   private drawDepthParallax(ctx: CanvasRenderingContext2D, scroll: number, layer: 'far' | 'near'): void {
+    if (artImage(stageArtKey(this.stageId))) return;
     if (this.world.rules.mode !== 'belt') return;
     const profile = stageDepthProfile(this.stageId);
     const factor = layer === 'far' ? profile.farFactor : profile.nearFactor;
@@ -2755,20 +2994,33 @@ export class Stage1Scene implements Scene {
   }
 
   private drawHelp(ctx: CanvasRenderingContext2D): void {
+    if (this.paused || (this.phase !== 'belt' && this.phase !== 'duel' && this.phase !== 'final-duel')) return;
     ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(5,7,12,.72)'; ctx.beginPath(); ctx.roundRect(22, 628, 1236, 76, 12); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.74)'; ctx.font = '700 11px Arial, sans-serif';
-    ctx.fillText(this.world.rules.mode === 'duel' ? 'DUEL: ← → WALK   ↑ / SPACE JUMP   ↓ CROUCH   •   LP MP HP / LK MK HK' : 'BELT: ← → ADVANCE   ↑ ↓ DEPTH   •   SPACE / JUMP BUTTON = JUMP   •   LP MP HP / LK MK HK', 38, 650);
-    ctx.fillText('PARRY: TAP FORWARD   •   LOW PARRY: TAP DOWN   •   THROW: LP+LK   •   START / P: PAUSE', 38, 669);
+    ctx.fillStyle = 'rgba(5,7,12,.62)';
+    ctx.beginPath(); ctx.roundRect(22, 672, 1236, 32, 10); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.8)';
+    ctx.font = '700 13px Arial, sans-serif';
+    ctx.fillText(this.world.rules.mode === 'duel' ? 'DUEL  •  ← → WALK  •  ↑ / SPACE JUMP  •  ↓ CROUCH' : 'BELT  •  ← → ADVANCE  •  ↑ ↓ DEPTH  •  SPACE / JUMP', 38, 693);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#f1bd51';
+    ctx.fillText('START / P  •  MOVE LIST & PAUSE', 1242, 693);
+  }
+
+  private drawControlGuide(ctx: CanvasRenderingContext2D): void {
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(5,7,12,.72)'; ctx.beginPath(); ctx.roundRect(22, 478, 1236, 120, 12); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.74)'; ctx.font = '700 13px Arial, sans-serif';
+    ctx.fillText(this.world.rules.mode === 'duel' ? 'DUEL: ← → WALK   ↑ / SPACE JUMP   ↓ CROUCH   •   LP MP HP / LK MK HK' : 'BELT: ← → ADVANCE   ↑ ↓ DEPTH   •   SPACE / JUMP BUTTON = JUMP   •   LP MP HP / LK MK HK', 38, 506, 580);
+    ctx.fillText('PARRY: TAP FORWARD   •   LOW PARRY: TAP DOWN   •   THROW: LP+LK   •   START / P: PAUSE', 38, 541, 580);
     const techniques = techniqueCatalogFor(this.playerDef.id);
     const command = techniques.command;
     ctx.fillStyle = 'rgba(255,226,132,.9)';
-    ctx.fillText(`COMMAND: F+${command?.button?.toUpperCase() ?? '—'} ${command?.label ?? '—'}   •   AIR: JUMP + ATTACK   •   TARGET COMBO: HIT → FOLLOW-UP`, 38, 690);
+    ctx.fillText(`COMMAND: F+${command?.button?.toUpperCase() ?? '—'} ${command?.label ?? '—'}   •   AIR: JUMP + ATTACK   •   TARGET COMBO: HIT → FOLLOW-UP`, 38, 576, 580);
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(155,222,255,.82)';
     const specials = specialMovesFor(this.playerDef.id);
-    ctx.fillText(`${specials.primary.label} ↓↘→+P   ${specials.antiAir.label} →↓↘+P   ${specials.mobility.label} ↓↙←+K`, 1242, 650);
+    ctx.fillText(`${specials.primary.label} ↓↘→+P   ${specials.antiAir.label} →↓↘+P   ${specials.mobility.label} ↓↙←+K`, 1242, 506, 580);
     ctx.fillStyle = 'rgba(255,244,187,.82)';
-    ctx.fillText(`SUPER ART ${this.superArt.id}: ${this.superArt.name}   ↓↘→ ↓↘→ + P`, 1242, 690);
+    ctx.fillText(`SUPER ART ${this.superArt.id}: ${this.superArt.name}   ↓↘→ ↓↘→ + P`, 1242, 576, 580);
   }
 }

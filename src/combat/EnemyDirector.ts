@@ -1,5 +1,6 @@
 import type { EnemyDirective, EnemyRole, ModeRules } from './CombatTypes.js';
 import type { Fighter } from './Fighter.js';
+import { specialMovesFor } from './MoveLibrary.js';
 
 export class EnemyDirector {
   private frame = 0;
@@ -55,7 +56,7 @@ export class EnemyDirector {
   }
 
   private canUseRanged(enemy: Fighter): boolean {
-    return enemy.aiProfile.rangedBias > 0 && (enemy.character.id === 'RYU' || enemy.character.id === 'KEN' || enemy.character.id === 'CHUNLI' || enemy.character.id === 'IBUKI' || enemy.character.id === 'YUN');
+    return enemy.aiProfile.rangedBias > 0 && !!specialMovesFor(enemy.character.id).primary.projectile;
   }
 
   private directiveFor(role: EnemyRole, player: Fighter, enemy: Fighter, index: number, rules: ModeRules): EnemyDirective {

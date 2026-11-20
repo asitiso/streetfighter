@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { TitleScene } from '../dist/assets/scenes/TitleScene.js';
 import { StageSelectScene } from '../dist/assets/scenes/StageSelectScene.js';
+import { GameApp } from '../dist/assets/core/GameApp.js';
 
 class StubInput {
   constructor() { this.keys = new Set(); }
@@ -61,7 +62,24 @@ if (!backed) fail('stage select back action missing');
 
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const appSource = readFileSync(join(distRoot, 'assets/core/GameApp.js'), 'utf8');
-if (!appSource.includes('startStageNumber(stage, character, art, false, true)')) fail('stage select does not enter isolated replay mode');
+let wiredSelection; let replayArguments; let backCalls = 0;
+const fighter = { character: { id: 'KEN' }, art: { id: 2 } };
+const wiredApp = {
+  input: stageInput, audio, save: { stageSelectUnlocked: true, currentStage: 3 },
+  scenes: { setScene: async (scene) => { wiredSelection = scene; } },
+  savedFighter: () => fighter,
+  startStageNumber: async (...args) => { replayArguments = args; },
+  showTitle: async () => { backCalls += 1; },
+};
+await GameApp.prototype.showStageSelect.call(wiredApp);
+const replayResult = wiredSelection.confirm(4);
+if (typeof replayResult?.then !== 'function') fail('stage selection must return replay Promise');
+await replayResult;
+if (replayArguments?.[0] !== 4 || replayArguments[1] !== fighter.character || replayArguments[2] !== fighter.art || replayArguments[3] !== false || replayArguments[4] !== true) fail('stage select does not enter isolated replay mode');
+const backResult = wiredSelection.back(4);
+if (typeof backResult?.then !== 'function') fail('stage back must return title Promise');
+await backResult;
+if (backCalls !== 1) fail('stage back must dispatch title once');
 if (!appSource.includes('replay ? this.showStageSelect()')) fail('replay clear does not return to stage select');
 if (!appSource.includes('if (!replay)')) fail('replay mode still mutates campaign progression');
 

@@ -74,27 +74,50 @@ const assetManagerSource = readFileSync(new URL('../dist/assets/core/AssetManage
 assert.ok(assetManagerSource.includes("navigator.onLine !== false"), 'online asset loading must distinguish fresh-code mode');
 assert.ok(assetManagerSource.includes("url.startsWith('/assets/')") && assetManagerSource.includes("url.endsWith('.js')"), 'online JS assets must prefer network freshness');
 
-const originalCaches = globalThis.caches;
-const originalFetch = globalThis.fetch;
+const originalGlobals = Object.fromEntries(['caches', 'fetch', 'navigator'].map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
 const cacheMap = new Map();
-for (const url of ASSET_GROUPS['stage-2']) cacheMap.set(url, new Response('cached-module', { status: 200, headers: { 'content-type': 'text/javascript' } }));
-globalThis.caches = {
-  open: async () => ({
+const stageUrls = ASSET_GROUPS['stage-2'];
+const codeUrls = stageUrls.filter((url) => url.startsWith('/assets/') && url.endsWith('.js'));
+assert.ok(codeUrls.length > 0, 'fixture must exercise deferred JavaScript');
+let cut;
+function setGlobal(name, value) { Object.defineProperty(globalThis, name, { configurable: true, writable: true, value }); }
+try {
+  for (const url of stageUrls) cacheMap.set(url, new Response('cached-module'));
+  setGlobal('caches', { open: async () => ({
     match: async (request) => cacheMap.get(typeof request === 'string' ? request : request.url)?.clone(),
     put: async (request, response) => { cacheMap.set(typeof request === 'string' ? request : request.url, response.clone()); },
-  }),
-};
-let networkCalls = 0;
-globalThis.fetch = async () => { networkCalls += 1; throw new TypeError('simulated network cut'); };
-const offlineAssets = new AssetManager();
-await offlineAssets.loadGroup('stage-2');
-assert.equal(offlineAssets.hasGroup('stage-2'), true);
-assert.equal(networkCalls, 0, 'cache-first stage load should not touch failed network when cached');
-const cut = await offlineAssets.verifyNetworkCutFallback(ASSET_GROUPS['stage-2']);
-assert.equal(cut.ready, true);
+  }) });
+  let networkCalls = 0;
+  setGlobal('navigator', { onLine: false });
+  setGlobal('fetch', async () => { networkCalls += 1; throw new TypeError('simulated network cut'); });
+  const offlineAssets = new AssetManager();
+  await offlineAssets.loadGroup('stage-2');
+  assert.equal(offlineAssets.hasGroup('stage-2'), true);
+  assert.equal(networkCalls, 0, 'explicitly offline cached stage must not touch the network');
+  cut = await offlineAssets.verifyNetworkCutFallback(stageUrls);
+  assert.equal(cut.ready, true);
 
-if (originalCaches === undefined) delete globalThis.caches; else globalThis.caches = originalCaches;
-if (originalFetch === undefined) delete globalThis.fetch; else globalThis.fetch = originalFetch;
+  setGlobal('navigator', { onLine: true });
+  const cutAssets = new AssetManager();
+  await cutAssets.loadGroup('stage-2');
+  assert.equal(cutAssets.hasGroup('stage-2'), true, 'unexpected network loss must recover cached modules');
+  assert.equal(networkCalls, codeUrls.length, 'online JavaScript must attempt the network before cached fallback');
+
+  const freshRequests = [];
+  setGlobal('fetch', async (url, options) => {
+    freshRequests.push(url);
+    assert.equal(options.cache, 'reload');
+    return new Response('fresh-module');
+  });
+  await new AssetManager().loadGroup('stage-2');
+  assert.deepEqual([...freshRequests].sort(), [...codeUrls].sort());
+  for (const url of codeUrls) assert.equal(await cacheMap.get(url).clone().text(), 'fresh-module');
+} finally {
+  for (const [name, descriptor] of Object.entries(originalGlobals)) {
+    if (descriptor) Object.defineProperty(globalThis, name, descriptor);
+    else delete globalThis[name];
+  }
+}
 
 const stableMemory = new RuntimeTelemetry();
 for (let second = 0; second <= 30; second += 1) {

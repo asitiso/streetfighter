@@ -1,0 +1,93 @@
+{
+  "character": "URIEN",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.8186274509803921,
+  "sourceBounds": [
+    [
+      88,
+      133,
+      418,
+      421
+    ],
+    [
+      65,
+      154,
+      447,
+      413
+    ],
+    [
+      63,
+      236,
+      456,
+      423
+    ],
+    [
+      109,
+      170,
+      404,
+      440
+    ],
+    [
+      112,
+      137,
+      419,
+      448
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      121,
+      186,
+      392,
+      422
+    ],
+    [
+      99,
+      210,
+      413,
+      422
+    ],
+    [
+      95,
+      270,
+      418,
+      422
+    ],
+    [
+      135,
+      202,
+      377,
+      422
+    ],
+    [
+      131,
+      166,
+      381,
+      422
+    ],
+    [
+      152,
+      88,
+      360,
+      422
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/urien.webp",
+  "bytes": 428930,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "cb5ba38fe135f009f50ae49f0bb0488304ea00d1e3544cef4d072fdb52bf4a52",
+    "generation-reference.png": "5a1edaa6494c385b5804ad5874d45d535b3ef462775434c4addaf29b8628cf15",
+    "reference-settle.png": "5a1edaa6494c385b5804ad5874d45d535b3ef462775434c4addaf29b8628cf15",
+    "generation-prompt.txt": "c13444798156aeed2b7d305a32406938867d4e0975ec623458a4b36de32e7314",
+    "urien.webp": "08332767139d72c938420032c9a8c0118c16039b8e7f3ab12babcdf0cf6417f3"
+  }
+}

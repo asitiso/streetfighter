@@ -1,0 +1,151 @@
+{
+  "character": "CHUNLI",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.6962809917355371,
+  "sourceBounds": [
+    [
+      77,
+      15,
+      451,
+      478
+    ],
+    [
+      33,
+      34,
+      466,
+      478
+    ],
+    [
+      54,
+      44,
+      427,
+      479
+    ],
+    [
+      70,
+      16,
+      443,
+      492
+    ],
+    [
+      42,
+      18,
+      464,
+      489
+    ],
+    [
+      67,
+      9,
+      442,
+      493
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      130,
+      100,
+      391,
+      423
+    ],
+    [
+      93,
+      114,
+      395,
+      423
+    ],
+    [
+      103,
+      120,
+      363,
+      423
+    ],
+    [
+      126,
+      91,
+      386,
+      423
+    ],
+    [
+      108,
+      95,
+      402,
+      423
+    ],
+    [
+      132,
+      86,
+      393,
+      423
+    ],
+    [
+      135,
+      86,
+      376,
+      423
+    ],
+    [
+      134,
+      85,
+      376,
+      423
+    ]
+  ],
+  "centroidTargetX": 253.80266819831033,
+  "centroids": [
+    [
+      253.3697045470418,
+      261.48448963127333
+    ],
+    [
+      253.82656371144944,
+      270.2548925581647
+    ],
+    [
+      253.4538688223015,
+      278.4949604556551
+    ],
+    [
+      253.5497991441965,
+      261.79499258149133
+    ],
+    [
+      253.41796741837499,
+      263.40275863689396
+    ],
+    [
+      253.96269045209334,
+      254.60524210828393
+    ],
+    [
+      253.80266819831033,
+      254.50773687671665
+    ],
+    [
+      252.8886906354519,
+      253.66307792134234
+    ]
+  ],
+  "groundAnchor": 423,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/chunli/idle.webp",
+  "idleFollowupSha256": "437ec80378bb9c04bed07e422d173bc02ae9c63c4ea344b5e7d93fba738bedb7",
+  "runtime": "public/art/throw-attacker-v1/chunli.webp",
+  "bytes": 715804,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "a673fcc6838ac87063a82a17a2d7bfffb9e6e97639cdd0feb739231c2993e4c3",
+    "generation-reference.png": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+    "generation-prompt.txt": "a6fd3f4c6c85a9ea3805864a916ced8b3c6dc03c20f912007108ea82a2ee4592",
+    "chunli.webp": "348c2ed698011a9ac5ca149a9541474d14804028b407acd7698f1b1216811677"
+  }
+}

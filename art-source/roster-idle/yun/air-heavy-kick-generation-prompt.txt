@@ -1,0 +1,10 @@
+Create an original transparent fighting-game animation sheet using reference solely for Yun identity and painted style.1024x1536canvas, six isolated fullbodyposes exactly2columns×3rows. Same headsize/capaxis/torso length allposes, characterheight420–450per512row, generousmargins, faceRIGHT. True transparentalpha, noletter/grid/shadow/ground/effects.
+Yun navycap/yellowbill,longdarkbraid,ivorysleevelesskungfuvest yellowtrim/navybuttons,navybaggytrousers yellowstripes,yellowwristwraps,blackfingerlessgloves,blacksliponshoes.
+DIVE ROUNDHOUSE airborne heavy kick. Both hands guard nearface, rear leg tucked, compact rearshoe underhips. Head/torso stays centered, only jointmotion; no duplicatebody.
+1top-left airborneguard knees tucked, feet compact together underhips.
+2top-right windup: coilhips, lift lead bentknee, turnshoulders slightly, openhands guard.
+3middle-left extend leadleg halfway toRIGHT, thigh rotates sideways, rearleg tightlyfolded, shoe wellabove rearfoot.
+4middle-right CONTACT: powerful diagonal slightlyDOWNWARD roundhouse kick toRIGHT. Lead knee opens, blackshoe sole/outeredge clearly frontmost, reaches~200sourcepixels farther right than guardedhands. Leadshoe at WAIST/UPPERHIP HEIGHT, about58–65%down fromheadtop; keepbodyheight equalguard, nofloor. Thigh/shin acrossbodydiagonallydownward, rearfoot foldedbehindhips. Footisfrontmost notknee/punch. Blackshoe distinctheel/toecap no barefeet. Torso slightlean/hiptwist buthead remainsaligned. Armsguardednotpunching. Avoid letting extendedlegshrink wholefigure.
+5bottom-left retractleadknee, unwindhips, shoes regroup underhips.
+6bottom-right returnairguard withbraidsettle.
+Keep bottom15%ofeveryfigure narrow shoes/cuffs group underhips (no wide lowknees): compact<=120sourcepixels span. No plantedfeet, no platform, no groundedstanding. Fullarticulation inhips/knees/ankles andcloth, not translatedcopies. Make sixcoherent professionalframes withno extra limbs. Transparentbackground.

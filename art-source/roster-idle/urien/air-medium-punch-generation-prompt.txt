@@ -1,0 +1,10 @@
+Create NEW original transparent fighting-game spritesheet. ReferenceONLYUrienidentity/paintedstyle andcompactairguard.1024x1536canvas, exactlysixisolatedfullbodyposes2columns×3rows, faceRIGHT. Sameheadsize/headaxis/torsoheight,430–450pxfiguresper512rowwithmargins. GenuineRGBAalpha,nobackground/shadow/ground/text/grid/effects.
+Urien verymuscularbronzeskinnedadultman,shortwhitehair,sternface,goldneckcollar/broadgoldwristbracers,white/navyshortwaistcloth goldtrim/beltmedallion,barefeet/bareclosedfists. Matchreferencecostume/bodymass,noshoes/gloves.
+AIR MP mediumclosed-fist straightpunch, between shortjabandfullheavyextension. Bothkneesraised/tucked; feetcloseunderhips. Lowest15%onlycompactfeet/ankles<=110sourcepixelswide; knees/rearcalvesatleast90sourcepixelsabovelowesttoes.
+1top-left compactairguardmatchingreference, closedfistsatface/chest.
+2top-right windup retractstrikingfist besideear/shoulder, elbowbentback, chestcoil, otherguardadjusts, head/hipsstable.
+3middle-left unfoldelbowhalfwayforward withwristrotation, otherfistguardssternum,tuckedlegs.
+4middle-right CONTACT: MEDIUMstraightclosedfistRIGHT atupperchestheight25–38%downbody. FistfrontONLYabout95SOURCEpixelsfartherRIGHTthanguardhandposition1 (shorterthanreferenceheavyarm). ELBOWSTILLMODERATELYBENT about135degrees, notlockedout. Compactbareknuckles,fistverticalprofile40–45sourcepx, goldbraceratwrist. Shoulder/torso rotatesnaturally, otherfisttightguard; knees/feetremaincompact andbodysize/headaxisunchanged.
+5bottom-left recoilwithdrawfist/elbowrebend/chestsettle, tuckedlegs.
+6bottom-right recoverreferenceairguard, clothsettle.
+Sixgenuinelyarticulatedshoulder/elbow/wristposes,notaffinecopies. Consistentmuscularvolume,exactlytwoarms/twolegs,noextrafingers/limbs. Allfullbodieswithinowncells. Truealpha0transparentbackground.

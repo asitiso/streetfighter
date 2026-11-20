@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "source": "art-source/throw-escape-motion-v1/makoto/reference-idle.png",
+  "size": [
+    384,
+    448
+  ],
+  "bytes": 108134,
+  "sha256": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+  "method": "Approved source byte reuse without image generation/editing",
+  "runtime": [
+    "/art/combat-sprites/makoto-authored-v1.png",
+    "/art/combat-sprites-hd/makoto-authored-v1.png"
+  ]
+}

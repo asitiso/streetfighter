@@ -1,0 +1,11 @@
+Create a NEW transparent fighting-game animation spritesheet. Reference image is identity/style only, do not reproduce planted stance. Six full-body original poses arranged exactly two columns by three rows on1024x1536 transparent canvas. Face RIGHT. No letters/grid/props/shadows/background. Genuine transparent alpha.
+Yun: youthful athletic Chinese man, navy cap with yellow bill, long dark braid, sleeveless ivory kungfu vest with yellow piping/navyfrogbuttons, dark navy baggy pants with yellow side stripes, yellow wristwraps, black fingerless gloves with exposed fingers, black sliponshoes. Painterly detailed 2D sprite matching reference.
+AIR PALM heavy airborne open-palm strike. Keep both knees tucked and shoes close together behind/below hips in everypose; no planted feet. Guardheight450px per512row, consistentheadsize/torso proportions, clear margin. This is a handstrike not knee/kick.
+Reading order:
+1 top-left compact airborne guard: two bent legs tucked, open hands near chin, braid trailing.
+2 top-right windup: retract striking open palm beside shoulder, otherhandguards, torso coils, legs tucked.
+3 middle-left extend bent elbow forward preparing palm; palm begins opening vertical, torso untwists, distinct jointchanges.
+4 middle-right CONTACT: forward arm thrusts right, elbow slightly bent, broad VERTICAL OPEN PALM with five exposed relaxed fingers slightly spread, heel of palm strikes. Hand at face/upperchest level (25–38% down bodyheight), palm reaches about120sourcepx past the guardhand reach. Hand thickness tall around65sourcepx; distinguish open fingers from closed fist. Otherhand tucked nearsternum, no red gloves. Legs remain tucked, shoes narrowgroup underhips.
+5 bottom-left withdraw palm, bend elbow, relaxed fingers, recoil shoulders, tuckedlegs.
+6 bottom-right recover original airborneguard with subtle braid/clothsettle.
+Every drawing fully within its own512x512cell, isolated no overlapping neighbors. Preserve cap/braid/vest consistently; exactly two arms/two legs perpose. Actual articulated shoulder/elbow/wrist changes, not translated copies. No flame/speedlines/dust. True transparent alpha.

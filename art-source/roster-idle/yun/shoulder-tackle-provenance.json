@@ -1,0 +1,15 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "sheet.png",
+  "initial": {
+    "prompt": "shoulder-tackle-initial-prompt.txt",
+    "sheet": "shoulder-tackle-initial-sheet.png"
+  },
+  "final": {
+    "editTarget": "shoulder-tackle-initial-sheet.png",
+    "prompt": "shoulder-tackle-prompt.txt",
+    "sheet": "shoulder-tackle-sheet.png",
+    "sha256": "2D90900F9031325D931682341C264F260581ADBF0E010680CDAC40E4904C5AA4"
+  },
+  "purpose": "Original shoulder strike; stronger forward shoulder contact passes unchanged gates."
+}

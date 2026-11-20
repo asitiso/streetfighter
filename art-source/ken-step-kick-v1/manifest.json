@@ -1,0 +1,31 @@
+{
+  "character": "KEN",
+  "move": "KEN_CMD_MK",
+  "kind": "step-kick",
+  "asset": "/art/command-motion-v1/ken-step-kick.webp",
+  "frames": 12,
+  "frameSize": [
+    640,
+    448
+  ],
+  "phase": {
+    "startupEnd": 3,
+    "activeStart": 4,
+    "activeEnd": 6,
+    "recoveryStart": 7
+  },
+  "footFloor": 419,
+  "source": "generated-sheet-v2.png",
+  "sourceSha256": "1f32ec7c083bc3e8bfa26fea1595febc5d95d3d2c867ad5f1e7d039af2fa7cec",
+  "assetSha256": "dd2286c0972d773ebb8bf5095a64976a20011fce11be7b442ddb2f091c258f87",
+  "bytes": 308296,
+  "guardSource": "/art/animation-hq/ken/idle.webp",
+  "guardSourceSha256": "d84ece0d55c728b7cb5251ca00df91c95283504dcc93505a40020e3e4680cd6f",
+  "guardFrames": [
+    0,
+    11
+  ],
+  "packing": "Canvas cropping/normalization and WebP encoding; alpha preserved; generated original assets retained",
+  "tool": "built-in image_gen",
+  "gameplayChanges": false
+}

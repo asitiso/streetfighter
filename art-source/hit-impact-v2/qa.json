@@ -1,0 +1,122 @@
+{
+  "status": "passed",
+  "generator": "built-in imagegen",
+  "source": "art-source/hit-impact-v2/generated-sheet-v2.png",
+  "sourceSha256": "5e3cd20aefe493069487c1d0e9fe1d940f85329795c840a90fe065e395900d8e",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "runtime": "public/art/fx/hit-impact-v2.webp",
+  "size": [
+    1536,
+    192
+  ],
+  "columns": 8,
+  "frames": [
+    {
+      "frame": 0,
+      "sourceRect": [
+        0,
+        0,
+        444,
+        444
+      ],
+      "corePixels": 1758,
+      "alphaMass": 545728.0,
+      "rgbaSha256": "b17b7b4eb6f43a359b230c0597d9ccf35090b7b7d9e0a40353ff049b234f97dc"
+    },
+    {
+      "frame": 1,
+      "sourceRect": [
+        444,
+        0,
+        443,
+        444
+      ],
+      "corePixels": 7331,
+      "alphaMass": 2042424.0,
+      "rgbaSha256": "61ca1c297e050c120526f2af7de6ce04b8997c5a89032504155eb1abb12a6d1d"
+    },
+    {
+      "frame": 2,
+      "sourceRect": [
+        887,
+        0,
+        443,
+        444
+      ],
+      "corePixels": 22948,
+      "alphaMass": 6158872.0,
+      "rgbaSha256": "72f04e2dbbc32ea0959796917396e75049fe124ef9cdd29837ac787e11866130"
+    },
+    {
+      "frame": 3,
+      "sourceRect": [
+        1330,
+        0,
+        444,
+        444
+      ],
+      "corePixels": 40428,
+      "alphaMass": 10826566.0,
+      "rgbaSha256": "89e9902995c4c8662bbbd1aa6b6292bf434e7030a1d617fde381ae8dd70739b6"
+    },
+    {
+      "frame": 4,
+      "sourceRect": [
+        0,
+        444,
+        444,
+        443
+      ],
+      "corePixels": 14885,
+      "alphaMass": 4541119.0,
+      "rgbaSha256": "11caa6c195b7ba57d545aa8f99ae5fe43ab6ead206c289520e115531bb2c442c"
+    },
+    {
+      "frame": 5,
+      "sourceRect": [
+        444,
+        444,
+        443,
+        443
+      ],
+      "corePixels": 4406,
+      "alphaMass": 1572083.0,
+      "rgbaSha256": "d55d35d304d9de5f6dafb2898c7e228d6e13685b9497004ea9b099dc6b7f80a7"
+    },
+    {
+      "frame": 6,
+      "sourceRect": [
+        887,
+        444,
+        443,
+        443
+      ],
+      "corePixels": 695,
+      "alphaMass": 322112.0,
+      "rgbaSha256": "244767ec853b3ca2baa8b66ffc057b7c19f6cc5e61ed15b7e0e625261c9a6f58"
+    },
+    {
+      "frame": 7,
+      "sourceRect": [
+        1330,
+        444,
+        444,
+        443
+      ],
+      "corePixels": 165,
+      "alphaMass": 110186.0,
+      "rgbaSha256": "49677ec8e3694f1ec3a32fef0dce5f59ad662134448a8fe63a13144916c93305"
+    }
+  ],
+  "decodedBytes": 1179648,
+  "runtimeBytes": 145778,
+  "runtimeSha256": "bbfbd3e0cfc1e1bc85c22df84d073d0c87d90bbe36c7fac7a3891127ba72bf7a",
+  "transparencyPreserved": true,
+  "visiblePixelsLossless": true,
+  "distinctFrames": 8,
+  "phaseEvolutionPassed": true,
+  "normalization": "equal source grid cell downsample only; no per-effect fitting or synthesized frames"
+}

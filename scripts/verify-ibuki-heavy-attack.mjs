@@ -26,7 +26,8 @@ for (const crouching of [false, true]) {
   for (const button of ['mp','hp','lk','mk','hk']) {
     if (!crouching && button === 'hp') continue;
     fighter.currentMove = normalFor(button, crouching, 'IBUKI');
-    assert.equal(animationSequenceSample(fighter, 0), null, `Heavy palm must not replace ${fighter.currentMove.id}`);
+    const expected=(crouching?'crouch-':'stand-')+({lp:'light',mp:'medium',hp:'heavy',lk:'light-kick',mk:'medium-kick',hk:'heavy-kick'}[button]);
+    assert.equal(animationSequenceSample(fighter, 0)?.sequence.kind, expected, `Heavy palm must not replace ${fighter.currentMove.id}`);
   }
 }
 fighter.currentMove = specialMovesFor('IBUKI').primary;

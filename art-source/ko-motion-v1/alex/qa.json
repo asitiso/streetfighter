@@ -1,0 +1,220 @@
+{
+  "passed": true,
+  "character": "ALEX",
+  "revision": "ground-ko-v1",
+  "source": "art-source/ko-motion-v1/alex/generated-sheet-v1.png",
+  "sourceSha256": "ADE7A2BD79D7723F21EA9B9C511476BEBFAE37A65A7A39E96B12DAAEC904EE45",
+  "runtime": "public/art/ko-motion-v1/alex.webp",
+  "runtimeSha256": "B4A3345DAA6957003784D6070302CE80AD1DF859DFCD1376C3F1CB1C2878BA06",
+  "bytes": 612846,
+  "frames": 8,
+  "frameSize": [
+    512,
+    448
+  ],
+  "decodedBytes": 7340032,
+  "sourceGrid": [
+    4,
+    2
+  ],
+  "sourceOrder": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "uniformScale": 0.8492462311557789,
+  "referenceHeight": 338,
+  "sourceReferenceHeight": 398,
+  "groundBaseline": 421,
+  "uniqueDrawings": 8,
+  "encoding": {
+    "rgb": "lossless",
+    "alphaLossless": true
+  },
+  "maximumCentroidStep": 36.2297856328391,
+  "horizontalRestPass": true,
+  "noClippingPass": true,
+  "metrics": [
+    {
+      "frame": 0,
+      "sourceSize": [
+        277,
+        398
+      ],
+      "scaledSize": [
+        235,
+        338
+      ],
+      "paste": [
+        138,
+        84
+      ],
+      "bbox": [
+        138,
+        84,
+        373,
+        422
+      ],
+      "opaqueArea": 37240
+    },
+    {
+      "frame": 1,
+      "sourceSize": [
+        320,
+        371
+      ],
+      "scaledSize": [
+        272,
+        315
+      ],
+      "paste": [
+        120,
+        107
+      ],
+      "bbox": [
+        120,
+        107,
+        392,
+        422
+      ],
+      "opaqueArea": 36961
+    },
+    {
+      "frame": 2,
+      "sourceSize": [
+        434,
+        326
+      ],
+      "scaledSize": [
+        369,
+        277
+      ],
+      "paste": [
+        71,
+        145
+      ],
+      "bbox": [
+        71,
+        145,
+        440,
+        422
+      ],
+      "opaqueArea": 38609
+    },
+    {
+      "frame": 3,
+      "sourceSize": [
+        483,
+        269
+      ],
+      "scaledSize": [
+        410,
+        228
+      ],
+      "paste": [
+        51,
+        194
+      ],
+      "bbox": [
+        51,
+        194,
+        461,
+        422
+      ],
+      "opaqueArea": 40453
+    },
+    {
+      "frame": 4,
+      "sourceSize": [
+        486,
+        216
+      ],
+      "scaledSize": [
+        413,
+        183
+      ],
+      "paste": [
+        49,
+        239
+      ],
+      "bbox": [
+        49,
+        239,
+        462,
+        422
+      ],
+      "opaqueArea": 37763
+    },
+    {
+      "frame": 5,
+      "sourceSize": [
+        498,
+        160
+      ],
+      "scaledSize": [
+        423,
+        136
+      ],
+      "paste": [
+        44,
+        286
+      ],
+      "bbox": [
+        44,
+        286,
+        467,
+        422
+      ],
+      "opaqueArea": 33180
+    },
+    {
+      "frame": 6,
+      "sourceSize": [
+        539,
+        116
+      ],
+      "scaledSize": [
+        458,
+        99
+      ],
+      "paste": [
+        27,
+        323
+      ],
+      "bbox": [
+        27,
+        323,
+        485,
+        422
+      ],
+      "opaqueArea": 31204
+    },
+    {
+      "frame": 7,
+      "sourceSize": [
+        572,
+        108
+      ],
+      "scaledSize": [
+        486,
+        92
+      ],
+      "paste": [
+        13,
+        330
+      ],
+      "bbox": [
+        14,
+        330,
+        499,
+        422
+      ],
+      "opaqueArea": 31090
+    }
+  ]
+}

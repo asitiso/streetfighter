@@ -1,0 +1,158 @@
+{
+  "character": "ALEX",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.6935817805383023,
+  "sourceRowSplit": 512,
+  "sourceColumnSplits": [
+    0,
+    512,
+    1050,
+    1536
+  ],
+  "sourceBounds": [
+    [
+      41,
+      28,
+      482,
+      476
+    ],
+    [
+      25,
+      75,
+      523,
+      476
+    ],
+    [
+      28,
+      29,
+      445,
+      476
+    ],
+    [
+      65,
+      8,
+      413,
+      488
+    ],
+    [
+      14,
+      31,
+      506,
+      488
+    ],
+    [
+      47,
+      5,
+      414,
+      488
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      108,
+      111,
+      414,
+      422
+    ],
+    [
+      88,
+      144,
+      434,
+      422
+    ],
+    [
+      108,
+      113,
+      397,
+      422
+    ],
+    [
+      119,
+      89,
+      361,
+      422
+    ],
+    [
+      82,
+      105,
+      423,
+      422
+    ],
+    [
+      128,
+      87,
+      383,
+      422
+    ],
+    [
+      142,
+      87,
+      370,
+      422
+    ],
+    [
+      141,
+      89,
+      370,
+      422
+    ]
+  ],
+  "centroidTargetX": 249.41926736040858,
+  "centroids": [
+    [
+      249.7667177132625,
+      262.42460445919437
+    ],
+    [
+      249.73110876768743,
+      274.36486388698233
+    ],
+    [
+      249.79408246212506,
+      271.11180802015673
+    ],
+    [
+      249.50342433726294,
+      256.91924699711774
+    ],
+    [
+      249.6115429217014,
+      265.85121385857036
+    ],
+    [
+      249.1249363177679,
+      253.97859882364284
+    ],
+    [
+      249.41926736040858,
+      254.5849081056252
+    ],
+    [
+      249.97782285405867,
+      255.66311194322913
+    ]
+  ],
+  "groundAnchor": 422,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/alex/idle.webp",
+  "idleFollowupSha256": "07ab15684ec90aa6029b76d278370da7fa72a7742efb696dab19fc183d4fba71",
+  "runtime": "public/art/throw-attacker-v1/alex.webp",
+  "bytes": 751464,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "b5fec4a912cf1731bfe23284a5465d7f68eab6d0172e9bf1e4ac1dd86344b6bf",
+    "generation-reference.png": "0030e6d6e72c7817d0988bf1e18fd5dd90b445d01a776451ed6a57e5e6d8cb48",
+    "generation-prompt.txt": "2aceb5a0f1116357b48ba8bc2ac987532608bb5b32280308cfce9711a277770a",
+    "alex.webp": "b55e638a635aced3ba6aaffabebe9e18285303f71ee08fca70a54a65923b260f"
+  }
+}

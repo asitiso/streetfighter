@@ -1,0 +1,100 @@
+{
+  "character": "URIEN",
+  "kind": "crouch-parry",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "sharedScale": 0.6376404494382022,
+  "sourceBounds": [
+    [
+      81,
+      145,
+      424,
+      481
+    ],
+    [
+      66,
+      128,
+      473,
+      481
+    ],
+    [
+      65,
+      120,
+      453,
+      481
+    ],
+    [
+      83,
+      112,
+      434,
+      483
+    ],
+    [
+      73,
+      116,
+      421,
+      483
+    ]
+  ],
+  "recoveryFrame": 5,
+  "recoveryPixelIdentical": true,
+  "uniqueDrawings": 6,
+  "transparentBorders": true,
+  "groundBaselineStable": true,
+  "runtime": "public/art/animation-hq/urien/crouch-parry-v1.webp",
+  "bytes": 432208,
+  "decodedBytes": 4128768,
+  "opaqueBounds": [
+    [
+      82,
+      204,
+      301,
+      418
+    ],
+    [
+      78,
+      193,
+      337,
+      418
+    ],
+    [
+      83,
+      188,
+      330,
+      418
+    ],
+    [
+      83,
+      182,
+      307,
+      418
+    ],
+    [
+      82,
+      184,
+      304,
+      418
+    ],
+    [
+      81,
+      191,
+      304,
+      418
+    ]
+  ],
+  "operations": [
+    "alpha silhouette crop",
+    "uniform premultiplied-alpha scale matched to settle pose",
+    "foot alignment",
+    "last cell copied exactly from existing guard recovery",
+    "exact lossless packing"
+  ],
+  "sha256": {
+    "generated-sheet-v1.png": "a5fe4f3e92153adebc34c9a3a536cedfa235b19be696a5233d260438577bbfb9",
+    "reference-low-guard.png": "62d3459073881f3d9420d98935cdb6de07b7ed6ef0d304f007783606bcb89f0d",
+    "reference-settle.png": "7728f86636f27270e2650c32a817d3dfde8fd666eb59b41faf6a4a6003f6df96",
+    "generation-prompt.txt": "e37cb8550f0f1b01377e17b6c1d176518fa4fc457ec398cebea18fe7874a9489",
+    "crouch-parry-v1.webp": "250b9ba53c1cf92a3b651a6120243db417258e6f38f65d68cb063c536895f575"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "character": "MAKOTO",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7602739726027398,
+  "sourceBounds": [
+    [
+      43,
+      134,
+      481,
+      445
+    ],
+    [
+      43,
+      160,
+      431,
+      449
+    ],
+    [
+      10,
+      254,
+      479,
+      449
+    ],
+    [
+      126,
+      188,
+      426,
+      471
+    ],
+    [
+      103,
+      104,
+      388,
+      472
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      89,
+      185,
+      423,
+      422
+    ],
+    [
+      109,
+      203,
+      404,
+      422
+    ],
+    [
+      78,
+      273,
+      435,
+      422
+    ],
+    [
+      143,
+      206,
+      371,
+      422
+    ],
+    [
+      148,
+      143,
+      365,
+      422
+    ],
+    [
+      150,
+      89,
+      362,
+      422
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/makoto.webp",
+  "bytes": 459266,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "558b37af787463072727693974dcf2f9b2843328acc78338e67243648d178a2d",
+    "generation-reference.png": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+    "reference-settle.png": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+    "generation-prompt.txt": "af5aac58c57a89bc6f5a52ab578a65d5af610ca0786b945b0496c3f916292c36",
+    "makoto.webp": "96860094718e7374714ef1ec486b349789dc0e1dd23ed558dfedb2e4ae789067"
+  }
+}

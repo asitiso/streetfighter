@@ -59,6 +59,8 @@ export function attackSpriteSample(fighter: Fighter): AttackSpriteSample {
   };
   if (!attackSpriteEnabledFor(fighter.character.id) || fighter.state !== 'attack' || !fighter.currentMove) return disabled;
   if (fighter.airborne || fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0) return disabled;
+  // This atlas depicts standing anticipation/recovery, never crouched normals.
+  if (fighter.currentMove.id.startsWith('2')) return disabled;
 
   const move = fighter.currentMove;
   const total = Math.max(1, move.startup + move.active + move.recovery);

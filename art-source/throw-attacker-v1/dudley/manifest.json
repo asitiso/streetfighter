@@ -1,0 +1,151 @@
+{
+  "character": "DUDLEY",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7052631578947368,
+  "sourceBounds": [
+    [
+      89,
+      39,
+      460,
+      486
+    ],
+    [
+      34,
+      83,
+      448,
+      484
+    ],
+    [
+      131,
+      27,
+      364,
+      485
+    ],
+    [
+      88,
+      32,
+      385,
+      491
+    ],
+    [
+      33,
+      72,
+      461,
+      490
+    ],
+    [
+      98,
+      16,
+      393,
+      491
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      132,
+      107,
+      394,
+      422
+    ],
+    [
+      92,
+      139,
+      384,
+      422
+    ],
+    [
+      172,
+      99,
+      337,
+      422
+    ],
+    [
+      139,
+      98,
+      349,
+      422
+    ],
+    [
+      94,
+      127,
+      396,
+      422
+    ],
+    [
+      149,
+      87,
+      357,
+      422
+    ],
+    [
+      176,
+      87,
+      336,
+      422
+    ],
+    [
+      176,
+      89,
+      336,
+      422
+    ]
+  ],
+  "centroidTargetX": 252.88083724577208,
+  "centroids": [
+    [
+      252.9908671670251,
+      263.1946462631158
+    ],
+    [
+      252.87759625438017,
+      280.7476205527082
+    ],
+    [
+      253.1216430239728,
+      253.76941025173176
+    ],
+    [
+      252.65103022138194,
+      264.95266779850374
+    ],
+    [
+      252.9761684690791,
+      276.3439911694134
+    ],
+    [
+      253.18814830089346,
+      259.7423950201212
+    ],
+    [
+      252.88083724577208,
+      253.7525903927714
+    ],
+    [
+      253.09939727411725,
+      255.45106651490394
+    ]
+  ],
+  "groundAnchor": 422,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/dudley/idle.webp",
+  "idleFollowupSha256": "4b1a50902825af09b1985e43e3099aea6a9ab0b3a22f4691bd808ac304e88328",
+  "runtime": "public/art/throw-attacker-v1/dudley.webp",
+  "bytes": 467704,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "35a3281dc1cfcf4059a2718d5e663e1a601e3f6721dfe7f61011136162e59cde",
+    "generation-reference.png": "143274e6b6efa911332800e44b0003b7b77c02904729e462bc7b5c39727bcf96",
+    "generation-prompt.txt": "ed1f4ae920da06951161e58c902f09d5a39989375829cd3a880a4065227140a2",
+    "dudley.webp": "711db0746072da524a06df08fd726ac0784fcfe364e8ee573b7fb8a4b3825188"
+  }
+}

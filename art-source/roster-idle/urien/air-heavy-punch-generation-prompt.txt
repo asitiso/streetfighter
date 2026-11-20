@@ -1,0 +1,10 @@
+Create NEW original transparent fighting-game spritesheet using reference ONLY characteridentity/renderstyle.1024x1536canvas, exactlysix isolatedfullbodyposes2columns×3rows, faceRIGHT, headaxis/headsize/torsoheightconsistent.430–450pxfigureheightper512row, margins,noletters/grid/ground/shadows/effects. GenuineRGBAtransparentalpha.
+Urien: extremelymuscularadultman, bronzebrownskin,shortwhitehair,sternclean-shavenface,heavygoldneckcollarandbroadgoldwristbracers,whiteandnavyshortceremonialwaistclothwithgoldtrim/beltmedallion,barefeet. Matchreferencejewelry/costume/bodymass. No colored boxinggloves, no armorcoveringchest/legs.
+AIR HP airborne HEAVY CLOSED-FIST straight strike. Bothknees tucked, barefeetcloseunderhips/back, no plantedfeet. Lowest15% silhouette compactfeet/shins<=120sourcepixelswide; waistclothnotinflatedatfootheight.
+1top-left compactairguard, closedfists nearface/chest, tuckedknees.
+2top-right windup drawstrikingfist besideearandshoulder, elbowback, chestcoils, otherhandtightguard. Keephead/hipsheightstable, legscompact.
+3middle-left shoulderroll/elbowunfold, fistmovinghalfwayforward, torso untwists, tuckedlegs.
+4middle-right CONTACT: powerfulheavyclosedbarefistthrustRIGHT atupperchestheight(25–38%downbody), elbowalmostextended. Fistfront~120sourcepixelsbeyondguardhand, pronouncedshoulder/forearm articulation, goldbracer onwrist notfist. Otherfistguardssternum. Keepbothlegs tucked andbarefeetbehindhips, no knee/kickleading. Bodyvolume/heightunchanged,noheadtranslation.
+5bottom-left withdrawfist/elbowrebend/chestrelax, reestablishguard/tuckedfeet.
+6bottom-right recoveroriginalairguard,gold/clothsettle.
+Sixcoherentrealarticulateddrawings, notaffinecopies. Exactlytwoarms/twolegs, feetfullyinsidecell. Muscularanatomyconsistent, no extra limbs/fingers. Painterlycrisp2Dspriteswithnaturalhighlights andgenuineemptytransparentbackground.

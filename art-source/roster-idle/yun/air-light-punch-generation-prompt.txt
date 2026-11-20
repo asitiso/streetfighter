@@ -1,0 +1,8 @@
+Create a NEW original transparent animation sprite sheet, Yun identity and painted rendering style from reference. Canvas1024x1024, EXACTLY FOUR isolated fullbody drawings in2columns×2rows. FaceRIGHT, sameheadsize/cap/headaxis/torsoheight, height430–450per512cell. Transparentalpha, no text/grid/background/shadow/ground.
+Yun navycap/yellowbill,longbraid,ivorykungfuvest yellowtrim/navyfrogbuttons,navybaggytrousers yellowstripes,blacksliponshoes,yellowwristwraps,blackfingerlessgloves.
+AIR LP: quick compact CLOSED-FIST airborne jab, distinct from long openpalm. Bothlegs tightlytucked withshoes/cuffs together underhips; bottom15%silhouette compact100–120sourcepxwidth, no lowerknee bulge.
+1top-left airborneguard, strikingblackglovedfist closed nearcheek, otherhandopen nearsternum, knees tucked. No plantedfeet.
+2top-right preparation: retractclosedfist besideear/shoulder withelbow bent, shoulder rotates andotherarm adjusts, forearm reorients clearly. Noticeable articulatedwindup, no headshift/scalechange, legsstaycompact.
+3bottom-left CONTACT: shortstraight jab toRIGHT with closedblackfingerlessglovedfist, knuckles leadingatupperchest height (25–38%downbody). Elbow still bent; fist only70sourcepixels fartherRIGHT thanguardhand, NOTlongarmextension. Verticalfistprofile about35sourcepx high. Strong distinct elbow/wrist rotation fromwindup, othertightguardhand, no openpalmstrikingfingers. Hipstucked/torso stable, twofeet closeunderhips.
+4bottom-right withdrawfist midwaybacktowardface,recoverguard, elbowrebends,braidclothsettle, legstucked.
+Fourrealarticulatedposes, nottranslatedcopies; coherentbodyvolume andheadregistration. Keepalllimbsinowncell, exactlytwoarms/twolegs, noextra fingers orlimbs. Finepaintedtexture/noeffects. Genuine transparentbackground.

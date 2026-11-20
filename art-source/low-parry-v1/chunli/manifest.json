@@ -1,0 +1,53 @@
+{
+  "character": "CHUNLI",
+  "kind": "crouch-parry",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "sharedScale": 0.5881006864988558,
+  "sourceBounds": [
+    [
+      53,
+      50,
+      448,
+      477
+    ],
+    [
+      22,
+      50,
+      474,
+      477
+    ],
+    [
+      21,
+      50,
+      440,
+      475
+    ],
+    [
+      60,
+      36,
+      449,
+      474
+    ],
+    [
+      28,
+      36,
+      421,
+      474
+    ]
+  ],
+  "recoveryFrame": 5,
+  "recoveryPixelIdentical": true,
+  "runtime": "public/art/animation-hq/chunli/crouch-parry-v1.webp",
+  "bytes": 488450,
+  "stageEntryBytes": 20464058,
+  "stageEntryCap": 21000000,
+  "sha256": {
+    "generated-sheet-v1.png": "95ca68a7d288e93f34d51f425d2e9a9446719c32c0c73049ed3447206180bf05",
+    "reference-idle.png": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+    "reference-settle.png": "27f89808ce71e3d34b06463d8350f661e6960cbdd6e5cf2795ea34d09766e55b",
+    "generation-prompt.txt": "3c726e28d0787f43bd1a0487123d3d4c672208a09cbafb8367c2c16bf612b2e9",
+    "crouch-parry-v1.webp": "baa88d3eb22ea158c5fed849bc2a08b90787128e0e0fb7a5104cc34ed3d15a8b"
+  }
+}

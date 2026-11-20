@@ -305,9 +305,14 @@ const SUPER_PRESENTATIONS: Readonly<Record<string, readonly [MoveData['superPres
 };
 
 export function superArtMoveFor(characterId: string, artId: 1 | 2 | 3, gaugeCost?: number): MoveData {
-  const list = SUPER_ARTS[characterId] ?? SUPER_ARTS.RYU!;
-  const move = list[artId - 1] ?? list[0]!;
-  const presentation = (SUPER_PRESENTATIONS[characterId] ?? SUPER_PRESENTATIONS.RYU!)[artId - 1];
+  const list = SUPER_ARTS[characterId];
+  // Bosses have a canonical super but no selectable three-art table.
+  // Preserve their own mechanics and animation instead of borrowing Ryu's.
+  const canonical = SPECIALS[characterId]?.super;
+  const fallback = SUPER_ARTS.RYU!;
+  const move = list ? list[artId - 1] ?? list[0]! : canonical ?? fallback[artId - 1] ?? fallback[0]!;
+  const presentations = SUPER_PRESENTATIONS[characterId] ?? (canonical ? undefined : SUPER_PRESENTATIONS.RYU);
+  const presentation = presentations?.[artId - 1];
   const withPresentation = presentation ? { ...move, superPresentation: presentation } : move;
   return gaugeCost && withPresentation.superCost !== gaugeCost ? { ...withPresentation, superCost: gaugeCost } : withPresentation;
 }

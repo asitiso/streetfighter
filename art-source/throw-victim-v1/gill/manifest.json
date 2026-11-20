@@ -1,0 +1,133 @@
+{
+  "character": "GILL",
+  "kind": "throw-victim",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.6588235294117648,
+  "sourceRowSplit": 512,
+  "sourceColumnSplits": [
+    0,
+    512,
+    1060,
+    1536
+  ],
+  "sourceBounds": [
+    [
+      93,
+      74,
+      415,
+      498
+    ],
+    [
+      67,
+      17,
+      407,
+      476
+    ],
+    [
+      46,
+      31,
+      311,
+      404
+    ],
+    [
+      34,
+      32,
+      484,
+      482
+    ],
+    [
+      10,
+      27,
+      515,
+      476
+    ],
+    [
+      31,
+      75,
+      390,
+      494
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      149,
+      106,
+      361,
+      385
+    ],
+    [
+      143,
+      113,
+      367,
+      415
+    ],
+    [
+      166,
+      131,
+      341,
+      377
+    ],
+    [
+      121,
+      109,
+      417,
+      405
+    ],
+    [
+      120,
+      117,
+      453,
+      413
+    ],
+    [
+      153,
+      106,
+      389,
+      382
+    ]
+  ],
+  "centroidTarget": [
+    255.5,
+    246.8244059617047
+  ],
+  "centroids": [
+    [
+      255.569274975573,
+      247.2657404927189
+    ],
+    [
+      255.620602837419,
+      247.00844651073822
+    ],
+    [
+      255.38093114988712,
+      246.5189017052513
+    ],
+    [
+      255.0344156123121,
+      247.14099798728228
+    ],
+    [
+      255.02186941972153,
+      247.0149348339061
+    ],
+    [
+      255.14120591703866,
+      247.11313020499213
+    ]
+  ],
+  "centroidLockPass": true,
+  "uniqueDrawings": 6,
+  "noClippingPass": true,
+  "runtime": "public/art/throw-victim-v1/gill.webp",
+  "bytes": 501432,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "77be4de24aac5f01e3cfebb7e881fca0518ed3afc12b6c0249197d96da4128f3",
+    "generation-reference.png": "4faa5fc1c1fcf5177743e293ca35eb0449ebcb80a39a502b987821b1980992fa",
+    "generation-prompt.txt": "538a7b1618cbb9722cbf8e8aa984fb1b902cf38ea961584f0bc94c0c97e0b5b7",
+    "gill.webp": "a1593f5ab8030a80fbb9da1640a8a1181d7d2d2dd8cb76a725de50ce8e245c3e"
+  }
+}

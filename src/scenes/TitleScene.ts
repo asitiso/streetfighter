@@ -1,41 +1,61 @@
 import type { Scene, RenderContext } from '../core/Scene.js';
 import type { InputManager } from '../input/InputManager.js';
 import type { AudioManager } from '../core/AudioManager.js';
-import { artImage, preloadArtAssets } from '../render/ImageAssets.js';
+import { artImage, preloadArtAssets, PLAYABLE_PORTRAIT_KEYS } from '../render/ImageAssets.js';
+import { characterTextureManager } from '../render/CharacterTextureManager.js';
+
+const TITLE_ACTION_RETRY = 'OPEN FAILED • ENTER / START / ATTACK TO RETRY';
 
 export interface TitleMenuOption {
   id: 'new-game' | 'continue' | 'recover-session' | 'stage-select' | 'battle-record' | 'save-tools' | 'install' | 'device-cert' | 'pwa-update' | 'release-check' | 'diagnostics' | 'options';
   label: string;
   detail: string;
   enabled: boolean;
-  action: () => void;
+  action: () => void | Promise<void>;
 }
 
 export class TitleScene implements Scene {
   private time = 0;
+  private entryId = 0;
   private confirmed = false;
+  private actionError = '';
   private index = 0;
-  private lock = 0;
 
   constructor(
     private readonly input: InputManager,
     private readonly audio: AudioManager,
     private readonly options: readonly TitleMenuOption[],
+    private readonly onActionError?: (error: unknown, optionId: TitleMenuOption['id']) => void,
+    private initialFailedOption?: TitleMenuOption['id'],
+    private readonly onTitleModeChange?: (active: boolean) => void,
   ) {
     const firstEnabled = options.findIndex((option) => option.enabled);
     this.index = firstEnabled >= 0 ? firstEnabled : 0;
   }
 
   enter(): void {
-    preloadArtAssets(['title-keyart']);
-    void this.audio.unlock().then(() => this.audio.startFrontendTheme?.('title')).catch(() => undefined);
+    this.onTitleModeChange?.(true);
+    this.confirmed = false;
+    this.actionError = '';
+    const failedOption = this.initialFailedOption;
+    this.initialFailedOption = undefined;
+    if (failedOption) {
+      const index = this.options.findIndex(option => option.id === failedOption && option.enabled);
+      if (index >= 0) this.index = index;
+      this.actionError = index >= 0 ? TITLE_ACTION_RETRY : 'OPEN FAILED • CHOOSE ANOTHER OPTION';
+    }
+    characterTextureManager.clearFocus();
+    preloadArtAssets(['title-keyart', 'roster-mural', ...PLAYABLE_PORTRAIT_KEYS]);
+    const entryId = ++this.entryId;
+    void this.audio.unlock().then(() => {
+      if (entryId === this.entryId) this.audio.startFrontendTheme?.('title');
+    }).catch(() => undefined);
   }
-  exit(): void { this.audio.stopFrontendTheme?.(); }
+  exit(): void { this.onTitleModeChange?.(false); this.entryId += 1; this.audio.stopFrontendTheme?.(); }
 
   fixedUpdate(dt: number): void {
     this.time += dt;
-    if (this.lock > 0) this.lock -= 1;
-    if (this.confirmed || this.lock > 0) return;
+    if (this.confirmed) return;
 
     let direction = 0;
     if (this.input.pressed('up') || this.input.pressed('left')) direction = -1;
@@ -48,7 +68,7 @@ export class TitleScene implements Scene {
       }
       if (next !== this.index && this.options[next]?.enabled) {
         this.index = next;
-        this.lock = 5;
+        this.actionError = '';
         this.audio.playMenuMove();
       }
     }
@@ -57,9 +77,22 @@ export class TitleScene implements Scene {
       const selected = this.options[this.index];
       if (!selected?.enabled) return;
       this.confirmed = true;
+      this.actionError = '';
+      const entryId = this.entryId;
       void this.audio.unlock().then(() => {
-        this.audio.playUiConfirm();
-        window.setTimeout(() => selected.action(), 100);
+        if (entryId === this.entryId) this.audio.playUiConfirm();
+      }).catch(() => undefined);
+      queueMicrotask(() => {
+        if (entryId !== this.entryId) return;
+        const failed = (error: unknown) => {
+          if (entryId !== this.entryId) return;
+          this.confirmed = false;
+          this.actionError = TITLE_ACTION_RETRY;
+          try { this.onActionError?.(error, selected.id); }
+          catch { /* Menu recovery must not depend on diagnostic storage. */ }
+        };
+        try { void Promise.resolve(selected.action()).catch(failed); }
+        catch (error) { failed(error); }
       });
     }
   }
@@ -77,7 +110,7 @@ export class TitleScene implements Scene {
   }
 
   resize(_width: number, _height: number): void {}
-  destroy(): void {}
+  destroy(): void { this.onTitleModeChange?.(false); this.entryId += 1; }
 
   private drawBackdrop(ctx: CanvasRenderingContext2D): void {
     const art = artImage('title-keyart');
@@ -147,7 +180,7 @@ export class TitleScene implements Scene {
   private drawMenu(ctx: CanvasRenderingContext2D): void {
     const twoColumn = this.options.length >= 12;
     const startY = twoColumn ? 350 : this.options.length >= 11 ? 350 : this.options.length >= 10 ? 342 : this.options.length >= 8 ? 348 : 366;
-    const spacing = twoColumn ? 52 : this.options.length >= 11 ? 27 : this.options.length >= 10 ? 31 : this.options.length >= 8 ? 38 : this.options.length > 5 ? 43 : 50;
+    const spacing = twoColumn ? 48 : this.options.length >= 11 ? 27 : this.options.length >= 10 ? 31 : this.options.length >= 8 ? 38 : this.options.length > 5 ? 43 : 50;
     const rowsPerColumn = twoColumn ? Math.ceil(this.options.length / 2) : this.options.length;
     for (let i = 0; i < this.options.length; i += 1) {
       const option = this.options[i]!;
@@ -163,7 +196,7 @@ export class TitleScene implements Scene {
       ctx.textAlign = 'left'; ctx.font = '900 17px Arial Black, sans-serif'; ctx.fillStyle = option.enabled ? (selected ? '#fff3c6' : '#eee9df') : 'rgba(255,255,255,.24)'; ctx.fillText(option.label, x + 18, y);
       ctx.textAlign = 'right'; ctx.font = '700 8px Arial, sans-serif'; ctx.fillStyle = option.enabled ? 'rgba(220,226,236,.58)' : 'rgba(255,255,255,.16)'; ctx.fillText(option.detail.slice(0, 42), x + width - 16, y);
     }
-    ctx.textAlign = 'center'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillStyle = 'rgba(190,199,216,.66)'; ctx.fillText('↑ ↓ SELECT  •  ENTER / START CONFIRM', 640, 674);
+    ctx.textAlign = 'center'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillStyle = this.actionError ? '#ff9b9b' : 'rgba(190,199,216,.66)'; ctx.fillText(this.actionError || '↑ ↓ SELECT  •  ENTER / START CONFIRM', 640, 674);
     ctx.font = '600 10px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = 'rgba(190,199,216,.45)'; ctx.fillText('V0.0.63-RC38 • HQ NEW ORIGINALS + RELEASE SEAL', 640, 697);
   }
 }

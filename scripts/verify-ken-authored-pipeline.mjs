@@ -1,3 +1,4 @@
+import './verify-throw-escape-assets.mjs';
 import assert from 'node:assert/strict';
 import './verify-ken-normal-mapping.mjs';
 import { createHash } from 'node:crypto';
@@ -42,16 +43,41 @@ function webpDimensions(buffer) {
   throw new Error('unable to read webp dimensions');
 }
 
+// Independently validate the reaction supplements before retaining historical core totals.
+const attacker=animationSequenceFor('KEN','throw-attacker');assert.equal(attacker?.id,'KEN_THROW_ATTACKER_V1_HQ');assert.deepEqual([attacker.frameCount,attacker.frameWidth,attacker.frameHeight],[8,512,448]);assert(attacker.poseAuthored&&attacker.enabled);const attackerData=await readFile(new URL('../public'+attacker.asset,import.meta.url));assert.equal(attackerData.length,722700);assert.equal(sha(attackerData),'282CF615C3D0B0C4D28843E1BE1509B46BDF76A9B928E4BB4E8B589ED70015D2');
+let reactionFrames=attacker.frameCount;
+for(const[kind,folder]of[['super-hit','super-hit-v1'],['fall','air-fall-v1'],['throw-victim','throw-victim-v1']]){
+ const seq=animationSequenceFor('KEN',kind);assert.ok(seq?.enabled&&seq.poseAuthored);
+ assert.deepEqual([seq.frameCount,seq.frameWidth,seq.frameHeight],[6,512,448]);
+ const meta=JSON.parse(await readFile(new URL('../art-source/'+folder+'/ken/manifest.json',import.meta.url),'utf8'));
+ const data=await readFile(new URL('../public'+seq.asset,import.meta.url));
+ assert.equal(sha(data),meta.sha256['ken.webp'].toUpperCase());assert.equal(data.length,meta.bytes);
+ assert.deepEqual(webpDimensions(data),{width:3072,height:448,alpha:true});
+ reactionFrames+=seq.frameCount;
+}
+// The KO and knockdown supplements retain their independent checks.
+const groundKo=animationSequenceFor('KEN','ko');
+const knockdown=animationSequenceFor('KEN','knockdown');
+assert.equal(knockdown?.id,'KEN_KNOCKDOWN_V1_HQ');assert.equal(knockdown.frameCount,6);assert.ok(knockdown.enabled&&knockdown.poseAuthored);
+assert.equal(groundKo?.id,'KEN_GROUND_KO_V1_HQ');assert.equal(groundKo.asset,'/art/ko-motion-v1/ken.webp');
+assert.deepEqual([groundKo.frameCount,groundKo.frameWidth,groundKo.frameHeight],[8,512,448]);
+assert.ok(groundKo.enabled&&groundKo.poseAuthored);
+const koQa=JSON.parse(await readFile(new URL('../art-source/ko-motion-v1/ken/qa.json',import.meta.url),'utf8'));
+const koData=await readFile(new URL('../public'+groundKo.asset,import.meta.url));
+assert.equal(sha(koData),koQa.runtimeSha256);assert.equal(sha(await readFile(new URL('../'+koQa.source,import.meta.url))),koQa.sourceSha256);
+assert.equal(koData.length,koQa.bytes);assert.ok(koData.length<750000);
+assert.deepEqual(webpDimensions(koData),{width:4096,height:448,alpha:true});
+assert.equal(koQa.uniqueDrawings,8);assert.ok(koQa.passed&&koQa.noClippingPass&&koQa.horizontalRestPass);
 assert.equal(KEN_RC39_ATTACK_FRAME_TOTAL, 69);
 assert.equal(KEN_RC39_DEFENSE_FRAME_TOTAL, 11);
 assert.equal(KEN_RC39_TARGET_FRAME_TOTAL, 137);
-assert.equal(animationSequenceFrameTotal('KEN'), 243);
+assert.equal(animationSequenceFrameTotal('KEN')-groundKo.frameCount-knockdown.frameCount-reactionFrames, 311 + 6 + 6 + 6 + 12, 'Legacy package plus escape/low-defense supplements and twelve step-kick poses');
 
 const manifest = JSON.parse(await readFile(new URL('../public/art/animation-hq/ken/manifest.json', import.meta.url), 'utf8'));
 assert.equal(manifest.character, 'KEN');
 assert.match(manifest.pipeline, /^rc39-ken-authored-gated-v\d+$/);
-assert.equal(manifest.frameTotal, 243);
-assert.equal(manifest.records.length, 27);
+assert.equal(manifest.frameTotal, 311);
+assert.equal(manifest.records.length, 34);
 
 const enabledFrames = manifest.records.filter(r=>r.enabled).reduce((sum,r)=>sum+r.frames,0);
 const stagingFrames = manifest.records.filter(r=>r.stagingOnly).reduce((sum,r)=>sum+r.frames,0);
@@ -59,11 +85,11 @@ const fullFrames = manifest.records.filter(r=>r.enabled && r.renderMode==='full'
 assert.equal(manifest.enabledFrameTotal, enabledFrames, 'manifest enabledFrameTotal drift');
 assert.equal(manifest.stagingFrameTotal, stagingFrames, 'manifest stagingFrameTotal drift');
 assert.equal(manifest.fullFrameTotal, fullFrames, 'manifest fullFrameTotal drift');
-assert.equal(enabledAnimationSequenceFrameTotal('KEN'), enabledFrames, 'registry enabled total must match manifest');
+assert.equal(enabledAnimationSequenceFrameTotal('KEN')-groundKo.frameCount-knockdown.frameCount-reactionFrames, enabledFrames + 6 + 6 + 6 + 12, 'registry enabled total must include existing supplements and twelve step-kick poses');
 
 const attackExpected = new Map([
   ['crouch-light',7], ['crouch-medium',8], ['crouch-heavy',10], ['crouch-light-kick',8], ['crouch-medium-kick',10], ['crouch-heavy-kick',12],
-  ['stand-light', 7], ['stand-medium', 8], ['stand-light-kick', 8], ['stand-medium-kick', 10], ['stand-heavy-kick', 12], ['stand-heavy', 10], ['hadoken', 12], ['shoryuken', 12], ['tatsumaki', 12], ['super-rush', 16],
+  ['air-medium-kick', 10], ['air-medium-punch', 10], ['air-light-kick', 8], ['air-light-punch', 8], ['air-heavy-kick', 12], ['air-heavy-punch', 12], ['stand-light', 7], ['stand-medium', 8], ['stand-light-kick', 8], ['stand-medium-kick', 10], ['stand-heavy-kick', 12], ['stand-heavy', 10], ['hadoken', 12], ['shoryuken', 12], ['tatsumaki', 12], ['super-rush', 16],
 ]);
 for (const record of manifest.records) {
   const seq = animationSequenceFor('KEN', record.id, false);
@@ -84,7 +110,7 @@ for (const record of manifest.records) {
     assert.notEqual(record.stagingOnly, true, `${record.id}: enabled sequence cannot remain stagingOnly`);
     assert.equal(seq.source, 'authored-hq', `${record.id}: active source must be authored-hq`);
     assert.ok(record.poseQa?.poseAuthoredPass, `${record.id}: active record requires passing pose QA`);
-    if (['idle','walk','walk-back','dash','dash-back','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','stand-heavy','hadoken','shoryuken','tatsumaki','super-rush'].includes(record.id)) {
+    if (['victory','air-medium-kick','air-medium-punch','air-light-kick','air-light-punch','air-heavy-kick','air-heavy-punch','idle','walk','walk-back','dash','dash-back','jump','landing','hit','guard','parry','stand-light','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','stand-heavy','hadoken','shoryuken','tatsumaki','super-rush'].includes(record.id)) {
       assert.ok(record.semanticQa?.semanticQaPass, `${record.id}: active record requires passing semantic QA`);
     }
     if (record.id === 'idle') {
@@ -257,7 +283,7 @@ assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 2)), '
 assert.equal(animationSequenceKindForAttack('KEN', superArtMoveFor('KEN', 3)), 'super-rush');
 
 console.log('KEN_AUTHORED_PIPELINE_VERIFY_PASS', {
-  frameTotal:243,
+  frameTotal:311,
   attackFrames:manifest.records.filter(r=>r.enabled&&attackExpected.has(r.id)).reduce((sum,r)=>sum+r.frames,0),
   legacyRc39AttackFrames:69,
   enabledFrames,

@@ -1,0 +1,518 @@
+{
+  "schema": 1,
+  "characters": [
+    {
+      "character": "ryu",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "365a9aec878af311e6044ca94fe7367c21a30db0eeb69536bc5d8d0fe2fd5cd1",
+      "promptSHA256": "7f14dfe7b39f9dfdc1b6714ee0ba16d9e23eff0cbea854666d57acd1c105a584",
+      "referenceSHA256": "20f5b35c1a81411cea08115dc322abbc6cfd0ac76a28565090034bd9bf45342f",
+      "runtimeSHA256": "847668a2136214fb41e1fc20cee49a62dfb73baef4db3d34969a7556ddde51fd",
+      "bytes": 531778,
+      "decodedBytes": 4128768,
+      "scale": 0.7807606263982103,
+      "placements": [
+        [
+          6,
+          62
+        ],
+        [
+          6,
+          62
+        ],
+        [
+          6,
+          61
+        ],
+        [
+          6,
+          62
+        ],
+        [
+          6,
+          63
+        ],
+        [
+          6,
+          62
+        ]
+      ],
+      "frameHashes": [
+        "c643f8a71e916d5aa5f97da519d017ef74b14c81e7e01296a008fbfd04e453c3",
+        "8b2dbe39103a00416aebccfb70c24ccc948c3b731a9f356493608133c6d3c0c0",
+        "79e60413339d926aa25046f31fe085cc8b87da3f3ce11e6389194e449e1c2c4f",
+        "bec0a0269062035c79de84e078597538b59ee838bdb815df22a4395599f719a2",
+        "345d48e15b116912bc38d2f68dfa1200bc9cad48ef5fac66f064649a0ca8326f",
+        "402a46cae25c5b07387ae015a660b663546dc26dda97224e46059559ddf87fce"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "ken",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "98d2a5dd5d182b094b1b6c36b0bdf99bc9118bbadcd5d19f93f95190a45968d2",
+      "promptSHA256": "9f6f279cc1647eccab1b69d2a96f0b7fb02dff835ab43dc6e99bd61648ada654",
+      "referenceSHA256": "32d8b78c4b4f99442071b1109621959e6904344de82b7afbe5c5ce8b39f4ff99",
+      "runtimeSHA256": "8bb9118e1de0d19eb936323622de4afd65c911ab852cf651c4c4b4d53ab6f56f",
+      "bytes": 458890,
+      "decodedBytes": 4128768,
+      "scale": 0.7427293064876958,
+      "placements": [
+        [
+          34,
+          70
+        ],
+        [
+          34,
+          70
+        ],
+        [
+          34,
+          69
+        ],
+        [
+          34,
+          69
+        ],
+        [
+          34,
+          69
+        ],
+        [
+          34,
+          70
+        ]
+      ],
+      "frameHashes": [
+        "5f23375ef85964f32fe2941341fc44a5be1f18912a7c73cf09cc0df6a2f6aeaf",
+        "920ac71c36d1699478953b099fcdb2079140040a045d03c1a96112f09d1b5e41",
+        "6a512a29065dcd3fee265dd1c1bc9a17c017967eaefccae750454b0d8d550efa",
+        "550aa2b4cb9aae1173101a526cfd0823846d8ad42c577a37f61740890d313da2",
+        "c548375ea0238e5507d0e6ec13f767afce6eedf0096f55cdd9ecda727d55be41",
+        "b2658c119b12f91f71fbb1d89fa0c3f0d1ef77981e18540a3cc570574d96635f"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "chunli",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "b536ca2fb955c004d14f9b12b1958c18caf38499bc7f5c8578e283ce2c8c507a",
+      "promptSHA256": "5da32248e94d49c0fc0b913513c8190acd3dd17e0023e1465f93cfcffe111e1b",
+      "referenceSHA256": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+      "runtimeSHA256": "a8349543805287edb9edc202fdd3ce3236c134eed6bf576a666d6696c14768df",
+      "bytes": 477250,
+      "decodedBytes": 4128768,
+      "scale": 0.7422907488986784,
+      "placements": [
+        [
+          36,
+          73
+        ],
+        [
+          36,
+          74
+        ],
+        [
+          36,
+          72
+        ],
+        [
+          36,
+          72
+        ],
+        [
+          36,
+          72
+        ],
+        [
+          36,
+          72
+        ]
+      ],
+      "frameHashes": [
+        "fc1c490a1d5088cf8c906d64dd19185c34787d6cf1e8515fd14b6d4f9ed9431a",
+        "3b8691b95a205c0a537b09144cd787ddefefa97d1e682024a2eebb15cbce60c5",
+        "5da93ec9db5808be998d09ee57b8c0686c7f26a4c6c25950f04eb40c03fc4423",
+        "00142f3cee8662db0d32abf6f751efb9c2727f6ee26f7c3d3f65638ea37a691d",
+        "dbce6c1c9ce4dcefce4403c51f0c58a173a366482039e3b295fbb48dc1eeaaf3",
+        "84891a125110e72d47795d363a7d89b258ba97dc7da33d0a27fafac8b5285c45"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "alex",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "3fe88cc64520e6334b56412742d81e7f9113ae59015b71a4fbe4d5fa56477d57",
+      "promptSHA256": "d056f3c75b965ff59c35104631a4589fb562910d5a4786f1041c40e9fa771f8f",
+      "referenceSHA256": "0030e6d6e72c7817d0988bf1e18fd5dd90b445d01a776451ed6a57e5e6d8cb48",
+      "runtimeSHA256": "8111826048bd2d18f4b40e2b14799e989b9d88092d342a2ba58244b6a5b1d306",
+      "bytes": 489536,
+      "decodedBytes": 4128768,
+      "scale": 0.717948717948718,
+      "placements": [
+        [
+          20,
+          75
+        ],
+        [
+          20,
+          75
+        ],
+        [
+          20,
+          75
+        ],
+        [
+          20,
+          75
+        ],
+        [
+          20,
+          75
+        ],
+        [
+          20,
+          74
+        ]
+      ],
+      "frameHashes": [
+        "ba88b8bae133ee7f4b5e8780e3d74fd6ffa24cb11eb4d296dd939ba03314abde",
+        "942e8009875a6422e3dfe2fdd484fcf77b9775226321a53cc123de280fc015cd",
+        "7c26267a0236e9d624f42f573ce706b90957623dc4e9be8cb979f347ef54f8b2",
+        "4d506dcb2daa63a50b2ad397c247b2cc005fd89288ca99454ecc8fbda177adee",
+        "9b71355b58ad0b80a8a8696d41688509d877e4d5cb8a7a040cd9959d4eb4b080",
+        "cec91a3b4ab306c917a97006be123a816d4952db3ea93829cad7284ef0c06370"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "dudley",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "d89ad31040b88e816857264f94621cb594699d806c281d38e2b3ed3977c0f13c",
+      "promptSHA256": "75e1c6a53ba18a61d94d7c3ad20a19554a8b45958e7efceb39c1bdcec25cf7d5",
+      "referenceSHA256": "143274e6b6efa911332800e44b0003b7b77c02904729e462bc7b5c39727bcf96",
+      "runtimeSHA256": "7e1e8e1c8a7665e62f32de26ce0231811626235f40585a4d59e4a0c29000426d",
+      "bytes": 346176,
+      "decodedBytes": 4128768,
+      "scale": 0.7266811279826464,
+      "placements": [
+        [
+          21,
+          72
+        ],
+        [
+          21,
+          72
+        ],
+        [
+          21,
+          72
+        ],
+        [
+          21,
+          71
+        ],
+        [
+          21,
+          70
+        ],
+        [
+          21,
+          69
+        ]
+      ],
+      "frameHashes": [
+        "297a96f61830f807bb8b86ec4f970863565a5205b82430c384917cdaaf96ed77",
+        "6da680c1286a606bac092db1786edd5799f1d2e1d9d2ca44b81b2479b62e813e",
+        "5bde0a80632346e0dc027a2d1c56dcf6314f994813bb1ba0a262e83c5687ba40",
+        "edd805fa58717cc81975485d5355b7aa6f9d0c0af89e994ffc838fead56f2703",
+        "b9267516ba7b0dec4815107041336a85be972e0b7a656bfcff019017291e8c7e",
+        "ce38d1086cea7da0090fe1148920803dfcdc73618fb39c1999fb82a56613bb32"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "makoto",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "c3496fb7da5c8a7dd2d378e30982592ed63af0248e794cb4badcf5b2d79b7cef",
+      "promptSHA256": "c94830186cfa13757a078192069fcecb4020c67247f325cc039320c0a4ed3ab2",
+      "referenceSHA256": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+      "runtimeSHA256": "d42e52d02aa5f711d42af8cead9e6f4921744adfdfa22c616d1547535c9c585d",
+      "bytes": 481202,
+      "decodedBytes": 4128768,
+      "scale": 0.7142857142857143,
+      "placements": [
+        [
+          34,
+          81
+        ],
+        [
+          34,
+          80
+        ],
+        [
+          34,
+          81
+        ],
+        [
+          34,
+          80
+        ],
+        [
+          34,
+          79
+        ],
+        [
+          34,
+          77
+        ]
+      ],
+      "frameHashes": [
+        "4a5413682526d8c0bf8ac4662f4ce9d6d3998164fa8b953811235eb0be4e64fc",
+        "33984b62dd080767ce7ea63a0c84043629a747cf1880bb0aead4546d673cff6f",
+        "61360f2c7a1d07f7918d657dfea02ef47a51b371210d6d8af928a3e6449fec2c",
+        "443fb72c4e27a53d196510ff15649b1fe85028b08a2c8129ab3e2cf45227debf",
+        "2df9a82f53ea9404680e11f60ec26629569ff5cf8a4dbd4eb1ed1297ea30d6b0",
+        "6699837b4ce374af47107361a035d6ccbd2bd35cf4063271092f529fe9ad1ebe"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "ibuki",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "92b3f237e64591393bb52b1e045c77b669407d7926b8ca9ef1cc072193514d35",
+      "promptSHA256": "7c1bd0f4bc566a6b8867631ca0f83159a6a989446f3d0b8d0ceea4029a80eef8",
+      "referenceSHA256": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+      "runtimeSHA256": "1a671e3f9b9e55b380c4a2104ec2fc79701a18f1e6b1afb5a5619deb440a7fd4",
+      "bytes": 487994,
+      "decodedBytes": 4128768,
+      "scale": 0.7169811320754716,
+      "placements": [
+        [
+          26,
+          81
+        ],
+        [
+          26,
+          81
+        ],
+        [
+          26,
+          81
+        ],
+        [
+          26,
+          79
+        ],
+        [
+          26,
+          77
+        ],
+        [
+          26,
+          77
+        ]
+      ],
+      "frameHashes": [
+        "176161b1385eba0879595b0d86e47797390ebe1cb600c833fb9c3b63228ce14e",
+        "be4d80acfe8d1d021f3b4fe27ffc377c76cf8f3270a5c96ea72519bea0463cf6",
+        "05df2a89fde5f2a76a006d2ffd815d44bda84edf62d20e7457a5f702786ddedb",
+        "e192b2077eb1661e53ccbecacd8f8b755cf59330faced9aeddc6c454da73d36c",
+        "5c35be0e6e3edb8fae3dab3e0f4d06d52a81e7ffa9a6e71defd973feee1dc17b",
+        "733f96da4713eaab3726bafae14149b533236252d4be1ff63b85cc3c1edc47f2"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "yun",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "8dcc1ba24264a8b87350ce3201bba0b0685264e174185c97161198524dbf8028",
+      "promptSHA256": "936f6dc2bf0f7986c3e2b319ee88c07d4bd8cae88fae7ebb30ad7684b586f9f2",
+      "referenceSHA256": "d880f7b6acbd8f1806fae793d5267c74c6360c9db2913227a679085a54469b68",
+      "runtimeSHA256": "1cf353bcb2a24495a35eb9b1913b5f38bb0d988d4dda3034eb78e09a043ed85f",
+      "bytes": 524706,
+      "decodedBytes": 4128768,
+      "scale": 0.7148936170212766,
+      "placements": [
+        [
+          9,
+          72
+        ],
+        [
+          9,
+          71
+        ],
+        [
+          9,
+          72
+        ],
+        [
+          9,
+          72
+        ],
+        [
+          9,
+          72
+        ],
+        [
+          9,
+          72
+        ]
+      ],
+      "frameHashes": [
+        "b11c8e4b33be61e0a979a8316e8d7bdfc29c287a2e73cf9d6d87965f2210fe37",
+        "aeb1934fb917e5f1c1e30e829d4908dfe5fc89fa6d6ceefeb9e862e736c0fb3e",
+        "46f530f4bd6d1580e257cf005b3ef0afbf382dd9e473b2064afae44d8a755e2e",
+        "d9d50c2503cf9bcd82e44bf9527da0b9d6376c5f50956ed6893752ef9c614c26",
+        "b76ae84f2bf3e2c8f41795344878a2ace537b6859c7ad722b23f4fc7b406523f",
+        "96106a9e016705bdd4a812111a28d8208f00c4321a4eb8b319369eb77383b85e"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "urien",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "682b66a3c25699269e216aa33708beb76be25c55e658001bda611861a7c8d4ca",
+      "promptSHA256": "c84b9b23c8232e21d10f8abca705ed17a1a94ffd17d3efc9f24bfee721ac5092",
+      "referenceSHA256": "5a1edaa6494c385b5804ad5874d45d535b3ef462775434c4addaf29b8628cf15",
+      "runtimeSHA256": "50fee4995437348a6b0be74398ee852eca0e632ad58c8aee6f9dcc707f2093ef",
+      "bytes": 494368,
+      "decodedBytes": 4128768,
+      "scale": 0.7112526539278131,
+      "placements": [
+        [
+          6,
+          81
+        ],
+        [
+          6,
+          81
+        ],
+        [
+          6,
+          81
+        ],
+        [
+          6,
+          80
+        ],
+        [
+          6,
+          80
+        ],
+        [
+          6,
+          79
+        ]
+      ],
+      "frameHashes": [
+        "8b8b6087d3d949451c990ff44b007633d57a2371e77dae71fb46553f98a06ea3",
+        "98a21f8efa05bfe971635a79452d4cf9dd49acaaabfa9768ccf218ad833fe7bb",
+        "c889aac6f58e58b7022a50d4bd86e150cb4d29ad4b7ee15886a008da2b756a05",
+        "0c7a8efa6e0331825b1151f465afb87e88fa50e68b4407fcf73cc90af9be108a",
+        "0c1d252324343b1436f5c3c9bc4507ced1f3aedb9251db491078724d77efa6ee",
+        "e57566172c87025a95db7514484a8b9157c46ca877c6da4a6f86be78dd1cf903"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    },
+    {
+      "character": "gill",
+      "frames": 6,
+      "frameSize": [
+        384,
+        448
+      ],
+      "sourceSHA256": "18b8851bf4e336170e7b3e298c9d47374857013ec01b2da52b8b797aa73cd84d",
+      "promptSHA256": "9bb81411bc07dcf03085d94d10fc8234160ebd52258bdab355f53389ef6a586e",
+      "referenceSHA256": "4faa5fc1c1fcf5177743e293ca35eb0449ebcb80a39a502b987821b1980992fa",
+      "runtimeSHA256": "07169468715fa637f2dc28ea355fa56877e45f5aa979738cca9102e7e5bfb6c7",
+      "bytes": 537522,
+      "decodedBytes": 4128768,
+      "scale": 0.8120481927710843,
+      "placements": [
+        [
+          6,
+          56
+        ],
+        [
+          6,
+          56
+        ],
+        [
+          6,
+          56
+        ],
+        [
+          6,
+          55
+        ],
+        [
+          6,
+          54
+        ],
+        [
+          6,
+          54
+        ]
+      ],
+      "frameHashes": [
+        "9af1b98443365c4b6934369389b0d4cc261eef273c8fb65b72b3bbc122bb3723",
+        "1b8004b2a02aff85aca055a6b6d61a723a948b169c9391f6d60afa821eae6d62",
+        "de752443b8fd21e3f1820d9fdf16201f1202f7dc318f3281ada79501594aa448",
+        "037056fb944eb07177dfcb68ddd18455152fb2ccafff96a21b2e745b70ca896e",
+        "edd4d2fcce25c96a11f5ad1514416a7b2136facc5c69a0949a811e111ece4ca1",
+        "663f05161dc84a32fc5920a95991126c4513e0346fd1a1913d0a1f6767ac3123"
+      ],
+      "provenance": "builtin image_gen; original poses; uniform resize and translation only",
+      "encoding": "lossless WebP"
+    }
+  ],
+  "totalFrames": 60,
+  "totalBytes": 4829422,
+  "decodedBytes": 41287680
+}

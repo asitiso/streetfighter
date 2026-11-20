@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {GameApp} from '../dist/assets/core/GameApp.js';
+import {InputManager} from '../dist/assets/input/InputManager.js';
+import {FixedStepLoop} from '../dist/assets/core/FixedStepLoop.js';
+let now=0,id=0,frames=new Map(),pads=[];
+Object.defineProperty(globalThis,'performance',{configurable:true,value:{now:()=>now}});
+globalThis.requestAnimationFrame=fn=>{frames.set(++id,fn);return id;};globalThis.cancelAnimationFrame=id=>frames.delete(id);
+Object.defineProperty(globalThis,'navigator',{configurable:true,value:{getGamepads:()=>pads}});
+globalThis.window=new EventTarget();window.innerWidth=1280;window.innerHeight=720;
+globalThis.document=new EventTarget();document.hidden=false;
+const query='(orientation: portrait) and (max-width: 1100px)';
+assert(readFileSync(new URL('../dist/assets/styles.css',import.meta.url),'utf8').includes('@media '+query));
+window.matchMedia=q=>{assert.equal(q,query);return{matches:window.innerHeight>=window.innerWidth&&window.innerWidth<=1100};};
+const input=new InputManager(),app=Object.create(GameApp.prototype);let releases=0,updates=0,renders=0;
+const audio={paused:true,backgrounded:false,setBackgrounded(v){this.backgrounded=v;}};
+const scene={paused:true};
+Object.assign(app,{input,audio,playbackBlocked:false,scenes:{current:scene},touch:{releaseAll(){releases++;for(const a of ['left','right','up','down','lp','mp','hp','lk','mk','hk','jump','start'])input.setTouch(a,false);}}});
+app.loop=new FixedStepLoop(()=>updates++,()=>renders++);
+const sync=()=>app.syncPlayback();
+const step=ms=>{now+=ms;const f=[...frames.values()];frames.clear();for(const fn of f)fn(now);};
+const key=(type,code)=>{const e=new Event(type,{cancelable:true});Object.defineProperties(e,{code:{value:code},repeat:{value:false}});window.dispatchEvent(e);};
+function viewport(w,h){window.innerWidth=w;window.innerHeight=h;sync();}
+sync();step(34);assert.equal(updates,2);
+input.setTouch('right',true);input.endTick();const epoch=input.historyEpoch;
+viewport(1000,600);assert(input.touchHeld('right'));assert.equal(input.historyEpoch,epoch);assert.equal(releases,0);
+viewport(600,900);assert(!input.held('right'));assert.equal(input.historyEpoch,epoch+1);assert(audio.backgrounded);const stopped=[updates,renders];step(60000);assert.deepEqual([updates,renders],stopped);assert.equal(frames.size,0);
+key('keydown','KeyJ');key('keyup','KeyJ');key('keydown','KeyP');key('keyup','KeyP');input.setTouch('jump',true);
+pads=[{connected:true,axes:[0,0],buttons:Array.from({length:16},(_,i)=>({pressed:i===0,value:i===0?1:0}))}];
+viewport(1280,720);assert(!audio.backgrounded);assert(audio.paused);assert(scene.paused);for(const a of ['lp','jump','start'])assert(!input.pressed(a),a+' stale press');assert(!input.touchHeld('jump'));assert.equal(input.historyEpoch,epoch+2);
+input.prepareTick();assert(!input.pressed('lp'),'Held gamepad must not become a new press');step(17);assert.equal(updates,stopped[0]+1,'No catchup of blocked time');
+pads=[];input.prepareTick();input.endTick();key('keydown','KeyJ');assert(input.pressed('lp'),'Fresh attack is immediate');key('keyup','KeyJ');input.endTick();
+let boundaryCases=0;for(const [w,h,blocked] of [[1100,1100,true],[1100,1200,true],[1101,1200,false],[900,600,false],[600,900,true]]){viewport(w,h);assert.equal(audio.backgrounded,blocked);boundaryCases++;}
+document.hidden=true;sync();viewport(1280,720);assert(audio.backgrounded);const hidden=[updates,renders];step(5000);assert.deepEqual([updates,renders],hidden);
+viewport(600,900);document.hidden=false;sync();assert(audio.backgrounded,'Visible portrait remains blocked');step(5000);assert.deepEqual([updates,renders],hidden);
+viewport(1280,720);assert(!audio.backgrounded);step(17);assert.equal(updates,hidden[0]+1);assert(audio.paused);assert(scene.paused);
+app.loop.stop();input.destroy();console.log(JSON.stringify({ok:true,boundaryCases,updates,renders,releases,checks:['portrait freeze','resume without catchup','held landscape input','blocked keyboard/touch/gamepad edges','fresh attack','visibility conjunction','manual pause preserved']}));

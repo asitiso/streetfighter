@@ -1,0 +1,94 @@
+{
+  "character": "YUN",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.8255528255528255,
+  "sourceBounds": [
+    [
+      86,
+      107,
+      474,
+      431
+    ],
+    [
+      78,
+      148,
+      443,
+      427
+    ],
+    [
+      72,
+      202,
+      405,
+      394
+    ],
+    [
+      93,
+      182,
+      438,
+      442
+    ],
+    [
+      113,
+      136,
+      408,
+      438
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      97,
+      155,
+      416,
+      422
+    ],
+    [
+      105,
+      192,
+      406,
+      422
+    ],
+    [
+      118,
+      264,
+      394,
+      422
+    ],
+    [
+      113,
+      208,
+      399,
+      422
+    ],
+    [
+      134,
+      174,
+      377,
+      422
+    ],
+    [
+      149,
+      86,
+      364,
+      422
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/yun.webp",
+  "bytes": 435538,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "9fbd3d56676f61623272427928cd43e88ee95eb450a1a69d4872745a518b9287",
+    "generation-reference.png": "d880f7b6acbd8f1806fae793d5267c74c6360c9db2913227a679085a54469b68",
+    "reference-settle.png": "d880f7b6acbd8f1806fae793d5267c74c6360c9db2913227a679085a54469b68",
+    "generation-prompt.txt": "11d90b6e042fd843efe8bce6d7265834b10a960661c5aa13a4ff5681bb2a35d2",
+    "layout-alpha-edit-prompt.txt": "1f4ab26590cae368d217ec3259b78f291089846f4ba2266a3b59edd348863973",
+    "yun.webp": "ef24346af0d79343d5ed8c805700b3037d55438b98bbc13225570285f84ba343"
+  }
+}

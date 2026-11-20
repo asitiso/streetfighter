@@ -1,0 +1,47 @@
+[
+  {
+    "id": "newyork",
+    "width": 2172,
+    "height": 724,
+    "bytes": 405784,
+    "decodedBytes": 6290112,
+    "sourceSha256": "23853c318a586e7b09f5b1c3ba9f98e08848357fadd0b7c6bf87e068b64541a4",
+    "runtimeSha256": "ef3277a4f023162987283e6f0458773e04ed5c61c9db4defbf3e66028818a5e9"
+  },
+  {
+    "id": "hongkong",
+    "width": 2172,
+    "height": 724,
+    "bytes": 391962,
+    "decodedBytes": 6290112,
+    "sourceSha256": "0f069c0a8c9a9f415a7571783d04e443e934e52866e64e3a7629558a0a183b9a",
+    "runtimeSha256": "6d9cf3acd413df2afc05a4ee3da46f35edf5ec8fc74936baacfe78335392d8a9"
+  },
+  {
+    "id": "japan",
+    "width": 2172,
+    "height": 724,
+    "bytes": 448866,
+    "decodedBytes": 6290112,
+    "sourceSha256": "f3bba93b7f3151ba800e5b89ef6f2c2dea64d47032edb5cbf9fe89d0ccb668fd",
+    "runtimeSha256": "f25bca5d60d3694bbf7e6ae2066fc949cc30095e8b903370b83b5e7ec1f909f1"
+  },
+  {
+    "id": "london",
+    "width": 2172,
+    "height": 724,
+    "bytes": 401022,
+    "decodedBytes": 6290112,
+    "sourceSha256": "0f0834009fb526783282d15cb64bdb77216bffff7734c131fc4ebb603070cde3",
+    "runtimeSha256": "c83d521ed260f3f591524245b108f04187b95c51f267096b37c6d98df2ac3654"
+  },
+  {
+    "id": "society",
+    "width": 2172,
+    "height": 724,
+    "bytes": 339346,
+    "decodedBytes": 6290112,
+    "sourceSha256": "8d7c4db4cc69efdc203ea9a975535152e1ecd7e205168a6e4b06eb9205ffea4f",
+    "runtimeSha256": "dcc45e101de9e28176702aef2a9c1932111ef3f3b6c4a27bf1a5f591a61366f6"
+  }
+]

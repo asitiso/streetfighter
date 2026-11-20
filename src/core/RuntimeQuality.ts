@@ -33,6 +33,7 @@ class RuntimeQuality {
   private samples: number[] = [];
   private lastChangeAt = 0;
   private forced = false;
+  private slowFrames = 0;
   private profile: ReleaseProfileId = 'standard';
 
   configureFromEnvironment(): void {
@@ -65,15 +66,24 @@ class RuntimeQuality {
     this.tier = tier;
     this.forced = forced;
     this.samples.length = 0;
+    this.slowFrames = 0;
     this.lastChangeAt = typeof performance === 'undefined' ? 0 : performance.now();
     return true;
   }
 
   sampleFrame(frameDtSeconds: number): boolean {
-    if (this.forced || !Number.isFinite(frameDtSeconds) || frameDtSeconds <= 0 || frameDtSeconds > .25) return false;
+    if (this.forced || !Number.isFinite(frameDtSeconds) || frameDtSeconds <= 0) return false;
+    // Sustained sub-30fps rendering must not wait out the normal quality cooldown.
+    // A healthy frame breaks the streak, so one-off loading stalls do not trigger it.
+    this.slowFrames = frameDtSeconds > 1 / 30 ? Math.min(12, this.slowFrames + 1) : 0;
+    if (this.slowFrames >= 12 && this.tier !== 'low') {
+      return this.setTier(this.tier === 'high' ? 'balanced' : 'low', false);
+    }
     const now = typeof performance === 'undefined' ? 0 : performance.now();
     if (now - this.lastChangeAt < 12_000) return false;
-    this.samples.push(frameDtSeconds);
+    // A long visible frame is slow, not missing data. Bound one-off stalls
+    // without hiding sustained stutter from the existing quality thresholds.
+    this.samples.push(Math.min(frameDtSeconds, .25));
     if (this.samples.length < 120) return false;
     if (this.samples.length > 180) this.samples.shift();
     const avg = this.samples.reduce((sum, value) => sum + value, 0) / this.samples.length;

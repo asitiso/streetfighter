@@ -6,57 +6,93 @@ import { drawCharacterPortrait } from '../render/Visuals.js';
 import { artImage, characterPortraitKey, preloadArtAssets } from '../render/ImageAssets.js';
 import { characterTextureManager } from '../render/CharacterTextureManager.js';
 
+const SUPER_CARD = { x: 600, y: 152, width: 615, height: 130, step: 160 };
+
 export class SuperArtSelectScene implements Scene {
   private selected = 0;
+  private tapArmed = false;
   private time = 0;
-  private lock = 0;
+  private themeRequest = 0;
   private transitioning = false;
+  private errorMessage = '';
 
   constructor(
     private readonly input: InputManager,
     private readonly audio: AudioManager,
     private readonly character: CharacterDef,
     initialArt: 1 | 2 | 3,
-    private readonly confirm: (art: SuperArtDef) => void,
-    private readonly back: () => void,
+    private readonly confirm: (art: SuperArtDef) => void | Promise<void>,
+    private readonly back: (art: SuperArtDef) => void | Promise<void>,
+    private readonly onError?: (error: unknown) => void,
+    private initialFailed = false,
+    private readonly onSelectionModeChange?: (active: boolean) => void,
   ) {
     this.selected = initialArt - 1;
   }
 
   enter(): void {
+    this.tapArmed = false; this.onSelectionModeChange?.(true);
+    this.transitioning = false;
+    this.errorMessage = this.initialFailed ? 'OPEN FAILED • CONFIRM OR LK TO RETRY' : '';
+    this.initialFailed = false;
     const portrait = characterPortraitKey(this.character.id);
     if (portrait) preloadArtAssets([portrait]);
     characterTextureManager.focusCharacter(this.character.id);
-    void this.audio.unlock().then(() => this.audio.startFrontendTheme?.('select')).catch(() => undefined);
+    const themeRequest = ++this.themeRequest;
+    void this.audio.unlock().then(() => {
+      if (themeRequest === this.themeRequest) this.audio.startFrontendTheme?.('select');
+    }).catch(() => undefined);
   }
-  exit(): void { this.audio.stopFrontendTheme?.(); }
+  exit(): void { this.onSelectionModeChange?.(false); this.themeRequest += 1; this.audio.stopFrontendTheme?.(); }
   resize(_width: number, _height: number): void {}
-  destroy(): void {}
+  destroy(): void { this.onSelectionModeChange?.(false); this.themeRequest += 1; }
 
   fixedUpdate(dt: number): void {
     this.time += dt;
     if (this.transitioning) return;
-    if (this.lock > 0) this.lock -= 1;
-    if (this.lock === 0) {
-      const old = this.selected;
-      if (this.input.pressed('up') || this.input.pressed('left')) this.selected = (this.selected + 2) % 3;
-      if (this.input.pressed('down') || this.input.pressed('right')) this.selected = (this.selected + 1) % 3;
-      if (old !== this.selected) {
-        this.lock = 6;
-        this.audio.playMenuMove();
-      }
-    }
+    const old = this.selected;
+    if (this.input.pressed('up') || this.input.pressed('left')) this.selected = (this.selected + 2) % 3;
+    if (this.input.pressed('down') || this.input.pressed('right')) this.selected = (this.selected + 1) % 3;
+    if (old !== this.selected) { this.tapArmed = false; this.errorMessage = ''; this.audio.playMenuMove(); }
 
-    if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
-      this.transitioning = true;
-      this.audio.playUiConfirm();
-      this.confirm(this.character.superArts[this.selected]!);
+    if (this.input.pressed('back') || this.input.pressed('lk')) {
+      const art = this.character.superArts[this.selected]!;
+      this.runSelection(() => this.back(art), 'OPEN FAILED • LK TO RETRY');
       return;
     }
-    if (this.input.pressed('back') || this.input.pressed('lk')) {
-      this.transitioning = true;
-      this.back();
+    if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) {
+      this.confirmSelection(this.character.superArts[this.selected]!);
     }
+  }
+
+  pointerTap(x: number, y: number): void {
+    if (this.transitioning || x < SUPER_CARD.x || x >= SUPER_CARD.x + SUPER_CARD.width) return;
+    for (let i = 0; i < 3; i += 1) {
+      const top = SUPER_CARD.y + i * SUPER_CARD.step;
+      if (y < top || y >= top + SUPER_CARD.height) continue;
+      if (i === this.selected && this.tapArmed) this.confirmSelection(this.character.superArts[i]!);
+      else { this.selected = i; this.tapArmed = true; this.errorMessage = ''; this.audio.playMenuMove(); }
+      return;
+    }
+  }
+
+  private confirmSelection(art: SuperArtDef): void {
+    this.audio.playUiConfirm();
+    this.runSelection(() => this.confirm(art), 'SAVE FAILED • CONFIRM TO RETRY');
+  }
+
+  private runSelection(action: () => void | Promise<void>, message: string): void {
+    this.transitioning = true;
+    this.errorMessage = '';
+    const request = this.themeRequest;
+    const failed = (error: unknown) => {
+      if (request !== this.themeRequest) return;
+      this.transitioning = false;
+      this.errorMessage = message;
+      try { this.onError?.(error); } catch { /* Keep retry usable if diagnostics fail. */ }
+    };
+    try { void Promise.resolve(action()).catch(failed); }
+    catch (error) { failed(error); }
   }
 
   render({ ctx, width, height }: RenderContext): void {
@@ -65,6 +101,12 @@ export class SuperArtSelectScene implements Scene {
     this.drawBackground(ctx);
     this.drawCharacter(ctx);
     this.drawCards(ctx);
+    if (this.errorMessage) {
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ff9b9b';
+      ctx.font = '800 13px Arial, sans-serif';
+      ctx.fillText(this.errorMessage, 1216, 132);
+    }
     ctx.restore();
   }
 
@@ -119,12 +161,12 @@ export class SuperArtSelectScene implements Scene {
 
     for (let i = 0; i < 3; i += 1) {
       const art = this.character.superArts[i]!;
-      const y = 152 + i * 160;
+      const y = SUPER_CARD.y + i * SUPER_CARD.step;
       const active = i === this.selected;
       ctx.fillStyle = active ? 'rgba(255,255,255,.105)' : 'rgba(255,255,255,.035)';
       ctx.strokeStyle = active ? this.character.accent : 'rgba(255,255,255,.09)';
       ctx.lineWidth = active ? 4 : 2;
-      ctx.beginPath(); ctx.roundRect(600, y, 615, 130, 18); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(SUPER_CARD.x, y, SUPER_CARD.width, SUPER_CARD.height, 18); ctx.fill(); ctx.stroke();
       ctx.fillStyle = active ? this.character.accent : 'rgba(255,255,255,.32)';
       ctx.font = '900 30px Impact, Arial Black, sans-serif'; ctx.fillText(`SA ${['I', 'II', 'III'][i]}`, 626, y + 43);
       ctx.fillStyle = '#f6f1e8'; ctx.font = '900 24px Arial Black, sans-serif'; ctx.fillText(art.name, 730, y + 42);
@@ -136,6 +178,6 @@ export class SuperArtSelectScene implements Scene {
 
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.font = '800 13px Arial, sans-serif';
-    ctx.fillText('↑ ↓ SELECT    ENTER / START CONFIRM    ESC / LK BACK', 1216, 681);
+    ctx.textAlign = 'left'; ctx.font = '800 11px Arial, sans-serif'; ctx.fillText('TAP / ARROWS: SELECT • TAP AGAIN / CONFIRM: READY • BACK: FIGHTER', 612, 132);
   }
 }

@@ -23,19 +23,20 @@ export class SaveToolsScene implements Scene {
     private readonly audio: AudioManager,
     private readonly context: SaveToolsContext,
     private readonly onBack: () => void,
+    private readonly onTouchModeChange?: (active: boolean) => void,
   ) {}
 
-  enter(): void { this.audio.playStagePulse(); }
-  exit(): void { this.inputElement?.remove(); this.inputElement = null; }
+  enter(): void { this.onTouchModeChange?.(true); this.audio.playStagePulse(); }
+  exit(): void { this.inputElement?.remove(); this.inputElement = null; this.onTouchModeChange?.(false); }
   resize(): void {}
-  destroy(): void { this.inputElement?.remove(); }
+  destroy(): void { this.inputElement?.remove(); this.onTouchModeChange?.(false); }
 
   fixedUpdate(dt: number): void {
     this.time += dt;
     if (this.busy) return;
-    if (this.input.pressed('lp')) { this.audio.playUiConfirm(); void this.exportFile(); }
+    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.touchPressed('start')) { this.audio.playUiConfirm(); this.onBack(); return; }
+    if (this.input.pressed('lp')) { this.audio.playUiConfirm(); void this.exportFile(); return; }
     if (this.input.pressed('mp')) { this.audio.playUiConfirm(); this.openImportPicker(); }
-    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.touchPressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
   }
 
   private async exportFile(): Promise<void> {
@@ -89,9 +90,8 @@ export class SaveToolsScene implements Scene {
       ctx.fillStyle = 'rgba(220,228,240,.52)'; ctx.font = '800 11px Arial, sans-serif'; ctx.fillText(cards[i]![0], 126, y + 25);
       ctx.fillStyle = '#eef2f8'; ctx.font = '900 17px Arial Black, sans-serif'; ctx.fillText(cards[i]![1], 126, y + 51);
     }
-    ctx.fillStyle = this.messageGood ? '#8be0b4' : '#ff8292'; ctx.font = '900 13px Arial Black, sans-serif'; ctx.fillText(this.busy ? 'WORKING…' : this.message, 104, 585);
-    ctx.fillStyle = 'rgba(220,228,240,.52)'; ctx.font = '700 10px Arial, sans-serif'; ctx.fillText('Imported files never bypass checksum/sanitization. Your current save is preserved as the backup before replacement.', 104, 615);
-    ctx.textAlign = 'center'; ctx.fillStyle = '#f0ba45'; ctx.font = '900 12px Arial Black, sans-serif'; ctx.fillText('LP EXPORT  •  MP IMPORT  •  START / LK BACK', 640, 675);
+    ctx.fillStyle = this.messageGood ? '#8be0b4' : '#ff8292'; ctx.font = '900 13px Arial Black, sans-serif'; ctx.fillText(this.busy ? 'WORKING…' : this.message, 104, 555);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#f0ba45'; ctx.font = '900 12px Arial Black, sans-serif'; ctx.fillText('LP EXPORT  •  MP IMPORT  •  START / LK BACK', 640, 580);
     ctx.restore();
   }
 }

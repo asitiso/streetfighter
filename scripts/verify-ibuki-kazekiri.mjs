@@ -29,7 +29,7 @@ for(const facing of [-1,1]) {
  }
  for(const other of [specials.super,...[1,2,3].map(id=>superArtMoveFor('IBUKI',id))]){fighter.currentMove=other;fighter.state='attack';assert.notEqual(animationSequenceSample(fighter,0)?.sequence.kind,'shoryuken');}
  fighter.currentMove=airNormalFor('IBUKI','hk');fighter.airborne=true;
- assert.equal(animationSequenceSample(fighter,0),null,'Air normal must retain its own presentation');
+ assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,'air-heavy-kick','Axe kick must retain its own presentation');
  fighter.airborne=false;fighter.state='idle';fighter.stateFrame=0;assert.equal(animationSequenceSample(fighter,0)?.sequence.kind,'idle');
 }
 console.log('IBUKI_RISING_KICK_PASS');

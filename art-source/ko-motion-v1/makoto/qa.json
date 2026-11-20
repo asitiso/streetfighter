@@ -1,0 +1,220 @@
+{
+  "passed": true,
+  "character": "MAKOTO",
+  "revision": "ground-ko-v1",
+  "source": "art-source/ko-motion-v1/makoto/generated-sheet-v1.png",
+  "sourceSha256": "FD8FE4782522DE6C62D4C441EB6CF5EE80AB8E8028A73937F71621175FD4AF68",
+  "runtime": "public/art/ko-motion-v1/makoto.webp",
+  "runtimeSha256": "2DA4EB83ADCEE31DCA5E173426338D91967D8EBF02E35014223E7C6D0C3EF4E7",
+  "bytes": 481538,
+  "frames": 8,
+  "frameSize": [
+    512,
+    448
+  ],
+  "decodedBytes": 7340032,
+  "sourceGrid": [
+    4,
+    2
+  ],
+  "sourceOrder": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "uniformScale": 0.737417943107221,
+  "referenceHeight": 337,
+  "sourceReferenceHeight": 457,
+  "groundBaseline": 421,
+  "uniqueDrawings": 8,
+  "encoding": {
+    "rgb": "lossless",
+    "alphaLossless": true
+  },
+  "maximumCentroidStep": 32.01023623491925,
+  "horizontalRestPass": true,
+  "noClippingPass": true,
+  "metrics": [
+    {
+      "frame": 0,
+      "sourceSize": [
+        299,
+        457
+      ],
+      "scaledSize": [
+        220,
+        337
+      ],
+      "paste": [
+        146,
+        85
+      ],
+      "bbox": [
+        146,
+        85,
+        366,
+        422
+      ],
+      "opaqueArea": 31346
+    },
+    {
+      "frame": 1,
+      "sourceSize": [
+        353,
+        424
+      ],
+      "scaledSize": [
+        260,
+        313
+      ],
+      "paste": [
+        126,
+        109
+      ],
+      "bbox": [
+        126,
+        109,
+        386,
+        422
+      ],
+      "opaqueArea": 30312
+    },
+    {
+      "frame": 2,
+      "sourceSize": [
+        435,
+        374
+      ],
+      "scaledSize": [
+        321,
+        276
+      ],
+      "paste": [
+        95,
+        146
+      ],
+      "bbox": [
+        95,
+        146,
+        416,
+        422
+      ],
+      "opaqueArea": 30936
+    },
+    {
+      "frame": 3,
+      "sourceSize": [
+        445,
+        330
+      ],
+      "scaledSize": [
+        328,
+        243
+      ],
+      "paste": [
+        92,
+        179
+      ],
+      "bbox": [
+        92,
+        179,
+        420,
+        422
+      ],
+      "opaqueArea": 33886
+    },
+    {
+      "frame": 4,
+      "sourceSize": [
+        428,
+        244
+      ],
+      "scaledSize": [
+        316,
+        180
+      ],
+      "paste": [
+        98,
+        242
+      ],
+      "bbox": [
+        99,
+        242,
+        414,
+        422
+      ],
+      "opaqueArea": 25918
+    },
+    {
+      "frame": 5,
+      "sourceSize": [
+        422,
+        156
+      ],
+      "scaledSize": [
+        311,
+        115
+      ],
+      "paste": [
+        100,
+        307
+      ],
+      "bbox": [
+        100,
+        307,
+        411,
+        422
+      ],
+      "opaqueArea": 22438
+    },
+    {
+      "frame": 6,
+      "sourceSize": [
+        432,
+        127
+      ],
+      "scaledSize": [
+        319,
+        94
+      ],
+      "paste": [
+        96,
+        328
+      ],
+      "bbox": [
+        96,
+        328,
+        415,
+        422
+      ],
+      "opaqueArea": 19940
+    },
+    {
+      "frame": 7,
+      "sourceSize": [
+        448,
+        103
+      ],
+      "scaledSize": [
+        330,
+        76
+      ],
+      "paste": [
+        91,
+        346
+      ],
+      "bbox": [
+        91,
+        346,
+        421,
+        422
+      ],
+      "opaqueArea": 17567
+    }
+  ]
+}

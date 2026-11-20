@@ -1,0 +1,198 @@
+{
+  "passed": true,
+  "tool": "built-in image_gen",
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.88,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "asset": {
+    "passed": true,
+    "width": 7680,
+    "height": 448,
+    "frames": 12,
+    "distinct": 12,
+    "guardMean": 4.679194841956282,
+    "guardAlphaMean": 0,
+    "seamMean": 0.08593837193080357,
+    "records": [
+      {
+        "frame": 0,
+        "minX": 209,
+        "maxX": 431,
+        "minY": 88,
+        "maxY": 418,
+        "visible": 38154,
+        "hash": 1592708929
+      },
+      {
+        "frame": 1,
+        "minX": 220,
+        "maxX": 419,
+        "minY": 91,
+        "maxY": 419,
+        "visible": 35133,
+        "hash": 3070825207
+      },
+      {
+        "frame": 2,
+        "minX": 229,
+        "maxX": 409,
+        "minY": 85,
+        "maxY": 419,
+        "visible": 31605,
+        "hash": 2284929355
+      },
+      {
+        "frame": 3,
+        "minX": 246,
+        "maxX": 423,
+        "minY": 80,
+        "maxY": 419,
+        "visible": 30878,
+        "hash": 1083400761
+      },
+      {
+        "frame": 4,
+        "minX": 246,
+        "maxX": 487,
+        "minY": 85,
+        "maxY": 419,
+        "visible": 32876,
+        "hash": 3224318206
+      },
+      {
+        "frame": 5,
+        "minX": 248,
+        "maxX": 545,
+        "minY": 85,
+        "maxY": 419,
+        "visible": 34212,
+        "hash": 659588656
+      },
+      {
+        "frame": 6,
+        "minX": 242,
+        "maxX": 545,
+        "minY": 85,
+        "maxY": 419,
+        "visible": 33870,
+        "hash": 1154881738
+      },
+      {
+        "frame": 7,
+        "minX": 235,
+        "maxX": 432,
+        "minY": 85,
+        "maxY": 419,
+        "visible": 31833,
+        "hash": 4073789784
+      },
+      {
+        "frame": 8,
+        "minX": 228,
+        "maxX": 393,
+        "minY": 84,
+        "maxY": 419,
+        "visible": 32021,
+        "hash": 4118897413
+      },
+      {
+        "frame": 9,
+        "minX": 231,
+        "maxX": 416,
+        "minY": 88,
+        "maxY": 419,
+        "visible": 34188,
+        "hash": 1806694970
+      },
+      {
+        "frame": 10,
+        "minX": 221,
+        "maxX": 415,
+        "minY": 88,
+        "maxY": 419,
+        "visible": 35190,
+        "hash": 2590958435
+      },
+      {
+        "frame": 11,
+        "minX": 209,
+        "maxX": 431,
+        "minY": 88,
+        "maxY": 418,
+        "visible": 38154,
+        "hash": 1088339826
+      }
+    ]
+  },
+  "rendering": {
+    "passed": true,
+    "reachableFrames": 12,
+    "frameToTick": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        4,
+        9
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        8,
+        16
+      ],
+      [
+        9,
+        18
+      ],
+      [
+        10,
+        21
+      ],
+      [
+        11,
+        23
+      ]
+    ],
+    "fallbackVisiblePixels": 7912,
+    "hqRestored": true
+  },
+  "actualTrustedCommand": {
+    "move": "KEN_CMD_MK",
+    "moveFrame": 9,
+    "frame": 4,
+    "kind": "step-kick",
+    "contact": true,
+    "loaded": true,
+    "trusted": [
+      true
+    ],
+    "capturedFrames": 26
+  }
+}

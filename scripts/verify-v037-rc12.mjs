@@ -32,7 +32,7 @@ const appSource = await readFile(new URL('../src/core/GameApp.ts', import.meta.u
 for (const token of ['readSafeAreaInsets()', 'safeViewportSize(', "this.canvas.style.left = `${safeInsets.left}px`", 'safeAreaReady: safeArea.ready', 'runOfflineTransitionAudit']) assert.ok(appSource.includes(token), `missing runtime safe-area/offline integration ${token}`);
 
 const assetSource = await readFile(new URL('../src/core/AssetManager.ts', import.meta.url), 'utf8');
-for (const token of ['auditOfflineDynamicImports', "new Worker(blobUrl, { type: 'module'", "await import(spec.url)", 'SERVICE WORKER NOT CONTROLLING APP', 'OFFLINE DYNAMIC IMPORT']) assert.ok(assetSource.includes(token), `missing offline module audit ${token}`);
+for (const token of ['auditOfflineDynamicImports', "new Worker(blobUrl, { type: 'module'", "await import(new URL(spec.url, documentUrl).href)", 'JSON.stringify(window.location.href)', 'SERVICE WORKER NOT CONTROLLING APP', 'OFFLINE DYNAMIC IMPORT']) assert.ok(assetSource.includes(token), `missing offline module audit ${token}`);
 
 const certSceneSource = await readFile(new URL('../src/scenes/DeviceCertificationScene.ts', import.meta.url), 'utf8');
 for (const token of ['HP REAL OFFLINE IMPORT AUDIT', 'startOfflineTransitionAudit', "setTest('offline-transition', 'pass'", 'Module Worker • new module realm']) assert.ok(certSceneSource.includes(token), `missing certification audit UI ${token}`);

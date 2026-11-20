@@ -10,7 +10,11 @@ async function registerServiceWorker(): Promise<void> {
   if (!('serviceWorker' in navigator)) return;
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' });
-    void registration.update().catch((error) => errorJournal.record('update', error, 'warning'));
+    if (navigator.onLine !== false) {
+      void registration.update().catch((error) => {
+        if (navigator.onLine !== false) errorJournal.record('update', error, 'warning');
+      });
+    }
   } catch (error) {
     errorJournal.record('update', error, 'error');
     console.error('Service worker registration failed', error);

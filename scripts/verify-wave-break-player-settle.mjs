@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
+import {normalFor,specialMovesFor} from '../dist/assets/combat/MoveLibrary.js';
+import {airNormalFor} from '../dist/assets/combat/TechniqueLibrary.js';
+import {animationSequenceSample} from '../dist/assets/render/AnimationTimingMapper.js';
+import {Stage1Scene} from '../dist/assets/scenes/Stage1Scene.js';
+const roster=[...CHARACTERS,...BOSS_CHARACTERS],audio={playStagePulse(){},playHit(){},playParry(){}};
+const enemyState=e=>[e.x,e.y,e.hp,e.superGauge,e.state,e.stateFrame,e.animationFrame,e.aiCooldown];
+let cases=0,landings=0,resumeChecks=0,motionSamples=0;
+for(const c of roster)for(const stage of [1,2,3,4,5])for(const wave of [1,2])for(const facing of [-1,1])for(const kind of ['air-light','air-heavy','rising']){
+ let hostile=false;const input={pressed:key=>hostile&&key!=='start',held:()=>hostile,released:()=>false},scene=new Stage1Scene(input,audio,c,c.superArts[0],stage);scene.enter();scene.introFrames=0;scene.beltWave=wave-1;scene.spawnBeltWave(wave-1);scene.prepareCombatTextures();
+ const p=scene.world.player;for(const e of scene.world.enemies)e.receiveHit({...normalFor('hp',false,c.id),damage:99999},p,false);scene.fixedUpdate(1/60,1);assert.equal(scene.beltState,'travel');assert.equal(scene.beltWave,wave);
+ p.x=p.previousX=scene.areaStarts[wave]+160;p.facing=facing;p.installFrames=kind==='air-light'?1:kind==='air-heavy'?30:120;p.installPowerScale=1.3;p.installFrameScale=.85;p.installMoveScale=1.2;p.installLabel='GENEI JIN';const move=kind==='rising'?specialMovesFor(c.id).antiAir:airNormalFor(c.id,kind==='air-light'?'lp':'hk');p.startMove(move);p.airborne=true;p.jumpHeight=kind==='air-light'?120:55;p.jumpVelocity=kind==='air-light'?5:3;p.moveFrame=p.currentMove.startup+1;p.stateFrame=p.moveFrame;p.hitStop=2;
+ scene.fixedUpdate(1/60,2);assert.equal(scene.waveBreakFrames,54);assert(scene.world.livingEnemies.length>0);assert(p.airborne);hostile=true;
+ const clock=p.animationFrame,hp=p.hp,gauge=p.superGauge,worldTime=scene.world.time,result=scene.stageResult(),enemies=scene.world.enemies.map(enemyState),install=[p.installFrames,p.installPowerScale,p.installFrameScale,p.installMoveScale,p.installLabel],samples=new Set();
+ for(let tick=1;tick<=54;tick++){
+  scene.fixedUpdate(1/60,1000+tick);assert.equal(scene.waveBreakFrames,54-tick);assert.equal(scene.phase,'belt');assert.equal(scene.world.time,worldTime);assert.equal(scene.stageTime,99);assert.deepEqual(scene.stageResult(),result);assert.deepEqual(scene.world.enemies.map(enemyState),enemies,'Arrival pause cannot activate enemy AI');assert.deepEqual([p.hp,p.superGauge],[hp,gauge]);assert.deepEqual([p.installFrames,p.installPowerScale,p.installFrameScale,p.installMoveScale,p.installLabel],install,'Wave wait must preserve active install duration and scales');assert.equal(scene.world.projectiles.length,0);
+  const sample=animationSequenceSample(p,scene.time);if(sample)samples.add(sample.sequence.id+':'+sample.frame);if(p.airborne&&!p.currentMove){assert.equal(p.state,'jump');if(kind!=='rising')assert.equal(sample?.sequence.kind,'jump');}
+ }
+ assert(p.animationFrame>clock,c.id+' wave arrival pause must advance current player motion');assert.equal(p.airborne,false,'Player must land during wave arrival');assert.equal(p.jumpHeight,0);assert.equal(p.currentMove,null,'Held input cannot start new attacks during pause');assert.equal(p.state,'idle');assert(samples.size>1);motionSamples+=samples.size;landings++;
+ hostile=false;const before=p.animationFrame,enemyClocks=scene.world.enemies.map(e=>e.animationFrame),elapsed=scene.elapsedCombatFrames;scene.fixedUpdate(1/60,2000);
+ assert.equal(p.animationFrame,before+1);assert.equal(p.installFrames,install[0]-1,'Install countdown resumes on first combat tick');if(install[0]===1)assert.deepEqual([p.installPowerScale,p.installFrameScale,p.installMoveScale,p.installLabel],[1,1,1,'']);assert(Math.abs(scene.world.time-worldTime-1/60)<1e-10);assert.equal(scene.elapsedCombatFrames,elapsed+1);assert(scene.stageTime<99);scene.world.enemies.forEach((e,i)=>assert.equal(e.animationFrame,enemyClocks[i]+1,'Enemies start exactly on first fight tick'));resumeChecks++;cases++;
+}
+let start=false;const pauseInput={pressed:key=>start&&key==='start',held:()=>false,released:()=>false},pauseScene=new Stage1Scene(pauseInput,audio,roster[0],roster[0].superArts[0]);pauseScene.enter();pauseScene.introFrames=0;pauseScene.waveBreakFrames=54;const pf=pauseScene.world.player;pf.airborne=true;pf.jumpHeight=55;pf.jumpVelocity=3;pf.state='jump';const pc=pf.animationFrame;
+start=true;pauseScene.fixedUpdate(1/60,1);assert(pauseScene.paused);start=false;pauseScene.fixedUpdate(1/60,2);assert.equal(pauseScene.waveBreakFrames,54);assert.equal(pf.animationFrame,pc);assert.equal(pf.jumpHeight,55);start=true;pauseScene.fixedUpdate(1/60,3);assert.equal(pauseScene.paused,false);start=false;pauseScene.fixedUpdate(1/60,4);assert.equal(pauseScene.waveBreakFrames,53);assert.equal(pf.animationFrame,pc+1);
+console.log('WAVE_BREAK_PLAYER_SETTLE_PASS',{characters:10,stages:5,nextWaves:2,facings:2,cases,landings,resumeChecks,motionSamples,pauseTicks:54,userPausePreserved:true,installTimerPreserved:true,enemiesFrozen:true,resultsFrozen:true,inputSuppressed:true});

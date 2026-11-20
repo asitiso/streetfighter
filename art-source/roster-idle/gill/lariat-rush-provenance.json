@@ -1,0 +1,34 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "sheet.png",
+  "initial": {
+    "prompt": "lariat-rush-initial-prompt.txt",
+    "sheet": "lariat-rush-initial-sheet.png"
+  },
+  "final": {
+    "editTarget": "lariat-rush-initial-sheet.png",
+    "prompt": "lariat-rush-prompt.txt",
+    "sheet": "lariat-rush-sheet.png",
+    "sha256": "93FAA9CE3B034B1DC73ECC566897EF31655196AFB42E616068DA34E1EC9DF8A4"
+  },
+  "sourceSelection": {
+    "generated": 8,
+    "selected": 7,
+    "sourceOrder": [
+      1,
+      1,
+      2,
+      3,
+      4,
+      4,
+      5,
+      6,
+      7,
+      7,
+      1,
+      1
+    ],
+    "reason": "Short earlysweep is finalstartup, fullforearmextension begins contact; exact originalguard return."
+  },
+  "purpose": "Original red-arm sweeping lariat; margin/earlyextension edit before unchanged semantic gates."
+}

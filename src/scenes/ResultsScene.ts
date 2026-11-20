@@ -8,32 +8,55 @@ const STAGE_NAMES = ['NEW YORK', 'HONG KONG', 'JAPAN', 'LONDON', 'SECRET SOCIETY
 
 export class ResultsScene implements Scene {
   private time = 0;
-  private page = 0;
-  private lock = 0;
+  private page: 0 | 1 = 0;
+  private returning = false;
+  private returnError = '';
+  private entryId = 0;
 
   constructor(
     private readonly input: InputManager,
     private readonly audio: AudioManager,
     private readonly results: readonly StageResult[],
-    private readonly onBack: () => void,
-  ) {}
+    private readonly onBack: (page: 0 | 1) => void | Promise<void>,
+    private readonly onError?: (error: unknown) => void,
+    initialPage: 0 | 1 = 0,
+    private initialFailed = false,
+    private readonly onControlsChange?: (recordsMode: boolean) => void,
+  ) { this.page = initialPage; }
 
-  enter(): void { this.audio.playStagePulse(); }
-  exit(): void {}
+  enter(): void {
+    this.entryId += 1;
+    this.returning = false;
+    this.returnError = this.initialFailed ? 'RETURN FAILED • PRESS AGAIN TO RETRY' : '';
+    this.initialFailed = false;
+    this.onControlsChange?.(true);
+    this.audio.playStagePulse();
+  }
+  exit(): void { this.entryId += 1; this.onControlsChange?.(false); }
   resize(_width: number, _height: number): void {}
-  destroy(): void {}
+  destroy(): void { this.entryId += 1; this.onControlsChange?.(false); }
 
   fixedUpdate(dt: number): void {
+    if (this.returning) return;
     this.time += dt;
-    if (this.lock > 0) this.lock -= 1;
-    if (this.lock <= 0 && (this.input.pressed('left') || this.input.pressed('right'))) {
+    if (this.input.pressed('left') || this.input.pressed('right')) {
       this.page = this.page === 0 ? 1 : 0;
-      this.lock = 7;
+      this.returnError = '';
       this.audio.playMenuMove();
     }
     if (this.input.pressed('confirm') || this.input.pressed('back') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('lk')) {
+      this.returning = true;
       this.audio.playUiConfirm();
-      this.onBack();
+      this.returnError = '';
+      const entry = this.entryId;
+      const failed = (error: unknown) => {
+        if (entry !== this.entryId) return;
+        this.returning = false;
+        this.returnError = 'RETURN FAILED • PRESS AGAIN TO RETRY';
+        try { this.onError?.(error); } catch { /* Keep retry usable if diagnostics fail. */ }
+      };
+      try { void Promise.resolve(this.onBack(this.page)).catch(failed); }
+      catch (error) { failed(error); }
     }
   }
 
@@ -48,13 +71,17 @@ export class ResultsScene implements Scene {
     ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0, 510, 1280, 210);
     ctx.textAlign = 'center'; ctx.fillStyle = '#e7c568'; ctx.font = '900 14px Arial Black, sans-serif'; ctx.fillText('CAMPAIGN ARCHIVE', 640, 72);
     ctx.fillStyle = '#fff'; ctx.font = '900 56px Impact, Arial Black, sans-serif'; ctx.fillText(this.page === 0 ? 'BATTLE RECORD' : 'CAMPAIGN TOTALS', 640, 132);
-    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillText('← → CHANGE PAGE   •   P / K / START RETURN', 640, 160);
+    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillText('← → CHANGE PAGE   •   ENTER / ESC / START / LP / LK RETURN', 640, 160);
 
     if (this.page === 0) this.drawStageTable(ctx);
     else this.drawTotals(ctx);
 
     const dotX = 620;
-    for (let i = 0; i < 2; i += 1) { ctx.fillStyle = i === this.page ? '#e7c568' : 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.arc(dotX + i * 40, 648, 6, 0, Math.PI * 2); ctx.fill(); }
+    for (let i = 0; i < 2; i += 1) { ctx.fillStyle = i === this.page ? '#e7c568' : 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.arc(dotX + i * 40, 560, 6, 0, Math.PI * 2); ctx.fill(); }
+    if (this.returnError) {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#ff9b9b'; ctx.font = '800 14px Arial, sans-serif';
+      ctx.fillText(this.returnError, 640, 590);
+    }
     ctx.restore();
   }
 

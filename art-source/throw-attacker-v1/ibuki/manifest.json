@@ -1,0 +1,151 @@
+{
+  "character": "IBUKI",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7522123893805309,
+  "sourceBounds": [
+    [
+      62,
+      56,
+      451,
+      449
+    ],
+    [
+      50,
+      61,
+      497,
+      449
+    ],
+    [
+      90,
+      48,
+      412,
+      450
+    ],
+    [
+      85,
+      33,
+      446,
+      478
+    ],
+    [
+      52,
+      41,
+      482,
+      474
+    ],
+    [
+      96,
+      26,
+      424,
+      478
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      126,
+      133,
+      418,
+      429
+    ],
+    [
+      103,
+      137,
+      440,
+      429
+    ],
+    [
+      132,
+      126,
+      375,
+      429
+    ],
+    [
+      140,
+      95,
+      411,
+      429
+    ],
+    [
+      105,
+      103,
+      428,
+      429
+    ],
+    [
+      142,
+      88,
+      389,
+      429
+    ],
+    [
+      153,
+      89,
+      386,
+      429
+    ],
+    [
+      146,
+      85,
+      392,
+      430
+    ]
+  ],
+  "centroidTargetX": 259.94115560732286,
+  "centroids": [
+    [
+      260.2569117797003,
+      289.98491463292896
+    ],
+    [
+      259.66955699210894,
+      284.753361595883
+    ],
+    [
+      259.9315670932599,
+      282.73398172426613
+    ],
+    [
+      260.01917128374976,
+      262.1756219442473
+    ],
+    [
+      259.64419151429644,
+      276.7244851548372
+    ],
+    [
+      259.5438320231203,
+      262.7046391703068
+    ],
+    [
+      259.94115560732286,
+      256.5800306885797
+    ],
+    [
+      259.81741189251716,
+      254.44436397066306
+    ]
+  ],
+  "groundAnchor": 429,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/ibuki/idle.webp",
+  "idleFollowupSha256": "c4ff25f474d662307da3a03ac83c072a1ce91ca8503c213b2af9722f01cf3bc4",
+  "runtime": "public/art/throw-attacker-v1/ibuki.webp",
+  "bytes": 726890,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "303921beb46f752a3f2370ecf0c675305f6ef2c26415111da865c506b2a457e8",
+    "generation-reference.png": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+    "generation-prompt.txt": "68e98a9f118c12ed58a9229646d2ad84fad3e31f7ce755574d660438c7d81e54",
+    "ibuki.webp": "baeca5c41f9d8fe3a906c7391b8bd3796d805a399f62d7463c701479a3c298c7"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "character": "DUDLEY",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7251082251082251,
+  "sourceBounds": [
+    [
+      83,
+      82,
+      435,
+      453
+    ],
+    [
+      47,
+      146,
+      454,
+      445
+    ],
+    [
+      37,
+      253,
+      469,
+      444
+    ],
+    [
+      114,
+      173,
+      462,
+      466
+    ],
+    [
+      133,
+      84,
+      378,
+      476
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      128,
+      154,
+      384,
+      422
+    ],
+    [
+      109,
+      205,
+      404,
+      422
+    ],
+    [
+      99,
+      284,
+      413,
+      422
+    ],
+    [
+      130,
+      209,
+      383,
+      422
+    ],
+    [
+      167,
+      137,
+      345,
+      422
+    ],
+    [
+      176,
+      87,
+      336,
+      422
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/dudley.webp",
+  "bytes": 341746,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "d368189876cbf715f47c9bd68508d76d433c1b12bac8523b6eb7e91eb73acc0f",
+    "generation-reference.png": "143274e6b6efa911332800e44b0003b7b77c02904729e462bc7b5c39727bcf96",
+    "reference-settle.png": "143274e6b6efa911332800e44b0003b7b77c02904729e462bc7b5c39727bcf96",
+    "generation-prompt.txt": "0b26235ad35e10128031a83ae368eedc5f5b6c31fdca21e34eede218da7cb58b",
+    "alpha-edit-prompt.txt": "a65d01b05d714a21d4fdecc6107d5807d4995eaf30619fdb6499c79622d3fdda",
+    "dudley.webp": "54c23eda3c7f0a852a1366184a046e7192e132619db35c7d723e5e82f2c99af3"
+  }
+}

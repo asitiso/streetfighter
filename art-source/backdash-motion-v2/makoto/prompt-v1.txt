@@ -1,0 +1,12 @@
+Production fighting game original BACKWARD DASH sprite sheet: Makoto, athletic young female karate fighter with short dark brown hair, worn off-white sleeveless gi, black belt, red gloves, bare feet. Reference1 neutral identity/style; reference2 backward-footwork choreography only. Ignore all colored invisible pixel streaks. Detailed hand-painted original sprite style, match reference materials, palette and face.
+Exactly EIGHT complete isolated figures in TWO ROWS FOUR COLUMNS, left-right reading order then next row, same anatomical scale/camera, facing RIGHT while retreating LEFT.
+1 neutral anatomical guard reference.
+2 initial compression5%, a WIDE HIGH protective guard, rear elbow clearly out at shoulder height with bent forearm/hand beside ear, front hand protects chin, clear negative-space triangular arm silhouette. Keep balanced neutral legs.
+3 backward acceleration: rear LEFT knee bends, hips shift left, front RIGHT leg pushes, elbows halfway lower toward compact drive guard.
+4 early retreat drive: front RIGHT leg stretched to right, rear LEFT knee deeply bent; hips lower15%, upper torso LEFT of midpoint of foot spread, head remains turned right, hands protective.
+5 late retreat drive: actual distinct joint-articulated in-between: front right leg retracts20%, torso still left of spread feet, rear knee begins straightening, hips slightly rise, hands compact. No copied pose.
+6 braking: front knee draws partly toward torso, rear leg takes weight, torso starts rising, elbows tucked. Gentle root transition.
+7 settling: two planted feet near guard, knees flex5%, upright shoulders, arms between compact and idle.
+8 final recovery: knees flex8%, feet slightly wider than neutral, hands at chest guard rather than raised at temples; distinct from cell2 and not exact idle. Smooth transition to cell1.
+Seven action poses truly different with hip/knee/ankle/elbow articulation; no rigid global warps. Moderate backward lean, no attack/kicks/punches. Small continuous silhouette-centroid steps, no abrupt leap during recovery. Stable body volume/face/outfit. All heads/hands/hair/feet fully inside cells, generous transparent gutters, never touch sheet edge.
+Genuinely alpha-zero TRANSPARENT background, bodies only, no floor/shadows/glow/text/effects. 1536x1024 landscape.

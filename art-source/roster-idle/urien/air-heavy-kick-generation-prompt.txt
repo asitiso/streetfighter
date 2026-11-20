@@ -1,0 +1,10 @@
+Create NEW original transparent fighting-game spritesheet. Reference ONLY Urienidentity/renderstyle andcompactairguard anatomy.1024x1536canvas, exactly6isolatedfullbodyposes2columns×3rows, faceRIGHT, consistentheadsize/headaxis/torsoheight, figure430–450pxper512rowwithmargins. TrueRGBAalpha,no background/shadow/ground/text/grid/effects.
+Urien extremelymuscularadultbronze-skinnedman,shortwhitehair,sterngoldneckcollar,goldwristbracers,white/navyshortwaistcloth goldtrim/beltmedallion,barefeet. Matchreferencebodymass/costume/jewelry. No gloves/shoes/armor.
+AIR HK powerful extended airborne bare-foot kick. Bothhandsclosedguardface/chest, rearlegfoldedtightly. Keeplowest15%ofeachfigure ONLYcompactbarefeet/ankles<=110sourcepxspan: allknees/rearcalves stay at least90sourcepxABOVE lowesttoes, not horizontalatankleheight. Maintainfullbodyheight/headregistration, don'trescalecontactpose.
+1top-left compactairguard matchingreference, tuckedraisedknees, barefeetcloseunderhips.
+2top-right windup rotatehips, raiseleadknee, drawheelclosehip, rearfootverticalclusterbelowhips. Goldbracerhandsguard.
+3middle-left leadkneeopenshalfwayRIGHT, hipturn, rearlegfoldedandhandsguarded.
+4middle-right CONTACT: strong leadlegkickRIGHT atwaist/upperhipheight (55–65%downbodyfromhead), nearlyextendedknee. Barefoot heel/ball/toes clearlyfrontmost, extends~190sourcepxpastguardedhands, footfullyinsidecellmargin. Leadthigh/shin almosthorizontal/slightlydiagonaldown; rearkneetightlyupandbarefootunderhips wellbehind. No punchingorleadingknee, footleadsclearly. Torso slightcounterlean/hiprotation butheadsameposition. Footnotfaceheightandnotfloor.
+5bottom-left withdrawheel/rebendknee, unwindhips, compactfeet, guard.
+6bottom-right returnreferencecompactairguard, waistclothsettle.
+Sixcleararticulatedhip/knee/ankleposes, coherentmusclevolume, exactlytwoarms/twolegs/noextralimbs. Barefeetdetailedtoes notgloves. Fullbodyeverycell. Genuine transparentbackground.

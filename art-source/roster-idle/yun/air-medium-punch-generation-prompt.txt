@@ -1,0 +1,10 @@
+Create NEW original transparent fighting-game sprite sheet. Use reference ONLY Yun identity/painted style.1024x1536canvas, exactlysix isolated fullbodyposes in2columns×3rows, faceRIGHT. Sameheadsize/capaxis/torsoheight allposes, bodyheight430–450per512row, margins. Truealpha,no text/grid/ground/shadows/effects.
+Yun navycap/yellowbill,longdarkbraid,ivorysleevelesskungfuvest yellowtrim/navybuttons,navybaggypants yellowstripes,yellowwristwraps,blackfingerlessgloves and blacksliponshoes.
+AIR MP medium closed-fist straight punch inair, not openpalm, notshortjab. Bothknees tucked/feetclosebelowhips inallposes, bottom15% silhouette narrowcuffs/shoes<=120sourcepixelswidth. Hands closedfists, exactlytwoarms/twolegs, noextralimbs.
+1top-left compactairborneguard, closedstrikingfist nearcheek,otherfist chestguard.
+2top-right windup, drawstrikingelbowbackandfistnearshoulder, torso coils slightly, otherguardadjusts. Head/hips stable.
+3middle-left beginpunch, elbow unfolds halfway, wrist pronates, othertightguard, legsremaincompact.
+4middle-right CONTACT: firm medium straight closedfist RIGHT atupperchest level(25–38%downbodyheight). Fist shouldextend about95SOURCEpixels fartherRIGHT than frontofguardinghand inPOSE1. Elbowmoderatelybent (about140degrees), notlocked/fullheavyextension, longerthan shortjab. Closedfistverticalprofile about40sourcepixelshigh, compactknuckles notopen fingers. Blackfingerlessglove andyellowwristwrap, no redglove. Shoulder/torso naturalrotationwithoutheadmovement. Rearhand nearsternum. Bothlegs staytucked, feetclose.
+5bottom-left withdraw fist, elbowrebends, shouldersrecover, compactknees.
+6bottom-right recoverguard withbraid/vestsettle.
+Substantialrealarticulation atshoulder/elbow/wrist, not affinecopies, coherentbodyvolume andlegshape. Don't inflate baggypantlowknees. Keepentirebodies withineachcellandheadpositionsaligned. No groundedstance. Genuine transparentalpha.

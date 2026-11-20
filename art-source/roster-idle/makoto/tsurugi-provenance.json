@@ -1,0 +1,38 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "sheet.png",
+  "final": {
+    "prompt": "tsurugi-prompt.txt",
+    "sheet": "tsurugi-sheet.png",
+    "sha256": "5F0074218229A8122328ED435C93B053DFB7B1FD7BE018EF3B7BFC37BFF33BF3"
+  },
+  "sourceSelection": {
+    "generated": 6,
+    "selected": 5,
+    "sourceOrder": [
+      1,
+      1,
+      2,
+      3,
+      4,
+      4,
+      5,
+      5,
+      1,
+      1,
+      1,
+      1
+    ],
+    "reason": "Exactoriginalguard reuseforfinal4frames"
+  },
+  "adaptation": "Existingengine groundforwardmobility preserved; grounded forward-down kick art, no new launch/air physics.",
+  "quality": {
+    "originalMediumKickGates": true,
+    "contactFrames": [
+      4,
+      5
+    ],
+    "rearSupportRoot": true,
+    "sourceOpaquePixelsTouchBoundary": false
+  }
+}

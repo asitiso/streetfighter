@@ -1,0 +1,62 @@
+{
+  "character": "URIEN",
+  "kind": "crouch-guard",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "footBaseline": 420,
+  "sharedScale": 0.65,
+  "sourceCells": [
+    [
+      86,
+      146,
+      427,
+      484
+    ],
+    [
+      80,
+      126,
+      424,
+      484
+    ],
+    [
+      81,
+      112,
+      426,
+      484
+    ],
+    [
+      86,
+      115,
+      429,
+      484
+    ],
+    [
+      83,
+      121,
+      425,
+      484
+    ],
+    [
+      80,
+      128,
+      429,
+      484
+    ]
+  ],
+  "runtime": "public/art/animation-hq/urien/crouch-guard-v1.webp",
+  "bytes": 427830,
+  "decodedBytes": 4128768,
+  "operations": [
+    "alpha silhouette crop with 3px padding",
+    "shared .65 scale in premultiplied alpha",
+    "center and align baseline420",
+    "lossless exact WebP packing"
+  ],
+  "sha256": {
+    "generated-sheet-v1.png": "62d3459073881f3d9420d98935cdb6de07b7ed6ef0d304f007783606bcb89f0d",
+    "reference-crouch.png": "ddfaea4d38df4f2cc9b36b01acebee17c0db0c87771c8121c2c101f2d7a4a943",
+    "generation-prompt.txt": "98ac1f9e6d4ae3aead637290c07ffe1f8122ac5c048342cb75f3350050824e8e",
+    "crouch-guard-v1.webp": "9f2bdf29bce45826b01f2df51b9087bd4c3cfe3caae1d5c0db8a9793ac819598"
+  }
+}

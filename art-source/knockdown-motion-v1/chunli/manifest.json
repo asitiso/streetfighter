@@ -1,0 +1,94 @@
+{
+  "character": "CHUNLI",
+  "kind": "knockdown",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.8467336683417085,
+  "sourceBounds": [
+    [
+      93,
+      129,
+      424,
+      424
+    ],
+    [
+      51,
+      168,
+      431,
+      413
+    ],
+    [
+      24,
+      267,
+      463,
+      419
+    ],
+    [
+      83,
+      182,
+      430,
+      442
+    ],
+    [
+      104,
+      111,
+      371,
+      444
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      116,
+      173,
+      397,
+      423
+    ],
+    [
+      96,
+      216,
+      418,
+      423
+    ],
+    [
+      70,
+      295,
+      443,
+      423
+    ],
+    [
+      110,
+      204,
+      403,
+      423
+    ],
+    [
+      143,
+      140,
+      370,
+      423
+    ],
+    [
+      135,
+      86,
+      376,
+      423
+    ]
+  ],
+  "uniqueDrawings": 6,
+  "groundedRestPass": true,
+  "noClippingPass": true,
+  "recoveryPixelIdentical": true,
+  "recoveryPaddingX": 64,
+  "runtime": "public/art/knockdown-motion-v1/chunli.webp",
+  "bytes": 491486,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "04a6f9974ba38277e435d9f3860af0d17804cfc4449f77ded6a514fb6fe48de0",
+    "generation-reference.png": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+    "reference-settle.png": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+    "generation-prompt.txt": "0ae456b286f9bd06bf630d07fd6ea6f40f4e57c563343895c759881f5f9dac43",
+    "spacing-edit-prompt.txt": "908fd9ea175903dedecb3c8905fca56ffe7fb515de1b26a7a6a97e26ae286bda",
+    "chunli.webp": "4397f61009dfbdcf249f51e9ce6211a7009a3604bd378b7c51d6bf1a76901e68"
+  }
+}

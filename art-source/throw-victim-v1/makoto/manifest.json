@@ -1,0 +1,127 @@
+{
+  "character": "MAKOTO",
+  "kind": "throw-victim",
+  "frames": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.6473002159827214,
+  "sourceRowSplit": 540,
+  "sourceBounds": [
+    [
+      126,
+      66,
+      424,
+      518
+    ],
+    [
+      57,
+      9,
+      408,
+      472
+    ],
+    [
+      71,
+      82,
+      372,
+      415
+    ],
+    [
+      49,
+      33,
+      505,
+      372
+    ],
+    [
+      81,
+      37,
+      461,
+      463
+    ],
+    [
+      45,
+      119,
+      404,
+      444
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      162,
+      108,
+      355,
+      400
+    ],
+    [
+      132,
+      115,
+      359,
+      415
+    ],
+    [
+      148,
+      151,
+      343,
+      366
+    ],
+    [
+      132,
+      142,
+      427,
+      361
+    ],
+    [
+      138,
+      133,
+      384,
+      409
+    ],
+    [
+      128,
+      145,
+      360,
+      355
+    ]
+  ],
+  "centroidTarget": [
+    255.5,
+    258.3678077904446
+  ],
+  "centroids": [
+    [
+      255.63198550031092,
+      258.4876608186966
+    ],
+    [
+      255.7311377521526,
+      257.98825507050304
+    ],
+    [
+      255.38297814355624,
+      258.4413655659984
+    ],
+    [
+      255.72233092008253,
+      258.82947774173863
+    ],
+    [
+      255.7411360047237,
+      258.6827837626029
+    ],
+    [
+      255.873206964898,
+      258.02079639940195
+    ]
+  ],
+  "centroidLockPass": true,
+  "uniqueDrawings": 6,
+  "noClippingPass": true,
+  "runtime": "public/art/throw-victim-v1/makoto.webp",
+  "bytes": 417908,
+  "decodedBytes": 5505024,
+  "sha256": {
+    "generated-sheet-v1.png": "51421baf0afcdbb5b56b96ce5af3e61a35950d6b38e3aa7c454df70889ed1e30",
+    "generation-reference.png": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+    "generation-prompt.txt": "6091e1ae58b7da4f173729db8b28ef6196dbd2111a7b559bff69be8a725b2120",
+    "makoto.webp": "1dafae7b7817ce9a7cfb7efda0eec49dff6ace5c0a5c49229abeaa5bda972d28"
+  }
+}

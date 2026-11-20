@@ -1,0 +1,229 @@
+{
+  "passed": true,
+  "actual": {
+    "move": "IBUKI_CMD_MK",
+    "moveFrame": 8,
+    "frame": 4,
+    "kind": "spin-heel",
+    "contact": true,
+    "loaded": true,
+    "trusted": [
+      true
+    ],
+    "capturedFrames": 26
+  },
+  "asset": {
+    "passed": true,
+    "width": 7680,
+    "height": 448,
+    "frames": 12,
+    "distinct": 12,
+    "guardMean": 3.797898996775688,
+    "guardAlphaMean": 0,
+    "seamMean": 0.12961512974330358,
+    "records": [
+      {
+        "components": [
+          37144
+        ],
+        "frame": 0,
+        "minX": 218,
+        "maxX": 449,
+        "minY": 89,
+        "maxY": 428,
+        "visible": 35253,
+        "hash": 1468029296
+      },
+      {
+        "components": [
+          43037
+        ],
+        "frame": 1,
+        "minX": 179,
+        "maxX": 429,
+        "minY": 82,
+        "maxY": 428,
+        "visible": 39399,
+        "hash": 3543440182
+      },
+      {
+        "components": [
+          44311
+        ],
+        "frame": 2,
+        "minX": 134,
+        "maxX": 415,
+        "minY": 80,
+        "maxY": 428,
+        "visible": 40395,
+        "hash": 3901523698
+      },
+      {
+        "components": [
+          41789
+        ],
+        "frame": 3,
+        "minX": 135,
+        "maxX": 423,
+        "minY": 93,
+        "maxY": 428,
+        "visible": 38073,
+        "hash": 3022611417
+      },
+      {
+        "components": [
+          40641
+        ],
+        "frame": 4,
+        "minX": 138,
+        "maxX": 442,
+        "minY": 97,
+        "maxY": 428,
+        "visible": 36806,
+        "hash": 2978234940
+      },
+      {
+        "components": [
+          41890
+        ],
+        "frame": 5,
+        "minX": 175,
+        "maxX": 510,
+        "minY": 93,
+        "maxY": 428,
+        "visible": 37745,
+        "hash": 48311220
+      },
+      {
+        "components": [
+          39846
+        ],
+        "frame": 6,
+        "minX": 185,
+        "maxX": 490,
+        "minY": 97,
+        "maxY": 428,
+        "visible": 36269,
+        "hash": 1071728522
+      },
+      {
+        "components": [
+          38980
+        ],
+        "frame": 7,
+        "minX": 163,
+        "maxX": 437,
+        "minY": 96,
+        "maxY": 428,
+        "visible": 35760,
+        "hash": 3916602123
+      },
+      {
+        "components": [
+          39730
+        ],
+        "frame": 8,
+        "minX": 157,
+        "maxX": 413,
+        "minY": 96,
+        "maxY": 429,
+        "visible": 36182,
+        "hash": 2340492037
+      },
+      {
+        "components": [
+          39443,
+          6
+        ],
+        "frame": 9,
+        "minX": 152,
+        "maxX": 399,
+        "minY": 95,
+        "maxY": 428,
+        "visible": 36119,
+        "hash": 149769613
+      },
+      {
+        "components": [
+          42024
+        ],
+        "frame": 10,
+        "minX": 189,
+        "maxX": 445,
+        "minY": 97,
+        "maxY": 428,
+        "visible": 38380,
+        "hash": 1621511985
+      },
+      {
+        "components": [
+          37144
+        ],
+        "frame": 11,
+        "minX": 218,
+        "maxX": 449,
+        "minY": 89,
+        "maxY": 428,
+        "visible": 35253,
+        "hash": 4040514247
+      }
+    ]
+  },
+  "rendering": {
+    "passed": true,
+    "reachableFrames": 12,
+    "frameToTick": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        8,
+        16
+      ],
+      [
+        9,
+        18
+      ],
+      [
+        10,
+        21
+      ],
+      [
+        11,
+        23
+      ]
+    ],
+    "fallbackVisiblePixels": 5910,
+    "hqRestored": true
+  },
+  "runtimeExceptions": []
+}

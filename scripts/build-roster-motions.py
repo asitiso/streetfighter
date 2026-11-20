@@ -52,6 +52,66 @@ def module():
  motion.EXPECTED['crouch-heavy']=10
  motion.TARGET_HEIGHT['crouch-heavy']=220
  motion.GROUND_KINDS.add('crouch-heavy')
+ motion.EXPECTED['genei-jin-install']=12
+ motion.TARGET_HEIGHT['genei-jin-install']=340
+ motion.GROUND_KINDS.add('genei-jin-install')
+ motion.EXPECTED['tanden-renki']=12
+ motion.TARGET_HEIGHT['tanden-renki']=340
+ motion.GROUND_KINDS.add('tanden-renki')
+ motion.EXPECTED['abare-tosanami']=16
+ motion.TARGET_HEIGHT['abare-tosanami']=334
+ motion.EXPECTED['stun-gun-headbutt']=12
+ motion.TARGET_HEIGHT['stun-gun-headbutt']=334
+ motion.EXPECTED['rocket-uppercut']=12
+ motion.TARGET_HEIGHT['rocket-uppercut']=334
+ motion.EXPECTED['you-hou']=12
+ motion.TARGET_HEIGHT['you-hou']=340
+ motion.GROUND_KINDS.add('you-hou')
+ motion.EXPECTED['sourai-rengeki']=16
+ motion.TARGET_HEIGHT['sourai-rengeki']=340
+ motion.GROUND_KINDS.add('sourai-rengeki')
+ motion.EXPECTED['rolling-thunder']=16
+ motion.TARGET_HEIGHT['rolling-thunder']=340
+ motion.GROUND_KINDS.add('rolling-thunder')
+ motion.EXPECTED['boomerang-raid']=12
+ motion.TARGET_HEIGHT['boomerang-raid']=340
+ motion.GROUND_KINDS.add('boomerang-raid')
+ motion.EXPECTED['hyper-bomb']=12
+ motion.TARGET_HEIGHT['hyper-bomb']=340
+ motion.GROUND_KINDS.add('hyper-bomb')
+ motion.EXPECTED['genei-jin']=12
+ motion.TARGET_HEIGHT['genei-jin']=340
+ motion.GROUND_KINDS.add('genei-jin')
+ motion.EXPECTED['seichusen-godanzuki']=12
+ motion.TARGET_HEIGHT['seichusen-godanzuki']=340
+ motion.GROUND_KINDS.add('seichusen-godanzuki')
+ motion.EXPECTED['seraphic-storm']=12
+ motion.TARGET_HEIGHT['seraphic-storm']=340
+ motion.GROUND_KINDS.add('seraphic-storm')
+ motion.EXPECTED['aegis-reflector']=12
+ motion.TARGET_HEIGHT['aegis-reflector']=340
+ motion.GROUND_KINDS.add('aegis-reflector')
+ motion.EXPECTED['corkscrew-blow']=12
+ motion.TARGET_HEIGHT['corkscrew-blow']=340
+ motion.GROUND_KINDS.add('corkscrew-blow')
+ motion.EXPECTED['tsurugi']=12
+ motion.TARGET_HEIGHT['tsurugi']=340
+ motion.GROUND_KINDS.add('tsurugi')
+ motion.EXPECTED['lariat-rush']=12
+ motion.TARGET_HEIGHT['lariat-rush']=340
+ motion.GROUND_KINDS.add('lariat-rush')
+ motion.EXPECTED['shoulder-tackle']=12
+ motion.TARGET_HEIGHT['shoulder-tackle']=340
+ motion.GROUND_KINDS.add('shoulder-tackle')
+ motion.EXPECTED['palm-rush']=12
+ motion.TARGET_HEIGHT['palm-rush']=340
+ motion.GROUND_KINDS.add('palm-rush')
+ motion.EXPECTED['hayate']=12
+ motion.TARGET_HEIGHT['hayate']=340
+ motion.GROUND_KINDS.add('hayate')
+ motion.EXPECTED['machine-gun-blow']=12
+ motion.TARGET_HEIGHT['machine-gun-blow']=340
+ motion.GROUND_KINDS.add('machine-gun-blow')
  motion.EXPECTED['ducking-straight']=12
  motion.TARGET_HEIGHT['ducking-straight']=340
  motion.GROUND_KINDS.add('ducking-straight')
@@ -70,11 +130,31 @@ def module():
  motion.GROUND_KINDS.add('crouch-light')
  original_semantic=motion.semantic_qa
  def semantic(kind,frames,pose):
-  if getattr(motion,'ROSTER_CHARACTER',None)=='DUDLEY' and kind=='ducking-straight':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='YUN' and kind=='genei-jin-install':return genei_jin_install_semantic_qa(motion,frames,pose)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='MAKOTO' and kind=='tanden-renki':return tanden_renki_semantic_qa(motion,frames,pose)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='MAKOTO' and kind=='abare-tosanami':return abare_tosanami_semantic_qa(motion,frames,pose)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='ALEX' and kind=='stun-gun-headbutt':return leaping_headbutt_semantic_qa(motion,frames,pose)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='DUDLEY' and kind=='rocket-uppercut':return ryu_shoryuken_semantic_qa(motion,frames,pose,contacts=(2,3,4,5,6,7))
+  if getattr(motion,'ROSTER_CHARACTER',None)=='YUN' and kind=='you-hou':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='YUN' and kind=='sourai-rengeki':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='DUDLEY' and kind=='rolling-thunder':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='ALEX' and kind=='boomerang-raid':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='ALEX' and kind=='hyper-bomb':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='YUN' and kind=='genei-jin':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='MAKOTO' and kind=='seichusen-godanzuki':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='GILL' and kind=='seraphic-storm':return ryu_hadoken_semantic_qa(motion,frames,pose,contacts=(2,3),kind=kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='URIEN' and kind=='aegis-reflector':return ryu_hadoken_semantic_qa(motion,frames,pose,contacts=(4,5),kind=kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='DUDLEY' and kind=='corkscrew-blow':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='MAKOTO' and kind=='tsurugi':return tsurugi_semantic_qa(motion,frames,pose)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='GILL' and kind=='lariat-rush':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='URIEN' and kind=='shoulder-tackle':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='YUN' and kind in ('shoulder-tackle','palm-rush'):return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='MAKOTO' and kind=='hayate':return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
+  if getattr(motion,'ROSTER_CHARACTER',None)=='DUDLEY' and kind in ('ducking-straight','machine-gun-blow'):return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
   if getattr(motion,'ROSTER_CHARACTER',None)=='ALEX' and kind in ('flash-chop','slash-elbow'):return grounded_special_strike_semantic_qa(motion,frames,pose,kind)
   if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind=='tatsumaki':return ryu_tatsumaki_semantic_qa(motion,frames,pose)
-  if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind=='shoryuken':return ryu_shoryuken_semantic_qa(motion,frames,pose)
-  if getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind=='hadoken':return ryu_hadoken_semantic_qa(motion,frames,pose)
+  if getattr(motion,'ROSTER_CHARACTER',None) in ('RYU','DUDLEY','MAKOTO','GILL','YUN','URIEN','ALEX') and kind=='shoryuken':return ryu_shoryuken_semantic_qa(motion,frames,pose)
+  if getattr(motion,'ROSTER_CHARACTER',None) in ('RYU','URIEN','GILL') and kind=='hadoken':return ryu_hadoken_semantic_qa(motion,frames,pose)
   if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light','stand-medium','stand-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None) in ('KEN','CHUNLI','IBUKI') and kind=='stand-medium'):return ryu_punch_semantic_qa(motion,frames,pose,kind)
   if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='KEN' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='CHUNLI' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')) or (getattr(motion,'ROSTER_CHARACTER',None)=='IBUKI' and kind in ('stand-light-kick','stand-medium-kick','stand-heavy-kick')):return ryu_kick_semantic_qa(motion,frames,pose,kind)
   if (getattr(motion,'ROSTER_CHARACTER',None)=='RYU' and kind in ('crouch-light','crouch-medium','crouch-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None)=='KEN' and kind in ('crouch-light','crouch-medium','crouch-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None)=='CHUNLI' and kind in ('crouch-light','crouch-medium','crouch-heavy')) or (getattr(motion,'ROSTER_CHARACTER',None)=='IBUKI' and kind in ('crouch-light','crouch-medium','crouch-heavy')):return ryu_crouch_punch_semantic_qa(motion,frames,pose,kind)
@@ -94,12 +174,52 @@ def module():
  motion.semantic_qa=semantic
  return motion
 
+def genei_jin_install_semantic_qa(motion,frames,pose):
+ report=motion._defense_semantic_common(frames,pose,'genei-jin-install',motion.GUARD_SEMANTIC_LIMITS,2,'peakGuardIoU')
+ ys,_=np.nonzero(motion._binary_mask(frames[0]));top=float(ys.min());height=float(ys.max()-ys.min())
+ start=round(top+.18*height);end=round(top+.48*height)
+ def upper_reach(frame):return float(np.nonzero(motion._binary_mask(frame)[start:end])[1].max())
+ base=upper_reach(frames[0]);base_reach=float(np.nonzero(motion._binary_mask(frames[0]))[1].max());actual=[]
+ for index in (2,3,4):
+  check=motion._defense_semantic_common(frames,pose,'genei-jin-install',motion.GUARD_SEMANTIC_LIMITS,index,'peakGuardIoU')
+  retraction=base-upper_reach(frames[index]);reach=float(np.nonzero(motion._binary_mask(frames[index]))[1].max())-base_reach
+  actual.append({'frame':index,'upperRetraction':round(retraction,6),'forwardReachDelta':round(reach,6),'pass':bool(check['semanticQaPass'] and 24<=retraction<=100 and reach<=24)})
+ report['focusLimits']={'upperBandFractions':[.18,.48],'upperRetractionMin':24,'upperRetractionMax':100,'forwardReachDeltaMax':24}
+ report['actualFocusPoses']=actual
+ report['checks']['actualFocusPoses']=all(row['pass'] for row in actual)
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
+
+
+def tanden_renki_semantic_qa(motion,frames,pose):
+ # Power activation uses the planted defense-quality envelope, not strike reach.
+ report=motion._defense_semantic_common(frames,pose,'tanden-renki',motion.GUARD_SEMANTIC_LIMITS,4,'peakGuardIoU')
+ def wrap_y(frame):
+  rgba=np.asarray(frame);rgb=rgba[:,:,:3].astype(float)
+  mask=(rgba[:,:,3]>128)&(rgb[:,:,0]>60)&(rgb[:,:,0]>rgb[:,:,1]*1.5)&(rgb[:,:,0]>rgb[:,:,2]*1.3)
+  ys,_=np.nonzero(mask)
+  return float(np.median(ys)) if len(ys)>=24 else None
+ neutral=wrap_y(frames[0]);base_reach=float(np.nonzero(motion._binary_mask(frames[0]))[1].max());actual=[]
+ for index in (3,4,5,6):
+  check=motion._defense_semantic_common(frames,pose,'tanden-renki',motion.GUARD_SEMANTIC_LIMITS,index,'peakGuardIoU')
+  charge=wrap_y(frames[index]);drop=charge-neutral if charge is not None and neutral is not None else None
+  reach=float(np.nonzero(motion._binary_mask(frames[index]))[1].max())-base_reach
+  actual.append({'frame':index,'handWrapDrop':round(drop,6) if drop is not None else None,'forwardReachDelta':round(reach,6),'pass':bool(check['semanticQaPass'] and drop is not None and 24<=drop<=100 and reach<=24)})
+ report['chargeLimits']={'handWrapDropMin':24,'handWrapDropMax':100,'forwardReachDeltaMax':24}
+ report['actualChargePoses']=actual
+ report['checks']['actualChargePoses']=all(row['pass'] for row in actual)
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
+
+
 def grounded_special_strike_semantic_qa(motion,frames,pose,kind):
- report=motion.stand_heavy_semantic_qa(frames,pose);report['kind']=kind
  limits=motion.STAND_HEAVY_SEMANTIC_LIMITS
+ contacts=tuple(range(2,12)) if kind in ('rolling-thunder','sourai-rengeki') else (3,4,5) if kind=='hyper-bomb' else (1,2,3,4,5,6,7) if kind=='genei-jin' else (3,6) if kind=='machine-gun-blow' else (2,3,4,5,6,7) if kind in ('corkscrew-blow','seichusen-godanzuki','boomerang-raid','you-hou') else (4,5,6,7) if kind=='lariat-rush' else (4,5)
+ report=motion._standing_attack_semantic_qa(frames,pose,kind,{**limits,'contactFrameIndex':3}) if kind=='machine-gun-blow' else motion.stand_heavy_semantic_qa(frames,pose)
+ report['kind']=kind
  reaches=[float(np.nonzero(motion._binary_mask(frame))[1].max()) for frame in frames]
  actual=[]
- for contact in (4,5):
+ for contact in contacts:
   check=motion._standing_attack_semantic_qa(frames,pose,kind,{**limits,'contactFrameIndex':contact})
   reach=reaches[contact]-reaches[0]
   actual.append({'frame':contact,'reach':reach,'pass':bool(check['semanticQaPass'] and limits['reachRangeMin']<=reach<=limits['reachRangeMax'])})
@@ -121,6 +241,11 @@ def grounded_special_strike_semantic_qa(motion,frames,pose,kind):
   for row in actual:row['headDrop']=int(np.nonzero(motion._binary_mask(frames[row['frame']]))[0].min())-base_top
   report['headDropLimits']=[30,75]
   report['checks']['duckedContact']=all(30<=row['headDrop']<=75 for row in actual)
+ if kind=='machine-gun-blow':
+  base_top=int(np.nonzero(motion._binary_mask(frames[0]))[0].min())
+  for row in actual:row['headDelta']=int(np.nonzero(motion._binary_mask(frames[row['frame']]))[0].min())-base_top
+  report['headDeltaLimits']=[-15,15]
+  report['checks']['uprightContact']=all(-15<=row['headDelta']<=15 for row in actual)
  report['semanticQaPass']=all(report['checks'].values())
  return report
 
@@ -150,10 +275,51 @@ def ryu_tatsumaki_semantic_qa(motion,frames,pose):
  return report
 
 
-def ryu_shoryuken_semantic_qa(motion,frames,pose):
+def leaping_contact_semantic_qa(motion,frames,pose,kind,contacts):
+ # Leaping kicks and tucked headbutts have no raised fist/crown. Keep the
+ # applicable rising quality limits without an uppercut-only top-rise cue.
+ def profile(sample):
+  report=motion.shoryuken_semantic_qa(sample,pose)
+  report['kind']=kind
+  report['limits']={key:value for key,value in report['limits'].items() if key not in ('topRiseMin','topRiseMax')}
+  report['checks'].pop('risingSilhouettePresent')
+  report['semanticQaPass']=all(report['checks'].values())
+  return report
+ report=profile(frames);actual=[]
+ base_y=motion._mask_centroid(motion._binary_mask(frames[0]))[1]
+ for contact in contacts:
+  sample=frames.copy();sample[4]=frames[contact];check=profile(sample)
+  lift=base_y-motion._mask_centroid(motion._binary_mask(frames[contact]))[1]
+  limits=motion.SHORYUKEN_SEMANTIC_LIMITS
+  risen=limits['centroidYRangeMin']<=lift<=limits['centroidYRangeMax']
+  actual.append({'frame':contact,'contactIoU':check['contactIoU'],'centroidLift':round(lift,6),'pass':bool(check['semanticQaPass'] and risen)})
+ report['actualContacts']=actual
+ report['checks']['actualContactPoses']=all(row['pass'] for row in actual)
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
+
+
+def leaping_headbutt_semantic_qa(motion,frames,pose):
+ return leaping_contact_semantic_qa(motion,frames,pose,'stun-gun-headbutt',(3,4,5,6,7))
+
+
+def abare_tosanami_semantic_qa(motion,frames,pose):
+ report=leaping_contact_semantic_qa(motion,frames,pose,'abare-tosanami',range(3,12))
+ for row in report['actualContacts']:
+  kick=kick_semantic_qa(motion,frames,pose,contact=row['frame'],lower_fraction=.25,raised_min=48,raised_max=225,kind='abare-tosanami')
+  leg=all(kick['checks'][key] for key in ('legReachPresent','raisedFootPresent','legArticulationPresent'))
+  row.update(legReachDelta=kick['legReachDelta'],contactFootHeight=kick['contactFootHeight'],legShapePass=bool(leg))
+  row['pass']=bool(row['pass'] and leg)
+ report['kickLimits']={'legReachMin':24,'legReachMax':160,'raisedFootMin':48,'raisedFootMax':225,'lowerContactIoUMax':.88}
+ report['checks']['actualContactPoses']=all(row['pass'] for row in report['actualContacts'])
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
+
+
+def ryu_shoryuken_semantic_qa(motion,frames,pose,contacts=(4,5,6,7)):
  report=motion.shoryuken_semantic_qa(frames,pose)
  actual=[]
- for contact in (4,5,6,7):
+ for contact in contacts:
   sample=frames.copy();sample[4]=frames[contact]
   check=motion.shoryuken_semantic_qa(sample,pose)
   base_y=motion._mask_centroid(motion._binary_mask(frames[0]))[1]
@@ -167,11 +333,16 @@ def ryu_shoryuken_semantic_qa(motion,frames,pose):
  return report
 
 
-def ryu_hadoken_semantic_qa(motion,frames,pose):
- report=motion.hadoken_semantic_qa(frames,pose)
+def ryu_hadoken_semantic_qa(motion,frames,pose,contacts=(5,6),kind='hadoken'):
+ # Canonical helper expects release at five and gather before four.
+ # Early boss releases must not count their own contact as preparation.
+ canonical=frames.copy()
+ if contacts[0]<4:canonical[:4]=[frames[0],frames[0],frames[contacts[0]-1],frames[contacts[0]-1]]
+ canonical[5]=frames[contacts[0]]
+ report=motion.hadoken_semantic_qa(canonical,pose);report['kind']=kind
  actual=[]
- for contact in (5,6):
-  sample=frames.copy();sample[5]=frames[contact]
+ for contact in contacts:
+  sample=canonical.copy();sample[5]=frames[contact]
   check=motion.hadoken_semantic_qa(sample,pose)
   actual.append({'frame':contact,'releaseReachDelta':check['releaseReachDelta'],'pass':bool(check['semanticQaPass'])})
  report['actualReleases']=actual
@@ -321,6 +492,18 @@ def kick_semantic_qa(motion,frames,pose,contact=3,lower_fraction=.55,raised_min=
   'authoredMotionPeak':.022<=values['residualMax']<=.20,
  }
  return {'kind':kind,**{k:round(v,6) for k,v in values.items()},'checks':checks,'semanticQaPass':all(checks.values())}
+
+def tsurugi_semantic_qa(motion,frames,pose):
+ # Reuse the existing medium-kick envelope unchanged at both actual contacts.
+ report=medium_kick_semantic_qa(motion,frames,pose,'kick');report['kind']='tsurugi'
+ actual=[]
+ for contact in (4,5):
+  check=kick_semantic_qa(motion,frames,pose,contact=contact,lower_fraction=.40,raised_min=48,raised_max=225,kind='tsurugi')
+  support=grounded_sole_count(motion._binary_mask(frames[contact]))==1
+  actual.append({'frame':contact,'legReachDelta':check['legReachDelta'],'contactFootHeight':check['contactFootHeight'],'pass':bool(check['semanticQaPass'] and support)})
+ report['actualContacts']=actual;report['checks']['actualContactPoses']=all(r['pass'] for r in actual)
+ report['semanticQaPass']=all(report['checks'].values())
+ return report
 
 def grounded_sole_count(mask):
  # A 24px band includes the small perspective-height difference between
@@ -528,7 +711,29 @@ def handoffs(directory,kind,frames):
   base=load_peer('crouch')[-1];tag=''.join(part.title() for part in kind.split('-'))
   return {'crouchTo'+tag:compare(base,frames[0],h.STAND_LIGHT_BASE_LIMITS),tag[0].lower()+tag[1:]+'ToCrouch':compare(frames[-1],base,h.STAND_LIGHT_BASE_LIMITS)}
  base_limits={'crouch':h.STAND_LIGHT_BASE_LIMITS,'hit':h.HIT_BASE_LIMITS,'guard':h.GUARD_BASE_LIMITS,'parry':h.PARRY_BASE_LIMITS,'stand-heavy-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-light-kick':h.STAND_LIGHT_BASE_LIMITS,'stand-medium':h.STAND_LIGHT_BASE_LIMITS,'stand-light':h.STAND_LIGHT_BASE_LIMITS,'stand-heavy':h.STAND_HEAVY_BASE_LIMITS}
- if directory.name=='dudley':base_limits['ducking-straight']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name in ('dudley','makoto','gill','yun','urien','alex'):base_limits['shoryuken']=h.SHORYUKEN_BASE_LIMITS
+ if directory.name in ('urien','gill'):base_limits['hadoken']=h.HADOKEN_BASE_LIMITS
+ if directory.name=='gill':base_limits['lariat-rush']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='gill':base_limits['seraphic-storm']=h.HADOKEN_BASE_LIMITS
+ if directory.name=='urien':base_limits['aegis-reflector']=h.HADOKEN_BASE_LIMITS
+ if directory.name=='urien':base_limits['shoulder-tackle']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='yun':base_limits.update({kind:h.STAND_HEAVY_BASE_LIMITS for kind in ('shoulder-tackle','palm-rush')})
+ if directory.name=='makoto':base_limits['tsurugi']=h.STAND_LIGHT_BASE_LIMITS
+ if directory.name=='makoto':base_limits['hayate']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='yun':base_limits['genei-jin-install']=h.STAND_LIGHT_BASE_LIMITS
+ if directory.name=='makoto':base_limits['tanden-renki']=h.STAND_LIGHT_BASE_LIMITS
+ if directory.name=='makoto':base_limits['abare-tosanami']=h.SHORYUKEN_BASE_LIMITS
+ if directory.name=='alex':base_limits['stun-gun-headbutt']=h.SHORYUKEN_BASE_LIMITS
+ if directory.name=='dudley':base_limits['rocket-uppercut']=h.SHORYUKEN_BASE_LIMITS
+ if directory.name=='yun':base_limits['you-hou']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='yun':base_limits['sourai-rengeki']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='dudley':base_limits['rolling-thunder']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='alex':base_limits['boomerang-raid']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='alex':base_limits['hyper-bomb']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='yun':base_limits['genei-jin']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='makoto':base_limits['seichusen-godanzuki']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='dudley':base_limits['corkscrew-blow']=h.STAND_HEAVY_BASE_LIMITS
+ if directory.name=='dudley':base_limits.update({kind:h.STAND_HEAVY_BASE_LIMITS for kind in ('ducking-straight','machine-gun-blow')})
  if directory.name=='alex':base_limits.update({kind:h.STAND_HEAVY_BASE_LIMITS for kind in ('flash-chop','slash-elbow')})
  if directory.name=='ryu':base_limits.update(hadoken=h.HADOKEN_BASE_LIMITS,shoryuken=h.SHORYUKEN_BASE_LIMITS,tatsumaki=h.TATSUMAKI_BASE_LIMITS)
  if kind in base_limits:
@@ -663,20 +868,43 @@ def air_batch(args):
  print(json.dumps(reports,indent=2));print('ROSTER_AIR_'+('RUNTIME_PASS' if args.runtime else 'INSTALLED' if args.install else 'QA_PASS'))
 
 def main():
- parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI','KEN','ALEX','DUDLEY'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
+ parser=ArgumentParser(description=__doc__);parser.add_argument('--kind',choices=['genei-jin-install','tanden-renki','abare-tosanami','stun-gun-headbutt','rocket-uppercut','you-hou','sourai-rengeki','rolling-thunder','boomerang-raid','hyper-bomb','genei-jin','seichusen-godanzuki','seraphic-storm','aegis-reflector','corkscrew-blow','tsurugi','lariat-rush','shoulder-tackle','palm-rush','hayate','machine-gun-blow','ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','idle','walk','walk-back','dash','dash-back','air','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'],default='idle');parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');parser.add_argument('--character',choices=['RYU','CHUNLI','IBUKI','KEN','ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL'],help='Supplemental motions; default remains the six-character batch');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose --install or --runtime')
- if args.kind=='ducking-straight' and args.character!='DUDLEY':parser.error('Ducking Straight selector requires --character DUDLEY')
- if args.character=='DUDLEY' and args.kind!='ducking-straight':parser.error('DUDLEY selector supports authored Ducking Straight only')
+ if args.kind=='genei-jin-install' and args.character!='YUN':parser.error('Genei Jin install selector requires --character YUN')
+ if args.kind=='tanden-renki' and args.character!='MAKOTO':parser.error('Tanden Renki selector requires --character MAKOTO')
+ if args.kind=='abare-tosanami' and args.character!='MAKOTO':parser.error('Abare Tosanami selector requires --character MAKOTO')
+ if args.kind=='stun-gun-headbutt' and args.character!='ALEX':parser.error('Stun Gun Headbutt selector requires --character ALEX')
+ if args.kind=='rocket-uppercut' and args.character!='DUDLEY':parser.error('Rocket Uppercut selector requires --character DUDLEY')
+ if args.kind=='you-hou' and args.character!='YUN':parser.error('You Hou selector requires --character YUN')
+ if args.kind=='sourai-rengeki' and args.character!='YUN':parser.error('Sourai Rengeki selector requires --character YUN')
+ if args.kind=='rolling-thunder' and args.character!='DUDLEY':parser.error('Rolling Thunder selector requires --character DUDLEY')
+ if args.kind=='boomerang-raid' and args.character!='ALEX':parser.error('Boomerang Raid selector requires --character ALEX')
+ if args.kind=='hyper-bomb' and args.character!='ALEX':parser.error('Hyper Bomb selector requires --character ALEX')
+ if args.kind=='genei-jin' and args.character!='YUN':parser.error('Genei Jin selector requires --character YUN')
+ if args.kind=='seichusen-godanzuki' and args.character!='MAKOTO':parser.error('Seichusen Godanzuki selector requires --character MAKOTO')
+ if args.kind=='seraphic-storm' and args.character!='GILL':parser.error('Seraphic Storm selector requires --character GILL')
+ if args.kind=='aegis-reflector' and args.character!='URIEN':parser.error('Aegis Reflector selector requires --character URIEN')
+ if args.kind=='corkscrew-blow' and args.character!='DUDLEY':parser.error('Corkscrew Blow selector requires --character DUDLEY')
+ if args.kind=='tsurugi' and args.character!='MAKOTO':parser.error('Tsurugi selector requires --character MAKOTO')
+ if args.kind=='lariat-rush' and args.character!='GILL':parser.error('Lariat Rush selector requires --character GILL')
+ if args.kind=='shoulder-tackle' and args.character not in ('YUN','URIEN'):parser.error('Shoulder tackle selector requires --character YUN or URIEN')
+ if args.kind=='palm-rush' and args.character!='YUN':parser.error('Palm Rush selector requires --character YUN')
+ if args.character=='YUN' and args.kind not in ('shoulder-tackle','palm-rush','shoryuken','genei-jin','sourai-rengeki','you-hou','genei-jin-install'):parser.error('YUN selector supports authored Palm Rush, Nishokyaku, Tetsuzanko, Genei Jin, Sourai Rengeki, You Hou and Genei Jin install only')
+ if args.kind=='hayate' and args.character!='MAKOTO':parser.error('Hayate selector requires --character MAKOTO')
+ if args.character=='MAKOTO' and args.kind not in ('hayate','shoryuken','tsurugi','seichusen-godanzuki','abare-tosanami','tanden-renki'):parser.error('MAKOTO selector supports authored Hayate, Fukiage, Tsurugi, Seichusen Godanzuki, Abare Tosanami and Tanden Renki only')
+ if args.kind in ('ducking-straight','machine-gun-blow') and args.character!='DUDLEY':parser.error('Dudley special selector requires --character DUDLEY')
+ if args.character=='DUDLEY' and args.kind not in ('ducking-straight','machine-gun-blow','shoryuken','corkscrew-blow','rolling-thunder','rocket-uppercut'):parser.error('DUDLEY selector supports authored Ducking Straight, Machine Gun Blow, Jet Upper, Corkscrew Blow, Rolling Thunder and Rocket Uppercut only')
  if args.kind in ('flash-chop','slash-elbow') and args.character!='ALEX':parser.error('Alex special selector requires --character ALEX')
- if args.character=='ALEX' and args.kind not in ('flash-chop','slash-elbow'):parser.error('ALEX selector supports authored Flash Chop and Slash Elbow only')
- if args.kind in ('hadoken','shoryuken','tatsumaki') and args.character!='RYU':parser.error('Authored special selector requires --character RYU')
+ if args.character=='ALEX' and args.kind not in ('flash-chop','slash-elbow','shoryuken','hyper-bomb','boomerang-raid','stun-gun-headbutt'):parser.error('ALEX selector supports authored Flash Chop, Slash Elbow, Air Knee Smash, Hyper Bomb, Boomerang Raid and Stun Gun Headbutt only')
+ if (args.character=='URIEN' and args.kind not in ('hadoken','shoryuken','shoulder-tackle','aegis-reflector')) or (args.character=='GILL' and args.kind not in ('hadoken','shoryuken','lariat-rush','seraphic-storm')):parser.error('URIEN supports projectile, rising knee, shoulder tackle and Aegis; GILL supports projectile, uppercut, lariat and Seraphic Storm only')
+ if args.kind in ('hadoken','shoryuken','tatsumaki') and not (args.character=='RYU' or (args.character in ('DUDLEY','MAKOTO','GILL','YUN','URIEN','ALEX') and args.kind=='shoryuken') or (args.character in ('URIEN','GILL') and args.kind=='hadoken')):parser.error('Authored special selector requires --character RYU')
  if args.character=='RYU' and args.kind not in ('tatsumaki','shoryuken','hadoken','walk-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash-back'):parser.error('RYU selector supports support, backward dash, standing/crouching normals and crouch only')
  if args.character=='CHUNLI' and args.kind not in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('CHUNLI selector supports backward dash, defense, medium palm, standing kicks, crouch and all crouching normals only')
  if args.character=='IBUKI' and args.kind not in ('dash-back','guard','parry','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('IBUKI selector supports backward dash, defense, medium palm, standing kicks, crouch, all crouching normals only')
  if args.character=='KEN' and args.kind not in ('dash-back','stand-medium','stand-light-kick','stand-medium-kick','stand-heavy-kick','crouch','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):parser.error('KEN selector supports backward dash, medium punch, standing kicks, crouch, low punches and all crouching normals only')
  if args.kind=='air':return air_batch(args)
  motion=module();pending={};results=[];kind=args.kind;count=motion.EXPECTED[kind]
- entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'crouch-light':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6]},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else ([{'id':args.character,'slug':args.character.lower(),**({'attackRecipes':{'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]}}} if args.character=='KEN' else {})}] if args.character in ('CHUNLI','IBUKI','KEN','ALEX','DUDLEY') else CONFIG)
+ entries=[{'id':'RYU','slug':'ryu','attackRecipes':{'crouch-light':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6]},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}}}] if args.character=='RYU' else ([{'id':args.character,'slug':args.character.lower(),**({'attackRecipes':{'stand-heavy-kick':{'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]},'stand-medium-kick':{'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'},'stand-medium':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]},'stand-light-kick':{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]}}} if args.character=='KEN' else {})}] if args.character in ('CHUNLI','IBUKI','KEN','ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL') else CONFIG)
  if args.character=='KEN':entries[0]['attackRecipes']['crouch-light']={'rows':3,'sourceOrder':[1,2,3,4,5,5,6]}
  if args.character=='IBUKI':entries[0]['attackRecipes']={kind:{'rows':3,'sourceOrder':[1,2,3,4,5,5,6,6]} for kind in ('stand-medium','stand-light-kick')}
  if args.character=='IBUKI':entries[0]['attackRecipes']['stand-medium-kick']={'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'}
@@ -685,7 +913,7 @@ def main():
  if args.character=='CHUNLI':entries[0]['attackRecipes']['stand-medium-kick']={'rows':3,'sourceOrder':[1,1,2,3,4,4,5,5,6,6],'semanticProfile':'kick'}
  if args.character=='CHUNLI':entries[0]['attackRecipes']['stand-heavy-kick']={'rows':3,'sourceOrder':[1,1,2,3,3,4,4,5,5,6,6,6]}
  if args.character in ('CHUNLI','IBUKI'):entries[0]['attackRecipes']['crouch-light']={'rows':3,'sourceOrder':[1,2,3,4,5,5,6]}
- width=640 if kind in ('ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
+ width=640 if kind in ('genei-jin-install','tanden-renki','abare-tosanami','stun-gun-headbutt','rocket-uppercut','you-hou','sourai-rengeki','rolling-thunder','boomerang-raid','hyper-bomb','genei-jin','seichusen-godanzuki','seraphic-storm','aegis-reflector','corkscrew-blow','tsurugi','lariat-rush','shoulder-tackle','palm-rush','hayate','machine-gun-blow','ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','dash','dash-back','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else 384;motion.FRAME_W=width
  for entry in entries:
   slug=entry['slug'];directory=ROOT/f'public/art/animation-hq/{slug}'
   motion.ROSTER_CHARACTER=entry['id']
@@ -710,18 +938,58 @@ def main():
    if not pose['poseAuthoredPass'] or not semantic['semanticQaPass']:raise ValueError(f'{slug}: runtime quality failed')
    if not all(r['pass'] for r in handoffs(directory,kind,frames).values()):raise ValueError(f'{slug}: runtime handoff failed')
    results.append({'character':entry['id'],'runtime':True});continue
-  source=SOURCE/slug/({'crouch-heavy-kick':'crouch-heavy-kick-sheet.png','crouch-medium-kick':'crouch-medium-kick-sheet.png','crouch-light-kick':'crouch-light-kick-sheet.png','crouch-heavy':'crouch-heavy-sheet.png','crouch-medium':'crouch-medium-sheet.png','crouch-light':'crouch-light-sheet.png','crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','dash-back':'dash-back-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','ducking-straight':'ducking-straight-sheet.png','slash-elbow':'slash-elbow-sheet.png','flash-chop':'flash-chop-sheet.png','tatsumaki':'tatsumaki-sheet.png','shoryuken':'shoryuken-sheet.png','hadoken':'hadoken-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
+  source=SOURCE/slug/({'crouch-heavy-kick':'crouch-heavy-kick-sheet.png','crouch-medium-kick':'crouch-medium-kick-sheet.png','crouch-light-kick':'crouch-light-kick-sheet.png','crouch-heavy':'crouch-heavy-sheet.png','crouch-medium':'crouch-medium-sheet.png','crouch-light':'crouch-light-sheet.png','crouch':'crouch-sheet.png','idle':'sheet.png','walk':'walk-sheet.png','walk-back':'retreat-sheet.png','dash':'dash-sheet.png','dash-back':'dash-back-sheet.png','hit':'hit-sheet.png','guard':'guard-sheet.png','parry':'parry-sheet.png','stand-heavy-kick':'stand-heavy-kick-sheet.png','stand-medium-kick':'stand-medium-kick-sheet.png','stand-light-kick':'stand-light-kick-sheet.png','stand-medium':'stand-medium-sheet.png','stand-light':'stand-light-sheet.png','genei-jin-install':'genei-jin-install-sheet.png','tanden-renki':'tanden-renki-sheet.png','abare-tosanami':'abare-tosanami-sheet.png','stun-gun-headbutt':'stun-gun-headbutt-sheet.png','rocket-uppercut':'rocket-uppercut-sheet.png','you-hou':'you-hou-sheet.png','sourai-rengeki':'sourai-rengeki-sheet.png','rolling-thunder':'rolling-thunder-sheet.png','boomerang-raid':'boomerang-raid-sheet.png','hyper-bomb':'hyper-bomb-sheet.png','genei-jin':'genei-jin-sheet.png','seichusen-godanzuki':'seichusen-godanzuki-sheet.png','seraphic-storm':'seraphic-storm-sheet.png','aegis-reflector':'aegis-reflector-sheet.png','corkscrew-blow':'corkscrew-blow-sheet.png','tsurugi':'tsurugi-sheet.png','lariat-rush':'lariat-rush-sheet.png','shoulder-tackle':'shoulder-tackle-sheet.png','palm-rush':'palm-rush-sheet.png','hayate':'hayate-sheet.png','machine-gun-blow':'machine-gun-blow-sheet.png','ducking-straight':'ducking-straight-sheet.png','slash-elbow':'slash-elbow-sheet.png','flash-chop':'flash-chop-sheet.png','tatsumaki':'tatsumaki-sheet.png','shoryuken':'shoryuken-sheet.png','hadoken':'hadoken-sheet.png','stand-heavy':'stand-heavy-sheet.png'}[kind])
   attack_recipe=entry.get('attackRecipes',{}).get(kind) if kind in ('crouch-light','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') else None
-  rows=attack_recipe['rows'] if attack_recipe else {'ducking-straight':3,'slash-elbow':3,'flash-chop':3,'tatsumaki':4,'shoryuken':4,'hadoken':3,'crouch-heavy-kick':3,'crouch-medium-kick':3,'crouch-light-kick':3,'crouch-heavy':3,'crouch-medium':3,'crouch-light':2,'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'dash-back':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
+  rows=attack_recipe['rows'] if attack_recipe else {'genei-jin-install':4,'tanden-renki':4,'abare-tosanami':4,'stun-gun-headbutt':4,'rocket-uppercut':4,'you-hou':4,'sourai-rengeki':4,'rolling-thunder':4,'boomerang-raid':4,'hyper-bomb':4,'genei-jin':4,'seichusen-godanzuki':4,'seraphic-storm':3,'aegis-reflector':3,'corkscrew-blow':4,'tsurugi':3,'lariat-rush':4,'shoulder-tackle':3,'palm-rush':3,'hayate':3,'machine-gun-blow':3,'ducking-straight':3,'slash-elbow':3,'flash-chop':3,'tatsumaki':4,'shoryuken':4,'hadoken':3,'crouch-heavy-kick':3,'crouch-medium-kick':3,'crouch-light-kick':3,'crouch-heavy':3,'crouch-medium':3,'crouch-light':2,'crouch':2,'idle':2,'walk':4,'walk-back':3,'dash':3,'dash-back':3,'hit':3,'guard':2,'parry':2,'stand-light':3,'stand-medium':2,'stand-heavy':3,'stand-light-kick':2,'stand-medium-kick':2,'stand-heavy-kick':3}[kind]
   raw=extract(Image.open(source),rows);normalization=None;overrides=[]
+  if kind=='genei-jin-install':raw[-1]=raw[0]  # Exact original guard return.
+  if kind=='tanden-renki':raw[-1]=raw[0]  # Exact original guard return.
+  if kind=='abare-tosanami':raw[-1]=raw[0]  # Exact original guard return.
+  if kind=='stun-gun-headbutt':raw[-1]=raw[0]  # Exact original guard return.
+  if kind=='rocket-uppercut':raw[-1]=raw[0]  # Exact authored guard return.
+  if slug=='yun' and kind=='you-hou':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='yun' and kind=='sourai-rengeki':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='dudley' and kind=='rolling-thunder':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='alex' and kind=='boomerang-raid':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='alex' and kind=='hyper-bomb':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='yun' and kind=='genei-jin':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='makoto' and kind=='seichusen-godanzuki':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='gill' and kind=='seraphic-storm':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='urien' and kind=='aegis-reflector':raw[-1]=raw[0]  # Exact guard reference and return.
+  if slug=='dudley' and kind=='corkscrew-blow':raw[-1]=raw[0]  # Exact original guard reference/return.
+  recovery_pair={('makoto','tanden-renki'):('tanden-renki-recovery-sheet.png',[5,6],[[8,9],[10]]),('dudley','rolling-thunder'):('rolling-thunder-recovery-pair.png',5,[13]),('alex','boomerang-raid'):('boomerang-raid-recovery-sheet.png',[5,6],[9,10]),('dudley','corkscrew-blow'):('corkscrew-blow-recovery-pair.png',6,[9,10]),('urien','aegis-reflector'):('aegis-reflector-recovery-pair.png',4,[7,8])}.get((slug,kind))
+  if recovery_pair:
+   name,target,selected_frames=recovery_pair;extra=SOURCE/slug/name
+   multi=isinstance(target,list);targets=target if multi else [target];pair_rows=2 if multi else 1
+   pair=extract(Image.open(extra),pair_rows)
+   # Calibrate recovery drawings to their paired guard during ingestion.
+   # Existing single-pose recipes keep their original scale and metadata.
+   factor=raw[0].height/pair[0].height
+   for ordinal,raw_target in enumerate(targets):
+    source_pose=ordinal+1;drawing=pair[source_pose]
+    raw[raw_target]=drawing.resize((round(drawing.width*factor),round(drawing.height*factor)),Image.Resampling.LANCZOS)
+    affected=selected_frames[ordinal] if multi and isinstance(selected_frames[ordinal],list) else [selected_frames[ordinal]] if multi else selected_frames
+    overrides.append({'frames':affected,'source':extra.relative_to(ROOT).as_posix(),'sourceGrid':[2,pair_rows],'sourcePose':source_pose+1,'referencePose':1,'referenceScaleMode':'source-guard-height','uniformScale':round(factor,8),'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
+  if slug=='makoto' and kind=='tsurugi':raw[-1]=raw[0]  # Exact original guard reference and return.
+  if slug=='gill' and kind=='lariat-rush':raw[-1]=raw[0]  # Exact neutral scale and guard return.
+  if slug=='urien' and kind=='shoulder-tackle':raw[-1]=raw[0]  # Exact guard return avoids a backward root shift.
+  if slug in ('dudley','gill','yun') and kind=='shoryuken':
+   # Keep the other base drawings; select only the corrected contact anatomy.
+   extra=SOURCE/slug/{'dudley':'shoryuken-rise-edit-sheet.png','gill':'shoryuken-contact-edit-sheet.png','yun':'shoryuken-kick-edit-sheet.png'}[slug]
+   raw[3]=extract(Image.open(extra),4)[3]
+   overrides.append({'frames':[6,7],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':4,'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
+  if slug in ('makoto','gill','yun','urien','alex') and kind=='shoryuken':
+   # Close this motion on its exact original guard, not the generated crouched return.
+   raw[-1]=raw[0]
   if kind=='tatsumaki':raw=[raw[i] for i in (0,1,2,2,3,3,4,4,5,6,7,7)]
+  if kind in ('rocket-uppercut','stun-gun-headbutt','abare-tosanami'):raw=[raw[i] for i in (0,1,1,2,2,3,3,4,5,6,6,7)]
   if kind=='shoryuken':raw=[raw[i] for i in (0,1,1,2,2,3,3,4,5,6,6,7)]
   if kind=='guard':
    for recipe in entry.get('guardOverrides',[]):
     extra=SOURCE/slug/recipe['source'];target=recipe['pose']-1
     raw[target]=extract(Image.open(extra),recipe['rows'])[recipe['sourcePose']-1]
     overrides.append({'frames':[i+1 for i,pose in enumerate(GUARD_ORDER) if pose==target],'source':extra.relative_to(ROOT).as_posix(),'sourcePose':recipe['sourcePose'],'sourceSha256':hashlib.sha256(extra.read_bytes()).hexdigest().upper()})
-  if kind in ('ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash','dash-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ryu' and kind=='walk-back'):
+  if kind in ('genei-jin-install','tanden-renki','abare-tosanami','stun-gun-headbutt','rocket-uppercut','you-hou','sourai-rengeki','rolling-thunder','boomerang-raid','hyper-bomb','genei-jin','seichusen-godanzuki','seraphic-storm','aegis-reflector','corkscrew-blow','tsurugi','lariat-rush','shoulder-tackle','palm-rush','hayate','machine-gun-blow','ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','dash','dash-back','hit','guard','parry','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ryu' and kind=='walk-back'):
    if kind=='dash' and 'dashEntry' in entry:
     recipe=entry['dashEntry'];extra=SOURCE/slug/recipe['source']
     raw[0]=extract(Image.open(extra),recipe['rows'])[recipe['pose']-1]
@@ -735,32 +1003,34 @@ def main():
    reference_height=heights[0] if kind=='crouch' else heights[-1]
    motion.TARGET_HEIGHT[kind]=idle_height*float(np.median(heights))/reference_height
    normalization={'reference':'idle-recovery-height','referenceHeight':idle_height,'sourceGuardHeight':reference_height,'uniformScale':idle_height/reference_height}
-  keys,metrics=motion.normalize_frames(kind,raw)
-  if slug in ('ryu','chunli','ibuki','ken') or kind in ('ducking-straight','flash-chop','slash-elbow'):
+  if kind in ('rocket-uppercut','stun-gun-headbutt','abare-tosanami'):
+   motion.TARGET_HEIGHT['shoryuken']=motion.TARGET_HEIGHT[kind]
+  keys,metrics=motion.normalize_frames('shoryuken' if kind in ('rocket-uppercut','stun-gun-headbutt','abare-tosanami') else kind,raw)
+  if slug in ('ryu','chunli','ibuki','ken') or (slug in ('urien','gill') and kind=='hadoken') or (slug in ('dudley','makoto','gill','yun','urien','alex') and kind=='shoryuken') or kind in ('genei-jin-install','tanden-renki','abare-tosanami','stun-gun-headbutt','rocket-uppercut','you-hou','sourai-rengeki','rolling-thunder','boomerang-raid','hyper-bomb','genei-jin','seichusen-godanzuki','seraphic-storm','aegis-reflector','corkscrew-blow','tsurugi','lariat-rush','shoulder-tackle','palm-rush','hayate','machine-gun-blow','ducking-straight','flash-chop','slash-elbow'):
    # Existing supplemental idle uses a different sole baseline from the shared atlas.
    # Align actual opaque soles to its installed guard, rather than introducing
    # a visible vertical step every time support art enters or recovers.
    target=int(np.nonzero(motion._binary_mask(idle))[0].max());offsets=[]
    for index,frame in enumerate(keys):
-    if (kind=='shoryuken' and 3<=index<=8) or (kind=='tatsumaki' and 1<=index<=9):offsets.append(0);continue
+    if (kind in ('shoryuken','rocket-uppercut','stun-gun-headbutt','abare-tosanami') and 3<=index<=8) or (kind=='tatsumaki' and 1<=index<=9):offsets.append(0);continue
     offset=target-int(np.nonzero(motion._binary_mask(frame))[0].max());offsets.append(offset)
     aligned=Image.new('RGBA',(width,448));aligned.alpha_composite(frame,(0,offset));keys[index]=aligned
    normalization.update({'footBaselineReference':'installed-'+base_kind,'footBaseline':target,'sourceBaselineOffsets':offsets})
-  if kind in ('ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ibuki' and kind in ('guard','parry')):
+  if kind in ('genei-jin-install','tanden-renki','abare-tosanami','stun-gun-headbutt','rocket-uppercut','you-hou','sourai-rengeki','rolling-thunder','boomerang-raid','hyper-bomb','genei-jin','seichusen-godanzuki','seraphic-storm','aegis-reflector','corkscrew-blow','tsurugi','lariat-rush','shoulder-tackle','palm-rush','hayate','machine-gun-blow','ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick') or (slug=='ibuki' and kind in ('guard','parry')):
    # Extended fists change the silhouette's bounding-box center. Anchor the
    # support feet to the matching guard, so the planted stance does not slide when
    # the arm extends. Wide cells preserve complete fists at the same scale.
-   support_anchor=kind in ('stand-light-kick','stand-heavy-kick','crouch-light-kick','crouch-heavy-kick') or (kind in ('stand-medium-kick','crouch-medium-kick') and profile!='hook')
+   support_anchor=kind in ('tsurugi','stand-light-kick','stand-heavy-kick','crouch-light-kick','crouch-heavy-kick') or (kind in ('stand-medium-kick','crouch-medium-kick') and profile!='hook')
    foot_center=(lambda mask:support_foot(mask)[0]) if support_anchor else (lambda mask:motion._foot_metrics(mask)[0])
    target=foot_center(np.asarray(idle.getchannel('A'))>24)+(width-384)/2
    if support_anchor:normalization['footAnchorMode']='rear-support'
    if kind=='crouch':normalization.update({'reference':'idle-standing-height','footAnchorMode':'two-foot','standingReferenceFrame':1})
    if kind in ('crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick'):normalization.update({'reference':'crouch-recovery-height','footAnchorMode':'rear-support' if support_anchor else 'two-foot','referenceFrame':6})
-   if kind=='shoryuken':normalization.update(footAnchorMode='grounded-frames',groundedFrames=[1,2,3,10,11,12],airFrames=[4,5,6,7,8,9])
+   if kind in ('shoryuken','rocket-uppercut','stun-gun-headbutt','abare-tosanami'):normalization.update(footAnchorMode='grounded-frames',groundedFrames=[1,2,3,10,11,12],airFrames=[4,5,6,7,8,9])
    if kind=='tatsumaki':normalization.update(footAnchorMode='grounded-frames',groundedFrames=[1,11,12],airFrames=list(range(2,11)))
    normalization['footAnchorX']=target
    for index,frame in enumerate(keys):
-    if (kind=='shoryuken' and 3<=index<=8) or (kind=='tatsumaki' and 1<=index<=9):continue
+    if (kind in ('shoryuken','rocket-uppercut','stun-gun-headbutt','abare-tosanami') and 3<=index<=8) or (kind=='tatsumaki' and 1<=index<=9):continue
     foot=foot_center(np.asarray(frame.getchannel('A'))>24);shift=round(target-foot)
     aligned=Image.new('RGBA',(width,448));aligned.alpha_composite(frame,(shift,0));keys[index]=aligned
     metrics[index]['paste'][0]+=shift;metrics[index]['footAnchorShift']=shift
@@ -778,11 +1048,38 @@ def main():
      metrics[index]['paste'][0]+=shift;metrics[index]['headAnchorShift']=shift
     head_offsets.append(shift)
    normalization.update(spinRootAnchor='head-shoulder-band',headBand=[0,band],headAnchorX=head_target,sourceHeadAnchorOffsets=head_offsets)
+  if kind=='rocket-uppercut':
+   rising_order=[0,1,3,3,5,5,7,7,8,9,10,11]
+   keys=[keys[i] for i in rising_order];metrics=[dict(metrics[i],frame=n+1) for n,i in enumerate(rising_order)]
+   normalization['sourceBaselineOffsets']=[normalization['sourceBaselineOffsets'][i] for i in rising_order]
+   normalization.update(groundedFrames=[1,2,10,11,12],airFrames=[3,4,5,6,7,8,9])
+  if kind=='abare-tosanami':
+   rising_order=[0,1,2,3,5,3,5,7,7,7,7,7,8,9,10,11]
+   keys=[keys[i] for i in rising_order];metrics=[dict(metrics[i],frame=n+1) for n,i in enumerate(rising_order)]
+   normalization['sourceBaselineOffsets']=[normalization['sourceBaselineOffsets'][i] for i in rising_order]
+   normalization.update(groundedFrames=[1,2,3,14,15,16],airFrames=list(range(4,14)))
   choices=[]
   gait=[0,0,1,2,2,3,4,4,5,6,6,7] if kind=='walk' else [0,0,1,2,2,3,4,4,5,5]
   orders=([0,a,b,c,b,a] for a,b,c in permutations((1,2,3))) if kind=='idle' else [gait[i:]+gait[:i] for i in range(count)]
-  if kind in ('ducking-straight','flash-chop','slash-elbow'):orders=[[0,0,1,2,3,3,4,4,5,5,5,5]]
+  if kind=='genei-jin-install':orders=[[0,1,2,3,3,4,4,5,5,6,0,0]]
+  if kind=='tanden-renki':orders=[[0,1,2,2,3,4,4,5,5,6,0,0]]
+  if kind=='machine-gun-blow':orders=[[0,1,2,3,4,2,3,4,2,4,5,5]]
+  if kind in ('shoulder-tackle','palm-rush','hayate','ducking-straight','flash-chop','slash-elbow'):orders=[[0,0,1,2,3,3,4,4,5,5,5,5]]
+  if kind=='you-hou':orders=[[0,1,2,3,3,2,4,4,5,6,0,0]]
+  if kind=='sourai-rengeki':orders=[[0,1,2,3,2,3,2,3,4,4,4,4,5,6,0,0]]
+  if kind=='rolling-thunder':orders=[[0,1,2,3,2,3,2,3,4,4,4,4,5,6,0,0]]
+  if kind=='boomerang-raid':orders=[[0,1,2,3,2,4,4,4,5,6,0,0]]
+  if kind=='hyper-bomb':orders=[[0,1,1,2,3,3,4,4,5,5,0,0]]
+  if kind=='genei-jin':orders=[[0,1,2,1,2,3,3,3,4,5,0,0]]
+  if kind=='seichusen-godanzuki':orders=[[0,1,2,3,2,3,4,4,5,6,0,0]]
+  if kind=='seraphic-storm':orders=[[0,1,2,2,3,3,4,4,0,0,0,0]]
+  if kind=='aegis-reflector':orders=[[0,1,1,2,3,3,4,4,0,0,0,0]]
+  if kind=='corkscrew-blow':orders=[[0,1,2,3,3,4,5,5,6,6,0,0]]
+  if kind=='tsurugi':orders=[[0,0,1,2,3,3,4,4,0,0,0,0]]
+  if kind=='lariat-rush':orders=[[0,0,1,2,3,3,4,5,6,6,0,0]]
   if kind=='tatsumaki':orders=[list(range(12))]
+  if kind in ('rocket-uppercut','stun-gun-headbutt'):orders=[list(range(12))]
+  if kind=='abare-tosanami':orders=[list(range(16))]
   if kind=='shoryuken':orders=[list(range(12))]
   if kind=='hadoken':orders=[[0,0,1,1,2,3,3,4,4,5,5,5]]
   if kind=='crouch-heavy-kick':orders=[[0,0,1,2,2,3,3,4,4,5,5,5]]
@@ -822,17 +1119,21 @@ def main():
    if mask[0].any() or mask[-1].any() or mask[:,0].any() or mask[:,-1].any():raise ValueError(f'{slug}: clipped body')
   data=webp(frames)
   record={'id':kind,'frames':count,'frameSize':[width,448],'stripSize':[width*count,448],'renderMode':'full','enabled':True,'poseAuthored':True,'sha256':hashlib.sha256(data).hexdigest().upper(),'bytes':len(data),'poseQa':pose,'semanticQa':semantic,'handoffQa':bridges,'sourceOrder':[i+1 for i in order],'metrics':metrics,'source':source.relative_to(ROOT).as_posix(),'sourceSha256':hashlib.sha256(source.read_bytes()).hexdigest().upper()}
+  if slug=='urien' and kind=='shoulder-tackle':record['sourceOrder']=[1,1,2,3,4,4,5,5,1,1,1,1]
   if kind=='tatsumaki':record['sourceOrder']=[1,2,3,3,4,4,5,5,6,7,8,8]
-  if kind=='shoryuken':record['sourceOrder']=[1,2,2,3,3,4,4,5,6,7,7,8]
+  if kind=='abare-tosanami':record['sourceOrder']=[1,2,2,3,4,3,4,5,5,5,5,5,6,7,7,1]
+  if kind=='stun-gun-headbutt':record['sourceOrder']=[1,2,2,3,3,4,4,5,6,7,7,1]
+  if kind=='rocket-uppercut':record['sourceOrder']=[1,2,3,3,4,4,5,5,6,7,7,1]
+  if kind=='shoryuken':record['sourceOrder']=[1,2,2,3,3,4,4,5,6,7,7,1 if slug in ('makoto','gill','yun','urien','alex') else 8]
   if normalization:record['normalization']=normalization
-  if kind in ('ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
+  if kind in ('genei-jin-install','tanden-renki','abare-tosanami','stun-gun-headbutt','rocket-uppercut','you-hou','sourai-rengeki','rolling-thunder','boomerang-raid','hyper-bomb','genei-jin','seichusen-godanzuki','seraphic-storm','aegis-reflector','corkscrew-blow','tsurugi','lariat-rush','shoulder-tackle','palm-rush','hayate','machine-gun-blow','ducking-straight','slash-elbow','flash-chop','tatsumaki','shoryuken','hadoken','crouch-light','crouch-medium','crouch-heavy','crouch-light-kick','crouch-medium-kick','crouch-heavy-kick','crouch','stand-light','stand-medium','stand-heavy','stand-light-kick','stand-medium-kick','stand-heavy-kick'):record['sourceGrid']=[2,rows]
   if kind in ('stand-medium-kick','crouch-medium-kick'):record['semanticProfile']=profile
   if kind=='crouch-heavy':record['semanticProfile']=heavy_profile
   if kind in ('dash','dash-back'):record['facingRelativeDirection']='backward' if kind=='dash-back' else 'forward'
   if overrides:record['sourceOverrides']=overrides
   manifest=json.loads((directory/'manifest.json').read_text()) if (directory/'manifest.json').exists() else {'character':entry['id'],'pipeline':'roster-movement-authored-v1','records':[]}
   if slug not in ('chunli','ibuki','ken'):manifest['pipeline']='roster-movement-authored-v1'
-  if slug not in ('ryu','chunli','ibuki','ken') and kind not in ('ducking-straight','flash-chop','slash-elbow'):manifest.pop('source',None);manifest.pop('sourceSha256',None)
+  if slug not in ('ryu','chunli','ibuki','ken') and kind not in ('genei-jin-install','tanden-renki','abare-tosanami','stun-gun-headbutt','rocket-uppercut','you-hou','sourai-rengeki','rolling-thunder','boomerang-raid','hyper-bomb','genei-jin','seichusen-godanzuki','seraphic-storm','aegis-reflector','corkscrew-blow','tsurugi','lariat-rush','shoulder-tackle','palm-rush','hayate','machine-gun-blow','ducking-straight','flash-chop','slash-elbow'):manifest.pop('source',None);manifest.pop('sourceSha256',None)
   replace_records(manifest,[record])
   update_frame_totals(manifest)
   pending[directory/f'{kind}.webp']=data

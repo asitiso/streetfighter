@@ -7,6 +7,7 @@ export class PwaUpdateScene implements Scene {
   private time = 0;
   private status: PwaUpdateStatus | null = null;
   private busy = false;
+  private requestVersion = 0;
   private message = 'CHECKING UPDATE STATE';
 
   constructor(
@@ -14,31 +15,56 @@ export class PwaUpdateScene implements Scene {
     private readonly audio: AudioManager,
     private readonly updates: PwaUpdateManager,
     private readonly onBack: () => void,
+    private readonly onTouchModeChange?: (active: boolean) => void,
   ) {}
 
-  enter(): void { this.audio.playStagePulse(); void this.refresh(); }
-  exit(): void {}
+  enter(): void { this.onTouchModeChange?.(true); this.audio.playStagePulse(); void this.refresh(); }
+  exit(): void { this.onTouchModeChange?.(false); }
   resize(): void {}
-  destroy(): void {}
+  destroy(): void { this.onTouchModeChange?.(false); }
 
   fixedUpdate(dt: number): void {
     this.time += dt;
     if (this.busy) return;
-    if (this.input.pressed('lp')) { this.audio.playUiConfirm(); void this.check(); }
-    if (this.input.pressed('mp')) { this.audio.playUiConfirm(); void this.apply(); }
+    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.touchPressed('start')) { this.audio.playUiConfirm(); this.onBack(); return; }
+    if (this.input.pressed('lp')) { this.audio.playUiConfirm(); void this.check(); return; }
+    if (this.input.pressed('mp')) { this.audio.playUiConfirm(); void this.apply(); return; }
     if (this.input.pressed('hp')) { this.audio.playUiConfirm(); void this.rollback(); }
-    if (this.input.pressed('back') || this.input.pressed('lk') || this.input.touchPressed('start')) { this.audio.playUiConfirm(); this.onBack(); }
   }
 
-  private async refresh(): Promise<void> { this.status = await this.updates.status(); this.message = this.status.lastAction; }
-  private async check(): Promise<void> { this.busy = true; this.message = 'CHECKING SERVER'; this.status = await this.updates.checkForUpdate(); this.message = this.status.lastAction; this.busy = false; }
+  private async refresh(): Promise<void> {
+    const request = ++this.requestVersion;
+    try {
+      const status = await this.updates.status();
+      if (request !== this.requestVersion) return;
+      this.status = status; this.message = status.lastAction;
+    }
+    catch { if (request === this.requestVersion) this.message = 'STATUS FAILED • RETRY OR BACK'; }
+  }
+  private async runAction(label: string, action: () => Promise<void>): Promise<void> {
+    if (this.busy) return;
+    this.requestVersion += 1;
+    this.busy = true;
+    try { await action(); }
+    catch { this.message = `${label} FAILED • RETRY OR BACK`; }
+    finally { this.busy = false; }
+  }
+  private async check(): Promise<void> {
+    await this.runAction('CHECK', async () => {
+      this.message = 'CHECKING SERVER'; this.status = await this.updates.checkForUpdate(); this.message = this.status.lastAction;
+    });
+  }
   private async apply(): Promise<void> {
-    this.busy = true; const result = await this.updates.applyWaitingUpdate(); this.message = result.message; this.status = await this.updates.status(); this.busy = false;
-    if (result.applied) window.setTimeout(() => window.location.reload(), 450);
+    await this.runAction('APPLY', async () => {
+      const result = await this.updates.applyWaitingUpdate(); this.message = result.message; this.status = await this.updates.status();
+      if (result.applied) window.setTimeout(() => window.location.reload(), 450);
+    });
   }
   private async rollback(): Promise<void> {
-    this.busy = true; const result = this.status?.rollbackActive ? await this.updates.restoreCurrent() : await this.updates.rollbackPrevious(); this.message = result.message; this.status = await this.updates.status(); this.busy = false;
-    if (result.applied) window.setTimeout(() => window.location.reload(), 450);
+    await this.runAction('ROLLBACK', async () => {
+      const result = this.status?.rollbackActive ? await this.updates.restoreCurrent() : await this.updates.rollbackPrevious(); this.message = result.message; this.status = await this.updates.status();
+      if (result.applied) window.setTimeout(() => window.location.reload(), 450);
+    });
   }
 
   render({ ctx, width, height }: RenderContext): void {
@@ -68,8 +94,8 @@ export class PwaUpdateScene implements Scene {
     this.drawAction(ctx, 850, 180, 'LP', 'CHECK UPDATE', 'Ask the browser registration to check the server', '#8fc9ff');
     this.drawAction(ctx, 850, 300, 'MP', 'APPLY WAITING UPDATE', 'Arms previous-cache recovery, activates worker, then reloads', '#8be0b4');
     this.drawAction(ctx, 850, 420, 'HP', this.status?.rollbackActive ? 'RESTORE CURRENT' : 'ROLL BACK ASSETS', this.status?.rollbackActive ? `Return to ${this.status.currentCache}` : previousReady ? `Use previous deferred campaign content; current launcher stays safe` : 'No previous game cache retained', (previousReady || this.status?.rollbackActive) ? '#ffd071' : '#777');
-    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(220,228,240,.54)'; ctx.font = '700 10px Arial, sans-serif'; ctx.fillText('ROLLBACK KEEPS CURRENT LAUNCHER/UPDATE UI • DEFERRED CAMPAIGN CONTENT CAN USE PREVIOUS CACHE • SAVE UNCHANGED', 640, 646);
-    ctx.fillText('LK / START  BACK', 640, 680);
+    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(220,228,240,.54)'; ctx.font = '700 10px Arial, sans-serif';
+    ctx.fillText('LP CHECK • MP APPLY • HP ROLLBACK / RESTORE • LK / START BACK', 640, 580);
     ctx.restore();
   }
 

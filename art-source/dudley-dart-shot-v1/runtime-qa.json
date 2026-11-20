@@ -1,0 +1,192 @@
+{
+  "passed": true,
+  "actual": {
+    "move": "DUDLEY_CMD_HK",
+    "moveFrame": 12,
+    "frame": 6,
+    "kind": "dart-shot",
+    "contact": true,
+    "loaded": true,
+    "trusted": [
+      true
+    ],
+    "capturedFrames": 32
+  },
+  "asset": {
+    "passed": true,
+    "width": 7680,
+    "height": 448,
+    "frames": 12,
+    "distinct": 12,
+    "guardMean": 2.9286663881186614,
+    "guardAlphaMean": 0,
+    "seamMean": 0.09174979073660715,
+    "records": [
+      {
+        "frame": 0,
+        "minX": 240,
+        "maxX": 398,
+        "minY": 88,
+        "maxY": 420,
+        "visible": 26327,
+        "hash": 2086689233
+      },
+      {
+        "frame": 1,
+        "minX": 237,
+        "maxX": 413,
+        "minY": 91,
+        "maxY": 420,
+        "visible": 29375,
+        "hash": 3851987083
+      },
+      {
+        "frame": 2,
+        "minX": 237,
+        "maxX": 440,
+        "minY": 96,
+        "maxY": 420,
+        "visible": 30666,
+        "hash": 2325748811
+      },
+      {
+        "frame": 3,
+        "minX": 245,
+        "maxX": 459,
+        "minY": 89,
+        "maxY": 420,
+        "visible": 31512,
+        "hash": 861298356
+      },
+      {
+        "frame": 4,
+        "minX": 252,
+        "maxX": 479,
+        "minY": 72,
+        "maxY": 420,
+        "visible": 32722,
+        "hash": 2761927283
+      },
+      {
+        "frame": 5,
+        "minX": 259,
+        "maxX": 502,
+        "minY": 95,
+        "maxY": 420,
+        "visible": 31263,
+        "hash": 4251141855
+      },
+      {
+        "frame": 6,
+        "minX": 267,
+        "maxX": 556,
+        "minY": 125,
+        "maxY": 420,
+        "visible": 32696,
+        "hash": 1737130157
+      },
+      {
+        "frame": 7,
+        "minX": 262,
+        "maxX": 519,
+        "minY": 132,
+        "maxY": 420,
+        "visible": 31424,
+        "hash": 1756378560
+      },
+      {
+        "frame": 8,
+        "minX": 254,
+        "maxX": 506,
+        "minY": 114,
+        "maxY": 420,
+        "visible": 30080,
+        "hash": 4197519491
+      },
+      {
+        "frame": 9,
+        "minX": 244,
+        "maxX": 478,
+        "minY": 96,
+        "maxY": 420,
+        "visible": 29314,
+        "hash": 2837733398
+      },
+      {
+        "frame": 10,
+        "minX": 234,
+        "maxX": 455,
+        "minY": 93,
+        "maxY": 420,
+        "visible": 29776,
+        "hash": 836227247
+      },
+      {
+        "frame": 11,
+        "minX": 240,
+        "maxX": 398,
+        "minY": 88,
+        "maxY": 420,
+        "visible": 26327,
+        "hash": 1374853623
+      }
+    ]
+  },
+  "rendering": {
+    "passed": true,
+    "reachableFrames": 12,
+    "frameToTick": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        8,
+        16
+      ],
+      [
+        9,
+        20
+      ],
+      [
+        10,
+        24
+      ],
+      [
+        11,
+        28
+      ]
+    ],
+    "fallbackVisiblePixels": 8307,
+    "hqRestored": true
+  },
+  "runtimeExceptions": []
+}

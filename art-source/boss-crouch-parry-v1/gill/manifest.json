@@ -1,0 +1,100 @@
+{
+  "character": "GILL",
+  "kind": "crouch-parry",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "sharedScale": 0.5892857142857143,
+  "sourceBounds": [
+    [
+      68,
+      93,
+      439,
+      484
+    ],
+    [
+      47,
+      95,
+      466,
+      484
+    ],
+    [
+      47,
+      93,
+      455,
+      484
+    ],
+    [
+      71,
+      92,
+      455,
+      485
+    ],
+    [
+      48,
+      92,
+      438,
+      485
+    ]
+  ],
+  "recoveryFrame": 5,
+  "recoveryPixelIdentical": true,
+  "uniqueDrawings": 6,
+  "transparentBorders": true,
+  "groundBaselineStable": true,
+  "runtime": "public/art/animation-hq/gill/crouch-parry-v1.webp",
+  "bytes": 498392,
+  "decodedBytes": 4128768,
+  "opaqueBounds": [
+    [
+      86,
+      188,
+      304,
+      418
+    ],
+    [
+      86,
+      189,
+      332,
+      418
+    ],
+    [
+      86,
+      188,
+      326,
+      418
+    ],
+    [
+      84,
+      187,
+      310,
+      418
+    ],
+    [
+      84,
+      187,
+      313,
+      418
+    ],
+    [
+      81,
+      187,
+      304,
+      418
+    ]
+  ],
+  "operations": [
+    "alpha silhouette crop",
+    "uniform premultiplied-alpha scale matched to settle pose",
+    "foot alignment",
+    "last cell copied exactly from existing guard recovery",
+    "exact lossless packing"
+  ],
+  "sha256": {
+    "generated-sheet-v1.png": "f66c604561901cd7a22a669876f0bd3a84adbf2b06350d73af13ec3deaf08b68",
+    "reference-low-guard.png": "9ce270eac90472f593dce461dd30e237123fa64006526641153fccda139c10b2",
+    "reference-settle.png": "b770e3294f308a7d189533cd6e0eaeb0a5acb812091af7d5cd381659976ce117",
+    "generation-prompt.txt": "e8faddd781c2cf2b3a575df2d5305402f2da380d70952ca5429ea35f5006ca35",
+    "crouch-parry-v1.webp": "5613823bd46752bb8b1f7c54c9084eeddbae3fcff3a0fa0b5540179970a1ffa7"
+  }
+}

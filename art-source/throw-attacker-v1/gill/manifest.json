@@ -1,0 +1,151 @@
+{
+  "character": "GILL",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.6956521739130435,
+  "sourceBounds": [
+    [
+      52,
+      79,
+      503,
+      472
+    ],
+    [
+      59,
+      65,
+      414,
+      472
+    ],
+    [
+      45,
+      32,
+      407,
+      472
+    ],
+    [
+      74,
+      15,
+      442,
+      498
+    ],
+    [
+      58,
+      46,
+      423,
+      498
+    ],
+    [
+      65,
+      40,
+      421,
+      498
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      96,
+      148,
+      410,
+      422
+    ],
+    [
+      119,
+      139,
+      366,
+      422
+    ],
+    [
+      127,
+      116,
+      379,
+      422
+    ],
+    [
+      130,
+      86,
+      386,
+      422
+    ],
+    [
+      140,
+      107,
+      394,
+      422
+    ],
+    [
+      145,
+      103,
+      393,
+      422
+    ],
+    [
+      159,
+      86,
+      354,
+      422
+    ],
+    [
+      160,
+      88,
+      352,
+      422
+    ]
+  ],
+  "centroidTargetX": 245.07314483186101,
+  "centroids": [
+    [
+      245.4001721273865,
+      282.4985225769092
+    ],
+    [
+      245.18025198021087,
+      281.9737289691757
+    ],
+    [
+      244.91938980530924,
+      268.1448293127312
+    ],
+    [
+      245.39390312010693,
+      250.71140157326252
+    ],
+    [
+      245.21517651056627,
+      261.7007142490767
+    ],
+    [
+      245.49954557757883,
+      262.98694261722943
+    ],
+    [
+      245.07314483186101,
+      246.8244059617047
+    ],
+    [
+      246.37425685176723,
+      247.6552939674818
+    ]
+  ],
+  "groundAnchor": 422,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/gill/idle.webp",
+  "idleFollowupSha256": "a049ca1b21d12f81cb1addb84af5eb2a9b7b8ed223fccff171f8c056dec08b45",
+  "runtime": "public/art/throw-attacker-v1/gill.webp",
+  "bytes": 725080,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "500308360eeb0c240ffe8447a3fcd77aa3cbcd3144ba622aaf5c42174cba83c0",
+    "generation-reference.png": "4faa5fc1c1fcf5177743e293ca35eb0449ebcb80a39a502b987821b1980992fa",
+    "generation-prompt.txt": "b0ef963ae2bcbe095eb36b3e25d8371693f66c054c47fd26894dbc7fc83b0d0c",
+    "gill.webp": "4ba03c50dfe6151300b976a3d697b8b75f8b038c2fbe14f20a77a2a20eb24690"
+  }
+}

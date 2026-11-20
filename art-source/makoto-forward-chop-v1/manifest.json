@@ -1,0 +1,36 @@
+{
+  "character": "MAKOTO",
+  "move": "MAKOTO_CMD_HP",
+  "kind": "forward-chop",
+  "asset": "/art/command-motion-v1/makoto-forward-chop.webp",
+  "frames": 12,
+  "frameSize": [
+    640,
+    448
+  ],
+  "phase": {
+    "startupEnd": 4,
+    "activeStart": 5,
+    "activeEnd": 6,
+    "recoveryStart": 7
+  },
+  "footFloor": 421,
+  "source": "generated-sheet-v3.png",
+  "sourceSha256": "7ab4291636283ddf3c8ce7e7ff93e78edcb3b8b22c1bec75191139cf7d12d796",
+  "assetSha256": "c80373c21a940d87b4aab3ca59b02727f2e2a6ae5b09bcf54bbfad6b824769cc",
+  "bytes": 378358,
+  "guardSource": "/art/animation-hq/makoto/idle.webp",
+  "guardSourceSha256": "d8dad9a22593dd55d0c7bb7fc1e9a1fa68c083573e8c97bdfae90262dc11c497",
+  "guardFrames": [
+    0,
+    11
+  ],
+  "tool": "built-in image_gen",
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.86,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "gameplayChanges": false
+}

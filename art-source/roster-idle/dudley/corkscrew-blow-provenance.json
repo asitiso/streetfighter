@@ -1,0 +1,54 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "sheet.png",
+  "initial": {
+    "prompt": "corkscrew-blow-initial-prompt.txt",
+    "sheet": "corkscrew-blow-initial-sheet.png"
+  },
+  "base": {
+    "editTarget": "corkscrew-blow-initial-sheet.png",
+    "prompt": "corkscrew-blow-prompt.txt",
+    "sheet": "corkscrew-blow-sheet.png",
+    "sha256": "A916C3D8AB5BE82921317505775BF2AA87CF6EDA116217260820FE15CD2075BB"
+  },
+  "recoveryOverride": {
+    "editTarget": "corkscrew-blow-torque-sheet.png",
+    "prompt": "corkscrew-blow-recovery-pair-prompt.txt",
+    "sheet": "corkscrew-blow-recovery-pair.png",
+    "frames": [
+      9,
+      10
+    ],
+    "sourcePose": 2,
+    "referencePose": 1,
+    "uniformScale": 0.45628743,
+    "sha256": "CB5E5E33424E3BF94D656C3BF2D05B483FA27D25E11C903505E5635F566B59DE"
+  },
+  "sourceSelection": {
+    "baseGenerated": 8,
+    "recoveryPairGenerated": 2,
+    "selected": 7,
+    "sourceOrder": [
+      1,
+      2,
+      3,
+      4,
+      4,
+      5,
+      6,
+      6,
+      7,
+      7,
+      1,
+      1
+    ]
+  },
+  "corrections": [
+    "Sourcepose5 stronger physicaltorque passesunchangedpeakgate",
+    "P2recoveryshrink fixed withguard-calibratedpair;alphaheights333/335/335/333,10otherframesvisiblepixelsunchanged"
+  ],
+  "unselectedRecoveryAttempt": {
+    "prompt": "corkscrew-blow-recovery-prompt.txt",
+    "sheet": "corkscrew-blow-recovery-attempt-sheet.png"
+  }
+}

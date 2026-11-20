@@ -1,0 +1,15 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "sheet.png",
+  "initial": {
+    "prompt": "shoryuken-initial-prompt.txt",
+    "sheet": "shoryuken-initial-sheet.png"
+  },
+  "final": {
+    "editTarget": "shoryuken-initial-sheet.png",
+    "prompt": "shoryuken-prompt.txt",
+    "sheet": "shoryuken-sheet.png",
+    "sha256": "E4E5BF4FB5EC768E74BB5BFDDA32C8BA941D1AD11354CB12A4ABF9C8525493D8"
+  },
+  "purpose": "Original rising knee; margin edit completes boot soles. No existing asset replaced."
+}

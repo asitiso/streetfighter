@@ -1,0 +1,62 @@
+{
+  "character": "GILL",
+  "kind": "crouch-guard",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "footBaseline": 420,
+  "sharedScale": 0.65,
+  "sourceCells": [
+    [
+      83,
+      135,
+      429,
+      484
+    ],
+    [
+      80,
+      123,
+      427,
+      484
+    ],
+    [
+      63,
+      93,
+      429,
+      484
+    ],
+    [
+      83,
+      118,
+      430,
+      484
+    ],
+    [
+      79,
+      121,
+      431,
+      484
+    ],
+    [
+      78,
+      123,
+      427,
+      484
+    ]
+  ],
+  "runtime": "public/art/animation-hq/gill/crouch-guard-v1.webp",
+  "bytes": 482642,
+  "decodedBytes": 4128768,
+  "operations": [
+    "alpha silhouette crop with 3px padding",
+    "shared .65 scale in premultiplied alpha",
+    "center and align baseline420",
+    "lossless exact WebP packing"
+  ],
+  "sha256": {
+    "generated-sheet-v1.png": "9ce270eac90472f593dce461dd30e237123fa64006526641153fccda139c10b2",
+    "reference-crouch.png": "42f8c96eafcad75665d12efc2aa6ca5abd74fe6a4a72efb72ecd85d41c9330ce",
+    "generation-prompt.txt": "8d1bd28e9dc4f579fb1c1f6b66062dcf63b7eca168fe89127618accbde26e08f",
+    "crouch-guard-v1.webp": "9aa3c16ae0343396139df8e872c9c1ddfe803e337f5b0f41091ddef1c2f05511"
+  }
+}

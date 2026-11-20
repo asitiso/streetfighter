@@ -1,0 +1,59 @@
+{
+  "character": "IBUKI",
+  "kind": "crouch-guard",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "footBaseline": 420,
+  "sharedScale": 0.65,
+  "sourceCells": [
+    [
+      45,
+      30,
+      436,
+      487
+    ],
+    [
+      40,
+      38,
+      439,
+      487
+    ],
+    [
+      51,
+      43,
+      438,
+      487
+    ],
+    [
+      44,
+      39,
+      433,
+      491
+    ],
+    [
+      31,
+      34,
+      435,
+      491
+    ],
+    [
+      33,
+      36,
+      445,
+      491
+    ]
+  ],
+  "operations": [
+    "alpha-silhouette crop with 3px padding",
+    "shared uniform scale",
+    "center and foot alignment",
+    "lossless horizontal packing"
+  ],
+  "runtime": "public/art/animation-hq/ibuki/crouch-guard-v1.webp",
+  "sha256": {
+    "generated-sheet-v1.png": "67840536c7eb367ee26ac0de5733ba0d48ac0366ce13479106308f7a62da24f2",
+    "reference-idle.png": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+    "crouch-guard-v1.webp": "e027b8d2b5a90b401bed6fee8a1664fd43843e59ef96f1f8e0954c8ec8548fef"
+  }
+}

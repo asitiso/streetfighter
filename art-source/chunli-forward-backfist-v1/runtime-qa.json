@@ -1,0 +1,197 @@
+{
+  "passed": true,
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.88,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "asset": {
+    "passed": true,
+    "width": 7680,
+    "height": 448,
+    "frames": 12,
+    "distinct": 12,
+    "guardMean": 6.351168379608325,
+    "guardAlphaMean": 0,
+    "seamMean": 0.11637050083705357,
+    "records": [
+      {
+        "frame": 0,
+        "minX": 199,
+        "maxX": 439,
+        "minY": 86,
+        "maxY": 422,
+        "visible": 32595,
+        "hash": 2038400123
+      },
+      {
+        "frame": 1,
+        "minX": 205,
+        "maxX": 453,
+        "minY": 89,
+        "maxY": 422,
+        "visible": 32392,
+        "hash": 2903573595
+      },
+      {
+        "frame": 2,
+        "minX": 222,
+        "maxX": 480,
+        "minY": 91,
+        "maxY": 422,
+        "visible": 31830,
+        "hash": 2340664640
+      },
+      {
+        "frame": 3,
+        "minX": 246,
+        "maxX": 514,
+        "minY": 92,
+        "maxY": 422,
+        "visible": 31763,
+        "hash": 1756850452
+      },
+      {
+        "frame": 4,
+        "minX": 261,
+        "maxX": 530,
+        "minY": 88,
+        "maxY": 422,
+        "visible": 31356,
+        "hash": 1742722713
+      },
+      {
+        "frame": 5,
+        "minX": 286,
+        "maxX": 564,
+        "minY": 86,
+        "maxY": 422,
+        "visible": 33528,
+        "hash": 3973917162
+      },
+      {
+        "frame": 6,
+        "minX": 286,
+        "maxX": 569,
+        "minY": 86,
+        "maxY": 422,
+        "visible": 33992,
+        "hash": 475886158
+      },
+      {
+        "frame": 7,
+        "minX": 261,
+        "maxX": 526,
+        "minY": 86,
+        "maxY": 422,
+        "visible": 33551,
+        "hash": 3464352090
+      },
+      {
+        "frame": 8,
+        "minX": 245,
+        "maxX": 503,
+        "minY": 85,
+        "maxY": 422,
+        "visible": 32537,
+        "hash": 4245093468
+      },
+      {
+        "frame": 9,
+        "minX": 221,
+        "maxX": 470,
+        "minY": 85,
+        "maxY": 422,
+        "visible": 32405,
+        "hash": 2779227611
+      },
+      {
+        "frame": 10,
+        "minX": 205,
+        "maxX": 452,
+        "minY": 87,
+        "maxY": 422,
+        "visible": 32282,
+        "hash": 3185682167
+      },
+      {
+        "frame": 11,
+        "minX": 199,
+        "maxX": 439,
+        "minY": 86,
+        "maxY": 422,
+        "visible": 32595,
+        "hash": 1908725272
+      }
+    ]
+  },
+  "rendering": {
+    "passed": true,
+    "reachableFrames": 12,
+    "frameToTick": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        4,
+        10
+      ],
+      [
+        5,
+        11
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        8,
+        17
+      ],
+      [
+        9,
+        20
+      ],
+      [
+        10,
+        23
+      ],
+      [
+        11,
+        26
+      ]
+    ],
+    "fallbackVisiblePixels": 6053,
+    "hqRestored": true
+  },
+  "actualTrustedCommand": {
+    "move": "CHUNLI_CMD_HP",
+    "moveFrame": 10,
+    "frame": 4,
+    "kind": "forward-backfist",
+    "contact": true,
+    "loaded": true,
+    "trusted": [
+      true
+    ],
+    "capturedFrames": 29
+  }
+}

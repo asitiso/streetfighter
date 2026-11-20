@@ -1,0 +1,53 @@
+{
+  "character": "IBUKI",
+  "kind": "crouch-parry",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "sharedScale": 0.6403508771929824,
+  "sourceBounds": [
+    [
+      47,
+      17,
+      443,
+      480
+    ],
+    [
+      30,
+      18,
+      478,
+      481
+    ],
+    [
+      32,
+      22,
+      446,
+      481
+    ],
+    [
+      34,
+      18,
+      445,
+      480
+    ],
+    [
+      29,
+      23,
+      444,
+      480
+    ]
+  ],
+  "recoveryFrame": 5,
+  "recoveryPixelIdentical": true,
+  "runtime": "public/art/animation-hq/ibuki/crouch-parry-v1.webp",
+  "bytes": 527194,
+  "stageEntryBytes": 17978692,
+  "stageEntryCap": 18500000,
+  "sha256": {
+    "generated-sheet-v1.png": "257a792cd383b8ee557aa0959b7048018a9b97a13d12b68ec53c9cecafa87b66",
+    "reference-idle.png": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+    "reference-settle.png": "0b47cb90a18eb847723c41984d9a80b1efa63eaf158c4fcf83729fad57f5bb08",
+    "generation-prompt.txt": "f3862f9a9f95f8f3c40a2590460101c03734804ac2e1e7795f06b328a24e75a4",
+    "crouch-parry-v1.webp": "ebeac13b11709c0a7a5da832393b28436b0bb17ab5139c2f5432f278e5e65874"
+  }
+}

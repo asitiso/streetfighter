@@ -1,0 +1,430 @@
+{
+  "kind": "crouch-parry",
+  "characters": [
+    {
+      "character": "RYU",
+      "kind": "crouch-parry",
+      "frames": 6,
+      "frameWidth": 384,
+      "frameHeight": 448,
+      "sharedScale": 0.6205128205128205,
+      "sourceBounds": [
+        [
+          80,
+          59,
+          427,
+          450
+        ],
+        [
+          80,
+          59,
+          462,
+          450
+        ],
+        [
+          80,
+          57,
+          433,
+          450
+        ],
+        [
+          80,
+          59,
+          427,
+          449
+        ],
+        [
+          80,
+          59,
+          427,
+          449
+        ]
+      ],
+      "recoveryFrame": 5,
+      "recoveryPixelIdentical": true,
+      "runtime": "public/art/animation-hq/ryu/crouch-parry-v1.webp",
+      "bytes": 402618,
+      "stageEntryBytes": 17671344,
+      "stageEntryCap": 18000000,
+      "sha256": {
+        "generated-sheet-v1.png": "923d30eedd1884945ebe7d6664de00d6a9ac1e6ffebe0ed622597707ae87a9d2",
+        "reference-idle.png": "20f5b35c1a81411cea08115dc322abbc6cfd0ac76a28565090034bd9bf45342f",
+        "reference-settle.png": "1bb61f4d2a647fa04ab7265923f516dad546cbc5e79de2fc8582d1b821839d21",
+        "generation-prompt.txt": "52c63831b41a87794a2b8ec9733af0e4d5fdca04abecae3628cb17ca10e636d2",
+        "crouch-parry-v1.webp": "0746ce9ae9d43cc99e622b94c884c7cb4696329eee8bbe45c616690ba6e6274b"
+      }
+    },
+    {
+      "character": "KEN",
+      "kind": "crouch-parry",
+      "frames": 6,
+      "frameWidth": 384,
+      "frameHeight": 448,
+      "sharedScale": 0.620253164556962,
+      "sourceBounds": [
+        [
+          73,
+          47,
+          436,
+          443
+        ],
+        [
+          71,
+          47,
+          481,
+          443
+        ],
+        [
+          73,
+          48,
+          462,
+          443
+        ],
+        [
+          72,
+          48,
+          435,
+          442
+        ],
+        [
+          73,
+          48,
+          435,
+          442
+        ]
+      ],
+      "recoveryFrame": 5,
+      "recoveryPixelIdentical": true,
+      "runtime": "public/art/animation-hq/ken/crouch-parry-v1.webp",
+      "bytes": 458848,
+      "stageEntryBytes": 19645300,
+      "stageEntryCap": 20000000,
+      "sha256": {
+        "generated-sheet-v1.png": "4a4015ad25f42f643ef07362a90e6eadd9e59a12ea84f47eef763b5010384280",
+        "reference-idle.png": "32d8b78c4b4f99442071b1109621959e6904344de82b7afbe5c5ce8b39f4ff99",
+        "reference-settle.png": "3204739e111856935dc9865c6dcc2bdc8c142962ee055af48a4b2de2540face4",
+        "generation-prompt.txt": "ea344a0f6b947fb59417e31d89211dcacee99f2d9c8c9b5e6c8ef7a638d7d7ce",
+        "crouch-parry-v1.webp": "7bee1e12c5b50104debd156d82ab3dc75a0f32db2339cdea6f3871d75fbbfc24"
+      }
+    },
+    {
+      "character": "CHUNLI",
+      "kind": "crouch-parry",
+      "frames": 6,
+      "frameWidth": 384,
+      "frameHeight": 448,
+      "sharedScale": 0.5881006864988558,
+      "sourceBounds": [
+        [
+          53,
+          50,
+          448,
+          477
+        ],
+        [
+          22,
+          50,
+          474,
+          477
+        ],
+        [
+          21,
+          50,
+          440,
+          475
+        ],
+        [
+          60,
+          36,
+          449,
+          474
+        ],
+        [
+          28,
+          36,
+          421,
+          474
+        ]
+      ],
+      "recoveryFrame": 5,
+      "recoveryPixelIdentical": true,
+      "runtime": "public/art/animation-hq/chunli/crouch-parry-v1.webp",
+      "bytes": 488450,
+      "stageEntryBytes": 20464058,
+      "stageEntryCap": 21000000,
+      "sha256": {
+        "generated-sheet-v1.png": "95ca68a7d288e93f34d51f425d2e9a9446719c32c0c73049ed3447206180bf05",
+        "reference-idle.png": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+        "reference-settle.png": "27f89808ce71e3d34b06463d8350f661e6960cbdd6e5cf2795ea34d09766e55b",
+        "generation-prompt.txt": "3c726e28d0787f43bd1a0487123d3d4c672208a09cbafb8367c2c16bf612b2e9",
+        "crouch-parry-v1.webp": "baa88d3eb22ea158c5fed849bc2a08b90787128e0e0fb7a5104cc34ed3d15a8b"
+      }
+    },
+    {
+      "character": "ALEX",
+      "kind": "crouch-parry",
+      "frames": 6,
+      "frameWidth": 384,
+      "frameHeight": 448,
+      "sharedScale": 0.6359550561797753,
+      "sourceBounds": [
+        [
+          49,
+          16,
+          457,
+          456
+        ],
+        [
+          41,
+          15,
+          476,
+          456
+        ],
+        [
+          33,
+          23,
+          457,
+          456
+        ],
+        [
+          49,
+          31,
+          461,
+          476
+        ],
+        [
+          42,
+          29,
+          453,
+          476
+        ]
+      ],
+      "recoveryFrame": 5,
+      "recoveryPixelIdentical": true,
+      "runtime": "public/art/animation-hq/alex/crouch-parry-v1.webp",
+      "bytes": 551752,
+      "stageEntryBytes": 19072888,
+      "stageEntryCap": 19500000,
+      "sha256": {
+        "generated-sheet-v1.png": "99c6238db050808e764fb569ad44bcfaae4f3f06610548ccf0cd1123796f1000",
+        "reference-idle.png": "0030e6d6e72c7817d0988bf1e18fd5dd90b445d01a776451ed6a57e5e6d8cb48",
+        "reference-settle.png": "07b1311579424f8d7fd3b472d68c15483731ed8ff42406393288ad0b7a2c4445",
+        "generation-prompt.txt": "23f373f99fd53547397af3f681398927e494c4e2e811088452ca00e965b96e63",
+        "crouch-parry-v1.webp": "46903e6f2ff2f853615fe830f2a91a25b9c32caa005ed804823c616aa2bbd1f6"
+      }
+    },
+    {
+      "character": "DUDLEY",
+      "kind": "crouch-parry",
+      "frames": 6,
+      "frameWidth": 384,
+      "frameHeight": 448,
+      "sharedScale": 0.6134831460674157,
+      "sourceBounds": [
+        [
+          68,
+          38,
+          410,
+          484
+        ],
+        [
+          68,
+          40,
+          489,
+          484
+        ],
+        [
+          68,
+          44,
+          452,
+          484
+        ],
+        [
+          68,
+          44,
+          419,
+          485
+        ],
+        [
+          68,
+          41,
+          411,
+          485
+        ]
+      ],
+      "recoveryFrame": 5,
+      "recoveryPixelIdentical": true,
+      "runtime": "public/art/animation-hq/dudley/crouch-parry-v1.webp",
+      "bytes": 379270,
+      "stageEntryBytes": 13710652,
+      "stageEntryCap": 14000000,
+      "sha256": {
+        "generated-sheet-v1.png": "e9db5f91b541b763bb31f7a6034c98db16b7f86d51db429b2b5f08ed7251e9be",
+        "reference-idle.png": "143274e6b6efa911332800e44b0003b7b77c02904729e462bc7b5c39727bcf96",
+        "reference-settle.png": "83749d3bb8fb52f1b8dce9b790f5c9ba0cf5330465504e3fd6dede5bc622edc0",
+        "generation-prompt.txt": "f040b997ffdbb9476e50b79d5bab684c3edd553516c1ef0c5325dbca43e69ccf",
+        "crouch-parry-v1.webp": "05a619ab3a1d254bc10570558db9fe42cf2817141eb43fc04d401a8c4730e311"
+      }
+    },
+    {
+      "character": "MAKOTO",
+      "kind": "crouch-parry",
+      "frames": 6,
+      "frameWidth": 384,
+      "frameHeight": 448,
+      "sharedScale": 0.6417582417582418,
+      "sourceBounds": [
+        [
+          53,
+          19,
+          412,
+          475
+        ],
+        [
+          53,
+          19,
+          429,
+          475
+        ],
+        [
+          53,
+          19,
+          445,
+          475
+        ],
+        [
+          53,
+          19,
+          414,
+          475
+        ],
+        [
+          53,
+          19,
+          413,
+          474
+        ]
+      ],
+      "recoveryFrame": 5,
+      "recoveryPixelIdentical": true,
+      "runtime": "public/art/animation-hq/makoto/crouch-parry-v1.webp",
+      "bytes": 507678,
+      "stageEntryBytes": 15999448,
+      "stageEntryCap": 16500000,
+      "sha256": {
+        "generated-sheet-v1.png": "a3235efb3f51aef3505ba414af9f327e7c4170574b4dd5c0eaf52defa3653777",
+        "reference-idle.png": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+        "reference-settle.png": "5cbf6a0b6e44b719e44a1214c9a354e516adf3a8e5efbcae7acfaa42f081cd7f",
+        "generation-prompt.txt": "00c5e33cc6f5ab32f0eee99aaba3daa47e39b0efadf85528573e486db6863b73",
+        "crouch-parry-v1.webp": "53daba260da576a0593133ddc8d75cf1dd8e2f7c72f2cb65a2f160d64ea4abe7"
+      }
+    },
+    {
+      "character": "IBUKI",
+      "kind": "crouch-parry",
+      "frames": 6,
+      "frameWidth": 384,
+      "frameHeight": 448,
+      "sharedScale": 0.6403508771929824,
+      "sourceBounds": [
+        [
+          47,
+          17,
+          443,
+          480
+        ],
+        [
+          30,
+          18,
+          478,
+          481
+        ],
+        [
+          32,
+          22,
+          446,
+          481
+        ],
+        [
+          34,
+          18,
+          445,
+          480
+        ],
+        [
+          29,
+          23,
+          444,
+          480
+        ]
+      ],
+      "recoveryFrame": 5,
+      "recoveryPixelIdentical": true,
+      "runtime": "public/art/animation-hq/ibuki/crouch-parry-v1.webp",
+      "bytes": 527194,
+      "stageEntryBytes": 17978692,
+      "stageEntryCap": 18500000,
+      "sha256": {
+        "generated-sheet-v1.png": "257a792cd383b8ee557aa0959b7048018a9b97a13d12b68ec53c9cecafa87b66",
+        "reference-idle.png": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+        "reference-settle.png": "0b47cb90a18eb847723c41984d9a80b1efa63eaf158c4fcf83729fad57f5bb08",
+        "generation-prompt.txt": "f3862f9a9f95f8f3c40a2590460101c03734804ac2e1e7795f06b328a24e75a4",
+        "crouch-parry-v1.webp": "ebeac13b11709c0a7a5da832393b28436b0bb17ab5139c2f5432f278e5e65874"
+      }
+    },
+    {
+      "character": "YUN",
+      "kind": "crouch-parry",
+      "frames": 6,
+      "frameWidth": 384,
+      "frameHeight": 448,
+      "sharedScale": 0.6186046511627907,
+      "sourceBounds": [
+        [
+          68,
+          56,
+          436,
+          482
+        ],
+        [
+          66,
+          56,
+          470,
+          482
+        ],
+        [
+          66,
+          56,
+          447,
+          482
+        ],
+        [
+          68,
+          52,
+          436,
+          482
+        ],
+        [
+          67,
+          52,
+          436,
+          482
+        ]
+      ],
+      "recoveryFrame": 5,
+      "recoveryPixelIdentical": true,
+      "runtime": "public/art/animation-hq/yun/crouch-parry-v1.webp",
+      "bytes": 452084,
+      "stageEntryBytes": 17806736,
+      "stageEntryCap": 18000000,
+      "sha256": {
+        "generated-sheet-v1.png": "b48cbd9a68daf61dafb2a09ce28907c18833f006ec4d14ddd5bf1b0bb6c43d64",
+        "reference-idle.png": "d880f7b6acbd8f1806fae793d5267c74c6360c9db2913227a679085a54469b68",
+        "reference-settle.png": "c8ed720c9b6d1fb7eaab158f2c541f54a2a9709f1260cb69365a82128f01cbdb",
+        "generation-prompt.txt": "f1f6bce3ae11436fd41eb156f92903bf228dc321b0e9efc2fbb38164a616cd79",
+        "crouch-parry-v1.webp": "71d12e927c5491743bf74b7279410d8af000a4e87f3c35d7d1ac5e4c9cece586"
+      }
+    }
+  ],
+  "frames": 48
+}

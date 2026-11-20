@@ -1,0 +1,36 @@
+{
+  "character": "ALEX",
+  "move": "ALEX_CMD_HP",
+  "kind": "lariat-press",
+  "asset": "/art/command-motion-v1/alex-lariat-press.webp",
+  "frames": 12,
+  "frameSize": [
+    640,
+    448
+  ],
+  "phase": {
+    "startupEnd": 4,
+    "activeStart": 5,
+    "activeEnd": 6,
+    "recoveryStart": 7
+  },
+  "footFloor": 420,
+  "source": "generated-sheet-v2.png",
+  "sourceSha256": "fc02834f6cc7de8d3861a0e4b828b7aabc565088333be981f2bbac4013aac776",
+  "assetSha256": "d35bff63fe6910a81f8c0f6b9218293cc7da9fe97277d31a6b6e238784648202",
+  "bytes": 375908,
+  "guardSource": "/art/animation-hq/alex/idle.webp",
+  "guardSourceSha256": "07ab15684ec90aa6029b76d278370da7fa72a7742efb696dab19fc183d4fba71",
+  "guardFrames": [
+    0,
+    11
+  ],
+  "tool": "built-in image_gen",
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.86,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "gameplayChanges": false
+}

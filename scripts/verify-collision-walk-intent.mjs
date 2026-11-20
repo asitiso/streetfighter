@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {writeFileSync} from 'node:fs';
+import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
+import {CombatWorld} from '../dist/assets/combat/CombatWorld.js';
+import {Fighter} from '../dist/assets/combat/Fighter.js';
+import {animationSequenceSample as sample} from '../dist/assets/render/AnimationTimingMapper.js';
+const q={held:()=>false,pressed:()=>false,released:()=>false},physics=createHash('sha256'),controls=createHash('sha256');
+const props=[{id:'hydrant',width:42,depth:30,hp:220},{id:'bin',width:54,depth:34,hp:130},{id:'crate',width:66,depth:44,hp:160}];let cases=0,deflections=0,legacyControls=0;const failures=[];
+for(const c of [...CHARACTERS,...BOSS_CHARACTERS])for(const actor of['player','ai'])for(const face of[-1,1])for(const side of[-1,1])for(const vertical of[-1,1])for(const prop of props){
+ const w=new CombatWorld(c,c,'belt'),f=actor==='player'?w.player:w.enemy;if(actor==='player')w.enemies.length=0;const minX=prop.width*.5+28,minY=prop.depth*.5+16;f.x=f.previousX=800+side*(minX-.25);f.y=f.previousY=480+vertical*(minY+1);f.facing=face;if(actor==='ai'){w.player.x=w.player.previousX=f.x+face*220;w.player.y=w.player.previousY=f.y;const ai=f.updateAiDirected.bind(f);f.updateAiDirected=(t,r,d)=>ai(t,r,{...d,desiredX:f.x,desiredY:f.y-vertical*100,attackAllowed:false,rangedAllowed:false});}w.addProp({...prop,label:prop.id,x:800,y:480,solid:true});const input=actor==='player'?{...q,held:k=>k===(vertical===1?'up':'down')}:q;w.update(input,0);assert.equal(f.state,'walk');assert.equal(f.walkDirection,0);assert.equal(f.walkAnimationFrame,0);const displacement=f.x-f.previousX;assert(Math.abs(displacement)>.1,'Actual prop resolver must push sideways');deflections++;const actual=sample(f,0);if(actual?.sequence.kind!=='walk')failures.push([c.id,actor,face,side,vertical,prop.id,actual?.sequence.kind]);physics.update(JSON.stringify({...f,uid:0}));if(Math.sign(displacement)===face)controls.update(JSON.stringify(actual));cases++;
+}
+for(const c of [...CHARACTERS,...BOSS_CHARACTERS])for(const face of[-1,1])for(const velocity of[-2,2]){const f=new Fighter(c,'player',500,500,face);f.state='walk';f.stateFrame=9;f.previousX=f.x-velocity;assert.equal(f.walkAnimationFrame,null);assert.equal(sample(f,0)?.sequence.kind,Math.sign(velocity)===face?'walk':'walk-back');controls.update(JSON.stringify(sample(f,0)));legacyControls++;}
+const report={passed:failures.length===0,cases,deflections,legacyControls,physicsSha256:physics.digest('hex'),unchangedControlsSha256:controls.digest('hex'),failures:failures.length,examples:failures.slice(0,8)};if(process.argv[2])writeFileSync(process.argv[2],JSON.stringify(report,null,2));console.log(JSON.stringify(report));assert.equal(failures.length,0,'Sideways collision correction must not turn depth walking into backward animation');

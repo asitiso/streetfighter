@@ -1,0 +1,8 @@
+Create NEW original transparent fighting-game sprite sheet. Use referenceONLY Urienidentity/renderstyle andcompactairguardanatomy.1024x1024canvas, exactlyFOURisolatedfullbodyposes2columns×2rows, faceRIGHT, consistentheadsize/headaxis/torsoheight, figure430–450pxper512cell, margins. TrueRGBAtransparentbackground,noshadow/ground/text/grid/effects.
+Urien verymuscularbronzeskinnedadultman,shortwhitehair,sterngoldneckcollar,goldwristbracers,white/navyshortwaistclothgoldtrim/beltmedallion,barefeet. Matchreferencecostume/bodymass. Bareclosedfists,noglovesshoes.
+AIR LP compactquick airborne CLOSED-FIST jab, shorterthanheavyfist. Bothkneesraised/tucked, rearcalvesnotwideatankleheight, lowest15%onlyfeet/ankles<=110sourcepxwide. Feetcloseunderhips,kneebottoms90sourcepixelsabovelowesttoes. No plantedfeet.
+1top-left compactairguard matchingreference, closedfists nearcheek/chest, kneesandbarefeetclose.
+2top-right anticipation: retractstrikingfist besideear/shoulder, elbowbentback, chestcoils, otherfisttightguard. Realarticulatedforearmanglechange, notheadshift/scale.
+3bottom-left CONTACT: SHORTstraightjabRIGHT atupperchestlevel25–38%downbody. Fistfrontonly70SOURCEpixelsbeyondguardhandposition1. Elbowstillbentabout110–125degrees, NOTlongheavyextension. Closedbarefist withcompactknuckles,goldbraceratwrist. Verticalfistprofileabout40–45sourcepixels, notopenfingers. Shoulderroll/torso slightlyturn, otherfistguardssternum, tuckedknees/feetstable. Don'tstretchwholebody.
+4bottom-right withdrawfisttowardface/elbowrebend, guardreturns, clothsettle, legsremaincompact.
+Fourcoherentfullbodyarticulateddrawings, exactlytwoarms/twolegs,noextra fingers/limbs. Consistentmusclevolume andregistration. Allfigureswithincells,genuinealpha0emptybackground.

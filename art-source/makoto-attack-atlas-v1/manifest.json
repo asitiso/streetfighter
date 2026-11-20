@@ -1,0 +1,290 @@
+{
+  "version": "makoto-authored-attack-v1",
+  "source": "art-source/makoto-attack-atlas-v1/generated-sheet-v2.png",
+  "sourceSHA256": "bbfc36566d944cb6b18bea96ea604d77587dba42421eceeffa267beacbe5cfc8",
+  "promptSHA256": "8e0ad39504a84c235bceea60d73b7fffb9cdce85a582ac3a11e17426a60c7543",
+  "backgroundRemovalPromptSHA256": "c190c33253f27b9d92a6e649015a37fedac5ea4450c1cab986e65d2409320a57",
+  "referenceSHA256": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+  "sourceSize": [
+    1299,
+    1211
+  ],
+  "grid": [
+    5,
+    4
+  ],
+  "uniformScale": 1.3035019455252919,
+  "footAnchor": [
+    192.0,
+    422
+  ],
+  "frames": [
+    {
+      "row": 0,
+      "column": 0,
+      "hdBBox": [
+        84,
+        87,
+        300,
+        422
+      ],
+      "hdRGBA": "961ae88305e9f6b54864163ff9c7ee53a593ea1727f8edc112376e1e3d63c63a",
+      "liteRGBA": "2a19b9efcc3d01d0619ba8a036d731cfb7de2e271db38192bd1412cad98a2671"
+    },
+    {
+      "row": 0,
+      "column": 1,
+      "hdBBox": [
+        80,
+        88,
+        301,
+        422
+      ],
+      "hdRGBA": "f556b0e634178119fd5972daa636c4c1705345b299dafc292f427676e07afc93",
+      "liteRGBA": "ede2b1551013c9027f68b48f71642fbfaeb8544829dca694f09eab9229cf204b"
+    },
+    {
+      "row": 0,
+      "column": 2,
+      "hdBBox": [
+        80,
+        89,
+        305,
+        422
+      ],
+      "hdRGBA": "c86cb66ad1dccdaa498e3a018a5476fb8338a32a7d1576847d3c83cdfb27a6b3",
+      "liteRGBA": "368eba0bb671dd3671c710c92460b5fa4a1637b6b1fb4f0f37fb26fd8bb52fd8"
+    },
+    {
+      "row": 0,
+      "column": 3,
+      "hdBBox": [
+        83,
+        91,
+        301,
+        423
+      ],
+      "hdRGBA": "9901e3ba6a615cf60285237b1ed6b93b5792c41535ccd003bc8232e41ddb6bb6",
+      "liteRGBA": "76e0f92fcca022f630fef2aab18625325c2dc27116235daae12df1da36e9bb81"
+    },
+    {
+      "row": 0,
+      "column": 4,
+      "hdBBox": [
+        82,
+        87,
+        301,
+        422
+      ],
+      "hdRGBA": "70ed650a36c38732898f7109cafc4b4afa752442fe12068719e1acb95e4ae100",
+      "liteRGBA": "eabf783cee0639d83df6c2944516c650e57409dd2f53e84f1e32d797f5eef9da"
+    },
+    {
+      "row": 1,
+      "column": 0,
+      "hdBBox": [
+        82,
+        93,
+        301,
+        421
+      ],
+      "hdRGBA": "53bc3f86c4187a077390336c3d5f2386070e1f22d26ac5888596be4a6f16f539",
+      "liteRGBA": "5eb935401cba2319a7a7047f39e11ebec70d752fcc5e0a47a615035ebe024687"
+    },
+    {
+      "row": 1,
+      "column": 1,
+      "hdBBox": [
+        82,
+        101,
+        303,
+        422
+      ],
+      "hdRGBA": "4eb4e21349a6309bd8a45f41ab7ed4246a9eeb8d8d31406e3f78262b757e7b9f",
+      "liteRGBA": "93ed18885430119b9862e8499efef2e0ead2ccfee0fb82dfdd65150538fb9613"
+    },
+    {
+      "row": 1,
+      "column": 2,
+      "hdBBox": [
+        78,
+        95,
+        306,
+        423
+      ],
+      "hdRGBA": "481adce23a90db80f29047ac4156a9410297b54d195591cefa0ebea668e84ad9",
+      "liteRGBA": "b230dcde16ef90af19fbe12fa1aa33341d819df5b6aaa3456569c1ec8c71fb68"
+    },
+    {
+      "row": 1,
+      "column": 3,
+      "hdBBox": [
+        83,
+        93,
+        301,
+        422
+      ],
+      "hdRGBA": "a5fefaa5f0a4bb2879911b2bbf2ea262209c3f3662f7cec5f78c6e3ee893b74a",
+      "liteRGBA": "63fe84a6c943e7b60f8cb719ec4cab858f3e2283587d9502ed748ac323d31124"
+    },
+    {
+      "row": 1,
+      "column": 4,
+      "hdBBox": [
+        80,
+        91,
+        302,
+        423
+      ],
+      "hdRGBA": "02070e4baaa5ddd5f1dde63ff2b276b333d7e7959b3034aecadc6a773e7de87f",
+      "liteRGBA": "58af800cbc2c74248300698bbce3a1f423435e3b079cc2033a367691dc41f44a"
+    },
+    {
+      "row": 2,
+      "column": 0,
+      "hdBBox": [
+        82,
+        94,
+        301,
+        422
+      ],
+      "hdRGBA": "7f0683d7572614d92e7d6e0b23af2cbbbf3e7e6aa36e9cf9f90964919b5b7e2b",
+      "liteRGBA": "68bc65deb965f8917dbbc0c86d732289a31d83ab217efead6853e1f1df7a5eaa"
+    },
+    {
+      "row": 2,
+      "column": 1,
+      "hdBBox": [
+        82,
+        112,
+        304,
+        423
+      ],
+      "hdRGBA": "f60501b7936a6f83a27c1b1ea57b5093f0b159edd0623a0221d327a288f1c601",
+      "liteRGBA": "65170995e7f93690fe8a71fbd74a45623116b80839bf11024bd934eb04f949bd"
+    },
+    {
+      "row": 2,
+      "column": 2,
+      "hdBBox": [
+        80,
+        89,
+        304,
+        422
+      ],
+      "hdRGBA": "9579e6f6a416ca1e102d074c99bcb7a58f04c1ef61836986f8f8d5376ef1bb8d",
+      "liteRGBA": "c874f3f4f7534617d05df0a809960a411312746789355b2e72ab68a12501daf3"
+    },
+    {
+      "row": 2,
+      "column": 3,
+      "hdBBox": [
+        82,
+        92,
+        301,
+        422
+      ],
+      "hdRGBA": "56075cc3d32605c13433866997253810ba8a36c719443ba5b8d8ef6f5cdd1d26",
+      "liteRGBA": "28f2a62bb2d598f242b0da8bdcae8bb9a897074c6844923c57d57dde79e8aca5"
+    },
+    {
+      "row": 2,
+      "column": 4,
+      "hdBBox": [
+        81,
+        91,
+        303,
+        423
+      ],
+      "hdRGBA": "0a5607d562964b4a286f0fd9e57a5e87f0450f0dec0e82f805b260652e39ce37",
+      "liteRGBA": "8dc8f83aea5410db05652ac2c0f6c634c3c3150280def8b471527b5d919391d1"
+    },
+    {
+      "row": 3,
+      "column": 0,
+      "hdBBox": [
+        83,
+        96,
+        301,
+        422
+      ],
+      "hdRGBA": "698cdb1351e7becc9738f0837a465c7318db7387f5ffa2acdc96e6172c975525",
+      "liteRGBA": "c503a1456ae7ec4778bba46425f10d04b9b0609a022d086dc8f2ecb20a97ffb5"
+    },
+    {
+      "row": 3,
+      "column": 1,
+      "hdBBox": [
+        83,
+        105,
+        317,
+        422
+      ],
+      "hdRGBA": "6240c3f45ee0d38548d04f8e324b30027514add9a005c0d27a1c47a0fcf254d3",
+      "liteRGBA": "18a0427537fda17f78fc8a15b76664ba7f04796cca06a4bd59d6f9e6f0d1eaff"
+    },
+    {
+      "row": 3,
+      "column": 2,
+      "hdBBox": [
+        80,
+        97,
+        305,
+        422
+      ],
+      "hdRGBA": "ece61209ccdf557e4dc5c905b89312d1fe52e01421dd74abcfddc67b19984b53",
+      "liteRGBA": "478da7788244a842b7e4a1f1f2d0b26375f0edcc0c7a12d935c08c7c729f697a"
+    },
+    {
+      "row": 3,
+      "column": 3,
+      "hdBBox": [
+        82,
+        97,
+        301,
+        421
+      ],
+      "hdRGBA": "3542917874de1acdb23304e09a4ff7c5339f7ee7207c39b0238aa86ee60ffa84",
+      "liteRGBA": "6bb6789de8889859fe7cc0bbf21eb9363ede7e389ab8ad589af2148ae0a66434"
+    },
+    {
+      "row": 3,
+      "column": 4,
+      "hdBBox": [
+        81,
+        92,
+        303,
+        423
+      ],
+      "hdRGBA": "d31dcc67a66df60188b9546e791360a51eae666607dd5578f5aa295b56a95382",
+      "liteRGBA": "dd8b755dd32e3347dced64eb730c11a31e87837a6b8a1342bac5d81803baaee0"
+    }
+  ],
+  "operations": [
+    "cell crop with transparent gutter",
+    "one uniform scale for all twenty poses",
+    "translation to common foot anchor",
+    "half-size LITE downsample",
+    "lossless WebP encoding"
+  ],
+  "runtime": {
+    "lite": {
+      "path": "/art/attack-atlases/makoto-authored-v1.webp",
+      "size": [
+        960,
+        896
+      ],
+      "bytes": 557288,
+      "sha256": "0e6a29c606e5f9f941624bf4ad91f754ba6f2cf7d2a293457383a132c416d2ed"
+    },
+    "hd": {
+      "path": "/art/attack-atlases-hd/makoto-authored-v1.webp",
+      "size": [
+        1920,
+        1792
+      ],
+      "bytes": 1829016,
+      "sha256": "943b7d3a731c4c0c635f07170fd37c4e98260f0cdfc92e730ed83b1a08795edb"
+    }
+  }
+}

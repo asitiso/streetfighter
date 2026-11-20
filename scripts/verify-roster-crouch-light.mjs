@@ -42,9 +42,12 @@ for(const id of ['ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL','RYU','KEN','CHUN
   const s=animationSequenceSample(f,0);assert.equal(s.sequence.id,seq.id);seen.add(s.frame);
   const active=f.moveFrame>=move.startup&&f.moveFrame<move.startup+move.active;
   assert.equal(s.contact,active);if(active){contacts++;assert.ok(s.frame>=contactStart&&s.frame<=contactEnd);contactFrames.add(s.frame);}
-  draws.length=0;drawCombatFighter(ctx,f,0,0);const d=draws.find(a=>a[0].src===seq.asset);assert.ok(d);canvasDraws++;
-  assert.equal(d[1],s.frame*640);assert.deepEqual(d.slice(5),[-160,-220,320,224]);
-  assert.ok(d[1]>=0&&d[1]+d[3]<=640*count);assert.deepEqual([f.x,f.y],[600,500]);
+  draws.length=0;drawCombatFighter(ctx,f,0,0);
+  // Model context has no blend canvas: terminal recovery alone switches fully to settle.
+  const settled=f.moveFrame===move.startup+move.active+move.recovery-1?animationSequenceFor(id,'crouch-guard'):null;
+  const expected=settled??seq,d=draws.find(a=>a[0].src===expected.asset);assert.ok(d);canvasDraws++;
+  assert.equal(d[1],(settled?5:s.frame)*expected.frameWidth);assert.deepEqual(d.slice(5),[-expected.frameWidth/4,-220,expected.frameWidth/2,224]);
+  assert.ok(d[1]>=0&&d[1]+d[3]<=expected.frameWidth*expected.frameCount);assert.deepEqual([f.x,f.y],[600,500]);
   if(active&&!frozen){frozen=true;f.hitStop=3;const clock=f.moveFrame;
    for(let stop=0;stop<3;stop++){f.updatePlayer(heldAfter?down:quiet,rules);assert.equal(f.moveFrame,clock);assert.equal(animationSequenceSample(f,0).frame,s.frame);ticks++;}
   }

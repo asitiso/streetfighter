@@ -1,0 +1,9 @@
+Create a NEW original transparent fighting-game animation sprite sheet using the reference ONLY for character identity and painted rendering style. Canvas1024x1536, exactly six separated full-body poses in two columns/three rows, facing RIGHT, equal head size, no text/grid/shadows/background. Genuine transparent alpha.
+Character Makoto: short tousled brown hair, trailing white headband, sleeveless ragged OFF-WHITE karate gi, black belt, red wrapped hands, bare feet. This is JUMP KNEE: a compact airborne knee strike, NOT a straight kick or punch.
+Top left: airborne tucked guarded neutral, both knees bent and feet together under hips; hands close to cheeks.
+Top right: anticipation, lift right thigh, hips coil, both fists guarding.
+Middle left: drive right knee forward, torso slight counter-rotation, lower leg tightly folded back.
+Middle right CONTACT: lead RIGHT KNEE covered by broad off-white gi cloth projects clearly FARTHER RIGHT than both guarded fists by roughly100 sourcepixels. Knee at lower chest/waist level (about60% of height measured from head). Broad rounded folded cloth knee, NOT foot leading. Right bare foot folded tightly BACK below/behind knee by100pixels; left leg tucked under hips; two feet compact together. Keep fists guarding at cheek/chest, do not punch. Bent lower leg, not extended shin. Knee is frontmost silhouette. Show broad knee cloth tip at least55sourcepixels tall. Pose total height same as others, no headshift.
+Bottom left: withdraw knee, feet tuck, elbows guard.
+Bottom right: return to initial airborne guard.
+Character height around455px per512px row, leave adequate margins. Head at consistent relativeheight, torso length consistent, don't stretch/scale character. Frame identities: guard, coil, driving knee, decisive knee contact, withdrawal, guard. Make distinct genuine articulated joints, not affine transforms. No planted feet. No dust, duplicate limbs or extraneous props.

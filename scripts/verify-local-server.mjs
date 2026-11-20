@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {once} from 'node:events';
+import {mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {resolveLocalPython} from './local-python.mjs';
+import path from 'node:path';import os from 'node:os';import net from 'node:net';
+const legacy=process.argv.includes('--legacy'),tmpBase=path.resolve(os.tmpdir()),root=await mkdtemp(path.join(tmpBase,'streetfighter-server-')),body=Buffer.from('Streetfighter local HTTP probe\n'.repeat(128));let server;
+try{
+ await writeFile(path.join(root,'probe.webp'),body);
+ const python=resolveLocalPython();
+ const args=legacy?['-u','-m','http.server','0','--bind','127.0.0.1','--directory',root]:['-u','scripts/serve-local.py','--port','0','--directory',root];
+ server=spawn(python,args,{windowsHide:true,stdio:['ignore','pipe','pipe']});let stderr='';server.stderr.on('data',b=>stderr+=b);
+ const address=await new Promise((resolve,reject)=>{let text='';const timeout=setTimeout(()=>reject(Error('Server startup timeout: '+stderr)),10000);server.once('error',e=>{clearTimeout(timeout);reject(e);});server.once('exit',code=>{clearTimeout(timeout);reject(Error('Server exited '+code+': '+stderr));});server.stdout.on('data',b=>{text+=b;const prefix='http://127.0.0.1:',index=text.indexOf(prefix),port=index<0?NaN:parseInt(text.slice(index+prefix.length),10);if(Number.isInteger(port)&&port>0){clearTimeout(timeout);resolve(port);}});});
+ const burst=()=>Promise.all(Array.from({length:32},()=>new Promise(resolve=>{let done=false;const chunks=[],socket=net.createConnection({host:'127.0.0.1',port:address});const finish=r=>{if(done)return;done=true;socket.destroy();resolve(r);};socket.setTimeout(3000,()=>finish({ok:false,error:'TIMEOUT'}));socket.on('connect',()=>socket.write('GET /probe.webp HTTP/1.1\r\nHost: 127.0.0.1:'+address+'\r\nConnection: close\r\n\r\n'));socket.on('data',b=>chunks.push(b));socket.on('error',e=>finish({ok:false,error:e.code}));socket.on('end',()=>{const data=Buffer.concat(chunks),split=data.indexOf('\r\n\r\n'),header=data.subarray(0,split).toString(),payload=data.subarray(split+4);finish({ok:(header.startsWith('HTTP/1.0 200')||header.startsWith('HTTP/1.1 200'))&&payload.equals(body),status:header.split('\r\n')[0],bodyMatches:payload.equals(body),contentType:header.split('\r\n').find(line=>line.toLowerCase().startsWith('content-type:'))});});})));
+ const rounds=[];for(let i=0;i<3;i++){const results=await burst();rounds.push({count:32,success:results.filter(x=>x.ok).length,failures:results.filter(x=>!x.ok),contentTypes:[...new Set(results.filter(x=>x.ok).map(x=>x.contentType))]});}console.log(JSON.stringify({legacy,rounds}));assert(rounds.every(r=>r.success===32),'Local server must serve every concurrent image request without refusal/corruption');assert(rounds.every(r=>r.contentTypes.every(t=>t?.toLowerCase()==='content-type: image/webp')),'WebP must be served with its image MIME type');
+}finally{if(server?.pid&&server.exitCode===null){const exited=once(server,'exit');server.kill();await exited;}const relative=path.relative(tmpBase,path.resolve(root));assert(relative&&!relative.startsWith('..')&&!path.isAbsolute(relative)&&path.basename(root).startsWith('streetfighter-server-'));await rm(root,{recursive:true,force:true});}

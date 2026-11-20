@@ -1,0 +1,60 @@
+{
+  "character": "MAKOTO",
+  "kind": "crouch-guard",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "footBaseline": 420,
+  "sharedScale": 0.65,
+  "sourceCells": [
+    [
+      83,
+      27,
+      433,
+      482
+    ],
+    [
+      78,
+      38,
+      427,
+      483
+    ],
+    [
+      75,
+      32,
+      421,
+      482
+    ],
+    [
+      83,
+      34,
+      428,
+      483
+    ],
+    [
+      78,
+      28,
+      422,
+      483
+    ],
+    [
+      75,
+      28,
+      423,
+      483
+    ]
+  ],
+  "operations": [
+    "alpha-silhouette crop with 3px padding",
+    "shared uniform scale",
+    "center and foot alignment",
+    "lossless horizontal packing"
+  ],
+  "runtime": "public/art/animation-hq/makoto/crouch-guard-v1.webp",
+  "sha256": {
+    "generated-sheet-v1.png": "92e02adfd384150715e8122776d84e654da2f1096cb2c7a723708b3050192338",
+    "reference-idle.png": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+    "generation-prompt.txt": "404ea421bdc6d57b4ad49b25313341bdb9792bb8db2747697f8b5631264b0666",
+    "crouch-guard-v1.webp": "155781ebfcb04ad93f879eaf09ab7201f6504200be494e4c0c4466d41bc400be"
+  }
+}

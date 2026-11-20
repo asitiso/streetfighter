@@ -1,3 +1,4 @@
+import { motionClipForFighter, neutralCrouchBlend } from './AnimationPoseLibrary.js';
 import type { Fighter } from '../combat/Fighter.js';
 import type { FighterState } from '../combat/CombatTypes.js';
 import { locomotionProfile } from './LocomotionProfiles.js';
@@ -25,9 +26,11 @@ export interface AnimationTransitionSample {
 
 interface TransitionMemory {
   state: FighterState;
+  animationFrame: number;
   dashFrames: number;
   landingFrames: number;
   airborne: boolean;
+  airMove: boolean;
   speed: number;
   kind: AnimationTransitionKind | null;
   remaining: number;
@@ -64,14 +67,41 @@ function smooth01(t: number): number {
 }
 
 function detectTransition(fighter: Fighter, memory: TransitionMemory): AnimationTransitionKind | null {
-  if (fighter.state === 'attack' && memory.state !== 'attack') {
-    if (memory.state === 'parry') return 'parry-punish';
-    if (memory.dashFrames > 0 || memory.speed > 4.6) return 'dash-attack';
-    if (memory.landingFrames > 0 || (memory.airborne && !fighter.airborne)) return 'landing-attack';
-    if (memory.state === 'crouch') return 'crouch-attack';
+  // A new ground attack can follow an air normal or a completed rising special
+  // without an intervening rendered neutral frame. Its start clock distinguishes
+  // it from the same rising attack continuing through touchdown.
+  const recordedEntry = fighter.attackAnimationStartFrame >= 0;
+  const landingEntry = recordedEntry && fighter.attackLandingFrames > 0;
+  const landedAttack = !fighter.airborne && fighter.currentMove !== null
+    && fighter.currentMove.technique !== 'air'
+    && ((landingEntry && fighter.attackAnimationStartFrame > memory.animationFrame)
+      || (!recordedEntry && memory.airMove && memory.airborne && fighter.landingFrames > 0));
+  // A real parry has one neutral tick before input is accepted. Match the
+  // first attack's clock instead of relying on whether that tick was rendered.
+  const parryFollowup = fighter.parryFollowupAnimationFrame >= 0
+    && fighter.attackAnimationStartFrame === fighter.parryFollowupAnimationFrame;
+  const movementEntry = recordedEntry ? fighter.attackMovementEntry
+    : !memory.airborne && (memory.dashFrames > 0 || memory.speed > 4.6);
+  const crouchEntry = recordedEntry ? fighter.attackCrouchEntry : memory.state === 'crouch';
+  const newCrouchAttack = recordedEntry && crouchEntry && fighter.attackAnimationStartFrame > memory.animationFrame;
+  const newMovementAttack = recordedEntry && movementEntry && fighter.attackAnimationStartFrame > memory.animationFrame;
+  const newParryAttack = parryFollowup && fighter.attackAnimationStartFrame > memory.animationFrame;
+  if (fighter.state === 'attack' && (memory.state !== 'attack' || landedAttack || newParryAttack || newMovementAttack || newCrouchAttack)) {
+    if (parryFollowup || (memory.state === 'parry' && fighter.attackAnimationStartFrame < 0)) return 'parry-punish';
+    if (movementEntry) return 'dash-attack';
+    // Accepted entry owns eligibility even if its first render arrives after touchdown settles.
+    if (recordedEntry ? landingEntry : (memory.landingFrames > 0 || (memory.airborne && !fighter.airborne))) return 'landing-attack';
+    if (crouchEntry) return 'crouch-attack';
   }
-  if ((fighter.state === 'idle' || fighter.state === 'walk') && memory.state === 'attack') return 'attack-neutral';
-  if ((fighter.state === 'idle' || fighter.state === 'walk') && fighter.landingFrames > 0 && memory.airborne) return 'landing-neutral';
+  // Actual touchdown owns the neutral settle even when it interrupts an air move.
+  if ((fighter.state === 'idle' || fighter.state === 'walk') && !fighter.airborne
+    && fighter.landingFrames > 0
+    && (fighter.landingNeutralAnimationFrame === null ? memory.airborne
+      : fighter.landingNeutralAnimationFrame > memory.animationFrame)) return 'landing-neutral';
+  if ((fighter.state === 'idle' || fighter.state === 'walk')
+    && (recordedEntry ? fighter.attackRecoveryAnimationFrame > memory.animationFrame
+        && fighter.attackRecoveryAnimationFrame !== fighter.landingNeutralAnimationFrame
+      : memory.state === 'attack')) return 'attack-neutral';
   return null;
 }
 
@@ -156,9 +186,11 @@ export function animationTransitionSample(fighter: Fighter): AnimationTransition
   if (!memory) {
     memory = {
       state: fighter.state,
+      animationFrame: fighter.animationFrame,
       dashFrames: fighter.dashFrames,
       landingFrames: fighter.landingFrames,
       airborne: fighter.airborne,
+      airMove: fighter.currentMove?.technique === 'air',
       speed,
       kind: null,
       remaining: 0,
@@ -168,11 +200,52 @@ export function animationTransitionSample(fighter: Fighter): AnimationTransition
     return EMPTY;
   }
 
-  const detected = detectTransition(fighter, memory);
-  if (detected) {
+  // Reaction and paired poses own their geometry; an interrupted attack's
+  // locomotion lean must not distort them, even while hit stop pauses time.
+  // Air normals own their poses even when rendering skipped their entry.
+  // Ground-initiated rising attacks retain their existing ground transition.
+  const airAttackPose = fighter.airborne && fighter.state === 'attack'
+    && (fighter.currentMove?.technique === 'air' || memory.state !== 'attack');
+  // A plain jump must also release any previous grounded settle immediately.
+  const jumpPose = fighter.airborne && fighter.state === 'jump';
+  // Crouched normals already lower their own bodies; a standing-entry settle
+  // would push both the attack pose and its ground shadow below the floor.
+  const crouchAttackPose = !fighter.airborne && fighter.state === 'attack'
+    && !!fighter.currentMove?.id.startsWith('2');
+  // An active ground dash has its own authored movement, not an old settle.
+  const dashPose = !fighter.airborne && fighter.dashFrames > 0
+    && (fighter.state === 'walk' || fighter.state === 'idle');
+  // Tracked crouch/rise owns its geometry, including the first released attack frame.
+  const crouchSettlePose = neutralCrouchBlend(fighter) > 0;
+  const interrupted = crouchSettlePose || crouchAttackPose || dashPose || jumpPose || airAttackPose || fighter.state === 'hit' || fighter.state === 'block' || fighter.state === 'parry'
+    || fighter.state === 'knockdown' || fighter.state === 'ko' || fighter.state === 'victory'
+    || fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0
+    || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0
+    || motionClipForFighter(fighter, 0).clip === 'throwEscape';
+  const detected = interrupted ? null : detectTransition(fighter, memory);
+  if (interrupted) {
+    memory.kind = null;
+    memory.remaining = 0;
+  } else if (detected) {
     memory.kind = detected;
     memory.duration = DURATIONS[detected];
-    memory.remaining = memory.duration;
+    // The first render may arrive after several fixed updates. Age the entry
+    // from its simulation counter instead of replaying an old pose at full strength.
+    const elapsed = detected === 'landing-neutral' ? Math.max(0, 8 - fighter.landingFrames)
+      : detected === 'attack-neutral' && fighter.attackRecoveryAnimationFrame >= 0
+        ? Math.max(0, fighter.animationFrame - fighter.attackRecoveryAnimationFrame)
+      : fighter.state === 'attack' ? Math.max(0, fighter.attackAnimationStartFrame >= 0
+        ? fighter.animationFrame - fighter.attackAnimationStartFrame : fighter.moveFrame) : Math.max(0, fighter.stateFrame);
+    memory.remaining = Math.max(0, memory.duration - elapsed);
+  } else if (fighter.state === 'attack' && memory.kind === 'attack-neutral') {
+    // A fresh attack owns startup; only an explicitly detected new entry may
+    // replace it. Do not carry the previous attack's neutral settle into it.
+    memory.kind = null;
+    memory.remaining = 0;
+  } else {
+    // Render rate may differ from the fixed simulation; hit stop and super
+    // freeze pause this clock; moves and state changes never reset it.
+    memory.remaining = Math.max(0, memory.remaining - Math.max(0, fighter.animationFrame - memory.animationFrame));
   }
 
   let result = EMPTY;
@@ -180,14 +253,16 @@ export function animationTransitionSample(fighter: Fighter): AnimationTransition
     const progress = 1 - memory.remaining / Math.max(1, memory.duration);
     const strength = 1 - smooth01(progress);
     result = sampleFor(memory.kind, fighter, strength);
-    memory.remaining -= 1;
-    if (memory.remaining <= 0) memory.kind = null;
+
   }
 
+  if (memory.remaining <= 0) memory.kind = null;
   memory.state = fighter.state;
+  memory.animationFrame = fighter.animationFrame;
   memory.dashFrames = fighter.dashFrames;
   memory.landingFrames = fighter.landingFrames;
   memory.airborne = fighter.airborne;
+  memory.airMove = fighter.currentMove?.technique === 'air';
   memory.speed = speed;
   return result;
 }

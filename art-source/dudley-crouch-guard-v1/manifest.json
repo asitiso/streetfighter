@@ -1,0 +1,64 @@
+{
+  "selectedSource": "generated-sheet-v2.png",
+  "generationTool": "built-in imagegen",
+  "character": "DUDLEY",
+  "kind": "crouch-guard",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "footBaseline": 420,
+  "sharedScale": 0.65,
+  "sourceCells": [
+    [
+      98,
+      46,
+      410,
+      479
+    ],
+    [
+      82,
+      53,
+      392,
+      478
+    ],
+    [
+      71,
+      46,
+      382,
+      478
+    ],
+    [
+      98,
+      62,
+      401,
+      478
+    ],
+    [
+      83,
+      53,
+      396,
+      479
+    ],
+    [
+      72,
+      52,
+      393,
+      478
+    ]
+  ],
+  "operations": [
+    "alpha-silhouette crop with 3px padding",
+    "shared uniform scale",
+    "center and foot alignment",
+    "lossless horizontal packing"
+  ],
+  "runtime": "public/art/animation-hq/dudley/crouch-guard-v1.webp",
+  "sha256": {
+    "generated-sheet-v1.png": "ccc436e40017d7bd3304b6810c31f99e7b4397fc372e95c0d6bafb58b9c0e773",
+    "generated-sheet-v2.png": "9fc356133efa26b6e699cc9b1f0f9dc0c16f901ca17effe7fe73db072a2cad09",
+    "reference-idle.png": "143274e6b6efa911332800e44b0003b7b77c02904729e462bc7b5c39727bcf96",
+    "generation-prompt.txt": "d826c23b680436969667cb02df1b45018f38a20d8b9d2910abded1b095851512",
+    "identity-edit-prompt.txt": "2e0690f0c8367d70c67f95bdee9dba26c263abee52f0f43b25336fe5e89401f2",
+    "crouch-guard-v1.webp": "c84270718734f1779e3d0c1c41a3beb1cab15daadd6e2ca1ecb04379aaeb2d41"
+  }
+}

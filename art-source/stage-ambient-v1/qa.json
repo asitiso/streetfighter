@@ -1,0 +1,108 @@
+{
+  "width": 768,
+  "height": 640,
+  "cell": 128,
+  "baseline": 120,
+  "frames": 30,
+  "bytes": 266978,
+  "decodedBytes": 1966080,
+  "runtimeSha256": "9e3d5a191bd6b9279f3e5cbacb4e336cbc862b3014dbb768862f4802da7b5362",
+  "sourceSha256": "c00c2a4c18740704a7ccf493ea9241fd9faa4457229d2341d6c971067857ee01",
+  "rows": [
+    {
+      "kind": "subway-steam",
+      "sourceCell": [
+        229,
+        229
+      ],
+      "commonCrop": [
+        60,
+        41,
+        175,
+        218
+      ],
+      "packedSize": [
+        73,
+        112
+      ],
+      "frames": 6,
+      "uniqueFrames": 6
+    },
+    {
+      "kind": "cooking-vapor",
+      "sourceCell": [
+        229,
+        229
+      ],
+      "commonCrop": [
+        71,
+        65,
+        172,
+        214
+      ],
+      "packedSize": [
+        76,
+        112
+      ],
+      "frames": 6,
+      "uniqueFrames": 6
+    },
+    {
+      "kind": "maple-leaves",
+      "sourceCell": [
+        229,
+        229
+      ],
+      "commonCrop": [
+        41,
+        42,
+        197,
+        203
+      ],
+      "packedSize": [
+        109,
+        112
+      ],
+      "frames": 6,
+      "uniqueFrames": 6
+    },
+    {
+      "kind": "rain-ripple",
+      "sourceCell": [
+        229,
+        229
+      ],
+      "commonCrop": [
+        15,
+        85,
+        214,
+        197
+      ],
+      "packedSize": [
+        112,
+        63
+      ],
+      "frames": 6,
+      "uniqueFrames": 6
+    },
+    {
+      "kind": "brazier-flame",
+      "sourceCell": [
+        229,
+        229
+      ],
+      "commonCrop": [
+        65,
+        25,
+        169,
+        198
+      ],
+      "packedSize": [
+        67,
+        112
+      ],
+      "frames": 6,
+      "uniqueFrames": 6
+    }
+  ]
+}

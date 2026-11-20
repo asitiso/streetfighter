@@ -1,0 +1,151 @@
+{
+  "character": "URIEN",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7136752136752137,
+  "sourceBounds": [
+    [
+      54,
+      57,
+      468,
+      476
+    ],
+    [
+      28,
+      78,
+      490,
+      473
+    ],
+    [
+      39,
+      56,
+      439,
+      475
+    ],
+    [
+      58,
+      24,
+      456,
+      488
+    ],
+    [
+      23,
+      55,
+      472,
+      484
+    ],
+    [
+      78,
+      18,
+      445,
+      486
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      97,
+      123,
+      393,
+      422
+    ],
+    [
+      84,
+      140,
+      414,
+      422
+    ],
+    [
+      93,
+      123,
+      379,
+      422
+    ],
+    [
+      99,
+      91,
+      383,
+      422
+    ],
+    [
+      82,
+      116,
+      403,
+      422
+    ],
+    [
+      119,
+      88,
+      381,
+      422
+    ],
+    [
+      152,
+      88,
+      360,
+      422
+    ],
+    [
+      154,
+      88,
+      357,
+      422
+    ]
+  ],
+  "centroidTargetX": 236.43897043164168,
+  "centroids": [
+    [
+      236.25082438302366,
+      274.40416559124793
+    ],
+    [
+      236.29588918284142,
+      276.3347077106514
+    ],
+    [
+      236.12783472997606,
+      278.10844530615657
+    ],
+    [
+      236.54703025704535,
+      257.70318362209093
+    ],
+    [
+      236.34674579962206,
+      273.32303979415155
+    ],
+    [
+      236.8633234975198,
+      256.97539213040216
+    ],
+    [
+      236.43897043164168,
+      251.87796684831903
+    ],
+    [
+      237.1446700538883,
+      252.1298768195525
+    ]
+  ],
+  "groundAnchor": 422,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/urien/idle.webp",
+  "idleFollowupSha256": "cbb77b9e3e01eb70b66cc70ba770b4e5fbb685cd1fca17110a54234e490de82d",
+  "runtime": "public/art/throw-attacker-v1/urien.webp",
+  "bytes": 712560,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "c3e091c230085e7eb1e69309f716e8794e2be08c3cee645ab5fdf7172442a5a1",
+    "generation-reference.png": "5a1edaa6494c385b5804ad5874d45d535b3ef462775434c4addaf29b8628cf15",
+    "generation-prompt.txt": "d0373cafc40958fd47f747d31d10f71513a32eda442c9e93e1a2adc9ec04d9d2",
+    "urien.webp": "d21d66e361876bb1b2943874205bbfb7a52ec1a2d9dbdd717b4fbafb75cea20b"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "character": "KEN",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.7280701754385965,
+  "sourceBounds": [
+    [
+      77,
+      27,
+      455,
+      462
+    ],
+    [
+      30,
+      58,
+      502,
+      458
+    ],
+    [
+      48,
+      51,
+      412,
+      463
+    ],
+    [
+      71,
+      22,
+      416,
+      469
+    ],
+    [
+      27,
+      51,
+      480,
+      470
+    ],
+    [
+      73,
+      19,
+      401,
+      475
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      138,
+      103,
+      413,
+      420
+    ],
+    [
+      86,
+      128,
+      430,
+      420
+    ],
+    [
+      110,
+      120,
+      375,
+      420
+    ],
+    [
+      134,
+      95,
+      386,
+      420
+    ],
+    [
+      99,
+      115,
+      429,
+      420
+    ],
+    [
+      148,
+      88,
+      387,
+      420
+    ],
+    [
+      145,
+      88,
+      368,
+      420
+    ],
+    [
+      145,
+      84,
+      368,
+      420
+    ]
+  ],
+  "centroidTargetX": 263.45619483509756,
+  "centroids": [
+    [
+      263.0699607573556,
+      262.49594541353775
+    ],
+    [
+      263.0680042193926,
+      275.63743822359964
+    ],
+    [
+      263.78287127177305,
+      276.39346901651123
+    ],
+    [
+      263.3067915809856,
+      260.3956381671631
+    ],
+    [
+      263.3399138525015,
+      270.52767894552795
+    ],
+    [
+      263.12554800191197,
+      261.95842290553816
+    ],
+    [
+      263.45619483509756,
+      258.47806506967726
+    ],
+    [
+      263.1963478747092,
+      255.6458624436118
+    ]
+  ],
+  "groundAnchor": 420,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/ken/idle.webp",
+  "idleFollowupSha256": "d84ece0d55c728b7cb5251ca00df91c95283504dcc93505a40020e3e4680cd6f",
+  "runtime": "public/art/throw-attacker-v1/ken.webp",
+  "bytes": 722700,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "f0c418a8b8681587971a61a6bac82fdb59578ea26428941b7387d8433cc1d0b8",
+    "generation-reference.png": "32d8b78c4b4f99442071b1109621959e6904344de82b7afbe5c5ce8b39f4ff99",
+    "generation-prompt.txt": "dd6dc88e72f555c71fefa31b9931f82f54e439e04b7243e42e009c23fddbc9ec",
+    "ken.webp": "282cf615c3d0b0c4d28843e1be1509b46bdf76a9b928e4bb4e8b589ed70015d2"
+  }
+}

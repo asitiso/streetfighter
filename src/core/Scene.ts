@@ -11,5 +11,6 @@ export interface Scene {
   fixedUpdate(dt: number, tick: number): void;
   render(render: RenderContext, alpha: number, frameDt: number): void;
   resize(width: number, height: number): void;
+  pointerTap?(x: number, y: number): void;
   destroy(): void;
 }

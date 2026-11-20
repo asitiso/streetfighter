@@ -90,11 +90,19 @@ export class SessionRecoveryStore {
     return value;
   }
 
+  restoreRecovery(checkpoint: SessionCheckpoint): void {
+    if (!this.recoverable) this.recoverable = { ...checkpoint };
+  }
+
+  restoreActiveRecovery(): void {
+    if (this.current && this.current.route !== 'title') this.restoreRecovery(this.current);
+  }
+
   activeRoute(): string { return this.current?.route ?? 'title'; }
 
   snapshot(): SessionRecoverySnapshot {
     const checkpoint = this.recoverable ? { ...this.recoverable } : null;
-    const label = checkpoint?.stage ? `RESTART STAGE ${checkpoint.stage}` : checkpoint?.route === 'ending' ? 'RESUME ENDING' : 'NO INTERRUPTED SESSION';
+    const label = checkpoint?.route === 'ending' ? 'RESUME ENDING' : checkpoint?.stage ? `RESTART STAGE ${checkpoint.stage}` : 'NO INTERRUPTED SESSION';
     return { available: !!checkpoint, checkpoint, label };
   }
 

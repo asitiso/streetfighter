@@ -6,6 +6,303 @@ export interface AnimationFrameProfile {
 }
 
 const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
+  'KEN:crouch-parry': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'KEN:crouch-guard': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'KEN:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'RYU:crouch-parry': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'RYU:crouch-guard': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'RYU:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'CHUNLI:crouch-parry': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'CHUNLI:crouch-guard': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'CHUNLI:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'IBUKI:crouch-parry': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'IBUKI:crouch-guard': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'IBUKI:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'ALEX:crouch-parry': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'ALEX:crouch-guard': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'ALEX:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'DUDLEY:crouch-parry': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'DUDLEY:crouch-guard': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'DUDLEY:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'MAKOTO:crouch-parry': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'MAKOTO:crouch-guard': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'MAKOTO:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'YUN:crouch-parry': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'YUN:crouch-guard': { weights:[1,1,1,1,1,1], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:1 },
+  'YUN:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'GILL:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'URIEN:victory': { weights:[1,1,1,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0], footLockStrength:1 },
+  'CHUNLI:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'RYU:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'RYU:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'RYU:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1],
+    anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'RYU:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'RYU:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'IBUKI:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:air-medium-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:air-medium-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:air-light-kick': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:air-light-punch': {
+    weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:air-heavy-kick': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'CHUNLI:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'RYU:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'KEN:air-heavy-punch': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:stun-gun-headbutt': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:shoryuken': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:shoryuken': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:shoryuken': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:shoryuken': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:tanden-renki': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:abare-tosanami': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:shoryuken': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:rocket-uppercut': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:shoryuken': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:hadoken': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:hadoken': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:genei-jin-install': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:you-hou': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:sourai-rengeki': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:rolling-thunder': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:boomerang-raid': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'ALEX:hyper-bomb': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:genei-jin': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:seichusen-godanzuki': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:seraphic-storm': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:aegis-reflector': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:corkscrew-blow': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:tsurugi': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'GILL:lariat-rush': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'URIEN:shoulder-tackle': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:shoulder-tackle': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:palm-rush': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'MAKOTO:hayate': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'DUDLEY:machine-gun-blow': {
+    weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'DUDLEY:ducking-straight': {
     weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
@@ -272,6 +569,9 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   'KEN:stand-light-kick': {
     weights: [1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
+  'KEN:step-kick': {
+    weights: [1,1,1,1,1,1.25,1.25,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
   'KEN:stand-medium-kick': {
     weights: [1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
   },
@@ -349,6 +649,27 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
   },
   'CHUNLI:stand-heavy-kick': {
     weights: [1,1,1,1,1,1,1,1,1,1,1,1], anchorX: [0,0,0,0,0,0,0,0,0,0,0,0], anchorY: [0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength: 0,
+  },
+  'YUN:shoulder-palm': {
+    weights:[1,1,1,1,1,1.25,1.25,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength:0,
+  },
+  'IBUKI:spin-heel': {
+    weights:[1,1,1,1,1,1.25,1.25,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength:0,
+  },
+  'MAKOTO:forward-chop': {
+    weights:[1,1,1,1,1,1.25,1.25,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength:0,
+  },
+  'DUDLEY:dart-shot': {
+    weights:[1,1,1,1,1,1,1.25,1.25,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength:0,
+  },
+  'ALEX:lariat-press': {
+    weights:[1,1,1,1,1,1.25,1.25,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength:0,
+  },
+  'RYU:collarbone-breaker': {
+    weights:[1,1,1,1,1,1.25,1.25,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength:0,
+  },
+  'CHUNLI:forward-backfist': {
+    weights:[1,1,1,1,1,1.25,1.25,1,1,1,1,1], anchorX:[0,0,0,0,0,0,0,0,0,0,0,0], anchorY:[0,0,0,0,0,0,0,0,0,0,0,0], footLockStrength:0,
   },
   'CHUNLI:idle': {
     weights: [1.350, 1.000, 0.900, 1.000, 0.950, 1.400],
@@ -450,6 +771,16 @@ const PROFILES: Readonly<Record<string, AnimationFrameProfile>> = {
     anchorY: [0, 0, 0, 0, 0, 0, 0, 0],
     footLockStrength: 0.230,
   },
+  'GILL:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'URIEN:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'YUN:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'MAKOTO:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'DUDLEY:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'ALEX:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'IBUKI:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'CHUNLI:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'RYU:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
+  'KEN:knockdown': { weights:[4,5,8,9,5,3], anchorX:[0,0,0,0,0,0], anchorY:[0,0,0,0,0,0], footLockStrength:0 },
 };
 
 const DEFAULT: AnimationFrameProfile = { weights:[1], anchorX:[0], anchorY:[0], footLockStrength:0 };

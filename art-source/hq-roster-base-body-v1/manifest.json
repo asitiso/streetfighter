@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "method": "Approved source bytes reused without image generation/editing",
+  "sources": [
+    {
+      "id": "RYU",
+      "source": "art-source/throw-escape-motion-v1/ryu/reference-idle.png",
+      "size": [
+        384,
+        448
+      ],
+      "bytes": 122937,
+      "sha256": "20f5b35c1a81411cea08115dc322abbc6cfd0ac76a28565090034bd9bf45342f",
+      "runtime": [
+        "/art/combat-sprites/ryu-authored-v1.png",
+        "/art/combat-sprites-hd/ryu-authored-v1.png"
+      ]
+    },
+    {
+      "id": "KEN",
+      "source": "art-source/throw-escape-motion-v1/ken/reference-idle.png",
+      "size": [
+        384,
+        448
+      ],
+      "bytes": 106310,
+      "sha256": "32d8b78c4b4f99442071b1109621959e6904344de82b7afbe5c5ce8b39f4ff99",
+      "runtime": [
+        "/art/combat-sprites/ken-authored-v1.png",
+        "/art/combat-sprites-hd/ken-authored-v1.png"
+      ]
+    },
+    {
+      "id": "CHUNLI",
+      "source": "art-source/throw-escape-motion-v1/chunli/reference-idle.png",
+      "size": [
+        384,
+        448
+      ],
+      "bytes": 106358,
+      "sha256": "6324485af21688f0f892e82bcf58b74d9dba9d0bfbb361d376f2bb3d612f2a12",
+      "runtime": [
+        "/art/combat-sprites/chunli-authored-v1.png",
+        "/art/combat-sprites-hd/chunli-authored-v1.png"
+      ]
+    },
+    {
+      "id": "IBUKI",
+      "source": "art-source/throw-escape-motion-v1/ibuki/reference-idle.png",
+      "size": [
+        384,
+        448
+      ],
+      "bytes": 117615,
+      "sha256": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+      "runtime": [
+        "/art/combat-sprites/ibuki-authored-v1.png",
+        "/art/combat-sprites-hd/ibuki-authored-v1.png"
+      ]
+    }
+  ]
+}

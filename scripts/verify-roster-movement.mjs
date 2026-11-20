@@ -93,7 +93,7 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
      assert.ok(Math.abs((dash.x-before)-direction*8.2*def.speed*dash.combatProfile.walkScale)<1e-8);assert.equal(dash.facing,facing);ticks++;
     }
     assert.equal(ticks,8);
-    assert.deepEqual([...frames],[0,1,3,4,5,6],'Launch/drive/braking/recovery must all be reached');
+    assert.deepEqual([...frames],[0,1,2,3,4,5,6],'Every stored launch/drive/braking/recovery pose must be reached');
     dash.updatePlayer(quiet,rules);assert.equal(animationSequenceSample(dash,0)?.sequence.id,seq.id);
     for(const button of ['lp','jump']){
      const interrupted=new Fighter(def,'player',600,460,facing);
@@ -127,13 +127,13 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     const victim=new Fighter(def,'player',600,460,facing),attacker=new Fighter(getCharacter('RYU'),'enemy',600+facing*60,460,-facing);
     if(air){victim.updatePlayer({...quiet,pressed:k=>k==='jump'},rules);for(let t=0;t<10;t++)victim.updatePlayer(quiet,rules);assert.ok(victim.jumpHeight>0);}
     assert.equal(victim.receiveHit({...normalFor('lp'),hitStun:24},attacker,false),'hit');
-    const frames=new Set();let tick=0,airDraw=false;
+    const frames=new Set(),impactFrame=animationSequenceSample(victim,0).frame;let tick=0,airDraw=false;
     while(victim.state==='hit'&&tick++<120) {
-     const sample=animationSequenceSample(victim,0);assert.equal(sample?.sequence.id,hitSeq.id);frames.add(sample.frame);checkCanvas(victim,hitSeq);
-     if(victim.hitStop>0)assert.equal(sample.frame,0,'Impact must freeze during hit stop');
+     const sample=animationSequenceSample(victim,0),body=victim.airborne||victim.jumpHeight>0?animationSequenceFor(def.id,'fall',true):hitSeq;assert.equal(sample?.sequence.id,body.id);frames.add(sample.frame);checkCanvas(victim,body);
+     if(victim.hitStop>0)assert.equal(sample.frame,impactFrame,'Impact must freeze during hit stop');
      airDraw ||= victim.jumpHeight>0;victim.updatePlayer(quiet,rules);
     }
-    assert.equal(frames.size,8);assert.notEqual(victim.state,'hit');if(air)assert.ok(airDraw,'Air hit must render above ground');
+    if(!air)assert.equal(frames.size,8);else assert(frames.size>1,'Airborne recoil must progress through velocity poses');assert.notEqual(victim.state,'hit');if(air)assert.ok(airDraw,'Air hit must render above ground');
    }
    {
    const guardSeq=animationSequenceFor(def.id,'guard'),parrySeq=animationSequenceFor(def.id,'parry');
@@ -187,11 +187,19 @@ for(const def of [...CHARACTERS,...BOSS_CHARACTERS]) {
     for(const metric of record.metrics)assert.ok(Math.abs(metric.scaledSize[1]-metric.sourceBodyHeight*record.normalization.uniformScale)<=1,'Poses must preserve one anatomical scale');
     if(record.id==='jump'||record.id==='landing') {
      const peer=manifest.records.find(r=>r.id===(record.id==='jump'?'landing':'jump'));
-     assert.equal(record.normalization.uniformScale,peer.normalization.uniformScale,'Jump and landing must share body scale');
+     const landing=record.id==='landing'?record:peer;
+      if(landing.motionRevision==='landing-motion-v2') {
+       // Independently authored source sheets can have different pixel resolution.
+       // Their output body-height target, anatomical scale and air bridges must agree.
+       assert.equal(record.normalization.referenceHeight,peer.normalization.referenceHeight,'Jump and landing must target the same output body height');
+       const n=landing.normalization;assert.equal(n.reference,'idle-recovery-height');
+       assert.ok(Math.abs(n.sourceRecoveryHeight*n.uniformScale-n.referenceHeight)<1e-8,'Landing source scale must produce the shared output height');
+       assert.ok(Object.values(landing.handoffQa).every(bridge=>bridge.pass),'Independent landing must retain every air handoff');
+      } else assert.equal(record.normalization.uniformScale,peer.normalization.uniformScale,'Paired-source jump and landing must share body scale');
     }
    }
   }
-  assert.equal(manifest.enabledFrameTotal,def.id==='ALEX'?215:def.id==='DUDLEY'?203:191);
+  assert.equal(manifest.enabledFrameTotal,def.id==='GILL'?307:def.id==='URIEN'?307:def.id==='MAKOTO'?335:def.id==='YUN'?347:def.id==='DUDLEY'?335:def.id==='ALEX'?331:def.id==='DUDLEY'||def.id==='URIEN'||def.id==='GILL'||def.id==='MAKOTO'||def.id==='YUN'||def.id==='ALEX'?239:def.id==='ALEX'?227:def.id==='DUDLEY'||def.id==='YUN'||def.id==='URIEN'||def.id==='GILL'||def.id==='MAKOTO'?227:def.id==='MAKOTO'||def.id==='GILL'||def.id==='YUN'||def.id==='URIEN'?215:191);
  }
 }
 // Boss AI also advances the idle clock when waiting at its assigned position.

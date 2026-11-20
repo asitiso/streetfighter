@@ -1,0 +1,220 @@
+{
+  "passed": true,
+  "character": "GILL",
+  "revision": "ground-ko-v1",
+  "source": "art-source/ko-motion-v1/gill/generated-sheet-v1.png",
+  "sourceSha256": "06852370F3B0C49BA3FED6594D0EACAD749E3CA7F87555E8A706173417A8CA0F",
+  "runtime": "public/art/ko-motion-v1/gill.webp",
+  "runtimeSha256": "F7B663BA0D3FB7DCAF858FEBBF9EE123A212382B34B41D74EC19DA72140B399A",
+  "bytes": 544780,
+  "frames": 8,
+  "frameSize": [
+    512,
+    448
+  ],
+  "decodedBytes": 7340032,
+  "sourceGrid": [
+    4,
+    2
+  ],
+  "sourceOrder": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "uniformScale": 0.7417943107221007,
+  "referenceHeight": 339,
+  "sourceReferenceHeight": 457,
+  "groundBaseline": 421,
+  "uniqueDrawings": 8,
+  "encoding": {
+    "rgb": "lossless",
+    "alphaLossless": true
+  },
+  "maximumCentroidStep": 46.571200166263615,
+  "horizontalRestPass": true,
+  "noClippingPass": true,
+  "metrics": [
+    {
+      "frame": 0,
+      "sourceSize": [
+        277,
+        457
+      ],
+      "scaledSize": [
+        205,
+        339
+      ],
+      "paste": [
+        153,
+        83
+      ],
+      "bbox": [
+        153,
+        83,
+        358,
+        422
+      ],
+      "opaqueArea": 37509
+    },
+    {
+      "frame": 1,
+      "sourceSize": [
+        300,
+        427
+      ],
+      "scaledSize": [
+        223,
+        317
+      ],
+      "paste": [
+        144,
+        105
+      ],
+      "bbox": [
+        144,
+        105,
+        367,
+        422
+      ],
+      "opaqueArea": 36979
+    },
+    {
+      "frame": 2,
+      "sourceSize": [
+        378,
+        386
+      ],
+      "scaledSize": [
+        280,
+        286
+      ],
+      "paste": [
+        116,
+        136
+      ],
+      "bbox": [
+        116,
+        136,
+        396,
+        422
+      ],
+      "opaqueArea": 36510
+    },
+    {
+      "frame": 3,
+      "sourceSize": [
+        490,
+        313
+      ],
+      "scaledSize": [
+        363,
+        232
+      ],
+      "paste": [
+        74,
+        190
+      ],
+      "bbox": [
+        74,
+        190,
+        437,
+        422
+      ],
+      "opaqueArea": 39755
+    },
+    {
+      "frame": 4,
+      "sourceSize": [
+        416,
+        214
+      ],
+      "scaledSize": [
+        309,
+        159
+      ],
+      "paste": [
+        101,
+        263
+      ],
+      "bbox": [
+        101,
+        263,
+        410,
+        422
+      ],
+      "opaqueArea": 26578
+    },
+    {
+      "frame": 5,
+      "sourceSize": [
+        427,
+        163
+      ],
+      "scaledSize": [
+        317,
+        121
+      ],
+      "paste": [
+        97,
+        301
+      ],
+      "bbox": [
+        97,
+        301,
+        414,
+        422
+      ],
+      "opaqueArea": 22241
+    },
+    {
+      "frame": 6,
+      "sourceSize": [
+        450,
+        118
+      ],
+      "scaledSize": [
+        334,
+        88
+      ],
+      "paste": [
+        89,
+        334
+      ],
+      "bbox": [
+        89,
+        334,
+        423,
+        422
+      ],
+      "opaqueArea": 20039
+    },
+    {
+      "frame": 7,
+      "sourceSize": [
+        469,
+        102
+      ],
+      "scaledSize": [
+        348,
+        76
+      ],
+      "paste": [
+        82,
+        346
+      ],
+      "bbox": [
+        82,
+        346,
+        430,
+        422
+      ],
+      "opaqueArea": 18390
+    }
+  ]
+}

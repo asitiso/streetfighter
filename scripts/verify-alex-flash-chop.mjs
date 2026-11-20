@@ -22,7 +22,7 @@ const {ASSET_GROUPS}=await import('../dist/assets/core/AssetManager.js');
 assert.ok(Object.values(ASSET_GROUPS).flat().includes(seq.asset),'Flash Chop must be in the app asset catalog');
 animationTextureManager.releaseCharacter('ALEX');requests.length=0;animationTextureManager.preloadCharacter('ALEX','movement');assert.ok(!requests.includes(seq.asset),'Movement preparation must not load chop art');animationTextureManager.preloadCharacter('ALEX','combat');assert.ok(requests.includes(seq.asset));
 const manifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/alex/manifest.json',import.meta.url),'utf8'));const urls=new Set(requests);const entryBytes=manifest.records.filter(r=>urls.has('/art/animation-hq/alex/'+r.id+'.webp')).reduce((n,r)=>n+r.bytes,0);
-assert.equal(manifest.frameTotal,215);assert.equal(manifest.records.length,25);assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('ALEX',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());assert.ok(entryBytes<12_000_000,'Alex authored entry exceeds12MB');
+assert.equal(manifest.frameTotal,331);assert.equal(manifest.records.length,36);assert.deepEqual([...new Set(requests)].sort(),animationSequencesFor('ALEX',true).filter(s=>s.poseAuthored).map(s=>s.asset).sort());assert.ok(entryBytes<18_000_000,'Alex authored entry exceeds18MB');
 for(const facing of [-1,1])for(const variant of ['PRIMARY','EX_PRIMARY']){
  const w=new CombatWorld(getCharacter('ALEX'),getCharacter('KEN'),'duel');w.enemies.length=0;const f=w.player;f.facing=facing;f.x=600;f.superGauge=500;
  const forward=facing===1?'right':'left',rows=[];
@@ -39,8 +39,14 @@ for(const facing of [-1,1])for(const variant of ['PRIMARY','EX_PRIMARY']){
   w.update(quiet,tick);
  }
  assert.equal(seen.size,12);assert.deepEqual([...contacts].sort(),[4,5]);assert.equal(f.state,'idle');assert.equal(f.x,startX);
- f.startMove(move);f.airborne=true;f.jumpHeight=40;assert.equal(animationSequenceSample(f,0),null,'Grounded chop must retain aerial fallback');f.state='hit';assert.equal(animationSequenceSample(f,0)?.sequence.kind,'hit');
+ f.startMove(move);f.airborne=true;f.jumpHeight=40;assert.equal(animationSequenceSample(f,0),null,'Grounded chop must retain aerial fallback');f.state='hit';assert.equal(animationSequenceSample(f,0)?.sequence.kind,'fall');
  timelines[variant+' '+(facing===1?'RIGHT':'LEFT')]=rows;
 }
-for(const id of ['ALEX_PRIMARY_TEST','ALEX_TC_TEST','ALEX_SUPER','ALEX_SA1','ALEX_SA2','ALEX_SA3'])assert.equal(animationSequenceKindForAttack('ALEX',{id}),null,'Only exact primary variants use chop');assert.equal(animationSequenceKindForAttack('KEN',{id:'ALEX_PRIMARY'}),null);
+for(const id of ['ALEX_PRIMARY_TEST','ALEX_TC_TEST'])assert.equal(animationSequenceKindForAttack('ALEX',{id}),null,'Only exact primary variants use chop');assert.equal(animationSequenceKindForAttack('KEN',{id:'ALEX_PRIMARY'}),null);
 console.log('ALEX_FLASH_CHOP_PASS',{variants:2,facings:2,canvasDraws,contacts:[4,5],entryBytes,airRejected:true});
+
+for(const id of ['ALEX_SUPER','ALEX_SA1'])assert.equal(animationSequenceKindForAttack('ALEX',{id}),'hyper-bomb');
+
+assert.equal(animationSequenceKindForAttack('ALEX',{id:'ALEX_SA2'}),'boomerang-raid');
+
+assert.equal(animationSequenceKindForAttack('ALEX',{id:'ALEX_SA3'}),'stun-gun-headbutt');

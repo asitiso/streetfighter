@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {Fighter} from '../dist/assets/combat/Fighter.js';
+import {CHARACTERS,BOSS_CHARACTERS,getCharacter} from '../dist/assets/game/characters.js';
+import {CombatWorld} from '../dist/assets/combat/CombatWorld.js';
+import {normalFor} from '../dist/assets/combat/MoveLibrary.js';
+import {animationSequenceFor,animationSequencesFor} from '../dist/assets/render/AnimationSequenceLibrary.js';
+import {animationSequenceSample as sample} from '../dist/assets/render/AnimationTimingMapper.js';
+const seq=animationSequenceFor('ALEX','victory',true);assert(seq?.poseAuthored,'Alex victory needs a dedicated authored animation');assert.equal(seq.frameCount,8);assert.equal(seq.loop,false);assert.equal(seq.footLock,true);
+const assets=new Map(animationSequencesFor('ALEX',true).map(s=>[s.asset,s]));const requests=[];
+globalThis.Image=class{complete=true;set src(v){this.url=v;requests.push(v);const s=assets.get(v);this.naturalWidth=s?s.frameWidth*s.frameCount:384;this.naturalHeight=448;this.onload?.();}get src(){return this.url;}};
+const {runtimeQuality}=await import('../dist/assets/core/RuntimeQuality.js');runtimeQuality.setTier('high');const {drawCombatFighter}=await import('../dist/assets/render/Visuals.js');const {animationTextureManager}=await import('../dist/assets/render/AnimationTextureManager.js');const {ASSET_GROUPS}=await import('../dist/assets/core/AssetManager.js');
+assert(ASSET_GROUPS['character-hq'].includes(seq.asset));assert(!ASSET_GROUPS['app-shell'].includes(seq.asset));animationTextureManager.preloadCharacter('ALEX','movement');assert(!requests.includes(seq.asset));animationTextureManager.preloadCharacter('ALEX','combat');assert(requests.includes(seq.asset));
+const quiet={held:()=>false,pressed:()=>false,released:()=>false},c=getCharacter('ALEX'),rules=new CombatWorld(c,c,'duel').rules;let cropChecks=0,freezeChecks=0;const seen=new Set();
+for(const facing of[-1,1]){const f=new Fighter(c,'player',400,500,facing,c.superArts[0]);f.startMove(normalFor('hp',false,'ALEX'));f.enterVictoryPose();assert.equal(f.currentMove,null);const hp=f.hp,gauge=f.superGauge;
+ for(let tick=0;tick<80;tick++){const s=sample(f,0);assert.equal(s?.sequence.kind,'victory');assert.equal(s.contact,false);assert.equal(s.frame,Math.min(7,Math.floor(f.stateFrame/5)),'Victory holds each 12fps frame for five simulation ticks');seen.add(s.frame);const calls=[],ctx=new Proxy({globalAlpha:1,drawImage:(...a)=>calls.push(a),createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});drawCombatFighter(ctx,f,1,0);const body=calls.filter(a=>a[0].src===seq.asset);assert.equal(body.length,1);assert.deepEqual(body[0].slice(1,5),[s.frame*640,0,640,448]);cropChecks++;
+  if(tick===10){f.hitStop=3;for(let j=0;j<3;j++){f.updatePlayer(quiet,rules);assert.deepEqual(sample(f,0),s);freezeChecks++;}}f.updatePlayer(quiet,rules);
+ }
+ assert.equal(f.hp,hp);assert.equal(f.superGauge,gauge);f.stateFrame=10000;assert.equal(sample(f,0).frame,7,'Final victory pose holds');for(const property of['throwSyncFrames','superVictimFrames','wallBounceFrames','groundBounceFrames']){f[property]=3;assert.equal(sample(f,0),null);f[property]=0;}
+ f.state='ko';assert.equal(sample(f,0)?.sequence.id,'ALEX_GROUND_KO_V1_HQ','KO uses its own sequence, never victory');f.state='knockdown';assert.equal(sample(f,0)?.sequence.id,'ALEX_KNOCKDOWN_V1_HQ','Knockdown keeps its own recovery art');f.state='idle';assert.equal(sample(f,0)?.sequence.kind,'idle');
+}
+assert.equal(seen.size,8);for(const other of[...CHARACTERS,...BOSS_CHARACTERS].filter(x=>x.id!=='ALEX'&&x.id!=='KEN'&&x.id!=='RYU'&&x.id!=='CHUNLI'&&x.id!=='IBUKI'&&x.id!=='DUDLEY'&&x.id!=='MAKOTO'&&x.id!=='YUN'&&x.id!=='URIEN'&&x.id!=='GILL')){const f=new Fighter(other,'player',400,500,1,other.superArts[0]);f.enterVictoryPose();assert.equal(sample(f,0),null,'Other characters retain existing victory fallback');}
+const {readFile}=await import('node:fs/promises');const {createHash}=await import('node:crypto');const manifest=JSON.parse(await readFile(new URL('../public/art/animation-hq/alex/manifest.json',import.meta.url)));assert.equal(manifest.frameTotal,331);assert.equal(manifest.records.length,36);assert(manifest.records.reduce((n,r)=>n+r.bytes,0)<18_000_000);const rec=manifest.records.find(r=>r.id==='victory');for(const [path,hash]of[['public/art/animation-hq/alex/victory.webp',rec.sha256],[rec.source,rec.sourceSha256]])assert.equal(createHash('sha256').update(await readFile(new URL('../'+path,import.meta.url))).digest('hex').toUpperCase(),hash);
+console.log('ALEX_VICTORY_PASS',{cropChecks,freezeChecks,frames:[...seen],holdsFinal:true});

@@ -1,0 +1,36 @@
+{
+  "character": "CHUNLI",
+  "move": "CHUNLI_CMD_HP",
+  "kind": "forward-backfist",
+  "asset": "/art/command-motion-v1/chunli-forward-backfist.webp",
+  "frames": 12,
+  "frameSize": [
+    640,
+    448
+  ],
+  "phase": {
+    "startupEnd": 3,
+    "activeStart": 4,
+    "activeEnd": 6,
+    "recoveryStart": 7
+  },
+  "footFloor": 422,
+  "source": "generated-sheet-v2.png",
+  "sourceSha256": "88e2e76f615ec16f77c94f4c538295ed13dfcc1d5a720651a230a44dc41241f9",
+  "assetSha256": "25dd83a3c559cefa9590d56e15f33e6e1cb1bcea6bc0ddf2f853d527e1c4eef7",
+  "bytes": 387240,
+  "guardSource": "/art/animation-hq/chunli/idle.webp",
+  "guardSourceSha256": "437ec80378bb9c04bed07e422d173bc02ae9c63c4ea344b5e7d93fba738bedb7",
+  "guardFrames": [
+    0,
+    11
+  ],
+  "tool": "built-in image_gen",
+  "encoding": {
+    "format": "WebP",
+    "quality": 0.88,
+    "lossyRGB": true,
+    "alphaPreserved": true
+  },
+  "gameplayChanges": false
+}

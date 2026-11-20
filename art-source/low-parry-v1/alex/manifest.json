@@ -1,0 +1,53 @@
+{
+  "character": "ALEX",
+  "kind": "crouch-parry",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "sharedScale": 0.6359550561797753,
+  "sourceBounds": [
+    [
+      49,
+      16,
+      457,
+      456
+    ],
+    [
+      41,
+      15,
+      476,
+      456
+    ],
+    [
+      33,
+      23,
+      457,
+      456
+    ],
+    [
+      49,
+      31,
+      461,
+      476
+    ],
+    [
+      42,
+      29,
+      453,
+      476
+    ]
+  ],
+  "recoveryFrame": 5,
+  "recoveryPixelIdentical": true,
+  "runtime": "public/art/animation-hq/alex/crouch-parry-v1.webp",
+  "bytes": 551752,
+  "stageEntryBytes": 19072888,
+  "stageEntryCap": 19500000,
+  "sha256": {
+    "generated-sheet-v1.png": "99c6238db050808e764fb569ad44bcfaae4f3f06610548ccf0cd1123796f1000",
+    "reference-idle.png": "0030e6d6e72c7817d0988bf1e18fd5dd90b445d01a776451ed6a57e5e6d8cb48",
+    "reference-settle.png": "07b1311579424f8d7fd3b472d68c15483731ed8ff42406393288ad0b7a2c4445",
+    "generation-prompt.txt": "23f373f99fd53547397af3f681398927e494c4e2e811088452ca00e965b96e63",
+    "crouch-parry-v1.webp": "46903e6f2ff2f853615fe830f2a91a25b9c32caa005ed804823c616aa2bbd1f6"
+  }
+}

@@ -1,0 +1,290 @@
+{
+  "version": "ibuki-authored-attack-v1",
+  "source": "art-source/ibuki-attack-atlas-v1/generated-sheet-v1.png",
+  "sourceSHA256": "c5131b261ee68f40808d50c974d587a84a4d104ca4a79cb54bbb9b8290d4437c",
+  "promptSHA256": "06ce3a7191d147e7227244c25d2ef679b051e80320d0c4f346dba572433dc923",
+  "backgroundRemovalPromptSHA256": null,
+  "referenceSHA256": "d85b17d9c71ff17aac277676b09b8fd594a075531df2720cbdafe18e62038d9b",
+  "sourceSize": [
+    1298,
+    1212
+  ],
+  "grid": [
+    5,
+    4
+  ],
+  "uniformScale": 1.3255813953488371,
+  "footAnchor": [
+    201.0,
+    430
+  ],
+  "frames": [
+    {
+      "row": 0,
+      "column": 0,
+      "hdBBox": [
+        98,
+        88,
+        326,
+        430
+      ],
+      "hdRGBA": "7c6fe3f4ed27baed8377d021eb98d8a495069a4438c924a9657dda0c767dccbf",
+      "liteRGBA": "80962bce43a7535b485314f79df1bcd6b36ca65bdb82440a0e35e829565a1400"
+    },
+    {
+      "row": 0,
+      "column": 1,
+      "hdBBox": [
+        96,
+        94,
+        321,
+        430
+      ],
+      "hdRGBA": "347705cdc783fc7635a8fad534af6bb6635b669fe76ad6dbe2efcf38bf5ba936",
+      "liteRGBA": "ce87c192b68b07f6b2c2061232f7c6e1a36d04197572a051d70f9792faa66d02"
+    },
+    {
+      "row": 0,
+      "column": 2,
+      "hdBBox": [
+        95,
+        101,
+        341,
+        430
+      ],
+      "hdRGBA": "0b215281737b49d40ce90ad789ec89fea0808eb5f7e2fca8c53802e28e5f5b7b",
+      "liteRGBA": "4a5f6037de7a69e40fcbee29f8e1787358a5f518f7368a1b7a3bde86d6a651c9"
+    },
+    {
+      "row": 0,
+      "column": 3,
+      "hdBBox": [
+        94,
+        99,
+        328,
+        429
+      ],
+      "hdRGBA": "fc8312d8553f503a6638e6d48d2d152f887ce1875dbcc0133fad3a1a801632bf",
+      "liteRGBA": "0ea325e25d006d9a4192a0887a25fb8e2c53e710c8d3db9686c61fd4e9e8c488"
+    },
+    {
+      "row": 0,
+      "column": 4,
+      "hdBBox": [
+        95,
+        94,
+        325,
+        430
+      ],
+      "hdRGBA": "f74835f90b395e88a02ba84988bce5ea7ff25f89ecfb7ff9e0a2e03e513232ed",
+      "liteRGBA": "bc4cee1f475e41fb336e4b559bf198baefeaa3aa70129b8c1cae34cf75f43642"
+    },
+    {
+      "row": 1,
+      "column": 0,
+      "hdBBox": [
+        95,
+        94,
+        310,
+        430
+      ],
+      "hdRGBA": "d203fc291f9c9b694fa5c88cf336616f0b0d94978917fb83e013fd9c48f577e6",
+      "liteRGBA": "b6bc844217fee782e1e37a99ddc3211e3c425da6f5326f68870b5e98491fbca5"
+    },
+    {
+      "row": 1,
+      "column": 1,
+      "hdBBox": [
+        95,
+        93,
+        309,
+        429
+      ],
+      "hdRGBA": "9b722e47e6adf7a53a86885b072a33cf4556d860118ae671f98d356b84e8509a",
+      "liteRGBA": "fb335502934ed81806362534f1f1930f6e0822b70176bbd3f7fda25b496c37b9"
+    },
+    {
+      "row": 1,
+      "column": 2,
+      "hdBBox": [
+        94,
+        93,
+        307,
+        430
+      ],
+      "hdRGBA": "3744478a85dd630d22ebc6e22f2920e3ab06c53a4c8d4ef1c9d28ea9313a6a41",
+      "liteRGBA": "ea39cd33a3fe00733800e409464c5e9456332d6a73c23fbe9957b03536167a1d"
+    },
+    {
+      "row": 1,
+      "column": 3,
+      "hdBBox": [
+        94,
+        96,
+        329,
+        431
+      ],
+      "hdRGBA": "d4e7214407f612c19951c601dcbb24c4a377abf4d55c968088b539afc74a14d9",
+      "liteRGBA": "c60f1432ac96c4b37e261e5144308dc8af7cea60da50ac651acfcbd8a6eab600"
+    },
+    {
+      "row": 1,
+      "column": 4,
+      "hdBBox": [
+        93,
+        91,
+        323,
+        430
+      ],
+      "hdRGBA": "687a4658885d6386d783858e05b8a777100929e9b6d5125c8710bcc763533004",
+      "liteRGBA": "51b9f401fbaab3fd8465dc1dc86a941ef74449e702fddda4820c364af903c133"
+    },
+    {
+      "row": 2,
+      "column": 0,
+      "hdBBox": [
+        91,
+        105,
+        325,
+        430
+      ],
+      "hdRGBA": "addb207fff34b1ce1e090a6eb88344b735decab33c59794a50caa3e855b4f251",
+      "liteRGBA": "9f7c1bc297a586514c04a65b6ef0aa0fd9348ddcfdad241bb0bfa7dc03c2cd2e"
+    },
+    {
+      "row": 2,
+      "column": 1,
+      "hdBBox": [
+        88,
+        106,
+        310,
+        430
+      ],
+      "hdRGBA": "5d843dcb0fb0f62078904740cd79949294def1e4869649ac588dbb7d1b9f1a71",
+      "liteRGBA": "d44f65e3ed81d2dc35e7be1f21c58115197366f823c713c16776f610061d176a"
+    },
+    {
+      "row": 2,
+      "column": 2,
+      "hdBBox": [
+        87,
+        106,
+        311,
+        430
+      ],
+      "hdRGBA": "e7aa9a0ab65ba2dbef7a9c9c6c3feffc03d5947111ce42a70efedfa839c577e8",
+      "liteRGBA": "be50721df805471765b3e266daff7bc78284e4e34a1412b22484a5393df0808e"
+    },
+    {
+      "row": 2,
+      "column": 3,
+      "hdBBox": [
+        86,
+        106,
+        319,
+        430
+      ],
+      "hdRGBA": "7c778e60cbdb47afed2158e69aa4fb19171417b45ea9a52c86a8cd6655297e1d",
+      "liteRGBA": "9b478279e5bfcb546e6ee88d7be35568d5abbacc99ff63721fbb6bcc7f15b9ab"
+    },
+    {
+      "row": 2,
+      "column": 4,
+      "hdBBox": [
+        92,
+        106,
+        321,
+        430
+      ],
+      "hdRGBA": "fea1c478d95a7f8d01d150aac42910317196cf6ed991525264fb7ae5b9f621f1",
+      "liteRGBA": "cfc77756ef94d44b092d660ef6822e600919daeec1ae51de00bb173fc7850d01"
+    },
+    {
+      "row": 3,
+      "column": 0,
+      "hdBBox": [
+        92,
+        96,
+        319,
+        430
+      ],
+      "hdRGBA": "7327e5dfc996467bcbf73dd0f6db8e260393bbfb46b1d60ed7eb91c21f7df44c",
+      "liteRGBA": "5fde5dc99a85f8c268ea055b61943984ed819d6aa709da7160ae501197551552"
+    },
+    {
+      "row": 3,
+      "column": 1,
+      "hdBBox": [
+        89,
+        100,
+        330,
+        431
+      ],
+      "hdRGBA": "04f012d29f11f3e9f2d6986d4ca24c7cba8eab2f334817bb011e43e622b68979",
+      "liteRGBA": "d1696a0da45ce2ed425986b2d588c22379f55fb1c886ae9227cdd6bec76d6b74"
+    },
+    {
+      "row": 3,
+      "column": 2,
+      "hdBBox": [
+        92,
+        103,
+        321,
+        430
+      ],
+      "hdRGBA": "adae4745e3030735a7838e9ba17d55b80cac69c46abb9cf688c81d8c1f6bb92b",
+      "liteRGBA": "361683f0195c50da658c663b98771513e81159a4e174dd5db4d7d71d088c69d4"
+    },
+    {
+      "row": 3,
+      "column": 3,
+      "hdBBox": [
+        90,
+        102,
+        311,
+        430
+      ],
+      "hdRGBA": "aea41870529864d5fae0c141016538c7332a701626cfd0a90372b230aaddf1e6",
+      "liteRGBA": "b609023bd98b4e5f8c41e3347e92c3365f55ddc4fd222e966085191cc0d8a439"
+    },
+    {
+      "row": 3,
+      "column": 4,
+      "hdBBox": [
+        94,
+        101,
+        320,
+        430
+      ],
+      "hdRGBA": "84854ac06904e7057629bbe0a76af17822901f034a821baeaf6e48d0bc3645a9",
+      "liteRGBA": "dd31ba3f1cfb25dd983575d4cfb0db17d124c8313a6ee1beb401127a3e82638a"
+    }
+  ],
+  "operations": [
+    "cell crop with transparent gutter",
+    "one uniform scale for all twenty poses",
+    "translation to common foot anchor",
+    "half-size LITE downsample",
+    "lossless WebP encoding"
+  ],
+  "runtime": {
+    "lite": {
+      "path": "/art/attack-atlases/ibuki-authored-v1.webp",
+      "size": [
+        960,
+        896
+      ],
+      "bytes": 573866,
+      "sha256": "ae16accdf3ed1b60f5a0a79619ac9bbe2e5401e392407ee698b858510125d690"
+    },
+    "hd": {
+      "path": "/art/attack-atlases-hd/ibuki-authored-v1.webp",
+      "size": [
+        1920,
+        1792
+      ],
+      "bytes": 1932736,
+      "sha256": "3f2945b4962837966546224baa5f00d7d2fba294e3ef8e6dfda45b10d82f89c0"
+    }
+  }
+}

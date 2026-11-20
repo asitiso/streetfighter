@@ -14,6 +14,7 @@ import { ResultsScene } from '../scenes/ResultsScene.js';
 import { getCharacter, type CharacterDef, type SuperArtDef } from '../game/characters.js';
 import type { StageResult } from '../game/StageResult.js';
 import { runtimeQuality } from './RuntimeQuality.js';
+import { characterTextureManager } from '../render/CharacterTextureManager.js';
 import { PwaInstallManager } from './PwaInstallManager.js';
 import { ReleaseCheckScene } from '../scenes/ReleaseCheckScene.js';
 import { SaveToolsScene } from '../scenes/SaveToolsScene.js';
@@ -34,12 +35,16 @@ import { DeviceCertificationHistoryStore } from './DeviceCertificationHistory.js
 import { buildReproPackage, reproPackageJson } from './ReproPackage.js';
 import { evaluateReleaseApproval, ReleaseApprovalStore } from './ReleaseApproval.js';
 import { loadingProfile } from './LoadingProfiles.js';
+import type { EndingScene as EndingSceneType, EndingResumeState } from '../scenes/EndingScene.js';
 import { measureSafeArea, readSafeAreaInsets, safeViewportSize } from './SafeAreaProbe.js';
 import { buildFinalProofBundle, finalProofBundleJson } from './FinalProofBundle.js';
 import { buildReleaseEvidenceFingerprint } from './ReleaseEvidenceFingerprint.js';
 import { ReleaseIntegrityVerifier } from './ReleaseIntegrity.js';
 
+import type { Scene } from './Scene.js';
+
 export class GameApp {
+  private menuPointer: { id: number; x: number; y: number; scene: Scene } | null = null;
   private readonly canvas = document.createElement('canvas');
   private readonly ctx: CanvasRenderingContext2D;
   private readonly scenes = new SceneManager();
@@ -50,6 +55,7 @@ export class GameApp {
   private readonly touch = new TouchControls(this.input);
   private readonly install = new PwaInstallManager();
   private readonly loadingOverlay = document.createElement('div');
+  private loadingVersion = 0;
   private readonly telemetry = new RuntimeTelemetry();
   private readonly certification = new DeviceCertificationStore(RELEASE_CANDIDATE);
   private readonly certificationHistory = new DeviceCertificationHistoryStore(RELEASE_CANDIDATE);
@@ -69,6 +75,8 @@ export class GameApp {
   private dpr = 1;
   private readonly bootedOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
   private backgroundedAt: number | null = null;
+  private playbackBlocked = false;
+  private pageHidden = false;
 
   constructor(errors = new RuntimeErrorJournal(RELEASE_CANDIDATE)) {
     this.errors = errors;
@@ -85,6 +93,11 @@ export class GameApp {
     this.loadingOverlay.className = 'loading-overlay hidden';
     this.loadingOverlay.innerHTML = '<div class="loading-card"><small class="loading-kicker">SYSTEM</small><strong>LOADING</strong><span>PREPARING GAME</span><b class="loading-detail">COMBAT CORE • INPUT • SAVE</b><b class="loading-route">BOOT → TITLE</b><em></em><div class="loading-track"><i></i></div><div class="loading-actions"><button data-action="retry">RETRY</button><button data-action="back">BACK TO TITLE</button></div></div>';
     host.append(this.canvas, this.touch.element, this.loadingOverlay);
+    this.canvas.addEventListener('pointerdown', event => this.handleMenuPointer(event, 'down'));
+    window.addEventListener('pointermove', event => this.handleMenuPointer(event, 'move'));
+    window.addEventListener('pointerup', event => this.handleMenuPointer(event, 'up'));
+    window.addEventListener('pointercancel', event => this.handleMenuPointer(event, 'cancel'));
+    window.addEventListener('blur', () => { this.menuPointer = null; });
 
     await this.saves.init();
     this.save = await this.saves.load();
@@ -108,34 +121,65 @@ export class GameApp {
 
     this.resize();
     window.addEventListener('resize', this.resize, { passive: true });
-    this.loop.start();
+    this.syncPlayback();
     document.addEventListener('visibilitychange', this.onVisibilityChange, { passive: true });
     window.addEventListener('pagehide', this.onPageHide, { passive: true });
+    window.addEventListener('pageshow', this.onPageShow, { passive: true });
     if (new URLSearchParams(window.location.search).get('debug') === '1') this.installDebugOverlay();
     this.updates.markBootHealthy();
   }
 
-  private async showTitle(): Promise<void> {
-    this.syncAutomaticCertification();
-    this.recovery.checkpoint('title', null, null, null);
-    const interrupted = this.recovery.snapshot();
-    const stage = Math.max(1, Math.min(5, this.save?.currentStage ?? 1));
-    const campaignComplete = !!this.save?.stageSelectUnlocked && (this.save?.completedStages.includes(5) ?? false);
-    const options: TitleMenuOption[] = [
-      { id: 'new-game', label: 'NEW GAME', detail: 'CHARACTER SELECT → STAGE 1', enabled: true, action: () => { this.recovery.consumeRecovery(); void this.showCharacterSelect(); } },
-      { id: 'continue', label: 'CONTINUE', detail: this.save?.hasCampaignStarted ? `STAGE ${stage} • ${this.save.selectedCharacter}` : campaignComplete ? 'CAMPAIGN COMPLETE • USE STAGE SELECT' : 'NO CAMPAIGN SAVE', enabled: !!this.save?.hasCampaignStarted, action: () => { this.recovery.consumeRecovery(); void this.continueCampaign(); } },
-      { id: 'recover-session', label: 'RECOVER SESSION', detail: interrupted.label, enabled: interrupted.available, action: () => { void this.recoverInterruptedSession(); } },
-      { id: 'stage-select', label: 'STAGE SELECT', detail: this.save?.stageSelectUnlocked ? 'STAGES 1–5 UNLOCKED' : 'CLEAR THE CAMPAIGN TO UNLOCK', enabled: !!this.save?.stageSelectUnlocked, action: () => { this.recovery.consumeRecovery(); void this.showStageSelect(); } },
-      { id: 'battle-record', label: 'BATTLE RECORD', detail: this.save?.stageResults.length ? `${this.save.stageResults.length}/5 STAGES RECORDED` : 'NO STAGE RECORDS', enabled: !!this.save?.stageResults.length, action: () => { void this.showResults(); } },
-      { id: 'save-tools', label: 'SAVE TOOLS', detail: 'EXPORT / IMPORT PORTABLE BACKUP', enabled: true, action: () => { void this.showSaveTools(); } },
-      { id: 'install', label: 'INSTALL APP', detail: this.install.state() === 'standalone' ? 'RUNNING STANDALONE' : this.install.state() === 'available' ? 'ONE-TAP INSTALL READY' : 'HOME SCREEN GUIDE', enabled: true, action: () => { void this.showInstall(); } },
-      { id: 'device-cert', label: 'DEVICE CERT', detail: (() => { const c = certificationSummary(this.certification.snapshot()); return `${c.passed}/${c.total} PASS • ${c.untested} UNTESTED`; })(), enabled: true, action: () => { void this.showDeviceCertification(); } },
-      { id: 'pwa-update', label: 'PWA UPDATE', detail: 'CHECK • APPLY • ROLLBACK ASSETS', enabled: true, action: () => { void this.showPwaUpdate(); } },
-      { id: 'release-check', label: 'RELEASE CHECK', detail: `${runtimeQuality.currentTier.toUpperCase()} QUALITY • DEVICE / PWA STATUS`, enabled: true, action: () => { void this.showReleaseCheck(); } },
-      { id: 'diagnostics', label: 'DIAGNOSTICS', detail: (() => { const e = this.errors.snapshot(); const r = this.recoveryHistory.snapshot(); return `${e.total} ERR • ${r.total} RECOVERY EVENTS`; })(), enabled: true, action: () => { void this.showDiagnostics(); } },
-      { id: 'options', label: 'OPTIONS', detail: 'AUDIO • HD REMASTER • TOUCH LAYOUT', enabled: true, action: () => { void this.showOptions(); } },
-    ];
-    await this.scenes.setScene(new TitleScene(this.input, this.audio, options));
+  private async showTitle(stageRecovery?: { error: unknown }): Promise<void> {
+    const buildTitle = (failedOption?: TitleMenuOption['id']): TitleScene => {
+      this.syncAutomaticCertification();
+      this.recovery.checkpoint('title', null, null, null);
+      const interrupted = this.recovery.snapshot();
+      const stage = Math.max(1, Math.min(5, this.save?.currentStage ?? 1));
+      const campaignComplete = !!this.save?.stageSelectUnlocked && (this.save?.completedStages.includes(5) ?? false);
+      const options: TitleMenuOption[] = [
+        { id: 'new-game', label: 'NEW GAME', detail: 'CHARACTER SELECT → STAGE 1', enabled: true, action: () => { this.recovery.consumeRecovery(); return this.showCharacterSelect(); } },
+        { id: 'continue', label: 'CONTINUE', detail: this.save?.hasCampaignStarted ? `STAGE ${stage} • ${this.save.selectedCharacter}` : campaignComplete ? 'CAMPAIGN COMPLETE • USE STAGE SELECT' : 'NO CAMPAIGN SAVE', enabled: !!this.save?.hasCampaignStarted, action: () => { this.recovery.consumeRecovery(); return this.continueCampaign(); } },
+        { id: 'recover-session', label: 'RECOVER SESSION', detail: interrupted.label, enabled: interrupted.available, action: () => { return this.recoverInterruptedSession(); } },
+        { id: 'stage-select', label: 'STAGE SELECT', detail: this.save?.stageSelectUnlocked ? 'STAGES 1–5 UNLOCKED' : 'CLEAR THE CAMPAIGN TO UNLOCK', enabled: !!this.save?.stageSelectUnlocked, action: () => { this.recovery.consumeRecovery(); return this.showStageSelect(); } },
+        { id: 'battle-record', label: 'BATTLE RECORD', detail: this.save?.stageResults.length ? `${this.save.stageResults.length}/5 STAGES RECORDED` : 'NO STAGE RECORDS', enabled: !!this.save?.stageResults.length, action: () => { return this.showResults(); } },
+        { id: 'save-tools', label: 'SAVE TOOLS', detail: 'EXPORT / IMPORT PORTABLE BACKUP', enabled: true, action: () => { return this.showSaveTools(); } },
+        { id: 'install', label: 'INSTALL APP', detail: this.install.state() === 'standalone' ? 'RUNNING STANDALONE' : this.install.state() === 'available' ? 'ONE-TAP INSTALL READY' : 'HOME SCREEN GUIDE', enabled: true, action: () => { return this.showInstall(); } },
+        { id: 'device-cert', label: 'DEVICE CERT', detail: (() => { const c = certificationSummary(this.certification.snapshot()); return `${c.passed}/${c.total} PASS • ${c.untested} UNTESTED`; })(), enabled: true, action: () => { return this.showDeviceCertification(); } },
+        { id: 'pwa-update', label: 'PWA UPDATE', detail: 'CHECK • APPLY • ROLLBACK ASSETS', enabled: true, action: () => { return this.showPwaUpdate(); } },
+        { id: 'release-check', label: 'RELEASE CHECK', detail: `${runtimeQuality.currentTier.toUpperCase()} QUALITY • DEVICE / PWA STATUS`, enabled: true, action: () => { return this.showReleaseCheck(); } },
+        { id: 'diagnostics', label: 'DIAGNOSTICS', detail: (() => { const e = this.errors.snapshot(); const r = this.recoveryHistory.snapshot(); return `${e.errors + e.fatal} ERR${e.warnings > 0 ? ` • ${e.warnings} WARN` : ''} • ${r.total} RECOVERY EVENTS`; })(), enabled: true, action: () => { return this.showDiagnostics(); } },
+        { id: 'options', label: 'OPTIONS', detail: 'AUDIO • HD REMASTER • TOUCH LAYOUT', enabled: true, action: () => { return this.showOptions(); } },
+      ];
+      const guardedOptions = options.map(option => ({
+        ...option,
+        action: async () => {
+          try { await option.action(); }
+          catch (error) {
+            const recovered = await this.scenes.recoverIfEmpty(() => buildTitle(option.id));
+            if (recovered) {
+              try { this.errors.record('load', error, 'warning', { source: 'title:' + option.id }); }
+              catch { /* Keep the recovered menu usable if diagnostics are unavailable. */ }
+            }
+            throw error;
+          }
+        },
+      }));
+      return new TitleScene(this.input, this.audio, guardedOptions, (error, optionId) => {
+        this.errors.record('load', error, 'warning', { source: 'title:' + optionId });
+      }, failedOption, active => this.touch.setTitleMode(active));
+    };
+    if (stageRecovery) {
+      const recovered = await this.scenes.recoverIfEmpty(() => {
+        this.recovery.restoreActiveRecovery();
+        return buildTitle('recover-session');
+      });
+      if (recovered) {
+        try { this.errors.record('load', stageRecovery.error, 'warning', { source: 'stage-route' }); }
+        catch { /* Keep recovery usable if diagnostics fail. */ }
+      }
+      return;
+    }
+    await this.scenes.setScene(buildTitle());
   }
 
   private async showSaveTools(): Promise<void> {
@@ -145,7 +189,7 @@ export class GameApp {
       exportSave: () => this.saves.exportPortable(),
       importSave: (text) => this.saves.importPortable(text),
       onImported: (save) => { this.save = save; this.audio.setEnabled(save.audioEnabled); this.touch.setSettings({ stickScale: save.touchStickScale, buttonScale: save.touchButtonScale, opacity: save.touchOpacity, stickX: save.touchStickX, stickY: save.touchStickY, buttonsX: save.touchButtonsX, buttonsY: save.touchButtonsY, vibrationEnabled: save.vibrationEnabled }); },
-    }, () => { void this.showTitle(); }));
+    }, () => { void this.showTitle(); }, active => this.touch.setSaveToolsMode(active)));
   }
 
   private async showInstall(): Promise<void> {
@@ -292,7 +336,7 @@ export class GameApp {
   }
 
   private async showPwaUpdate(): Promise<void> {
-    await this.scenes.setScene(new PwaUpdateScene(this.input, this.audio, this.updates, () => { void this.showTitle(); }));
+    await this.scenes.setScene(new PwaUpdateScene(this.input, this.audio, this.updates, () => { void this.showTitle(); }, active => this.touch.setUpdateMode(active)));
   }
 
   private async showReleaseCheck(): Promise<void> {
@@ -329,34 +373,88 @@ export class GameApp {
       this.audio,
       this.touch,
       this.save,
-      (patch) => { void this.persist(patch); },
-      () => { void this.showTitle(); },
+      (patch) => this.persist(patch),
+      () => this.showTitle(),
     ));
   }
 
 
   private async showResults(): Promise<void> {
     if (!this.save?.stageResults.length) { await this.showTitle(); return; }
-    await this.scenes.setScene(new ResultsScene(this.input, this.audio, this.save.stageResults, () => { void this.showTitle(); }));
+    const results = this.save.stageResults;
+    const buildResults = (page: 0 | 1 = 0, failed = false): ResultsScene => new ResultsScene(
+      this.input, this.audio, results,
+      async selectedPage => {
+        try { await this.showTitle(); }
+        catch (error) {
+          const recovered = await this.scenes.recoverIfEmpty(() => buildResults(selectedPage, true));
+          if (recovered) {
+            try { this.errors.record('load', error, 'warning', { source: 'results' }); }
+            catch { /* Keep the recovered records usable if diagnostics fail. */ }
+          }
+          throw error;
+        }
+      },
+      error => this.errors.record('load', error, 'warning', { source: 'results' }),
+      page, failed,
+      active => this.touch.setRecordsMode(active),
+    );
+    await this.scenes.setScene(buildResults());
   }
 
   private async showCharacterSelect(): Promise<void> {
-    const current = this.save?.selectedCharacter ?? 'RYU';
-    await this.scenes.setScene(new CharacterSelectScene(this.input, this.audio, current, (character) => {
-      void this.persist({ selectedCharacter: character.id }).then(() => this.showSuperArtSelect(character));
-    }));
+    const buildSelection = (selected: string, failed = false): CharacterSelectScene => new CharacterSelectScene(
+      this.input, this.audio, selected,
+      async character => {
+        try {
+          await this.persist({ selectedCharacter: character.id });
+          await this.showSuperArtSelect(character);
+        } catch (error) {
+          const recovered = await this.scenes.recoverIfEmpty(() => buildSelection(character.id, true));
+          if (recovered) {
+            try { this.errors.record('load', error, 'warning', { source: 'character-select' }); }
+            catch { /* Keep the recovered selection usable if diagnostics fail. */ }
+          }
+          throw error;
+        }
+      },
+      error => this.errors.record('load', error, 'warning', { source: 'character-select' }),
+      failed,
+      active => this.touch.setSelectionMode(active),
+      async character => {
+        try { await this.showTitle(); }
+        catch (error) {
+          await this.scenes.recoverIfEmpty(() => buildSelection(character.id, true));
+          throw error;
+        }
+      },
+    );
+    await this.scenes.setScene(buildSelection(this.save?.selectedCharacter ?? 'RYU'));
   }
 
   private async showSuperArtSelect(character: CharacterDef): Promise<void> {
-    const initial = this.save?.selectedSuperArt ?? 1;
-    await this.scenes.setScene(new SuperArtSelectScene(
-      this.input,
-      this.audio,
-      character,
-      initial,
-      (art) => { void this.startStage(character, art); },
-      () => { void this.showCharacterSelect(); },
-    ));
+    const buildSelection = (selected: 1 | 2 | 3, failed = false): SuperArtSelectScene => {
+      const run = async (action: () => Promise<void>, art: SuperArtDef): Promise<void> => {
+        try { await action(); }
+        catch (error) {
+          const recovered = await this.scenes.recoverIfEmpty(() => buildSelection(art.id, true));
+          if (recovered) {
+            try { this.errors.record('load', error, 'warning', { source: 'super-art-select' }); }
+            catch { /* Keep the recovered selection usable if diagnostics fail. */ }
+          }
+          throw error;
+        }
+      };
+      return new SuperArtSelectScene(
+        this.input, this.audio, character, selected,
+        art => run(() => this.startStage(character, art), art),
+        art => run(() => this.showCharacterSelect(), art),
+        error => this.errors.record('load', error, 'warning', { source: 'super-art-select' }),
+        failed,
+        active => this.touch.setSelectionMode(active),
+      );
+    };
+    await this.scenes.setScene(buildSelection(this.save?.selectedSuperArt ?? 1));
   }
 
   private async startStage(character: CharacterDef, art: SuperArtDef, resetProgress = true, replay = false): Promise<void> {
@@ -368,8 +466,8 @@ export class GameApp {
     if (!module) { await this.showTitle(); return; }
     const { Stage1Scene } = module;
     await this.scenes.setScene(new Stage1Scene(this.input, this.audio, character, art, 1, (result) => {
-      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage2(character, art));
-    }, () => { void this.startStage(character, art, false, replay); }));
+      return this.withStageRouteRecovery(() => this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage2(character, art)));
+    }, () => this.withStageRouteRecovery(() => this.startStage(character, art, false, replay)), (paused) => this.touch.setPaused(paused), active => this.touch.setPostCombatMode(active)));
     if (!replay) this.assets.prefetchGroup('stage-2');
   }
 
@@ -384,8 +482,8 @@ export class GameApp {
     if (!module) { await this.showTitle(); return; }
     const { Stage2Scene } = module;
     await this.scenes.setScene(new Stage2Scene(this.input, this.audio, character, art, (result) => {
-      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage3(character, art));
-    }, () => { void this.startStage2(character, art, replay); }));
+      return this.withStageRouteRecovery(() => this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage3(character, art)));
+    }, () => this.withStageRouteRecovery(() => this.startStage2(character, art, replay)), (paused) => this.touch.setPaused(paused), active => this.touch.setPostCombatMode(active)));
     if (!replay) this.assets.prefetchGroup('stage-3');
   }
 
@@ -399,8 +497,8 @@ export class GameApp {
     if (!module) { await this.showTitle(); return; }
     const { Stage3Scene } = module;
     await this.scenes.setScene(new Stage3Scene(this.input, this.audio, character, art, (result) => {
-      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage4(character, art));
-    }, () => { void this.startStage3(character, art, replay); }));
+      return this.withStageRouteRecovery(() => this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage4(character, art)));
+    }, () => this.withStageRouteRecovery(() => this.startStage3(character, art, replay)), (paused) => this.touch.setPaused(paused), active => this.touch.setPostCombatMode(active)));
     if (!replay) this.assets.prefetchGroup('stage-4');
   }
 
@@ -414,8 +512,8 @@ export class GameApp {
     if (!module) { await this.showTitle(); return; }
     const { Stage4Scene } = module;
     await this.scenes.setScene(new Stage4Scene(this.input, this.audio, character, art, (result) => {
-      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage5(character, art));
-    }, () => { void this.startStage4(character, art, replay); }));
+      return this.withStageRouteRecovery(() => this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.startStage5(character, art)));
+    }, () => this.withStageRouteRecovery(() => this.startStage4(character, art, replay)), (paused) => this.touch.setPaused(paused), active => this.touch.setPostCombatMode(active)));
     if (!replay) this.assets.prefetchGroup('stage-5');
   }
 
@@ -429,19 +527,45 @@ export class GameApp {
     if (!module) { await this.showTitle(); return; }
     const { Stage5Scene } = module;
     await this.scenes.setScene(new Stage5Scene(this.input, this.audio, character, art, (result) => {
-      void this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.showEnding(character, art));
-    }, () => { void this.startStage5(character, art, replay); }));
+      return this.withStageRouteRecovery(() => this.recordStageResult(result).then(() => replay ? this.showStageSelect() : this.showEnding(character, art)));
+    }, () => this.withStageRouteRecovery(() => this.startStage5(character, art, replay)), (paused) => this.touch.setPaused(paused), active => this.touch.setPostCombatMode(active)));
     if (!replay) this.assets.prefetchGroup('ending');
   }
 
   private async showEnding(character: CharacterDef, art: SuperArtDef): Promise<void> {
+    characterTextureManager.focusEnding(character.id);
     const completed = Array.from(new Set([...(this.save?.completedStages ?? []), 1, 2, 3, 4, 5]));
     await this.persist({ currentStage: 5, completedStages: completed, hasCampaignStarted: false, stageSelectUnlocked: true });
     this.recovery.checkpoint('ending', 5, character.id, art.id);
     const module = await this.loadStageModule('ending', () => import('../scenes/EndingScene.js'));
     if (!module) { await this.showTitle(); return; }
     const { EndingScene } = module;
-    await this.scenes.setScene(new EndingScene(this.input, this.audio, character, art, this.save?.stageResults ?? [], () => { void this.showTitle(); }));
+    const results = this.save?.stageResults ?? [];
+    const markEnding = () => this.recovery.checkpoint('ending', 5, character.id, art.id);
+    const buildEnding = (resume?: EndingResumeState, failed = false): EndingSceneType => new EndingScene(
+      this.input, this.audio, character, art, results,
+      async current => {
+        try { await this.showTitle(); }
+        catch (error) {
+          const recovered = await this.scenes.recoverIfEmpty(() => {
+            markEnding();
+            return buildEnding(current, true);
+          });
+          if (recovered) {
+            try { this.errors.record('load', error, 'warning', { source: 'ending-return' }); }
+            catch { /* Keep the recovered ending usable if diagnostics fail. */ }
+          }
+          throw error;
+        }
+      },
+      error => {
+        markEnding();
+        this.errors.record('load', error, 'warning', { source: 'ending-return' });
+      },
+      resume, failed,
+      active => this.touch.setEndingMode(active),
+    );
+    await this.scenes.setScene(buildEnding());
   }
   private savedFighter(): { character: CharacterDef; art: SuperArtDef } {
     const character = getCharacter(this.save?.selectedCharacter ?? 'RYU');
@@ -461,9 +585,14 @@ export class GameApp {
     const character = getCharacter(checkpoint.character ?? this.save?.selectedCharacter ?? 'RYU');
     const artId = checkpoint.superArt ?? this.save?.selectedSuperArt ?? 1;
     const art = character.superArts.find((candidate) => candidate.id === artId) ?? character.superArts[0];
-    this.recoveryHistory.record('session-recovery', 'success', checkpoint.route === 'ending' ? 'RESUME ENDING' : `RESTART STAGE ${checkpoint.stage ?? 1}`);
-    if (checkpoint.route === 'ending') { await this.showEnding(character, art); return; }
-    await this.startStageNumber(checkpoint.stage ?? 1, character, art, false);
+    try {
+      this.recoveryHistory.record('session-recovery', 'success', checkpoint.route === 'ending' ? 'RESUME ENDING' : `RESTART STAGE ${checkpoint.stage ?? 1}`);
+      if (checkpoint.route === 'ending') { await this.showEnding(character, art); return; }
+      await this.startStageNumber(checkpoint.stage ?? 1, character, art, false);
+    } catch (error) {
+      this.recovery.restoreRecovery(checkpoint);
+      throw error;
+    }
   }
 
 
@@ -518,16 +647,44 @@ export class GameApp {
 
   private async showStageSelect(): Promise<void> {
     if (!this.save?.stageSelectUnlocked) { await this.showTitle(); return; }
-    await this.scenes.setScene(new StageSelectScene(
-      this.input,
-      this.audio,
-      this.save.currentStage,
-      (stage) => { const { character, art } = this.savedFighter(); void this.startStageNumber(stage, character, art, false, true); },
-      () => { void this.showTitle(); },
-    ));
+    const buildSelection = (stage: number, failed = false): StageSelectScene => {
+      const run = async (action: () => Promise<void>, selected: 1 | 2 | 3 | 4 | 5): Promise<void> => {
+        try { await action(); }
+        catch (error) {
+          const recovered = await this.scenes.recoverIfEmpty(() => buildSelection(selected, true));
+          if (recovered) {
+            try { this.errors.record('load', error, 'warning', { source: 'stage-select' }); }
+            catch { /* Keep the recovered selection usable if diagnostics fail. */ }
+          }
+          throw error;
+        }
+      };
+      return new StageSelectScene(
+        this.input, this.audio, stage,
+        selected => run(() => {
+          const { character, art } = this.savedFighter();
+          return this.startStageNumber(selected, character, art, false, true);
+        }, selected),
+        selected => run(() => this.showTitle(), selected),
+        error => this.errors.record('load', error, 'warning', { source: 'stage-select' }),
+        failed,
+        active => this.touch.setSelectionMode(active),
+      );
+    };
+    await this.scenes.setScene(buildSelection(this.save.currentStage));
+  }
+
+  private async withStageRouteRecovery(action: () => Promise<void>): Promise<void> {
+    try { await action(); }
+    catch (error) {
+      await this.showTitle({ error });
+      throw error;
+    }
   }
 
   private async startStageNumber(stage: 1 | 2 | 3 | 4 | 5, character: CharacterDef, art: SuperArtDef, resetProgress = false, replay = false): Promise<void> {
+    // Overlap selected-character preparation with stage loading on resume/replay.
+    characterTextureManager.preloadCharacter(character.id);
     if (stage === 1) { await this.startStage(character, art, resetProgress, replay); return; }
     if (stage === 2) { await this.startStage2(character, art, replay); return; }
     if (stage === 3) { await this.startStage3(character, art, replay); return; }
@@ -541,13 +698,21 @@ export class GameApp {
     const label = loading.title;
     while (true) {
       this.showLoading(label, 0);
+      let acceptingProgress = true;
       try {
-        await this.assets.loadGroup(group, (done, total) => this.showLoading(label, total > 0 ? done / total : 1));
+        await this.assets.loadGroup(group, (done, total) => {
+          if (acceptingProgress) this.showLoading(label, total > 0 ? done / total : 1);
+        });
+        acceptingProgress = false;
         const module = await importer();
         this.showLoading('READY', 1);
-        window.setTimeout(() => this.hideLoading(), 80);
+        const version = this.loadingVersion;
+        window.setTimeout(() => { if (version === this.loadingVersion) this.hideLoading(); }, 80);
         return module;
       } catch (error) {
+        // Promise.all rejects before its other asset requests have finished.
+        // Their late progress must not hide this attempt's recovery actions.
+        acceptingProgress = false;
         this.errors.record('load', error, 'warning', { source: group });
         this.assets.invalidateGroup(group);
         const action = await this.showLoadFailure(error);
@@ -557,6 +722,7 @@ export class GameApp {
   }
 
   private showLoadFailure(error: unknown): Promise<'retry' | 'back'> {
+    this.loadingVersion += 1;
     this.loadingOverlay.classList.remove('hidden');
     this.loadingOverlay.classList.add('failed');
     const strong = this.loadingOverlay.querySelector<HTMLElement>('strong');
@@ -576,6 +742,7 @@ export class GameApp {
   }
 
   private showLoading(label: string, progress: number): void {
+    this.loadingVersion += 1;
     this.loadingOverlay.classList.remove('hidden', 'failed');
     const text = this.loadingOverlay.querySelector<HTMLElement>('span');
     const strong = this.loadingOverlay.querySelector<HTMLElement>('strong');
@@ -594,7 +761,7 @@ export class GameApp {
     if (bar) { bar.style.width = `${Math.max(4, Math.min(100, progress * 100))}%`; if (profile) bar.style.background = `linear-gradient(90deg, ${profile.accent}, #fff0a6)`; }
   }
 
-  private hideLoading(): void { this.loadingOverlay.classList.add('hidden'); this.loadingOverlay.classList.remove('failed'); }
+  private hideLoading(): void { this.loadingVersion += 1; this.loadingOverlay.classList.add('hidden'); this.loadingOverlay.classList.remove('failed'); }
 
   private async recordStageResult(result: StageResult): Promise<void> {
     const existing = this.save?.stageResults ?? [];
@@ -608,11 +775,17 @@ export class GameApp {
 
   private render(alpha: number, frameDt: number): void {
     this.telemetry.sampleFrame(frameDt);
-    if (runtimeQuality.sampleFrame(frameDt)) { this.telemetry.noteQualityChange(); this.resize(); }
+    if (runtimeQuality.sampleFrame(frameDt)) {
+      characterTextureManager.refreshQuality();
+      this.telemetry.noteQualityChange();
+      this.resize();
+    }
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     const renderScale = this.dpr * this.viewScale;
-    this.ctx.setTransform(renderScale, 0, 0, renderScale, 0, 0);
+    const offsetX = (this.canvas.width - this.logicalWidth * renderScale) / 2;
+    const offsetY = (this.canvas.height - this.logicalHeight * renderScale) / 2;
+    this.ctx.setTransform(renderScale, 0, 0, renderScale, offsetX, offsetY);
     this.scenes.render({
       ctx: this.ctx,
       width: this.logicalWidth,
@@ -621,7 +794,32 @@ export class GameApp {
     }, alpha, frameDt);
   }
 
+  private handleMenuPointer(event: PointerEvent, phase: 'down' | 'move' | 'up' | 'cancel'): void {
+    const scene = this.scenes.activeScene;
+    if (phase === 'down') {
+      if (this.menuPointer && this.menuPointer.id !== event.pointerId) { this.menuPointer = null; return; }
+      if (event.isPrimary === false || event.button !== 0 || this.menuPointer || !scene?.pointerTap || this.playbackBlocked || !this.loadingOverlay.classList.contains('hidden')) return;
+      this.menuPointer = { id: event.pointerId, x: event.clientX, y: event.clientY, scene };
+      return;
+    }
+    const gesture = this.menuPointer;
+    if (!gesture || gesture.id !== event.pointerId) return;
+    if (phase === 'cancel' || Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > 12) { this.menuPointer = null; return; }
+    if (phase === 'move') return;
+    this.menuPointer = null;
+    if (scene !== gesture.scene || this.playbackBlocked || !this.loadingOverlay.classList.contains('hidden')) return;
+    const rect = this.canvas.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const x = (event.clientX - rect.left) / rect.width * this.cssWidth;
+    const y = (event.clientY - rect.top) / rect.height * this.cssHeight;
+    const logicalX = (x - (this.cssWidth - this.logicalWidth * this.viewScale) / 2) / this.viewScale;
+    const logicalY = (y - (this.cssHeight - this.logicalHeight * this.viewScale) / 2) / this.viewScale;
+    if (logicalX < 0 || logicalX >= this.logicalWidth || logicalY < 0 || logicalY >= this.logicalHeight) return;
+    scene?.pointerTap?.(logicalX / this.logicalWidth * 1280, logicalY / this.logicalHeight * 720);
+  }
+
   private resize = (): void => {
+    this.menuPointer = null;
     const viewportWidth = Math.max(1, window.innerWidth);
     const viewportHeight = Math.max(1, window.innerHeight);
     const safeInsets = readSafeAreaInsets();
@@ -633,7 +831,7 @@ export class GameApp {
     const aspect = this.cssWidth / this.cssHeight;
     this.logicalHeight = 720;
     this.logicalWidth = Math.max(1280, Math.round(this.logicalHeight * aspect));
-    this.viewScale = this.cssHeight / this.logicalHeight;
+    this.viewScale = Math.min(this.cssWidth / this.logicalWidth, this.cssHeight / this.logicalHeight);
 
     this.canvas.width = Math.round(this.cssWidth * this.dpr);
     this.canvas.height = Math.round(this.cssHeight * this.dpr);
@@ -645,22 +843,43 @@ export class GameApp {
     this.canvas.style.height = `${this.cssHeight}px`;
 
     this.scenes.resize(this.logicalWidth, this.logicalHeight);
+    this.syncPlayback();
   };
 
 
-  private onPageHide = (): void => { this.touch.releaseAll(); this.audio.setBackgrounded(true); };
+  private syncPlayback(): void {
+    const blocked = this.pageHidden || document.hidden || (window.matchMedia?.('(orientation: portrait) and (max-width: 1100px)').matches ?? false);
+    if (blocked) this.menuPointer = null;
+    if (blocked !== this.playbackBlocked) {
+      this.touch.releaseAll();
+      // Discard edges collected behind the guard and baseline held gamepads.
+      this.input.prepareTick();
+      this.input.resetCommandHistory();
+      this.input.endTick();
+      this.playbackBlocked = blocked;
+    }
+    this.audio.setBackgrounded(blocked);
+    if (blocked) this.loop?.stop();
+    else this.loop?.start();
+  }
+
+  private onPageHide = (): void => {
+    this.pageHidden = true;
+    this.syncPlayback();
+  };
+
+  private onPageShow = (): void => {
+    this.pageHidden = false;
+    this.syncPlayback();
+  };
 
   private onVisibilityChange = (): void => {
     if (document.hidden) {
       this.backgroundedAt = Date.now();
-      this.touch.releaseAll();
-      this.audio.setBackgrounded(true);
-      this.loop?.stop();
+      this.syncPlayback();
       return;
     }
-    this.touch.releaseAll();
-    this.audio.setBackgrounded(false);
-    this.loop?.start();
+    this.syncPlayback();
     if (this.backgroundedAt != null) {
       const before = this.certification.snapshot();
       const record = this.certification.recordBackgroundResume(Date.now() - this.backgroundedAt);

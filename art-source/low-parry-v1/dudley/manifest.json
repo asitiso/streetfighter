@@ -1,0 +1,53 @@
+{
+  "character": "DUDLEY",
+  "kind": "crouch-parry",
+  "frames": 6,
+  "frameWidth": 384,
+  "frameHeight": 448,
+  "sharedScale": 0.6134831460674157,
+  "sourceBounds": [
+    [
+      68,
+      38,
+      410,
+      484
+    ],
+    [
+      68,
+      40,
+      489,
+      484
+    ],
+    [
+      68,
+      44,
+      452,
+      484
+    ],
+    [
+      68,
+      44,
+      419,
+      485
+    ],
+    [
+      68,
+      41,
+      411,
+      485
+    ]
+  ],
+  "recoveryFrame": 5,
+  "recoveryPixelIdentical": true,
+  "runtime": "public/art/animation-hq/dudley/crouch-parry-v1.webp",
+  "bytes": 379270,
+  "stageEntryBytes": 13710652,
+  "stageEntryCap": 14000000,
+  "sha256": {
+    "generated-sheet-v1.png": "e9db5f91b541b763bb31f7a6034c98db16b7f86d51db429b2b5f08ed7251e9be",
+    "reference-idle.png": "143274e6b6efa911332800e44b0003b7b77c02904729e462bc7b5c39727bcf96",
+    "reference-settle.png": "83749d3bb8fb52f1b8dce9b790f5c9ba0cf5330465504e3fd6dede5bc622edc0",
+    "generation-prompt.txt": "f040b997ffdbb9476e50b79d5bab684c3edd553516c1ef0c5325dbca43e69ccf",
+    "crouch-parry-v1.webp": "05a619ab3a1d254bc10570558db9fe42cf2817141eb43fc04d401a8c4730e311"
+  }
+}

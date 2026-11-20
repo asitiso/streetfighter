@@ -1,0 +1,158 @@
+{
+  "character": "MAKOTO",
+  "kind": "throw-attacker",
+  "frames": 8,
+  "newDrawings": 6,
+  "frameWidth": 512,
+  "frameHeight": 448,
+  "sharedScale": 0.6782077393075356,
+  "sourceRowSplit": 500,
+  "sourceColumnSplits": [
+    0,
+    460,
+    1024,
+    1536
+  ],
+  "sourceBounds": [
+    [
+      57,
+      23,
+      447,
+      481
+    ],
+    [
+      22,
+      39,
+      532,
+      475
+    ],
+    [
+      31,
+      34,
+      465,
+      481
+    ],
+    [
+      51,
+      40,
+      439,
+      499
+    ],
+    [
+      47,
+      60,
+      559,
+      499
+    ],
+    [
+      82,
+      8,
+      438,
+      499
+    ]
+  ],
+  "opaqueBounds": [
+    [
+      133,
+      111,
+      398,
+      422
+    ],
+    [
+      64,
+      126,
+      410,
+      422
+    ],
+    [
+      116,
+      119,
+      410,
+      422
+    ],
+    [
+      125,
+      111,
+      388,
+      422
+    ],
+    [
+      70,
+      124,
+      417,
+      422
+    ],
+    [
+      142,
+      89,
+      384,
+      422
+    ],
+    [
+      150,
+      89,
+      362,
+      422
+    ],
+    [
+      150,
+      91,
+      362,
+      422
+    ]
+  ],
+  "centroidTargetX": 252.15660474204205,
+  "centroids": [
+    [
+      251.71999384019284,
+      268.5267135171924
+    ],
+    [
+      252.2119392228517,
+      273.11212651311405
+    ],
+    [
+      252.47380344287188,
+      277.26197626356964
+    ],
+    [
+      251.87599323446892,
+      270.43185799142236
+    ],
+    [
+      251.671408854876,
+      273.31535402749483
+    ],
+    [
+      252.519357379386,
+      262.47648662881653
+    ],
+    [
+      252.15660474204205,
+      258.3678077904446
+    ],
+    [
+      252.66923648789765,
+      259.4819396560028
+    ]
+  ],
+  "groundAnchor": 422,
+  "groundLockPass": true,
+  "uniqueDrawings": 8,
+  "noClippingPass": true,
+  "idleFollowupFrames": [
+    0,
+    1
+  ],
+  "idleFollowupSource": "public/art/animation-hq/makoto/idle.webp",
+  "idleFollowupSha256": "d8dad9a22593dd55d0c7bb7fc1e9a1fa68c083573e8c97bdfae90262dc11c497",
+  "runtime": "public/art/throw-attacker-v1/makoto.webp",
+  "bytes": 741050,
+  "decodedBytes": 7340032,
+  "sha256": {
+    "generated-sheet-v1.png": "a629820eba2ba7bc7e2195f103eb1270e111a96ade3f43a08a98f836a9e27a06",
+    "generation-reference.png": "d0d504accd800f2750622526e341d8fc15dc19237a8db72f349634c82f514c3c",
+    "generation-prompt.txt": "fdf0d56e21654de9957cf11610484dcb6658be6f8899e1d6b512f569d976ecad",
+    "makoto.webp": "bdbae07bafb5d0d095abedeab1679783aeafb82176cd681ad25fefde33bb80d7"
+  }
+}

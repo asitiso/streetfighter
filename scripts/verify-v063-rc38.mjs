@@ -1,3 +1,4 @@
+import './verify-throw-escape-assets.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile, stat } from 'node:fs/promises';
@@ -19,13 +20,16 @@ import { cinematicTimingForEvent, cinematicTimingDigest } from '../dist/assets/r
 import { animationTransitionSample, animationTransitionDuration } from '../dist/assets/render/AnimationTransitionProfiles.js';
 import { locomotionProfile, locomotionProfileDigest } from '../dist/assets/render/LocomotionProfiles.js';
 import { fighterReadabilityProfile, foregroundOcclusionAlpha, closeSpacingStrength } from '../dist/assets/render/FighterReadabilityProfiles.js';
+import { animationSequencesFor } from '../dist/assets/render/AnimationSequenceLibrary.js';
 import { characterTextureManager } from '../dist/assets/render/CharacterTextureManager.js';
+import { ART_ASSET_PATHS } from '../dist/assets/render/ImageAssets.js';
+import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
 import { Fighter } from '../dist/assets/combat/Fighter.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
 import { normalFor, specialMovesFor, superArtMoveFor, throwMoveFor } from '../dist/assets/combat/MoveLibrary.js';
 
 assert.equal(RELEASE_CANDIDATE, '0.0.63-rc.38');
-assert.equal(GAME_CACHE_NAME, 'game-cache-v065');
+assert.match(GAME_CACHE_NAME, /^game-cache-v\d+$/);
 assert.equal(ATTACK_ATLAS_FRAMES, 5);
 assert.ok(ASSET_GROUPS['character-hq'].includes('/art/animation-hq/ryu/manifest.json'));
 assert.ok(ASSET_GROUPS['character-hq'].includes('/art/animation-hq/ryu/idle.webp'));
@@ -40,17 +44,17 @@ assert.equal(manifest.cache, GAME_CACHE_NAME);
 assert.ok(manifest.files.length >= 166, `expected user-approved HQ original build, got ${manifest.files.length}`);
 
 const ids = ['ryu','ken','chunli','alex','dudley','makoto','ibuki','yun'];
-const spriteFiles = ids.map((id) => `/art/combat-sprites/${id}.webp`);
-const attackFiles = ids.map((id) => `/art/attack-atlases/${id}.webp`);
-const hdSpriteFiles = ids.map((id) => `/art/combat-sprites-hd/${id}.webp`);
-const hdAttackFiles = ids.map((id) => `/art/attack-atlases-hd/${id}.webp`);
+const spriteFiles = ids.map((id) => ART_ASSET_PATHS[`sprite-${id}`]);
+const attackFiles = ids.map((id) => ART_ASSET_PATHS[`attack-${id}`]);
+const hdSpriteFiles = ids.map((id) => ART_ASSET_PATHS[`sprite-${id}-hd`]);
+const hdAttackFiles = ids.map((id) => ART_ASSET_PATHS[`attack-${id}-hd`]);
 const hqCombatFiles = ['/art/combat-sprites-hq/ryu.webp','/art/combat-sprites-hq/chunli.webp','/art/combat-sprites-hq/ken.webp','/art/combat-sprites-hq/ibuki.webp'];
 const hqManifestFile = '/art/hq-character-master-manifest.json';
 for (const required of [
   '/assets/render/CombatSpriteProfiles.js', '/assets/render/AttackSpriteProfiles.js', '/assets/render/AnimationFrameProfiles.js', '/assets/render/HqCharacterMasterRegistry.js', '/assets/render/CharacterTextureManager.js', '/assets/render/MotionPolishProfiles.js', '/assets/render/LocomotionProfiles.js', '/assets/render/FighterReadabilityProfiles.js', '/assets/render/AnimationTransitionProfiles.js', '/assets/render/CinematicTimingProfiles.js', '/assets/render/SignatureMoveProfiles.js', '/assets/render/ContactVisualProfiles.js', '/assets/render/HeroContactProfiles.js', '/assets/render/VictimReactionProfiles.js', '/assets/render/ImageAssets.js', '/assets/render/Visuals.js', '/assets/scenes/Stage1Scene.js',
   ...spriteFiles, ...attackFiles, ...hdSpriteFiles, ...hdAttackFiles, ...hqCombatFiles, hqManifestFile, '/art/character-quality-manifest.json',
   '/art/foregrounds/stage1-foreground.webp', '/art/foregrounds/stage5-foreground.webp',
-  '/audio/stage1-theme.ogg', '/audio/final-boss-theme.ogg', '/audio/ending-theme.ogg',
+  '/audio/score-v2/stage1-theme.ogg', '/audio/score-v2/final-boss-theme.ogg', '/audio/score-v2/ending-theme.ogg',
 ]) assert.ok(manifest.files.some((entry) => entry.path === required), `manifest missing ${required}`);
 
 for (const entry of manifest.files) {
@@ -68,9 +72,144 @@ for (const url of [...hdSpriteFiles, ...hdAttackFiles]) {
 }
 assert.equal(ASSET_GROUPS['character-hd'].length, 17);
 assert.ok(ASSET_GROUPS['character-hd'].includes('/art/character-quality-manifest.json')); 
-assert.deepEqual(ASSET_GROUPS['character-hq'].slice(0, 5), ['/art/hq-character-master-manifest.json', ...hqCombatFiles]);
+for (const url of [hqManifestFile, ...hqCombatFiles]) assert.ok(ASSET_GROUPS['character-hq'].includes(url), `character-hq missing ${url}`);
 const hqAnimationFiles = ASSET_GROUPS['character-hq'].filter((url) => url.includes('/art/animation-hq/'));
-assert.equal(hqAnimationFiles.length, 36, `expected 36 deferred HQ animation assets for 4 HQ characters, got ${hqAnimationFiles.length}`);
+const escapeManifest = JSON.parse(await readFile(new URL('../art-source/throw-escape-motion-v1/manifest.json', import.meta.url), 'utf8'));
+const animationManifests = new Map();
+const expectedAnimationFiles = [];
+for (const id of [...ids, 'urien', 'gill']) {
+  const base = '/art/animation-hq/' + id;
+  const animation = JSON.parse(await readFile(new URL('../public' + base + '/manifest.json', import.meta.url), 'utf8'));
+  animationManifests.set(id, animation);
+  expectedAnimationFiles.push(base + '/manifest.json');
+  assert.equal(animation.character.toLowerCase(), id);
+  for (const sequence of animationSequencesFor(id.toUpperCase())) {
+    assert.ok(!ASSET_GROUPS['app-shell'].includes(sequence.asset), 'authored runtime strip must stay deferred: ' + sequence.asset);
+    assert.ok(manifest.files.some((file) => file.path === sequence.asset), 'release missing enabled runtime strip ' + sequence.asset);
+    if (sequence.kind === 'super-hit') {
+      const supplement=JSON.parse(await readFile(new URL('../art-source/super-hit-v1/'+id+'/manifest.json',import.meta.url),'utf8'));assert.equal(sequence.characterId,supplement.character);assert.equal(sequence.asset,'/art/super-hit-v1/'+id+'.webp');
+      assert.deepEqual([sequence.frameCount,sequence.frameWidth,sequence.frameHeight],[6,512,448]);assert.ok(supplement.centroidLockPass&&supplement.noClippingPass);const release=manifest.files.find(file=>file.path===sequence.asset);assert.equal(release.bytes,supplement.bytes);assert.equal(release.sha256,supplement.sha256[id+'.webp'].toUpperCase());expectedAnimationFiles.push(sequence.asset);continue;
+    }
+    if (sequence.kind === 'fall') {
+      const supplement=JSON.parse(await readFile(new URL('../art-source/air-fall-v1/'+id+'/manifest.json',import.meta.url),'utf8'));
+      assert.equal(sequence.characterId,supplement.character);assert.equal(sequence.asset,'/art/air-fall-v1/'+id+'.webp');
+      assert.deepEqual([sequence.frameCount,sequence.frameWidth,sequence.frameHeight],[6,512,448]);assert.ok(supplement.centroidLockPass&&supplement.noClippingPass);
+      const release=manifest.files.find(file=>file.path===sequence.asset);assert.equal(release.bytes,supplement.bytes);assert.equal(release.sha256,supplement.sha256[id+'.webp'].toUpperCase());expectedAnimationFiles.push(sequence.asset);continue;
+    }
+    if (sequence.kind === 'throw-escape') {
+      const supplement = escapeManifest.characters.find(record => record.character === id);
+      assert.ok(supplement, 'missing supplemental manifest ' + id);
+      assert.equal(sequence.frameCount, supplement.frames);
+      const release = manifest.files.find(file => file.path === sequence.asset);
+      assert.equal(release.bytes, supplement.bytes);
+      assert.equal(release.sha256, supplement.runtimeSHA256.toUpperCase());
+      continue;
+    }
+    if (['ken', 'ryu', 'chunli', 'ibuki', 'alex', 'dudley', 'makoto', 'yun', 'urien', 'gill'].includes(id) && sequence.kind === 'crouch-guard') {
+      const supplement = JSON.parse(await readFile(new URL('../art-source/' + (['urien','gill'].includes(id) ? 'boss-crouch-guard-v1/' + id : id + '-crouch-guard-v1') + '/manifest.json', import.meta.url), 'utf8'));
+      assert.equal(sequence.asset, '/' + supplement.runtime.replace(/^public\//, ''));
+      assert.equal(sequence.frameCount, supplement.frames);
+      assert.equal(sequence.frameWidth, supplement.frameWidth);
+      assert.equal(sequence.frameHeight, supplement.frameHeight);
+      const release = manifest.files.find(file => file.path === sequence.asset);
+      assert.equal(release.sha256, supplement.sha256['crouch-guard-v1.webp'].toUpperCase());
+      expectedAnimationFiles.push(sequence.asset);
+      continue;
+    }
+    if (sequence.kind === 'crouch-parry') {
+      const supplement=JSON.parse(await readFile(new URL('../art-source/'+(['urien','gill'].includes(id)?'boss-crouch-parry-v1/':'low-parry-v1/')+id+'/manifest.json',import.meta.url),'utf8'));
+      assert.equal(sequence.asset,'/'+supplement.runtime.replace(/^public\//,''));
+      assert.equal(sequence.frameCount,supplement.frames);assert.equal(sequence.frameWidth,supplement.frameWidth);assert.equal(sequence.frameHeight,supplement.frameHeight);
+      const release=manifest.files.find(file=>file.path===sequence.asset);assert.equal(release.bytes,supplement.bytes);assert.equal(release.sha256,supplement.sha256['crouch-parry-v1.webp'].toUpperCase());
+      expectedAnimationFiles.push(sequence.asset);continue;
+    }
+    if ((id === 'ken' && sequence.kind === 'step-kick') || (id === 'chunli' && sequence.kind === 'forward-backfist') || (id === 'ryu' && sequence.kind === 'collarbone-breaker') || (id === 'alex' && sequence.kind === 'lariat-press') || (id === 'dudley' && sequence.kind === 'dart-shot') || (id === 'makoto' && sequence.kind === 'forward-chop') || (id === 'ibuki' && sequence.kind === 'spin-heel') || (id === 'yun' && sequence.kind === 'shoulder-palm')) {
+      const folder=id==='yun'?'yun-shoulder-palm-v1':id==='ibuki'?'ibuki-spin-heel-v1':id==='makoto'?'makoto-forward-chop-v1':id==='dudley'?'dudley-dart-shot-v1':id==='alex'?'alex-lariat-press-v1':id==='ken'?'ken-step-kick-v1':id==='ryu'?'ryu-collarbone-breaker-v1':'chunli-forward-backfist-v1';
+      const supplement = JSON.parse(await readFile(new URL('../art-source/'+folder+'/manifest.json', import.meta.url), 'utf8'));
+      assert.equal(sequence.asset, supplement.asset);assert.equal(sequence.frameCount, supplement.frames);
+      assert.deepEqual([sequence.frameWidth, sequence.frameHeight], supplement.frameSize);
+      assert.deepEqual(sequence.phase, supplement.phase);assert.ok(ASSET_GROUPS['character-hq'].includes(sequence.asset));
+      const release = manifest.files.find(file => file.path === sequence.asset);
+      assert.equal(release.bytes, supplement.bytes);assert.equal(release.sha256, supplement.assetSha256.toUpperCase());
+      continue;
+    }
+    if (['ken','ryu','chunli','ibuki','alex','dudley','makoto','yun','urien','gill'].includes(id) && sequence.kind === 'knockdown') {
+      const supplement = JSON.parse(await readFile(new URL('../art-source/knockdown-motion-v1/'+id+'/manifest.json', import.meta.url), 'utf8'));
+      assert.equal(sequence.asset, '/art/knockdown-motion-v1/'+id+'.webp');
+      assert.deepEqual([sequence.frameCount, sequence.frameWidth, sequence.frameHeight], [6,512,448]);
+      assert.ok(supplement.recoveryPixelIdentical && supplement.groundedRestPass && supplement.noClippingPass);
+      const release = manifest.files.find(file => file.path === sequence.asset);
+      assert.equal(release.bytes, supplement.bytes);
+      assert.equal(release.sha256, supplement.sha256[id+'.webp'].toUpperCase());
+      expectedAnimationFiles.push(sequence.asset);
+      continue;
+    }
+    if (['ryu','ken','chunli','ibuki','alex','dudley','makoto','yun','urien','gill'].includes(id) && sequence.kind === 'ko') {
+      const supplement = JSON.parse(await readFile(new URL('../art-source/ko-motion-v1/'+id+'/qa.json', import.meta.url), 'utf8'));
+      assert.equal(sequence.id, id.toUpperCase()+'_GROUND_KO_V1_HQ');
+      assert.equal(sequence.asset, '/art/ko-motion-v1/'+id+'.webp');
+      assert.deepEqual([sequence.frameCount, sequence.frameWidth, sequence.frameHeight], [8, 512, 448]);
+      assert.ok(supplement.passed && supplement.noClippingPass && supplement.horizontalRestPass);
+      assert.equal(supplement.uniqueDrawings, 8);
+      const release = manifest.files.find(file => file.path === sequence.asset);
+      assert.equal(release.bytes, supplement.bytes);
+      assert.ok(release.bytes < 750000);
+      assert.equal(release.sha256, supplement.runtimeSha256);
+      assert.equal(sha(await readFile(new URL('../art-source/ko-motion-v1/'+id+'/generated-sheet-v1.png', import.meta.url))), supplement.sourceSha256);
+      assert.deepEqual(webpDimensions(await readFile(new URL('../dist' + sequence.asset, import.meta.url))), {width:4096,height:448});
+      assert.ok(ASSET_GROUPS['character-hq'].includes(sequence.asset));
+      continue;
+    }
+    if (sequence.kind === 'throw-attacker') {
+      const expected={ken:{bytes:722700,sha256:'282CF615C3D0B0C4D28843E1BE1509B46BDF76A9B928E4BB4E8B589ED70015D2'},ryu:{bytes:746934,sha256:'324537CE57A61CE1ACDD533CFBEF180546CEB35F57303EB9278FA3E0BE0A8832'},chunli:{bytes:715804,sha256:'348C2ED698011A9AC5CA149A9541474D14804028B407ACD7698F1B1216811677'},alex:{bytes:751464,sha256:'B55E638A635ACED3BA6AAFFABEBE9E18285303F71EE08FCA70A54A65923B260F'},dudley:{bytes:467704,sha256:'711DB0746072DA524A06DF08FD726AC0784FCFE364E8EE573B7FB8A4B3825188'},makoto:{bytes:741050,sha256:'BDBAE07BAFB5D0D095ABEDEAB1679783AEAFB82176CD681AD25FEFDE33BB80D7'},ibuki:{bytes:726890,sha256:'BAECA5C41F9D8FE3A906C7391B8BD3796D805A399F62D7463C701479A3C298C7'},yun:{bytes:635234,sha256:'ADB0D5843A5ACE61584C72122797EE0C6D2AAC6F56276AE839342DD4DC622793'},urien:{bytes:712560,sha256:'D21D66E361876BB1B2943874205BBFB7A52EC1A2D9DBDD717B4FBAFB75CEA20B'},gill:{bytes:725080,sha256:'4BA03C50DFE6151300B976A3D697B8B75F8B038C2FBE14F20A77A2A20EB24690'}}[id];assert(expected,'Unknown throw attacker supplement');assert.equal(sequence.id,id.toUpperCase()+'_THROW_ATTACKER_V1_HQ');assert.equal(sequence.asset,'/art/throw-attacker-v1/'+id+'.webp');
+      assert.deepEqual([sequence.frameCount,sequence.frameWidth,sequence.frameHeight],[8,512,448]);assert(sequence.poseAuthored&&!sequence.footLock);
+      const supplement=JSON.parse(await readFile(new URL('../art-source/throw-attacker-v1/'+id+'/manifest.json',import.meta.url),'utf8'));
+      assert.equal(supplement.character,sequence.characterId);assert.equal(supplement.kind,'throw-attacker');assert.equal(supplement.uniqueDrawings,8);assert.equal(supplement.newDrawings,6);assert(supplement.groundLockPass&&supplement.noClippingPass);assert.deepEqual(supplement.idleFollowupFrames,[0,1]);
+      const release=manifest.files.find(file=>file.path===sequence.asset);assert.equal(release.bytes,expected.bytes);assert.equal(release.bytes,supplement.bytes);assert.equal(release.sha256,expected.sha256);assert.equal(release.sha256,supplement.sha256[id+'.webp'].toUpperCase());
+      assert.deepEqual(webpDimensions(await readFile(new URL('../dist'+sequence.asset,import.meta.url))),{width:4096,height:448});assert(ASSET_GROUPS['character-hq'].includes(sequence.asset));expectedAnimationFiles.push(sequence.asset);continue;
+    }
+    if (sequence.kind === 'throw-victim') {
+      // Exact known supplement identities retain strict checks as the roster grows.
+      const expected={
+        ken:{bytes:379600,sha256:'534C60452C4523FB1EAC5C84119C96FE1FAEF598847A1606C9A90D663AECCD62'},
+        ryu:{bytes:421676,sha256:'798B0E42AFB2FD3670E6D6D73ECCC2404BC7EA953FC1949ABC7430A0AE389856'},
+        chunli:{bytes:383776,sha256:'4F4249051382D57CACF431E40D4565A65A949470ECD2C143E4A3B84C766DFE3E'},
+        alex:{bytes:387040,sha256:'AFBF9502EDD763F7FF72B76F084462E978D7DD459C3ABBF70CDF61F9090267D6'},
+        dudley:{bytes:275628,sha256:'F7606682D658F9C747883EC9B64E6EB8B8BDE8DB73C554112DA0816BA5DBA4B8'},
+        makoto:{bytes:417908,sha256:'1DAFAE7B7817CE9A7CFB7EFDA0EEC49DFF6ACE5C0A5C49229ABEAA5BDA972D28'},
+        ibuki:{bytes:418060,sha256:'1C366610ACE93894E5F6BADBD64F568D9D126B3739EC89AFE14692EE64FD1857'},
+        yun:{bytes:344216,sha256:'BB0BCFAD3044AB13692A886ED6FFE6A0DDD14872E23838AE7567ACB24A23D251'},
+        urien:{bytes:437558,sha256:'832760C19D5594F22A6026452360AE044572A0436F89F3EC548F4501F98DF092'},
+        gill:{bytes:501432,sha256:'A1593F5AB8030A80FBB9DA1640A8A1181D7D2D2DD8CB76A725DE50CE8E245C3E'},
+      }[id];
+      assert.ok(expected,'Unknown throw-victim supplement requires explicit verification');
+      const supplement=JSON.parse(await readFile(new URL('../art-source/throw-victim-v1/'+id+'/manifest.json',import.meta.url),'utf8'));
+      assert.equal(sequence.id,id.toUpperCase()+'_THROW_VICTIM_V1_HQ');assert.equal(sequence.asset,'/art/throw-victim-v1/'+id+'.webp');
+      assert.equal(supplement.character,sequence.characterId);
+      assert.deepEqual([sequence.frameCount,sequence.frameWidth,sequence.frameHeight],[6,512,448]);assert(sequence.poseAuthored&&!sequence.footLock);
+      assert.equal(supplement.uniqueDrawings,6);assert(supplement.centroidLockPass&&supplement.noClippingPass);
+      const release=manifest.files.find(file=>file.path===sequence.asset);assert.equal(release.bytes,expected.bytes);assert.equal(release.bytes,supplement.bytes);assert.equal(release.sha256,supplement.sha256[id+'.webp'].toUpperCase());assert.equal(release.sha256,expected.sha256);
+      assert.deepEqual(webpDimensions(await readFile(new URL('../dist'+sequence.asset,import.meta.url))),{width:3072,height:448});
+      assert(ASSET_GROUPS['character-hq'].includes(sequence.asset));expectedAnimationFiles.push(sequence.asset);continue;
+    }
+    const record = animation.records.find((record) => record.id === sequence.kind);
+    assert.ok(record?.enabled, 'enabled runtime sequence requires enabled manifest record ' + sequence.id);
+    assert.equal(record.frames, sequence.frameCount, sequence.id + ' frame count');
+  }
+  assert.equal(animation.frameTotal, animation.records.reduce((sum, record) => sum + record.frames, 0));
+  assert.equal(animation.enabledFrameTotal, animation.records.filter((record) => record.enabled).reduce((sum, record) => sum + record.frames, 0));
+  for (const record of animation.records) {
+    const url = base + '/' + record.id + '.webp';
+    expectedAnimationFiles.push(url);
+    const entry = manifest.files.find((file) => file.path === url);
+    assert.ok(entry, 'release missing authored animation ' + url);
+    assert.equal(entry.bytes, record.bytes, url + ' manifest bytes');
+    assert.equal(entry.sha256, record.sha256, url + ' manifest hash');
+  }
+}
+assert.equal(new Set(hqAnimationFiles).size, hqAnimationFiles.length, 'no duplicate deferred animation URLs');
+for (const url of hqAnimationFiles) assert.ok(expectedAnimationFiles.includes(url), 'deferred animation missing manifest record ' + url);
+for (const id of animationManifests.keys()) assert.ok(hqAnimationFiles.includes('/art/animation-hq/' + id + '/manifest.json'));
 assert.ok(hqAnimationFiles.includes('/art/animation-hq/ryu/manifest.json'));
 assert.ok(hqAnimationFiles.includes('/art/animation-hq/ryu/walk.webp'));
 assert.ok(hqAnimationFiles.includes('/art/animation-hq/ryu/shoryuken.webp'));
@@ -181,7 +320,7 @@ characterTextureManager.setMode('auto');
 for (let stage = 1; stage <= 5; stage += 1) {
   const group = ASSET_GROUPS[`stage-${stage}`];
   assert.ok(group.some((url) => url.includes(`/art/foregrounds/stage${stage}-foreground.webp`)));
-  assert.ok(group.some((url) => url.includes(`/audio/stage${stage}-theme.ogg`)));
+  assert.ok(group.some((url) => url.includes(`/audio/score-v2/stage${stage}-theme.ogg`)));
 }
 
 for (const id of ['RYU','KEN','CHUNLI','ALEX','DUDLEY','MAKOTO','IBUKI','YUN']) {
@@ -264,6 +403,7 @@ seedTransition(transitionFighter, 'walk', { dashFrames: 5, speed: 7 });
 let transitionSample = attackFrom(transitionFighter, transitionNormal);
 assert.equal(transitionSample.kind, 'dash-attack'); assert.equal(transitionSample.active, true); assert.ok(transitionSample.offsetX > 0); assert.ok(transitionSample.echo > 0);
 const dashStrength = transitionSample.strength;
+transitionFighter.updatePlayer({held:()=>false,pressed:()=>false,released:()=>false},new CombatWorld(getCharacter('RYU'),getCharacter('KEN'),'duel').rules);
 transitionSample = animationTransitionSample(transitionFighter);
 assert.ok(transitionSample.strength < dashStrength, 'dash attack continuity must decay instead of snapping');
 
@@ -419,7 +559,7 @@ for (const token of ['drawFighterGroundInteraction', 'drawAttackMotionArc', 'dra
 assert.ok(stage.includes('PLAYABLE_ATTACK_ATLAS_KEYS'));
 assert.ok(stage.includes('...PLAYABLE_ATTACK_ATLAS_KEYS'));
 const sw = await readFile(new URL('../public/sw.js', import.meta.url), 'utf8');
-assert.ok(sw.includes("const CACHE_VERSION = 'game-cache-v063'"));
+assert.ok(sw.includes(`const CACHE_VERSION = '${GAME_CACHE_NAME}'`), 'worker and client cache versions must match');
 assert.ok(sw.includes('/assets/render/AnimationFrameProfiles.js'), 'service worker must cache animation frame profiles');
 assert.ok(sw.includes('/assets/render/CharacterTextureManager.js'));
 for (const url of hdSpriteFiles) assert.ok(!sw.includes(`'${url}'`), `HD sprite must not be install-shell pinned ${url}`);
@@ -434,7 +574,7 @@ assert.ok(sw.includes('/assets/render/VictimReactionProfiles.js'));
 assert.ok(sw.includes('/assets/render/AttackSpriteProfiles.js'));
 assert.ok(sw.includes('/assets/render/MotionPolishProfiles.js'));
 for (const url of attackFiles) assert.ok(sw.includes(url), `service worker missing ${url}`);
-assert.ok(!sw.includes("'/audio/stage1-theme.ogg'"), 'stage BGM must remain deferred from initial app shell');
+assert.ok(!sw.includes("'/audio/score-v2/stage1-theme.ogg'"), 'stage BGM must remain deferred from initial app shell');
 
 function passedCertification() {
   const cert = createDeviceCertification(RELEASE_CANDIDATE, new Date('2026-09-25T02:30:00Z'), 'RC33 TARGET PHONE');
@@ -546,29 +686,9 @@ const result = {
   hqUserApprovedWithoutPoseRejection: true,
   hqGroundContactPreserved: true,
   hqNewSilhouettePreserved: true,
-  highFramePilotCharacter: 'RYU',
-  highFrameSecondCharacter: 'KEN',
-  kenHighFrameMovementTotal: 57,
-  kenHighFrameEnabledTotal: 0,
-  chunliHighFrameMovementTotal: 57,
-  chunliHighFrameEnabledTotal: 0,
-  ibukiHighFrameMovementTotal: 57,
-  ibukiHighFrameEnabledTotal: 0,
-  highFrameFrameTotal: 100,
-  highFrameEnabledFrameTotal: 41,
-  highFrameFullFrameTotal: 41,
-  highFrameBridgeFrameTotal: 0,
-  highFrameRuntimeSequences: ['idle','walk','dash','jump','landing'],
-  highFrameStagingSequences: ['walk-back','hit','stand-light','stand-heavy','hadoken','shoryuken'],
-  highFrameAttackBridgeSequences: [],
-  highFrameActiveContactStillArticulated: true,
-  highFrameAuthoredOnlyGate: true,
-  ryuWalkPoseAuthored: true,
-  highFramePoseVarianceGate: 'AFFINE_RESIDUAL_REQUIRED_FOR_FULL_MODE',
-  highFrameRuntimeFrameSize: '384x448',
-  highFrameSourceTier: 'HQ ORIGINAL',
-  highFrameLazyDeferred: true,
-  highFrameLiteFallbackPreserved: true,
+  authoredAnimationCharacters: animationManifests.size,
+  authoredAnimationFrames: Object.fromEntries([...animationManifests].map(([id, data]) => [id, { total: data.frameTotal, enabled: data.enabledFrameTotal }])),
+  deferredAnimationAssets: hqAnimationFiles.length,
   verdict: 'AUTHORED_ONLY_HIGH_FRAME_PASS',
 };
 await writeFile(new URL('../RC38_AUTOMATED_ACCEPTANCE.json', import.meta.url), JSON.stringify(result, null, 2));

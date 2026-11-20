@@ -125,9 +125,12 @@ export function victimReactionSample(fighter: Fighter): VictimReactionSample {
     torsoTwist += -direction * .08 * p.bounceCurl;
   }
 
+  const reacting = fighter.state === 'hit' || fighter.state === 'knockdown' || fighter.state === 'ko';
+  const settling = !fighter.airborne && fighter.dashFrames <= 0
+    && (fighter.state === 'idle' || fighter.state === 'walk' || fighter.state === 'crouch');
   const echo = clamp01((baseImpact * .42 + bounce * .3) * (sequenceTotal > 1 ? 1.08 : 1) * p.recoilX);
   return {
-    active: baseImpact > .03 || bounce > .03,
+    active: (reacting || settling) && (baseImpact > .03 || bounce > .03),
     impact: baseImpact,
     offsetX,
     offsetY,
