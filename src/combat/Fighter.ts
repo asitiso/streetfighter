@@ -15,6 +15,25 @@ type PendingFrozenAction = { airborne: boolean; epoch: number | undefined; tick:
 );
 const pendingFrozenActions = new WeakMap<Fighter, PendingFrozenAction>();
 
+// --- V082: SF3-style stun gauge, dizzy and wake-up -------------------------------------------
+export const STUN_MAX_BASE = 100;
+export const STUN_DECAY_DELAY = 90;
+export const STUN_DECAY_PER_FRAME = .4;
+export const DIZZY_FRAMES = 150;
+export const DIZZY_MASH_FRAMES = 5;
+export const WAKE_INVULN_FRAMES = 8;
+export const QUICK_RISE_REMAINING = 10;
+export const QUICK_RISE_INPUT_WINDOW = 20;
+export const TECH_ROLL_FRAMES = 12;
+export const TECH_ROLL_SPEED = 5;
+export const WAKE_REVERSAL_BUFFER = 8;
+
+/** Stun added by a clean hit: normals/specials build it fastest, throws less, supers very little (SF3 feel). */
+export function stunGainFor(move: Pick<MoveData, 'damage' | 'superCost' | 'level' | 'kind'>, counter = false): number {
+  const factor = move.superCost ? .08 : move.level === 'throw' || move.kind === 'throw' ? .14 : .2;
+  return move.damage * factor * (counter ? 1.25 : 1);
+}
+
 /** SF-style combo scaling: first two hits full damage, then -10% per hit, floored (supers keep more). */
 export function comboDamageScale(hitInCombo: number, move: Pick<MoveData, 'superCost'>): number {
   const scaled = 1 - Math.max(0, hitInCombo - 2) * .1;
@@ -25,6 +44,23 @@ export function comboDamageScale(hitInCombo: number, move: Pick<MoveData, 'super
 export function chipDamageFor(move: Pick<MoveData, 'button' | 'kind' | 'level' | 'damage' | 'superCost'>): number {
   if (move.button || move.kind === 'throw' || move.level === 'throw') return 0;
   return Math.max(1, Math.round(move.damage * (move.superCost ? .25 : .15)));
+}
+
+
+interface StunWakeState {
+  stun: number; stunDecayDelay: number; stunEnabled: boolean; stunLocked: boolean; pendingDizzy: boolean;
+  dizzy: boolean; dizzyCount: number; wakeInvulnFrames: number; quickRiseUsed: boolean; quickRiseCount: number;
+  knockdownGroundFrames: number; techRollFrames: number; techRollDirection: 1 | -1; wakeReversal: MoveData | null;
+}
+const stunWakeStates = new WeakMap<object, StunWakeState>();
+function sw(fighter: object): StunWakeState {
+  let state = stunWakeStates.get(fighter);
+  if (!state) {
+    state = { stun: 0, stunDecayDelay: 0, stunEnabled: true, stunLocked: false, pendingDizzy: false, dizzy: false, dizzyCount: 0,
+      wakeInvulnFrames: 0, quickRiseUsed: false, quickRiseCount: 0, knockdownGroundFrames: 0, techRollFrames: 0, techRollDirection: 1, wakeReversal: null };
+    stunWakeStates.set(fighter, state);
+  }
+  return state;
 }
 
 export class Fighter {
@@ -96,6 +132,25 @@ export class Fighter {
   #lastComboHitKey = '';
   /** Hits taken in the current uninterrupted hit/juggle chain (drives SF-style damage scaling). */
   get comboHitsTaken(): number { return this.#comboHitsTaken; }
+  // Stun / dizzy / wake-up state lives in a module WeakMap (excluded from serialized determinism snapshots).
+  get stun(): number { return sw(this).stun; }
+  get stunMax(): number { return Math.round(STUN_MAX_BASE * this.combatProfile.healthScale); }
+  get stunRatio(): number { return Math.max(0, Math.min(1, sw(this).stun / Math.max(1, this.stunMax))); }
+  get stunEnabled(): boolean { return sw(this).stunEnabled; }
+  get dizzy(): boolean { return sw(this).dizzy && this.state === 'hit'; }
+  get dizzyFramesRemaining(): number { return this.dizzy ? Math.max(0, -this.stateFrame) : 0; }
+  get dizzyCount(): number { return sw(this).dizzyCount; }
+  get quickRiseCount(): number { return sw(this).quickRiseCount; }
+  get wakeInvulnerableFrames(): number { return sw(this).wakeInvulnFrames; }
+  get techRolling(): boolean { return sw(this).techRollFrames > 0; }
+  setStunEnabled(enabled: boolean): void { sw(this).stunEnabled = enabled; if (!enabled) { sw(this).stun = 0; sw(this).pendingDizzy = false; } }
+  /** Downed fighters and the first frames after rising cannot be hit (SF wake-up rule); juggled bodies still can. */
+  isInvulnerable(): boolean {
+    if (this.hp <= 0) return false;
+    // Paired throw / super-victim cinematics stay hittable so scripted follow-ups still connect.
+    const downed = this.state === 'knockdown' && !this.airborne && this.throwSyncFrames <= 0 && this.superVictimFrames <= 0;
+    return downed || sw(this).wakeInvulnFrames > 0;
+  }
   wallBounceFrames = 0;
   groundBounceFrames = 0;
   landingFrames = 0;
@@ -207,9 +262,19 @@ export class Fighter {
     }
     if (input.pressed('down') && this.canDefend()) this.lowParryWindow = 6;
 
+    this.tickStunAndWake(rules);
     if (this.state === 'hit' || this.state === 'block' || this.state === 'parry' || this.state === 'knockdown' || this.state === 'victory' || this.state === 'ko') {
       const retainLowDefense = !rules.depthMovement && input.held('down') && (this.state === 'block' || this.state === 'parry');
+      this.readLockedStateInput(input);
+      const wasKnockdown = this.state === 'knockdown';
       this.advanceLockedState();
+      if (wasKnockdown && this.state !== 'knockdown' && this.state !== 'hit' && sw(this).wakeReversal) {
+        // Wake-up reversal: a special entered during the last frames of the knockdown comes out on the first frame up.
+        const reversal = sw(this).wakeReversal as MoveData;
+        sw(this).wakeReversal = null;
+        this.startMove(reversal);
+        return;
+      }
       if (retainLowDefense && this.stateFrame === 0 && !this.airborne) {
         this.clearGroundSettles();
         this.state = 'crouch';
@@ -328,8 +393,19 @@ export class Fighter {
     this.tickCrouchAnimation(false);
     this.tickWindows(preserveInstall, wasAirborne && !this.airborne);
     if (this.aiCooldown > 0) this.aiCooldown -= 1;
+    this.tickStunAndWake(rules);
     if (this.state === 'hit' || this.state === 'block' || this.state === 'parry' || this.state === 'knockdown' || this.state === 'victory' || this.state === 'ko') {
+      const duel = rules.mode === 'duel';
+      // AI mashes out of dizzy and sometimes quick-rises (deterministic per fighter/frame, no RNG drift).
+      if (this.dizzy && this.aiRoll(1) < .1) this.stateFrame = Math.min(0, this.stateFrame + DIZZY_MASH_FRAMES - 1);
+      if (this.state === 'knockdown' && !this.airborne && sw(this).knockdownGroundFrames === 8 && this.aiRoll(2) < (duel ? .5 : .2)) this.quickRise(this.aiRoll(3) < .35);
+      const wasKnockdown = this.state === 'knockdown';
       this.advanceLockedState();
+      if (wasKnockdown && (this.state as FighterState) === 'idle' && directive.attackAllowed && Math.abs(target.x - this.x) < 150
+        && Math.abs(target.y - this.y) < 48 && this.aiRoll(4) < (duel ? .35 : .1)) {
+        this.facing = target.x >= this.x ? 1 : -1;
+        this.startMove(specialMovesFor(this.character.id).antiAir);
+      }
       return;
     }
     if (this.state === 'attack') { this.applyMoveKinematics(rules); this.advanceMove(); return; }
@@ -493,7 +569,8 @@ export class Fighter {
 
   receiveHit(move: MoveData, attacker: Fighter, guarding: boolean, counter = false, impactDirection: 1 | -1 = attacker.facing): 'hit' | 'block' | 'parry' | 'red-parry' {
     // A combo only continues while the victim is still reeling (hitstun, juggle, bounce or OTG).
-    const stillReeling = this.state === 'hit' || this.state === 'knockdown' || (this.airborne && this.juggleHits > 0);
+    const wasDizzy = this.dizzy;
+    const stillReeling = !wasDizzy && (this.state === 'hit' || this.state === 'knockdown' || (this.airborne && this.juggleHits > 0));
     if (!stillReeling) { this.#comboHitsTaken = 0; this.#lastComboHitKey = ''; }
     const low = move.level === 'low';
     const canParry = move.level !== 'throw' && move.kind !== 'throw';
@@ -544,6 +621,14 @@ export class Fighter {
     this.#lastComboHitKey = comboKey;
     const damage = Math.round(move.damage * (counter ? 1.12 : 1) * Math.min(juggleScale, comboDamageScale(this.#comboHitsTaken, move)));
     this.hp = Math.max(0, this.hp - damage);
+    if (wasDizzy) { sw(this).dizzy = false; sw(this).stunLocked = true; }
+    sw(this).wakeInvulnFrames = 0;
+    sw(this).wakeReversal = null;
+    if (sw(this).stunEnabled && !sw(this).stunLocked && !sw(this).pendingDizzy && this.hp > 0) {
+      sw(this).stun = Math.min(this.stunMax, sw(this).stun + stunGainFor(move, counter));
+      sw(this).stunDecayDelay = STUN_DECAY_DELAY;
+      if (sw(this).stun >= this.stunMax) sw(this).pendingDizzy = true;
+    }
     this.superGauge = Math.min(this.superGaugeMax, this.superGauge + Math.round(move.superGain * .55));
     this.hitFlash = 6;
     this.hitStop = move.hitStop;
@@ -561,6 +646,8 @@ export class Fighter {
     } else if (move.knockdown || move.level === 'throw') {
       this.state = 'knockdown';
       this.stateFrame = -34;
+      sw(this).quickRiseUsed = false;
+      sw(this).knockdownGroundFrames = 0;
       this.knockdownAnimationDuration = -this.stateFrame;
     } else {
       this.state = 'hit';
@@ -579,7 +666,7 @@ export class Fighter {
     this.x += direction * 38;
     this.state = this.hp <= 0 ? 'ko' : 'knockdown';
     this.stateFrame = this.hp <= 0 ? -90 : -30;
-    if (this.state === 'knockdown') this.knockdownAnimationDuration = -this.stateFrame;
+    if (this.state === 'knockdown') { this.knockdownAnimationDuration = -this.stateFrame; sw(this).quickRiseUsed = false; sw(this).knockdownGroundFrames = 0; }
   }
 
   applyWallBounce(direction: 1 | -1, strength = 10.5): void {
@@ -1023,10 +1110,79 @@ export class Fighter {
     }
   }
 
+  private aiRoll(salt: number): number {
+    // Seeded by character + side + frame (not uid) so identically configured worlds replay identically.
+    let seed = this.side === 'enemy' ? 97 : 13;
+    for (let i = 0; i < this.character.id.length; i += 1) seed = Math.imul(seed ^ this.character.id.charCodeAt(i), 16777619);
+    let x = Math.imul(seed, 374761393) ^ Math.imul(this.animationFrame + 7, 668265263) ^ Math.imul(salt, 2246822519);
+    x = Math.imul(x ^ (x >>> 13), 1274126177);
+    return ((x ^ (x >>> 16)) >>> 0) / 4294967296;
+  }
+
+  /** Per-frame stun decay, wake invulnerability countdown, tech-roll travel and delayed dizzy entry. */
+  private tickStunAndWake(rules: ModeRules): void {
+    if (sw(this).wakeInvulnFrames > 0) sw(this).wakeInvulnFrames -= 1;
+    if (this.state === 'knockdown' && !this.airborne) sw(this).knockdownGroundFrames += 1;
+    if (sw(this).techRollFrames > 0) {
+      sw(this).techRollFrames -= 1;
+      this.x += sw(this).techRollDirection * TECH_ROLL_SPEED;
+      this.clamp(rules);
+    }
+    const reeling = this.state === 'hit' || this.state === 'knockdown' || this.airborne;
+    if (!reeling && sw(this).stun > 0) {
+      if (sw(this).stunDecayDelay > 0) sw(this).stunDecayDelay -= 1;
+      else sw(this).stun = Math.max(0, sw(this).stun - STUN_DECAY_PER_FRAME);
+    }
+    if (sw(this).pendingDizzy && this.hp > 0 && !this.airborne && this.state !== 'hit' && this.state !== 'knockdown' && this.state !== 'ko' && this.state !== 'victory') this.enterDizzy();
+  }
+
+  private enterDizzy(): void {
+    this.interruptMove();
+    sw(this).pendingDizzy = false;
+    sw(this).dizzy = true;
+    sw(this).dizzyCount += 1;
+    sw(this).stun = 0;
+    sw(this).wakeInvulnFrames = 0;
+    sw(this).wakeReversal = null;
+    this.state = 'hit';
+    this.stateFrame = -DIZZY_FRAMES;
+    this.hitAnimationDuration = DIZZY_FRAMES;
+  }
+
+  /** Quick rise (tap down while grounded) and tech roll (down + back): stand up sooner, optionally rolling away. */
+  quickRise(roll = false): boolean {
+    if (this.state !== 'knockdown' || this.airborne || sw(this).quickRiseUsed || this.hp <= 0 || this.throwSyncFrames > 0) return false;
+    if (sw(this).knockdownGroundFrames > QUICK_RISE_INPUT_WINDOW || this.stateFrame >= -QUICK_RISE_REMAINING) return false;
+    sw(this).quickRiseUsed = true;
+    sw(this).quickRiseCount += 1;
+    this.stateFrame = -QUICK_RISE_REMAINING;
+    if (roll) { sw(this).techRollFrames = TECH_ROLL_FRAMES; sw(this).techRollDirection = this.facing === 1 ? -1 : 1; }
+    return true;
+  }
+
+  private readLockedStateInput(input: InputManager): void {
+    if (this.dizzy) {
+      const mash = (['lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'left', 'right', 'up', 'down', 'jump'] as const).filter((action) => input.pressed(action)).length;
+      if (mash > 0) this.stateFrame = Math.min(0, this.stateFrame + mash * DIZZY_MASH_FRAMES);
+      return;
+    }
+    if (this.state !== 'knockdown' || this.airborne) return;
+    if (input.pressed('down')) this.quickRise(input.held(this.facing === 1 ? 'left' : 'right'));
+    if (this.stateFrame >= -WAKE_REVERSAL_BUFFER) {
+      const special = this.readSpecialMove(input);
+      if (special) sw(this).wakeReversal = special;
+    }
+  }
+
   private advanceLockedState(): void {
     this.stateFrame += 1;
     if (this.state === 'ko' || this.state === 'victory') return;
     if (this.stateFrame >= 0) {
+      const leaving = this.state;
+      const leavingDizzy = sw(this).dizzy;
+      sw(this).dizzy = false;
+      if (!leavingDizzy) sw(this).stunLocked = false;
+      if (leaving === 'knockdown' && !sw(this).pendingDizzy) sw(this).wakeInvulnFrames = WAKE_INVULN_FRAMES;
       if (this.state === 'parry') this.parryFollowupAnimationFrame = this.animationFrame + 1;
       this.state = this.airborne ? 'jump' : 'idle';
       this.stateFrame = 0;

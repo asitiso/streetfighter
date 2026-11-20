@@ -88,6 +88,8 @@ export class CombatWorld {
       ? { mode, depthMovement: true, laneTolerance: 54, arenaLeft: 128, arenaRight: 1152, arenaTop: 394, arenaBottom: 580 }
       : { mode, depthMovement: false, laneTolerance: 22, arenaLeft: 120, arenaRight: 1160, arenaTop: 500, arenaBottom: 500 };
     this.player = new Fighter(playerDef, 'player', 360, mode === 'belt' ? 495 : 500, 1, playerSuperArt);
+    // Mob pressure in belt sections would chain-stun the hero; the stun gauge is a 1 VS 1 duel mechanic for the player.
+    this.player.setStunEnabled(mode === 'duel');
     this.enemies.push(new Fighter(enemyDef, 'enemy', 880, mode === 'belt' ? 490 : 500, -1));
   }
 
@@ -307,7 +309,7 @@ export class CombatWorld {
 
   private captureDuelTradeIntent(attacker: Fighter, defender: Fighter): DuelTradeIntent | null {
     const move = attacker.currentMove;
-    if (!move || move.kind === 'projectile' || move.kind === 'throw' || move.level === 'throw' || !!move.install || !attacker.isMoveActive() || attacker.hasHitTarget(defender) || attacker.hp <= 0 || defender.hp <= 0) return null;
+    if (!move || move.kind === 'projectile' || move.kind === 'throw' || move.level === 'throw' || !!move.install || !attacker.isMoveActive() || attacker.hasHitTarget(defender) || attacker.hp <= 0 || defender.hp <= 0 || defender.isInvulnerable()) return null;
 
     const dx = (defender.x - attacker.x) * attacker.facing;
     const dy = Math.abs(defender.y - attacker.y);
@@ -381,7 +383,7 @@ export class CombatWorld {
 
   private resolveAttack(attacker: Fighter, defender: Fighter, input: InputManager): void {
     const move = attacker.currentMove;
-    if (!move || move.kind === 'projectile' || !!move.install || !attacker.isMoveActive() || attacker.hasHitTarget(defender) || defender.hp <= 0) return;
+    if (!move || move.kind === 'projectile' || !!move.install || !attacker.isMoveActive() || attacker.hasHitTarget(defender) || defender.hp <= 0 || defender.isInvulnerable()) return;
     // A grab owns one primary victim; thrown-body collateral is resolved separately.
     if ((move.kind === 'throw' || move.level === 'throw') && attacker.attackVictims.size > 0
       && !attacker.attackVictims.has(defender.uid)) return;
@@ -462,7 +464,7 @@ export class CombatWorld {
       }
       let collided = false;
       for (const defender of defenders) {
-        if (defender.hp <= 0 || projectile.hitVictims.has(defender.uid)) continue;
+        if (defender.hp <= 0 || projectile.hitVictims.has(defender.uid) || defender.isInvulnerable()) continue;
         const dx = Math.abs(defender.x - projectile.x);
         const defenderCenterY = defender.y - 88 - defender.jumpHeight * .9;
         const dy = Math.abs(defenderCenterY - projectile.y);

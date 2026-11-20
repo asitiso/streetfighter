@@ -212,8 +212,18 @@ def build(root=ROOT,kind=KIND,character='KEN'):
 def validate_runtime(root=ROOT,kind=KIND,character='KEN'):
  pending,record=build(root,kind,character)
  for path,data in pending.items():
-  if path.read_bytes()!=data:raise ValueError('Runtime/source/metadata mismatch: '+str(path))
+  current=path.read_bytes()
+  if current==data:continue
+  # Art bytes must match exactly; JSON metadata may differ only by cross-platform
+  # floating-point noise in derived QA metrics (OpenCV ECC residuals).
+  if path.suffix!='.json' or not json_close(json.loads(current),json.loads(data)):raise ValueError('Runtime/source/metadata mismatch: '+str(path))
  return record
+def json_close(a,b,tol=1e-4):
+ if isinstance(a,bool) or isinstance(b,bool):return a==b
+ if isinstance(a,(int,float)) and isinstance(b,(int,float)):return a==b or (isinstance(a,float) or isinstance(b,float)) and abs(a-b)<=tol
+ if isinstance(a,dict) and isinstance(b,dict):return a.keys()==b.keys() and all(json_close(a[k],b[k],tol) for k in a)
+ if isinstance(a,list) and isinstance(b,list):return len(a)==len(b) and all(json_close(x,y,tol) for x,y in zip(a,b))
+ return a==b
 def main():
  parser=ArgumentParser(description=__doc__);parser.add_argument('--character',choices=['KEN','RYU','CHUNLI','ALEX','DUDLEY','MAKOTO','YUN','URIEN','GILL','IBUKI'],default='KEN');parser.add_argument('--kind',choices=list(RECIPES),default=KIND);parser.add_argument('--install',action='store_true');parser.add_argument('--runtime',action='store_true');args=parser.parse_args()
  if args.install and args.runtime:parser.error('Choose install or runtime')

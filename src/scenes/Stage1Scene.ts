@@ -301,6 +301,7 @@ export class Stage1Scene implements Scene {
     }
     if (!combatFrozen) this.elapsedCombatFrames += 1;
     this.world.update(this.input, tick);
+    this.playStunCues();
     this.updateCamera();
     if (!combatFrozen && this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();
     if (!combatFrozen && this.phase === 'final-duel') { this.updateGillPhase(); this.updateGillPattern(); }
@@ -419,6 +420,7 @@ export class Stage1Scene implements Scene {
     this.drawFinalKoSequence(ctx);
     this.drawProjectiles(ctx);
     this.drawFx(ctx);
+    this.drawDizzyEffects(ctx, fighters);
     this.drawForegroundMotion(ctx, fighters);
     ctx.restore();
     this.drawAtmosphere(ctx);
@@ -767,6 +769,85 @@ export class Stage1Scene implements Scene {
   private roundCallout(): string {
     if (this.playerRoundWins === ROUNDS_TO_WIN - 1 && this.enemyRoundWins === ROUNDS_TO_WIN - 1) return 'FINAL ROUND';
     return `ROUND ${this.duelRound}`;
+  }
+
+  private readonly stunCueCounts = new Map<number, number>();
+
+  /** Fire one-shot cues when a fighter becomes dizzy or quick-rises (counters live on the fighters). */
+  private playStunCues(): void {
+    for (const fighter of [this.world.player, ...this.world.enemies]) {
+      const key = fighter.uid * 2;
+      const dizzy = fighter.dizzyCount;
+      if ((this.stunCueCounts.get(key) ?? 0) < dizzy) {
+        this.audio.playDizzy?.();
+        this.world.events.push({ type: 'juggle', x: fighter.x, y: fighter.y - 205 * fighter.character.heightScale, power: 0, ttl: 40, label: 'DIZZY!', audioPlayed: true });
+      }
+      this.stunCueCounts.set(key, dizzy);
+      const rises = fighter.quickRiseCount;
+      if ((this.stunCueCounts.get(key + 1) ?? 0) < rises) {
+        this.audio.playQuickRise?.();
+        this.world.events.push({ type: 'juggle', x: fighter.x, y: fighter.y - 120, power: 0, ttl: 26, label: fighter.techRolling ? 'TECH ROLL' : 'QUICK RISE', audioPlayed: true });
+      }
+      this.stunCueCounts.set(key + 1, rises);
+    }
+  }
+
+  /** SF3-style stun gauge: fills toward the screen centre; flashes while the fighter is dizzy. */
+  private drawStunGauge(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, width: number, fromRight: boolean, height = 5): void {
+    if (!fighter.stunEnabled) return;
+    const dizzy = fighter.dizzy;
+    const ratio = dizzy ? 1 : fighter.stunRatio;
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fillRect(x, y, width, height);
+    const flash = dizzy ? .55 + Math.sin(this.time * 18) * .45 : 1;
+    ctx.globalAlpha = flash;
+    ctx.fillStyle = dizzy ? '#ff4d6d' : ratio > .75 ? '#ff7a3d' : '#f4d35e';
+    const w = width * ratio;
+    ctx.fillRect(fromRight ? x + width - w : x, y, w, height);
+    ctx.globalAlpha = 1;
+    ctx.font = '900 7px Arial Black, sans-serif'; ctx.textAlign = fromRight ? 'right' : 'left';
+    ctx.fillStyle = dizzy ? '#ff9db0' : 'rgba(255,255,255,.55)';
+    ctx.fillText(dizzy ? 'DIZZY' : 'STUN', fromRight ? x - 4 : x + width + 4, y + height);
+    ctx.restore();
+  }
+
+  /** Orbiting stars and birds over a dizzy fighter's head. */
+  private drawDizzyEffects(ctx: CanvasRenderingContext2D, fighters: readonly Fighter[]): void {
+    for (const fighter of fighters) {
+      if (!fighter.dizzy) continue;
+      const cx = fighter.x;
+      const cy = fighter.y - fighter.jumpHeight - 196 * fighter.character.heightScale;
+      ctx.save();
+      ctx.globalAlpha = .28; ctx.strokeStyle = '#fff2a8'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(cx, cy, 46, 12, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = 1;
+      for (let i = 0; i < 5; i += 1) {
+        const a = this.time * 5.2 + i * (Math.PI * 2 / 5);
+        const px = cx + Math.cos(a) * 46;
+        const py = cy + Math.sin(a) * 12;
+        const front = Math.sin(a) > 0;
+        ctx.globalAlpha = front ? 1 : .55;
+        if (i % 2 === 0) {
+          // Star
+          ctx.fillStyle = '#ffe14d'; ctx.strokeStyle = '#7a4b00'; ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          for (let k = 0; k < 10; k += 1) {
+            const r = k % 2 === 0 ? 9 : 4;
+            const t = -Math.PI / 2 + k * Math.PI / 5 + this.time * 3;
+            const sx = px + Math.cos(t) * r; const sy = py + Math.sin(t) * r;
+            if (k === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+          }
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+        } else {
+          // Bird: two flapping wing arcs
+          const flap = Math.sin(this.time * 22 + i) * 4;
+          ctx.strokeStyle = '#f4f7ff'; ctx.lineWidth = 2.6; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(px - 8, py - flap); ctx.quadraticCurveTo(px - 3, py - 6, px, py); ctx.quadraticCurveTo(px + 3, py - 6, px + 8, py - flap); ctx.stroke();
+          ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.arc(px, py, 1.8, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
   }
 
   private drawRoundPips(ctx: CanvasRenderingContext2D, x: number, y: number, wins: number, direction: 1 | -1, color: string): void {
@@ -1518,6 +1599,8 @@ export class Stage1Scene implements Scene {
     this.drawHudHp(ctx, 761, 58, layout.enemyPanelWidth, enemy.hp / enemy.maxHp, presentation.hudEnemy, true);
     this.drawSuperMeter(ctx, player, 44, 87, 330, false, '#51c7f4');
     this.drawSuperMeter(ctx, enemy, 906, 87, 330, true, '#a37cff');
+    this.drawStunGauge(ctx, player, 44 + layout.playerPanelWidth - 210, 78, 210, true);
+    this.drawStunGauge(ctx, enemy, 761, 78, 210, false);
     this.drawRoundPips(ctx, 44 + layout.playerPanelWidth - 8, 40, this.playerRoundWins, -1, presentation.hudAccent);
     this.drawRoundPips(ctx, 761 + 8, 40, this.enemyRoundWins, 1, presentation.hudEnemy);
     ctx.fillStyle = 'rgba(8,10,16,.98)'; ctx.beginPath(); ctx.arc(640, 62, layout.timerRadius, 0, Math.PI * 2); ctx.fill();
@@ -1554,6 +1637,8 @@ export class Stage1Scene implements Scene {
     ctx.textAlign = 'right'; ctx.fillStyle = phaseHud.accent; ctx.font = '900 10px Arial Black, sans-serif'; ctx.fillText(layout.bossLabel ?? 'BOSS', 1184, 31);
     ctx.fillStyle = '#fff'; ctx.font = '900 29px Impact, sans-serif'; ctx.fillText(boss.character.name, 1184, 57);
     this.drawHudHp(ctx, 612, 68, layout.enemyPanelWidth, hpRatio, phaseHud.accent, true);
+    this.drawStunGauge(ctx, player, 40 + layout.playerPanelWidth - 190, 89, 190, true, 4);
+    this.drawStunGauge(ctx, boss, 612, 89, 210, false, 4);
     this.drawRoundPips(ctx, 40 + layout.playerPanelWidth - 8, 54, this.playerRoundWins, -1, presentation.hudAccent);
     this.drawRoundPips(ctx, 620, 50, this.enemyRoundWins, 1, phaseHud.accent);
 

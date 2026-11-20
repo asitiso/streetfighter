@@ -197,6 +197,8 @@ export class AudioManager {
   playSuperStart(): void { this.duckCombat('super'); this.effect('super-start', .85); }
   playSuperImpact(_power: number): void { this.effect('super-impact', .86); }
   playBossCue(burst: boolean): void { this.duckCombat('boss'); this.effect(burst ? 'super-impact' : 'super-start', .68, .88); }
+  playDizzy(): void { this.effect('whoosh', .62, .58); this.effect('ui', .42, 1.7); }
+  playQuickRise(): void { this.effect('whoosh', .42, 1.28); }
   playKo(): void { this.duckCombat('ko'); this.effect('ko', .9); }
   private effect(kind: ProducedSfx, volume: number, rate = 1): void {
     if (!this.isRunning()) return;
