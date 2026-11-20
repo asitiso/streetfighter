@@ -1,4 +1,5 @@
 import type { AudioManager } from '../core/AudioManager.js';
+import type { TrainingSession } from '../training/TrainingSession.js';
 import { stageAiLevel } from '../combat/AiDifficulty.js';
 import type { RenderContext, Scene } from '../core/Scene.js';
 import type { CharacterDef, SuperArtDef } from '../game/characters.js';
@@ -70,6 +71,8 @@ export class Stage1Scene implements Scene {
   private defeatRetryQueued = false;
   private defeatReason: 'ko' | 'double-ko' | 'time-over' = 'ko';
   private paused = false;
+  /** Set by startTraining(): a 1v1 sandbox with no timer, rounds or boss scripts. */
+  private training: TrainingSession | null = null;
   // Best-of-3 duel rounds (Street Fighter III rules): first to ROUNDS_TO_WIN round wins takes the match.
   private duelRound = 1;
   private playerRoundWins = 0;
@@ -138,6 +141,25 @@ export class Stage1Scene implements Scene {
     this.seedStageProps();
   }
 
+  /** Turn this scene into training mode: chosen fighter vs chosen dummy, no timer / rounds / boss scripts. */
+  startTraining(session: TrainingSession, dummyDef: CharacterDef): void {
+    const world = new CombatWorld(this.playerDef, dummyDef, 'duel', this.superArt);
+    this.world = world;
+    this.training = session;
+    session.attach(world);
+    this.phase = 'duel';
+    this.introFrames = 0;
+    this.roundOneBannerFrames = 0;
+    this.roundAnnounceFrames = 0;
+    this.roundBreakFrames = 0;
+    this.stageTime = 99;
+    this.cameraX = 0;
+    this.bossPatternCooldown = Number.MAX_SAFE_INTEGER;
+    this.prepareCombatTextures();
+  }
+
+  get trainingSession(): TrainingSession | null { return this.training; }
+
   enter(): void {
     this.onPostCombatChange?.(false);
     this.defeatRetryQueued = false;
@@ -201,6 +223,11 @@ export class Stage1Scene implements Scene {
         this.dispatchRoute('defeat');
       }
       return;
+    }
+    if (this.training) {
+      if (this.input.pressed('start')) { this.training.toggleMenu(); this.input.resetCommandHistory?.(); this.onPauseChange?.(this.training.menuOpen); return; }
+      if (this.training.menuOpen) { this.training.updateMenu(this.input); if (!this.training.menuOpen) this.onPauseChange?.(false); return; }
+      if (this.input.pressed('back')) { this.training.resetPositions(); return; }
     }
     const pauseAllowed = this.introFrames <= 0 && (this.phase === 'belt' || this.phase === 'duel' || this.phase === 'final-duel');
     if (pauseAllowed && this.input.pressed('start')) {
@@ -294,18 +321,19 @@ export class Stage1Scene implements Scene {
 
     const timerActive = this.phase !== 'belt' || this.beltState === 'fight';
     const combatFrozen = this.world.superFreezeFrames > 0;
-    if (timerActive && !combatFrozen) this.stageTime = Math.max(0, this.stageTime - dt);
-    if (timerActive && !combatFrozen && this.stageTime <= 0) {
+    if (timerActive && !combatFrozen && !this.training) this.stageTime = Math.max(0, this.stageTime - dt);
+    if (timerActive && !combatFrozen && !this.training && this.stageTime <= 0) {
       if (inDuel) this.concludeDuelRound(this.timeOverWinner(), 'time');
       else this.enterTimeOverDefeat();
       return;
     }
     if (!combatFrozen) this.elapsedCombatFrames += 1;
+    this.training?.beforeUpdate();
     this.world.update(this.input, tick);
     this.playStunCues();
     this.updateCamera();
-    if (!combatFrozen && this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();
-    if (!combatFrozen && this.phase === 'final-duel') { this.updateGillPhase(); this.updateGillPattern(); }
+    if (!combatFrozen && !this.training && this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();
+    if (!combatFrozen && !this.training && this.phase === 'final-duel') { this.updateGillPhase(); this.updateGillPattern(); }
     if (this.bossPatternFlash > 0) this.bossPatternFlash -= 1;
     if (this.gillPhaseBanner > 0) this.gillPhaseBanner -= 1;
     for (const event of this.world.events) {
@@ -330,6 +358,7 @@ export class Stage1Scene implements Scene {
       if (event.power > 0 && event.type !== 'block') this.hitPulse = Math.max(this.hitPulse, Math.min(12, Math.round(event.power / 18)));
     }
     if (this.hitPulse > 0) this.hitPulse -= 1;
+    if (this.training) { this.training.afterUpdate(this.input); return; }
 
     if (this.world.player.hp <= 0) {
       if (inDuel) this.concludeDuelRound(this.world.livingEnemies.length === 0 ? 'draw' : 'enemy', this.world.livingEnemies.length === 0 ? 'double-ko' : 'ko');
@@ -430,6 +459,7 @@ export class Stage1Scene implements Scene {
     this.drawCinematicLetterbox(ctx);
     this.drawSuperOverlay(ctx);
     this.drawHud(ctx);
+    this.training?.render(ctx);
     this.drawIntro(ctx);
     this.drawWaveCard(ctx);
     this.drawAdvancePrompt(ctx);

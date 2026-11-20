@@ -1,4 +1,6 @@
 import { FixedStepLoop } from './FixedStepLoop.js';
+import { TrainingSelectScene, type TrainingSelection } from '../scenes/TrainingSelectScene.js';
+import { TrainingSession } from '../training/TrainingSession.js';
 import { setAiDifficultySetting } from '../combat/AiDifficulty.js';
 import { SceneManager } from './SceneManager.js';
 import { InputManager } from '../input/InputManager.js';
@@ -143,6 +145,7 @@ export class GameApp {
         { id: 'continue', label: 'CONTINUE', detail: this.save?.hasCampaignStarted ? `STAGE ${stage} • ${this.save.selectedCharacter}` : campaignComplete ? 'CAMPAIGN COMPLETE • USE STAGE SELECT' : 'NO CAMPAIGN SAVE', enabled: !!this.save?.hasCampaignStarted, action: () => { this.recovery.consumeRecovery(); return this.continueCampaign(); } },
         { id: 'recover-session', label: 'RECOVER SESSION', detail: interrupted.label, enabled: interrupted.available, action: () => { return this.recoverInterruptedSession(); } },
         { id: 'stage-select', label: 'STAGE SELECT', detail: this.save?.stageSelectUnlocked ? 'STAGES 1–5 UNLOCKED' : 'CLEAR THE CAMPAIGN TO UNLOCK', enabled: !!this.save?.stageSelectUnlocked, action: () => { this.recovery.consumeRecovery(); return this.showStageSelect(); } },
+        { id: 'training', label: 'TRAINING', detail: 'ANY FIGHTER VS ANY DUMMY • FRAME DATA', enabled: true, action: () => { return this.showTrainingSelect(); } },
         { id: 'battle-record', label: 'BATTLE RECORD', detail: this.save?.stageResults.length ? `${this.save.stageResults.length}/5 STAGES RECORDED` : 'NO STAGE RECORDS', enabled: !!this.save?.stageResults.length, action: () => { return this.showResults(); } },
         { id: 'save-tools', label: 'SAVE TOOLS', detail: 'EXPORT / IMPORT PORTABLE BACKUP', enabled: true, action: () => { return this.showSaveTools(); } },
         { id: 'install', label: 'INSTALL APP', detail: this.install.state() === 'standalone' ? 'RUNNING STANDALONE' : this.install.state() === 'available' ? 'ONE-TAP INSTALL READY' : 'HOME SCREEN GUIDE', enabled: true, action: () => { return this.showInstall(); } },
@@ -366,6 +369,26 @@ export class GameApp {
       releaseIntegrity: () => this.releaseIntegrity.snapshot(),
       verifyIntegrity: () => this.releaseIntegrity.verify(),
     }, () => { void this.showTitle(); }));
+  }
+
+  private lastTraining: TrainingSelection | undefined;
+
+  private async showTrainingSelect(): Promise<void> {
+    await this.scenes.setScene(new TrainingSelectScene(this.input, this.audio,
+      (selection) => this.startTraining(selection),
+      () => this.showTitle(),
+      this.lastTraining));
+  }
+
+  private async startTraining(selection: TrainingSelection): Promise<void> {
+    this.lastTraining = selection;
+    const module = await this.loadStageModule('stage-1', () => import('../scenes/Stage1Scene.js'));
+    if (!module) { await this.showTitle(); return; }
+    const { Stage1Scene } = module;
+    const scene = new Stage1Scene(this.input, this.audio, selection.player, selection.player.superArts[0], selection.stageId,
+      undefined, undefined, (paused) => this.touch.setPaused(paused), active => this.touch.setPostCombatMode(active));
+    scene.startTraining(new TrainingSession((target) => { void (target === 'select' ? this.showTrainingSelect() : this.showTitle()); }), selection.dummy);
+    await this.scenes.setScene(scene);
   }
 
   private async showOptions(): Promise<void> {

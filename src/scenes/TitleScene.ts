@@ -7,7 +7,7 @@ import { characterTextureManager } from '../render/CharacterTextureManager.js';
 const TITLE_ACTION_RETRY = 'OPEN FAILED • ENTER / START / ATTACK TO RETRY';
 
 export interface TitleMenuOption {
-  id: 'new-game' | 'continue' | 'recover-session' | 'stage-select' | 'battle-record' | 'save-tools' | 'install' | 'device-cert' | 'pwa-update' | 'release-check' | 'diagnostics' | 'options';
+  id: 'new-game' | 'continue' | 'recover-session' | 'stage-select' | 'battle-record' | 'save-tools' | 'install' | 'device-cert' | 'pwa-update' | 'release-check' | 'diagnostics' | 'options' | 'training';
   label: string;
   detail: string;
   enabled: boolean;

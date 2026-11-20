@@ -61,6 +61,10 @@ export class CombatWorld {
   readonly events: CombatEvent[] = [];
   readonly projectiles: ProjectileInstance[] = [];
   projectilesClashed = 0;
+  /** Training mode: drives living enemies instead of the AI when set. */
+  dummyController: ((enemy: Fighter, player: Fighter, rules: ModeRules) => void) | null = null;
+  /** Training mode: forced enemy guard decision (null = normal AI decision). */
+  defenseOverride: ((defender: Fighter, attacker: Fighter, move: MoveData) => boolean | null) | null = null;
   readonly props: EnvironmentProp[] = [];
   readonly rules: ModeRules;
   readonly director = new EnemyDirector();
@@ -163,6 +167,7 @@ export class CombatWorld {
         if (enemy.state === 'ko') enemy.updateAi(this.player, this.rules);
         continue;
       }
+      if (this.dummyController) { this.dummyController(enemy, this.player, this.rules); continue; }
       const directive = directives.get(enemy.uid);
       if (directive) enemy.updateAiDirected(this.player, this.rules, directive);
       else enemy.updateAi(this.player, this.rules);
@@ -596,6 +601,8 @@ export class CombatWorld {
   }
 
   private enemyDefenseDecision(defender: Fighter, attacker: Fighter, move: MoveData, threatX = attacker.x): boolean {
+    const forced = this.defenseOverride?.(defender, attacker, move);
+    if (forced !== null && forced !== undefined) return forced;
     if (defender.aiHoldingGuard && move.level !== 'throw') return true;
     const distance = Math.abs(threatX - defender.x);
     if (distance >= Math.max(150, defender.aiProfile.preferredDistance + 72)) return false;
