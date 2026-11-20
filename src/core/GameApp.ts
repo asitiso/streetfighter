@@ -1,4 +1,5 @@
 import { FixedStepLoop } from './FixedStepLoop.js';
+import { setAiDifficultySetting } from '../combat/AiDifficulty.js';
 import { SceneManager } from './SceneManager.js';
 import { InputManager } from '../input/InputManager.js';
 import { SaveManager, SAVE_DB_NAME, type GameSave } from '../save/SaveManager.js';
@@ -102,6 +103,7 @@ export class GameApp {
     await this.saves.init();
     this.save = await this.saves.load();
     this.audio.setEnabled(this.save.audioEnabled);
+    setAiDifficultySetting(this.save.aiDifficulty);
     this.touch.setSettings({
       stickScale: this.save.touchStickScale, buttonScale: this.save.touchButtonScale, opacity: this.save.touchOpacity,
       stickX: this.save.touchStickX, stickY: this.save.touchStickY, buttonsX: this.save.touchButtonsX, buttonsY: this.save.touchButtonsY,
@@ -188,7 +190,7 @@ export class GameApp {
       health: () => this.saves.health,
       exportSave: () => this.saves.exportPortable(),
       importSave: (text) => this.saves.importPortable(text),
-      onImported: (save) => { this.save = save; this.audio.setEnabled(save.audioEnabled); this.touch.setSettings({ stickScale: save.touchStickScale, buttonScale: save.touchButtonScale, opacity: save.touchOpacity, stickX: save.touchStickX, stickY: save.touchStickY, buttonsX: save.touchButtonsX, buttonsY: save.touchButtonsY, vibrationEnabled: save.vibrationEnabled }); },
+      onImported: (save) => { this.save = save; this.audio.setEnabled(save.audioEnabled); setAiDifficultySetting(save.aiDifficulty); this.touch.setSettings({ stickScale: save.touchStickScale, buttonScale: save.touchButtonScale, opacity: save.touchOpacity, stickX: save.touchStickX, stickY: save.touchStickY, buttonsX: save.touchButtonsX, buttonsY: save.touchButtonsY, vibrationEnabled: save.vibrationEnabled }); },
     }, () => { void this.showTitle(); }, active => this.touch.setSaveToolsMode(active)));
   }
 

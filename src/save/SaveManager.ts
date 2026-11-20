@@ -1,4 +1,12 @@
 import type { StageResult } from '../game/StageResult.js';
+import { AI_DIFFICULTY_SETTINGS, type AiDifficultySetting } from '../combat/AiDifficulty.js';
+
+function aiDifficultyValue(value: unknown, issues: string[]): AiDifficultySetting {
+  if (value === undefined) return 'normal';
+  if (AI_DIFFICULTY_SETTINGS.includes(value as AiDifficultySetting)) return value as AiDifficultySetting;
+  issues.push('AI DIFFICULTY');
+  return 'normal';
+}
 
 export const SAVE_DB_NAME = 'ssc-save-data-v1';
 export const SAVE_SCHEMA_VERSION = 2;
@@ -15,6 +23,8 @@ export interface GameSave {
   stageSelectUnlocked: boolean;
   audioEnabled: boolean;
   vibrationEnabled: boolean;
+  /** Duel AI difficulty option (Easy -1 / Normal / Hard +1 level per stage). */
+  aiDifficulty: AiDifficultySetting;
   controlScale: number;
   touchStickScale: number;
   touchButtonScale: number;
@@ -51,6 +61,7 @@ export const DEFAULT_SAVE: GameSave = {
   stageSelectUnlocked: false,
   audioEnabled: true,
   vibrationEnabled: true,
+  aiDifficulty: 'normal',
   controlScale: 1,
   touchStickScale: 1,
   touchButtonScale: 1,
@@ -133,6 +144,7 @@ export function sanitizeGameSave(raw: unknown): { save: GameSave; issues: string
       stageSelectUnlocked: booleanValue(source.stageSelectUnlocked, DEFAULT_SAVE.stageSelectUnlocked, issues, 'STAGE SELECT'),
       audioEnabled: booleanValue(source.audioEnabled, DEFAULT_SAVE.audioEnabled, issues, 'AUDIO'),
       vibrationEnabled: booleanValue(source.vibrationEnabled, DEFAULT_SAVE.vibrationEnabled, issues, 'VIBRATION'),
+      aiDifficulty: aiDifficultyValue(source.aiDifficulty, issues),
       controlScale: finiteNumber(source.controlScale, DEFAULT_SAVE.controlScale, .5, 1.8, issues, 'CONTROL SCALE'),
       touchStickScale: finiteNumber(source.touchStickScale, DEFAULT_SAVE.touchStickScale, .55, 1.65, issues, 'STICK SCALE'),
       touchButtonScale: finiteNumber(source.touchButtonScale, DEFAULT_SAVE.touchButtonScale, .55, 1.65, issues, 'BUTTON SCALE'),
@@ -171,7 +183,10 @@ export function decodeSaveRecord(raw: unknown): { save: GameSave; issues: string
   if ('data' in record || 'checksum' in record) {
     if (!record.data || typeof record.checksum !== 'string') return null;
     const sanitized = sanitizeGameSave(record.data);
-    if (record.checksum !== checksumSave(sanitized.save)) return null;
+    // Records written before the CPU difficulty option have no aiDifficulty field: verify them against the original shape.
+    const { aiDifficulty: _difficulty, ...preDifficulty } = sanitized.save;
+    const preDifficultyRecord = (record.data as Partial<GameSave>).aiDifficulty === undefined;
+    if (record.checksum !== checksumSave(sanitized.save) && !(preDifficultyRecord && record.checksum === checksumSave(preDifficulty as GameSave))) return null;
     return { ...sanitized, legacy: false };
   }
   const legacy = sanitizeGameSave(raw);

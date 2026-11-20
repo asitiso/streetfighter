@@ -16,8 +16,8 @@ console.log(JSON.stringify({passed:true,cases,rapidNavigation:true,rapidAdjustme
 
 let directCases=0;
 function rowRects(scene){const rects=[];const ctx=new Proxy({roundRect:(x,y,w,h)=>rects.push({x,y,w,h}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:(()=>{})});scene.render({ctx,width:1280,height:720,dpr:1});return rects.filter(r=>r.w===560&&r.h===46);}
-for(let row=0;row<9;row++){
- const f=fixture(),rects=rowRects(f.scene);assert.equal(rects.length,9);const r=rects[row];
+for(let row=0;row<10;row++){
+ const f=fixture(),rects=rowRects(f.scene);assert.equal(rects.length,10);const r=rects[row];
  f.scene.pointerTap(r.x+r.w*.43,r.y+r.h/2);assert.equal(f.scene.index,row,'Tap selects the rendered option row');
  f.scene.pointerTap(r.x+r.w*.43,r.y+r.h/2);assert.equal(f.writes.length,0,'Selection cannot change or reset settings');assert.equal(f.backs.length,0);assert(!f.scene.editingLayout);f.close();directCases++;
 }
@@ -43,9 +43,9 @@ console.log('INTERRUPTED_LAYOUT_BACK_PASS',{interruptedLayoutBackCases});
 
 import{characterTextureManager}from'../dist/assets/render/CharacterTextureManager.js';
 let optionsCancelPriorityCases=0;
-for(let row=0;row<9;row++)for(const action of ['confirm','lp','mp','hp','start','left','right'])for(const back of ['back','lk']){
- const f=fixture();f.scene.index=row;f.scene.settings={...f.scene.settings,stickX:70,buttonsX:60,stickScale:1.15};f.touch.setSettings(f.scene.settings);const before={...f.scene.settings},audioEnabled=f.scene.audioEnabled,quality=characterTextureManager.currentMode;
+for(let row=0;row<10;row++)for(const action of ['confirm','lp','mp','hp','start','left','right'])for(const back of ['back','lk']){
+ const f=fixture();f.scene.index=row;f.scene.settings={...f.scene.settings,stickX:70,buttonsX:60,stickScale:1.15};f.touch.setSettings(f.scene.settings);const before={...f.scene.settings},difficulty=f.scene.aiDifficulty,audioEnabled=f.scene.audioEnabled,quality=characterTextureManager.currentMode;
  for(const a of [action,back]){f.input.setTouch(a,true);f.input.setTouch(a,false);}f.step();await flush();
- assert.deepEqual(f.scene.settings,before,'Back cannot apply same-tick settings adjustment/reset');assert.equal(f.scene.audioEnabled,audioEnabled,'Back cannot toggle audio');assert.equal(characterTextureManager.currentMode,quality,'Back cannot cycle texture quality');assert(!f.scene.editingLayout,'Back cannot enter editor');assert.equal(f.writes.length,1,'Only the unchanged final save is required');assert.equal(f.backs.length,1);f.close();optionsCancelPriorityCases++;
+ assert.deepEqual(f.scene.settings,before,'Back cannot apply same-tick settings adjustment/reset');assert.equal(f.scene.audioEnabled,audioEnabled,'Back cannot toggle audio');assert.equal(f.scene.aiDifficulty,difficulty,'Back cannot change CPU difficulty');assert.equal(characterTextureManager.currentMode,quality,'Back cannot cycle texture quality');assert(!f.scene.editingLayout,'Back cannot enter editor');assert.equal(f.writes.length,1,'Only the unchanged final save is required');assert.equal(f.backs.length,1);f.close();optionsCancelPriorityCases++;
 }
 console.log('OPTIONS_CANCEL_PRIORITY_PASS',{optionsCancelPriorityCases});

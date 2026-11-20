@@ -1,13 +1,14 @@
 import type { AudioManager } from '../core/AudioManager.js';
+import { AI_DIFFICULTY_SETTINGS, setAiDifficultySetting, type AiDifficultySetting } from '../combat/AiDifficulty.js';
 import type { RenderContext, Scene } from '../core/Scene.js';
 import type { InputManager } from '../input/InputManager.js';
 import type { GameSave } from '../save/SaveManager.js';
 import { TouchControls, type TouchControlSettings } from '../ui/TouchControls.js';
 import { characterTextureManager } from '../render/CharacterTextureManager.js';
 
-type RowId = 'audio' | 'vibration' | 'character-quality' | 'stick-size' | 'button-size' | 'opacity' | 'edit-layout' | 'reset-layout' | 'back';
+type RowId = 'audio' | 'vibration' | 'character-quality' | 'stick-size' | 'button-size' | 'opacity' | 'edit-layout' | 'reset-layout' | 'difficulty' | 'back';
 const OPTION_ROW = { left: 360, top: 114, width: 560, height: 46, step: 51 } as const;
-const ROWS: readonly RowId[] = ['audio', 'vibration', 'character-quality', 'stick-size', 'button-size', 'opacity', 'edit-layout', 'reset-layout', 'back'];
+const ROWS: readonly RowId[] = ['audio', 'vibration', 'character-quality', 'stick-size', 'button-size', 'opacity', 'edit-layout', 'reset-layout', 'difficulty', 'back'];
 
 export class OptionsScene implements Scene {
   private index = 0;
@@ -20,6 +21,7 @@ export class OptionsScene implements Scene {
   private editingLayout = false;
   private editCheckpoint: TouchControlSettings | null = null;
   private audioEnabled: boolean;
+  private aiDifficulty: AiDifficultySetting;
   private settings: TouchControlSettings;
   private readonly selectedCharacter: string;
 
@@ -32,6 +34,7 @@ export class OptionsScene implements Scene {
     private readonly back: () => void | Promise<void>,
   ) {
     this.audioEnabled = save.audioEnabled;
+    this.aiDifficulty = setAiDifficultySetting(save.aiDifficulty);
     this.selectedCharacter = save.selectedCharacter;
     this.settings = {
       stickScale: save.touchStickScale,
@@ -105,7 +108,7 @@ export class OptionsScene implements Scene {
     this.drawPanel(ctx);
     if (this.saveError) {
       ctx.textAlign = 'center'; ctx.fillStyle = '#ff9b9b'; ctx.font = '800 12px Arial, sans-serif';
-      ctx.fillText(this.saveError, 640, 586);
+      ctx.fillText(this.saveError, 640, 638);
     }
     if (this.editingLayout) this.drawEditOverlay(ctx);
     ctx.restore();
@@ -114,6 +117,7 @@ export class OptionsScene implements Scene {
   private adjust(direction: -1 | 1): void {
     const row = ROWS[this.index]!;
     if (row === 'audio' || row === 'vibration') { this.toggle(row); return; }
+    if (row === 'difficulty') { this.cycleDifficulty(direction); return; }
     if (row === 'character-quality') { characterTextureManager.cycle(direction); characterTextureManager.preloadCharacter(this.selectedCharacter); this.audio.playMenuMove(); return; }
     if (row === 'stick-size') this.settings.stickScale = this.step(this.settings.stickScale, direction * .05, .7, 1.4);
     else if (row === 'button-size') this.settings.buttonScale = this.step(this.settings.buttonScale, direction * .05, .7, 1.4);
@@ -126,6 +130,7 @@ export class OptionsScene implements Scene {
   private activate(): void {
     const row = ROWS[this.index]!;
     if (row === 'audio' || row === 'vibration') { this.toggle(row); return; }
+    if (row === 'difficulty') { this.cycleDifficulty(1); return; }
     if (row === 'character-quality') { characterTextureManager.cycle(1); characterTextureManager.preloadCharacter(this.selectedCharacter); this.audio.playUiConfirm(); return; }
     if (row === 'edit-layout') {
       this.editCheckpoint = { ...this.settings };
@@ -142,6 +147,13 @@ export class OptionsScene implements Scene {
       return;
     }
     if (row === 'back') this.leave();
+  }
+
+  private cycleDifficulty(direction: -1 | 1): void {
+    const index = AI_DIFFICULTY_SETTINGS.indexOf(this.aiDifficulty);
+    this.aiDifficulty = setAiDifficultySetting(AI_DIFFICULTY_SETTINGS[(index + direction + AI_DIFFICULTY_SETTINGS.length) % AI_DIFFICULTY_SETTINGS.length]);
+    void this.commitTouch().catch(() => undefined);
+    this.audio.playMenuMove();
   }
 
   private toggle(row: 'audio' | 'vibration'): void {
@@ -179,6 +191,7 @@ export class OptionsScene implements Scene {
     this.touch.setSettings(this.settings);
     return this.writePatch({
       audioEnabled: this.audioEnabled,
+      aiDifficulty: this.aiDifficulty,
       touchStickScale: this.settings.stickScale,
       touchButtonScale: this.settings.buttonScale,
       touchOpacity: this.settings.opacity,
@@ -215,10 +228,10 @@ export class OptionsScene implements Scene {
   }
 
   private drawPanel(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = 'rgba(4,7,12,.72)'; ctx.beginPath(); ctx.roundRect(318, 42, 644, 558, 24); ctx.fill();
+    ctx.fillStyle = 'rgba(4,7,12,.72)'; ctx.beginPath(); ctx.roundRect(318, 42, 644, 612, 24); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.09)'; ctx.lineWidth = 2; ctx.stroke();
     ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '900 38px Impact, Arial Black, sans-serif'; ctx.fillText('OPTIONS', 370, 78);
-    ctx.fillStyle = '#f0bd4f'; ctx.font = '800 12px Arial Black, sans-serif'; ctx.fillText('VISUAL QUALITY + MOBILE CONTROL', 372, 104);
+    ctx.fillStyle = '#f0bd4f'; ctx.font = '800 12px Arial Black, sans-serif'; ctx.fillText('VISUAL QUALITY + MOBILE CONTROL + CPU', 372, 104);
 
 
     for (let i = 0; i < ROWS.length; i += 1) {
@@ -234,7 +247,7 @@ export class OptionsScene implements Scene {
     }
 
     ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.56)'; ctx.font = '700 11px Arial, sans-serif';
-    if (!this.saveError) ctx.fillText('TAP ROW / ↑ ↓ SELECT  •  ← → ADJUST  •  ENTER / START CONFIRM  •  ESC / LK BACK', 640, 586);
+    if (!this.saveError) ctx.fillText('TAP ROW / ↑ ↓ SELECT  •  ← → ADJUST  •  ENTER / START CONFIRM  •  ESC / LK BACK', 640, 638);
   }
 
   private drawEditOverlay(ctx: CanvasRenderingContext2D): void {
@@ -258,6 +271,7 @@ export class OptionsScene implements Scene {
     if (row === 'opacity') return 'CONTROL OPACITY';
     if (row === 'edit-layout') return 'EDIT CONTROL POSITIONS';
     if (row === 'reset-layout') return 'RESET TOUCH LAYOUT';
+    if (row === 'difficulty') return 'CPU DIFFICULTY';
     return 'BACK TO TITLE';
   }
 
@@ -270,6 +284,7 @@ export class OptionsScene implements Scene {
     if (row === 'opacity') return `${Math.round(this.settings.opacity * 100)}%`;
     if (row === 'edit-layout') return 'DRAG';
     if (row === 'reset-layout') return 'DEFAULT';
+    if (row === 'difficulty') return `◀ ${this.aiDifficulty.toUpperCase()} ▶`;
     return 'RETURN';
   }
 

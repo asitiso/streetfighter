@@ -1,4 +1,5 @@
 import type { CharacterDef, SuperArtDef } from '../game/characters.js';
+import { aiTuning, type AiLevelTuning } from './AiDifficulty.js';
 import type { InputManager } from '../input/InputManager.js';
 import type { EnemyDirective, FighterState, HitZone, ModeRules, MoveButton, MoveData } from './CombatTypes.js';
 import { enemyAiProfile, type EnemyAiProfile, type EnemyArchetypeId } from './EnemyArchetypes.js';
@@ -61,6 +62,32 @@ function sw(fighter: object): StunWakeState {
     stunWakeStates.set(fighter, state);
   }
   return state;
+}
+
+
+/** Projectile the duel brain is watching (CombatWorld feeds the nearest incoming one each frame). */
+export interface AiProjectileThreat { key: object; x: number; y: number; vx: number }
+export interface AiBrainStats { fireballJump: number; fireballBlock: number; fireballParry: number; fireballCounter: number; antiAir: number; antiAirNormal: number; whiffPunish: number; footsieSteps: number }
+interface AiBrain {
+  level: number; tuning: AiLevelTuning;
+  threat: AiProjectileThreat | null; threatKey: object | null; threatFrames: number; threatDecided: boolean; parryArmed: boolean; guardFrames: number;
+  jumpActive: boolean; jumpFrames: number; jumpDecided: boolean;
+  whiffKey: string; whiffFrames: number; whiffDecided: boolean; whiffCommitted: boolean;
+  driftFrames: number; driftDirection: -1 | 0 | 1; airAttackDone: boolean;
+  footsieFrames: number; footsieDirection: -1 | 0 | 1;
+  stats: AiBrainStats;
+}
+const aiBrains = new WeakMap<object, AiBrain>();
+function brain(fighter: object): AiBrain {
+  let b = aiBrains.get(fighter);
+  if (!b) {
+    b = { level: 0, tuning: aiTuning(0), threat: null, threatKey: null, threatFrames: 0, threatDecided: false, parryArmed: false, guardFrames: 0,
+      jumpActive: false, jumpFrames: 0, jumpDecided: false, whiffKey: '', whiffFrames: 0, whiffDecided: false, whiffCommitted: false,
+      driftFrames: 0, driftDirection: 0, airAttackDone: false, footsieFrames: 0, footsieDirection: 0,
+      stats: { fireballJump: 0, fireballBlock: 0, fireballParry: 0, fireballCounter: 0, antiAir: 0, antiAirNormal: 0, whiffPunish: 0, footsieSteps: 0 } };
+    aiBrains.set(fighter, b);
+  }
+  return b;
 }
 
 export class Fighter {
@@ -144,6 +171,15 @@ export class Fighter {
   get wakeInvulnerableFrames(): number { return sw(this).wakeInvulnFrames; }
   get techRolling(): boolean { return sw(this).techRollFrames > 0; }
   setStunEnabled(enabled: boolean): void { sw(this).stunEnabled = enabled; if (!enabled) { sw(this).stun = 0; sw(this).pendingDizzy = false; } }
+  /** Duel AI difficulty level (0 = legacy AI, 1 easiest .. 6 hardest). */
+  setAiLevel(level: number): void { const b = brain(this); b.tuning = aiTuning(level); b.level = b.tuning.level; }
+  get aiLevel(): number { return brain(this).level; }
+  get aiBrainStats(): AiBrainStats { return { ...brain(this).stats }; }
+  /** Fed by CombatWorld each frame with the nearest projectile flying at this fighter (or null). */
+  observeProjectileThreat(threat: AiProjectileThreat | null): void { brain(this).threat = threat; }
+  /** True while the duel brain has decided to hold guard (e.g. against a fireball). */
+  get aiHoldingGuard(): boolean { return brain(this).guardFrames > 0; }
+  get aiGuardBonus(): number { return brain(this).tuning.guardBonus; }
   /** Downed fighters and the first frames after rising cannot be hit (SF wake-up rule); juggled bodies still can. */
   isInvulnerable(): boolean {
     if (this.hp <= 0) return false;
@@ -393,6 +429,7 @@ export class Fighter {
     this.tickCrouchAnimation(false);
     this.tickWindows(preserveInstall, wasAirborne && !this.airborne);
     if (this.aiCooldown > 0) this.aiCooldown -= 1;
+    this.tickAiBrain(target);
     this.tickStunAndWake(rules);
     if (this.state === 'hit' || this.state === 'block' || this.state === 'parry' || this.state === 'knockdown' || this.state === 'victory' || this.state === 'ko') {
       const duel = rules.mode === 'duel';
@@ -421,6 +458,13 @@ export class Fighter {
     const targetCornered = !rules.depthMovement && cornerDistance < 118;
     const sameLane = Math.abs(target.y - this.y) < 48;
     const chaseCapable = ['KEN', 'CHUNLI', 'DUDLEY', 'IBUKI', 'YUN', 'GILL'].includes(this.character.id) || profile.moveSpeed >= 1.08;
+    if (rules.mode === 'duel' && brain(this).level > 0 && directive.attackAllowed && this.smartDuelStep(target, movementEntry, playerDistance, movement, chaseCapable)) {
+      this.clamp(rules);
+      if (this.airborne && (this.state === 'walk' || this.state === 'idle')) this.state = 'jump';
+      this.stateFrame += 1;
+      this.tickWalkAnimation();
+      return;
+    }
 
     if (!this.airborne && directive.attackAllowed && this.aiCooldown === 0 && target.airborne && target.jumpHeight > 34 && playerDistance < 205 && sameLane) {
       if (chaseCapable && target.jumpHeight > 78 && playerDistance > 58) {
@@ -1108,6 +1152,149 @@ export class Fighter {
       this.stateFrame = 0;
       if (!this.airborne && this.landingFrames === 8) this.landingNeutralAnimationFrame = this.animationFrame;
     }
+  }
+
+  /** Per-frame bookkeeping for the duel brain: threat timers, guard hold, air drift. Runs in every AI state. */
+  private tickAiBrain(target: Fighter): void {
+    const b = brain(this);
+    if (b.level <= 0) return;
+    if (b.guardFrames > 0) b.guardFrames -= 1;
+    const threat = b.threat;
+    if (!threat) { b.threatKey = null; b.parryArmed = false; }
+    else {
+      if (threat.key !== b.threatKey) { b.threatKey = threat.key; b.threatFrames = 0; b.threatDecided = false; b.parryArmed = false; }
+      b.threatFrames += 1;
+      if (b.parryArmed && Math.abs(threat.x - this.x) < 90) this.parryWindow = Math.max(this.parryWindow, 3);
+    }
+    if (target.airborne && target.jumpHeight > 6) {
+      if (!b.jumpActive) { b.jumpActive = true; b.jumpFrames = 0; b.jumpDecided = false; }
+      b.jumpFrames += 1;
+    } else b.jumpActive = false;
+    const move = target.currentMove;
+    if (target.state === 'attack' && move && !target.attackConnected && target.moveFrame >= move.startup + move.active) {
+      const key = `${target.attackAnimationStartFrame}:${move.id}`;
+      if (key !== b.whiffKey) { b.whiffKey = key; b.whiffFrames = 0; b.whiffDecided = false; b.whiffCommitted = false; }
+      b.whiffFrames += 1;
+    } else if (target.state !== 'attack') { b.whiffKey = ''; b.whiffCommitted = false; }
+    if (this.airborne && b.driftFrames > 0) { b.driftFrames -= 1; this.x += b.driftDirection * 3.8; }
+    if (!this.airborne) { b.driftFrames = 0; b.airAttackDone = false; }
+  }
+
+  /**
+   * Deterministic duel decisions layered over the archetype AI: fireball answers (counter-fireball, jump over,
+   * parry, block), anti-air, whiff punishing and footsie spacing. Returns true when it acted this frame.
+   */
+  private smartDuelStep(target: Fighter, movementEntry: boolean, distance: number, movement: number, mobile: boolean): boolean {
+    const b = brain(this), t = b.tuning;
+    const specials = specialMovesFor(this.character.id);
+    const toTarget: 1 | -1 = target.x >= this.x ? 1 : -1;
+    // Jump-over follow-up: kick on the way down once in range.
+    if (this.airborne) {
+      if (b.driftFrames > 0 && !b.airAttackDone && !this.currentMove && this.jumpVelocity < 0 && distance < 120) {
+        b.airAttackDone = true;
+        this.startMove(airNormalFor(this.character.id, 'hk'));
+        return true;
+      }
+      return false;
+    }
+    // 1) Incoming projectile.
+    const threat = b.threat;
+    if (threat && !b.threatDecided && b.threatFrames >= t.reactionDelay) {
+      const gap = Math.abs(threat.x - this.x);
+      const incoming = threat.vx !== 0 && Math.sign(threat.vx) === Math.sign(this.x - threat.x);
+      if (incoming && gap < 360) {
+        b.threatDecided = true;
+        if (this.brainRoll(21, target) < t.fireballChance) {
+          const r = this.brainRoll(22, target);
+          const canCounter = !!specials.primary.projectile && gap > 150;
+          const canJump = gap >= 70 && gap <= 220;
+          if (canCounter && r < (mobile ? .35 : .55)) {
+            this.facing = toTarget;
+            this.startMove(specials.primary, movementEntry);
+            b.stats.fireballCounter += 1;
+            this.aiCooldown = Math.max(this.aiCooldown, 18);
+            return true;
+          }
+          if (canJump && r < (mobile ? .8 : .62)) {
+            this.facing = toTarget;
+            this.airborne = true; this.jumpVelocity = this.combatProfile.jumpVelocity; this.state = 'jump'; this.stateFrame = 0;
+            b.driftFrames = 30; b.driftDirection = toTarget; b.airAttackDone = false;
+            b.stats.fireballJump += 1;
+            return true;
+          }
+          if (t.canParry && r < .86) { b.parryArmed = true; b.stats.fireballParry += 1; }
+          else { b.guardFrames = 50; b.stats.fireballBlock += 1; }
+        }
+      }
+    }
+    if (threat && (b.guardFrames > 0 || b.parryArmed)) {
+      // Hold position while guarding / waiting to parry the shot.
+      this.walkDirection = 0; this.state = 'idle';
+      return true;
+    }
+    // 2) Anti-air against jump-ins.
+    if (b.jumpActive && !b.jumpDecided && b.jumpFrames >= Math.max(3, Math.round(t.reactionDelay * .6))) {
+      const approaching = Math.sign(target.x - target.previousX) === -toTarget || distance < 110;
+      if (approaching && distance < 175 && Math.abs(target.y - this.y) < 48) {
+        b.jumpDecided = true;
+        if (this.brainRoll(23, target) < t.antiAirChance) {
+          this.facing = toTarget;
+          if (distance < 90 && this.brainRoll(24, target) < .45) { this.startMove(normalFor('hp', true, this.character.id), movementEntry); b.stats.antiAirNormal += 1; }
+          else { this.startMove(specials.antiAir, movementEntry); b.stats.antiAir += 1; }
+          this.aiCooldown = Math.max(this.aiCooldown, 14);
+          return true;
+        }
+      }
+    }
+    // 3) Whiff punish: target missed and is still recovering. Commit once per whiff, then step in and hit.
+    const whiff = target.currentMove;
+    if (b.whiffKey && whiff && b.whiffFrames >= Math.max(2, Math.round(t.reactionDelay * .5))) {
+      if (!b.whiffDecided) { b.whiffDecided = true; b.whiffCommitted = this.brainRoll(25, target) < t.whiffPunishChance; }
+      const remaining = whiff.startup + whiff.active + whiff.recovery - target.moveFrame;
+      if (b.whiffCommitted && remaining > 2) {
+        const reach = (m: MoveData) => m.hitbox.forward * this.character.reach - 6;
+        const options = [normalFor('mk', true, this.character.id), normalFor('hk', false, this.character.id), normalFor('mp', false, this.character.id), normalFor('lk', true, this.character.id)];
+        const punish = options.find((m) => m.startup + m.active > 0 && m.startup + 1 < remaining && distance <= reach(m));
+        this.facing = toTarget;
+        if (punish) {
+          this.startMove(punish, movementEntry);
+          b.whiffCommitted = false;
+          b.stats.whiffPunish += 1;
+          this.aiCooldown = Math.max(this.aiCooldown, 12);
+          return true;
+        }
+        const closest = Math.max(...options.map(reach));
+        if (remaining > 7 && distance > closest) {
+          this.walkDirection = toTarget; this.x += toTarget * movement * 1.25; this.state = 'walk';
+          return true;
+        }
+      }
+    }
+    // 4) Footsies: while the archetype AI is cooling down, dance at the edge of poke range instead of walking in.
+    const preferred = this.aiProfile.preferredDistance;
+    if (t.footsies && this.aiCooldown > 0 && distance > 60 && distance < preferred + 110) {
+      if (b.footsieFrames <= 0) {
+        const r = this.brainRoll(31, target);
+        b.footsieDirection = distance < preferred * .8 ? -1 : r < .38 ? -1 : r < .58 ? 0 : 1;
+        b.footsieFrames = 10 + Math.floor(this.brainRoll(32, target) * 16);
+      }
+      b.footsieFrames -= 1;
+      const step = b.footsieDirection * toTarget;
+      if (step !== 0) {
+        this.walkDirection = step as -1 | 1;
+        this.x += step * movement * .72;
+        this.state = 'walk';
+        b.stats.footsieSteps += 1;
+      } else { this.walkDirection = 0; this.state = 'idle'; }
+      return true;
+    }
+    b.footsieFrames = 0;
+    return false;
+  }
+
+  /** Duel-brain roll: aiRoll mixed with both fighters' positions so different situations choose differently. */
+  private brainRoll(salt: number, target: Fighter): number {
+    return this.aiRoll(salt + Math.imul(Math.round(this.x) * 31 + Math.round(target.x) * 17 + Math.round(target.jumpHeight) * 7, 2654435761));
   }
 
   private aiRoll(salt: number): number {

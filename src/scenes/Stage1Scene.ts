@@ -1,4 +1,5 @@
 import type { AudioManager } from '../core/AudioManager.js';
+import { stageAiLevel } from '../combat/AiDifficulty.js';
 import type { RenderContext, Scene } from '../core/Scene.js';
 import type { CharacterDef, SuperArtDef } from '../game/characters.js';
 import { getCharacter } from '../game/characters.js';
@@ -2109,6 +2110,7 @@ export class Stage1Scene implements Scene {
     duel.player.superGauge = gauge;
     duel.enemy.hp = 1000;
     duel.enemy.maxHp = 1000;
+    duel.enemy.setAiLevel(stageAiLevel(this.stageId));
     this.world = duel;
     this.prepareCombatTextures();
     this.stageTime = 99;
@@ -2136,6 +2138,7 @@ export class Stage1Scene implements Scene {
     duel.enemy.aiSuperBias = .08;
     this.gillPhase = 1;
     this.gillPhaseBanner = 90;
+    duel.enemy.setAiLevel(stageAiLevel(this.stageId, true));
     this.world = duel;
     this.prepareCombatTextures();
     this.stageTime = 99;

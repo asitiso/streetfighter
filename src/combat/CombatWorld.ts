@@ -60,6 +60,7 @@ export class CombatWorld {
   readonly enemies: Fighter[] = [];
   readonly events: CombatEvent[] = [];
   readonly projectiles: ProjectileInstance[] = [];
+  projectilesClashed = 0;
   readonly props: EnvironmentProp[] = [];
   readonly rules: ModeRules;
   readonly director = new EnemyDirector();
@@ -146,6 +147,17 @@ export class CombatWorld {
     if (!playerWasInHitStop) this.applySoftLaneAlignment(target);
 
     const directives = this.director.update(this.player, this.enemies, this.rules);
+    if (this.rules.mode === 'duel') {
+      for (const enemy of this.enemies) {
+        if (enemy.aiLevel <= 0) continue;
+        let nearest: ProjectileInstance | null = null;
+        for (const projectile of this.projectiles) {
+          if (projectile.owner === enemy || projectile.vx === 0 || Math.sign(projectile.vx) !== Math.sign(enemy.x - projectile.x)) continue;
+          if (!nearest || Math.abs(projectile.x - enemy.x) < Math.abs(nearest.x - enemy.x)) nearest = projectile;
+        }
+        enemy.observeProjectileThreat(nearest ? { key: nearest, x: nearest.x, y: nearest.y, vx: nearest.vx } : null);
+      }
+    }
     for (const enemy of this.enemies) {
       if (enemy.hp <= 0) {
         if (enemy.state === 'ko') enemy.updateAi(this.player, this.rules);
@@ -451,7 +463,27 @@ export class CombatWorld {
     if (defender.hp <= 0) this.events.push({ type: 'ko', x: defender.x, y: defender.y - 130, power: 999, ttl: 90 });
   }
 
+  /** Opposing non-piercing fireballs that meet cancel each other out (SF projectile clash). */
+  private resolveProjectileClashes(): void {
+    for (let i = 0; i < this.projectiles.length; i += 1) {
+      const a = this.projectiles[i]!;
+      if (a.piercing || a.move.superCost) continue;
+      for (let j = i + 1; j < this.projectiles.length; j += 1) {
+        const b = this.projectiles[j]!;
+        if (b.piercing || b.move.superCost || b.owner.side === a.owner.side) continue;
+        if (Math.abs(a.x - b.x) > a.radius + b.radius || Math.abs(a.y - b.y) > 48) continue;
+        this.events.push({ type: 'block', x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, power: Math.max(a.move.damage, b.move.damage), ttl: 18, color: a.move.color, label: 'CLASH' });
+        this.projectilesClashed += 1;
+        this.projectiles.splice(j, 1);
+        this.projectiles.splice(i, 1);
+        i -= 1;
+        break;
+      }
+    }
+  }
+
   private updateProjectiles(input: InputManager): void {
+    this.resolveProjectileClashes();
     for (let i = 0; i < this.projectiles.length; i += 1) {
       const projectile = this.projectiles[i]!;
       projectile.x += projectile.vx;
@@ -564,6 +596,7 @@ export class CombatWorld {
   }
 
   private enemyDefenseDecision(defender: Fighter, attacker: Fighter, move: MoveData, threatX = attacker.x): boolean {
+    if (defender.aiHoldingGuard && move.level !== 'throw') return true;
     const distance = Math.abs(threatX - defender.x);
     if (distance >= Math.max(150, defender.aiProfile.preferredDistance + 72)) return false;
     const profile = defender.aiProfile;
@@ -574,7 +607,7 @@ export class CombatWorld {
       defender.aiCooldown = Math.min(defender.aiCooldown, Math.max(0, Math.round(8 - profile.counterBias * 7)));
       return false;
     }
-    return roll < profile.parryChance + profile.guardChance;
+    return roll < profile.parryChance + profile.guardChance + defender.aiGuardBonus;
   }
 
   private resolveBodyCollisions(): void {
