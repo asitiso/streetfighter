@@ -1,3 +1,4 @@
+// V081: duels are best-of-3; fixtures start in the FINAL ROUND (1-1) so one KO decides the match.
 import assert from 'node:assert/strict';
 import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
 import {normalFor} from '../dist/assets/combat/MoveLibrary.js';
@@ -12,7 +13,7 @@ function filters(f){const paints=[],stack=[],o={globalAlpha:1,filter:'none'};con
 const snapshot=f=>[f.state,f.stateFrame,f.animationFrame,f.hitStop,f.hitFlash,f.jumpHeight,f.jumpVelocity,f.airborne,f.throwSyncFrames,f.superVictimFrames];
 let cases=0,referenceTicks=0,airLandings=0,doubleKOs=0;
 for(const c of roster)for(const mode of ['hd','lite'])for(const kind of ['ground','air','double-ko']){
- textures.setMode('lite');textures.setMode(mode);let callbacks=0;const scene=new Stage1Scene(input,audio,c,c.superArts[0],1,undefined,()=>callbacks++);scene.enter();scene.introFrames=0;scene.prepareDuel();scene.phase='duel';
+ textures.setMode('lite');textures.setMode(mode);let callbacks=0;const scene=new Stage1Scene(input,audio,c,c.superArts[0],1,undefined,()=>callbacks++);scene.enter();scene.introFrames=0;scene.prepareDuel();scene.phase='duel';scene.playerRoundWins=scene.enemyRoundWins=1;
  const f=scene.world.player,e=scene.world.enemy;e.aiCooldown=1000;
  f.receiveHit({...normalFor('hp',false,e.character.id),damage:99999},e,false);assert.equal(f.state,'ko');assert(f.hitFlash>0);
  if(kind==='air'){f.airborne=true;f.jumpHeight=55;f.jumpVelocity=3;}

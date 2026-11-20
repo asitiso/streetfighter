@@ -4,6 +4,7 @@ import { Stage3Scene } from '../dist/assets/scenes/Stage3Scene.js';
 import { Stage4Scene } from '../dist/assets/scenes/Stage4Scene.js';
 import { Stage5Scene } from '../dist/assets/scenes/Stage5Scene.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
+import { winDuelMatch } from './duel-round-helpers.mjs';
 
 class StubInput {
   constructor() { this.heldActions = new Set(); this.pressedActions = new Set(); }
@@ -46,8 +47,11 @@ function clearBeltAreas(scene, tickBase = 1) {
   if (scene.phase !== 'duel' || scene.world.rules.mode !== 'duel') fail('duel not activated');
   if (scene.stageTime < 98.9) fail(`duel timer did not reset: ${scene.stageTime}`);
   const boss = scene.world.enemy.character.name;
+  // V081: duels are best-of-3; the first KO only wins round 1.
   scene.world.enemy.hp = 0;
   scene.fixedUpdate(1 / 60, tick++);
+  if (scene.phase !== 'duel' || scene.playerRoundWins !== 1) fail('first duel KO should only win round 1');
+  tick = winDuelMatch(scene, tick);
   if (scene.phase !== 'clear') fail('clear not activated');
   return { waveProfiles, boss, tick };
 }
@@ -77,8 +81,7 @@ function clearStage5(scene, tickBase = 4000) {
   if (scene.phase !== 'transition') fail(`stage5 expected Urien transition, got ${scene.phase}`);
   for (let t = 0; t < 320 && scene.phase === 'transition'; t += 1) scene.fixedUpdate(1 / 60, tick++);
   if (scene.phase !== 'duel' || scene.world.enemy.character.name !== 'URIEN') fail('stage5 Urien duel missing');
-  scene.world.enemy.hp = 0;
-  scene.fixedUpdate(1 / 60, tick++);
+  tick = winDuelMatch(scene, tick);
   if (scene.phase !== 'final-transition') fail(`stage5 final transition missing: ${scene.phase}`);
   for (let t = 0; t < 330 && scene.phase === 'final-transition'; t += 1) scene.fixedUpdate(1 / 60, tick++);
   if (scene.phase !== 'final-duel' || scene.world.enemy.character.name !== 'GILL') fail('stage5 Gill final duel missing');
@@ -91,8 +94,7 @@ function clearStage5(scene, tickBase = 4000) {
   scene.world.enemy.hp = Math.round(scene.world.enemy.maxHp * .28);
   scene.fixedUpdate(1 / 60, tick++);
   if (scene.gillPhase !== 3 || scene.world.enemy.aiTempoScale < 1.3 || scene.world.enemy.aiSuperBias < .4) fail('Gill final segment transition missing');
-  scene.world.enemy.hp = 0;
-  scene.fixedUpdate(1 / 60, tick++);
+  tick = winDuelMatch(scene, tick);
   if (scene.phase !== 'final-ko') fail(`stage5 final KO sequence missing: ${scene.phase}`);
   for (let t = 0; t < 181; t += 1) scene.fixedUpdate(1 / 60, tick++);
   if (scene.phase !== 'clear') fail(`stage5 clear bridge missing: ${scene.phase}`);

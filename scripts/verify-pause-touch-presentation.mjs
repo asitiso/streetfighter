@@ -1,3 +1,4 @@
+// V081: duels are best-of-3; fixtures start in the FINAL ROUND (1-1) so one KO decides the match.
 import assert from 'node:assert/strict';
 import {InputManager} from '../dist/assets/input/InputManager.js';
 import {TouchControls} from '../dist/assets/ui/TouchControls.js';
@@ -33,7 +34,7 @@ console.log(JSON.stringify({passed:true,blocked,lifecycle}));
 let postCombatCases=0;
 for(const c of CHARACTERS)for(const [index,Scene]of [Stage1Scene,Stage2Scene,Stage3Scene,Stage4Scene,Stage5Scene].entries())for(const reason of ['ko','time-over','clear'])for(const finish of ['exit','destroy']){
  const t=setup(),audio=new Proxy({},{get:()=>()=>{}}),callback=active=>t.touch.setPostCombatMode(active),args=[t.input,audio,c,c.superArts[0],...(index===0?[1]:[]),undefined,undefined,undefined,callback],s=new Scene(...args);s.introFrames=0;
- if(reason==='time-over')s.stageTime=0;else if(reason==='ko'){s.world.player.hp=0;s.world.player.state='ko';s.world.player.stateFrame=-90;}else{if(index===4){s.prepareFinalDuel();s.phase='final-duel';}else{s.prepareDuel();s.phase='duel';}s.world.enemy.hp=0;s.world.enemy.state='ko';s.world.enemy.stateFrame=-90;}
+ if(reason==='time-over')s.stageTime=0;else if(reason==='ko'){s.world.player.hp=0;s.world.player.state='ko';s.world.player.stateFrame=-90;}else{if(index===4){s.prepareFinalDuel();s.phase='final-duel';s.playerRoundWins=s.enemyRoundWins=1;}else{s.prepareDuel();s.phase='duel';s.playerRoundWins=s.enemyRoundWins=1;}s.world.enemy.hp=0;s.world.enemy.state='ko';s.world.enemy.stateFrame=-90;}
  s.fixedUpdate(1/60,1);assert.equal(t.touch.postCombatMode,true,'Result phase must clear combat controls');assert.equal(s.paused,false,'Post-combat display is not a simulation pause');pointer(t.nodes.get('hp'),'pointerdown',11);assert(!t.input.touchHeld('hp'),'Hidden touch attacks cannot create ghost input');pointer(t.nodes.get('start'),'pointerdown',22);assert(t.input.pressed('start'),'START remains available');s[finish]();assert.equal(t.touch.postCombatMode,false,'Result controls cannot leak to the next scene');assert(!t.input.touchHeld('start'));t.input.destroy();postCombatCases++;
 }
 console.log('POST_COMBAT_TOUCH_PASS',{postCombatCases,clearAndDefeat:true,startAvailable:true,sceneExitRestoresControls:true});
@@ -43,7 +44,7 @@ for(const [index,Scene]of [Stage1Scene,Stage2Scene,Stage3Scene,Stage4Scene,Stage
  const t=setup(),manager=new SceneManager(),audio=new Proxy({},{get:()=>()=>{}}),c=CHARACTERS[1],mode=active=>t.touch.setPostCombatMode(active);let calls=0,next;
  const make=(clear,defeat)=>new Scene(t.input,audio,c,c.superArts[0],...(index===0?[1]:[]),clear,defeat,undefined,mode);
  const route=()=>{calls++;if(failFirst&&calls===1)throw Error('controlled route failure');next=make();return manager.setScene(next);};
- const s=make(route,route);await manager.setScene(s);s.introFrames=0;if(reason==='ko'){s.world.player.hp=0;s.world.player.state='ko';s.world.player.stateFrame=-90;}else{if(index===4){s.prepareFinalDuel();s.phase='final-duel';}else{s.prepareDuel();s.phase='duel';}s.world.enemy.hp=0;s.world.enemy.state='ko';s.world.enemy.stateFrame=-90;}
+ const s=make(route,route);await manager.setScene(s);s.introFrames=0;if(reason==='ko'){s.world.player.hp=0;s.world.player.state='ko';s.world.player.stateFrame=-90;}else{if(index===4){s.prepareFinalDuel();s.phase='final-duel';s.playerRoundWins=s.enemyRoundWins=1;}else{s.prepareDuel();s.phase='duel';s.playerRoundWins=s.enemyRoundWins=1;}s.world.enemy.hp=0;s.world.enemy.state='ko';s.world.enemy.stateFrame=-90;}
  s.fixedUpdate(1/60,1);assert(t.touch.postCombatMode);if(reason==='ko')s.defeatFrames=0;else{s.phase='clear';s.phaseFrames=0;}s.routeError='RETRY';
  const tapStart=()=>{pointer(t.nodes.get('start'),'pointerdown',33);pointer(t.nodes.get('start'),'pointerup',33);t.input.prepareTick();s.fixedUpdate(1/60,2);t.input.endTick();};tapStart();if(failFirst){assert.equal(calls,1);assert(t.touch.postCombatMode,'Failed route keeps readable result controls');assert(s.routeError);tapStart();}await manager.transitionTail;assert.equal(manager.activeScene,next);assert.equal(calls,failFirst?2:1);assert(!t.touch.postCombatMode);assert(!t.input.pressed('start')&&!t.input.touchHeld('start'),'Retry START cannot pause the new scene');pointer(t.nodes.get('hp'),'pointerdown',44);assert(t.input.touchHeld('hp'),'Fresh combat controls work after actual scene replacement');next.exit();next.destroy();t.input.destroy();postCombatRouteCases++;
 }

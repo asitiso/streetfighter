@@ -1,3 +1,4 @@
+// V081: duels are best-of-3; fixtures start in the FINAL ROUND (1-1) so one KO decides the match.
 import assert from 'node:assert/strict';
 import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
@@ -51,7 +52,7 @@ let cleared = false;
 const scene = new Stage5Scene(new StubInput(), new StubAudio(), ryu, ryu.superArts[0], () => { cleared = true; });
 scene.introFrames = 0;
 scene.prepareFinalDuel();
-scene.phase = 'final-duel';
+scene.phase = 'final-duel';scene.playerRoundWins=scene.enemyRoundWins=1;
 scene.gillPhase = 3;
 const labels = [];
 for (let i = 0; i < 5; i += 1) {

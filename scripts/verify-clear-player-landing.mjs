@@ -1,3 +1,4 @@
+// V081: duels are best-of-3; fixtures start in the FINAL ROUND (1-1) so one KO decides the match.
 import assert from 'node:assert/strict';
 import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
 import {normalFor,specialMovesFor} from '../dist/assets/combat/MoveLibrary.js';
@@ -9,7 +10,7 @@ const roster=[...CHARACTERS,...BOSS_CHARACTERS],audio={playStagePulse(){},playHi
 let cases=0,landings=0,victoryFrames=0,maxLandingTick=0;
 for(const c of roster)for(const stage of [1,2,3,4])for(const facing of [-1,1])for(const kind of ['air-light','air-heavy','rising']){
  let hostile=false,callbacks=0;const input={pressed:()=>hostile,held:()=>hostile,released:()=>false};
- const scene=new Stage1Scene(input,audio,c,c.superArts[0],stage,()=>callbacks++);scene.enter();scene.introFrames=0;scene.prepareDuel();scene.phase='duel';
+ const scene=new Stage1Scene(input,audio,c,c.superArts[0],stage,()=>callbacks++);scene.enter();scene.introFrames=0;scene.prepareDuel();scene.phase='duel';scene.playerRoundWins=scene.enemyRoundWins=1;
  const p=scene.world.player,e=scene.world.enemy,move=kind==='rising'?specialMovesFor(c.id).antiAir:airNormalFor(c.id,kind==='air-light'?'lp':'hk');p.facing=facing;p.startMove(move);assert(p.currentMove);
  p.airborne=true;p.jumpHeight=kind==='air-light'?120:55;p.jumpVelocity=kind==='air-light'?5:3;p.moveFrame=p.currentMove.startup+1;p.stateFrame=p.moveFrame;p.hitStop=2;
  e.receiveHit({...normalFor('hp',false,c.id),damage:99999},p,false);scene.fixedUpdate(1/60,1);assert.equal(scene.phase,'clear');

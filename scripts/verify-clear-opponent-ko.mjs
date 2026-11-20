@@ -1,3 +1,4 @@
+// V081: duels are best-of-3; fixtures start in the FINAL ROUND (1-1) so one KO decides the match.
 import assert from 'node:assert/strict';
 import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
 import {normalFor} from '../dist/assets/combat/MoveLibrary.js';
@@ -15,7 +16,7 @@ let cases=0,referenceTicks=0,airLandings=0,campaignRoutes=0;
 for(const mode of ['hd','lite'])for(const airborne of [false,true])for(const spec of [...roster.map(c=>({stage:1,opponent:c})),...[1,2,3,4,5].map(stage=>({stage}))]){
  textures.setMode('lite');textures.setMode(mode);let callbacks=0;
  const scene=new Stage1Scene(input,audio,ken,ken.superArts[0],spec.stage,()=>callbacks++);scene.enter();scene.introFrames=0;
- if(spec.stage===5){scene.prepareFinalDuel();scene.phase='final-duel';}else{scene.prepareDuel();scene.phase='duel';}
+ if(spec.stage===5){scene.prepareFinalDuel();scene.phase='final-duel';scene.playerRoundWins=scene.enemyRoundWins=1;}else{scene.prepareDuel();scene.phase='duel';scene.playerRoundWins=scene.enemyRoundWins=1;}
  if(spec.opponent){scene.world.replaceEnemies([{character:spec.opponent,x:880,y:500}]);scene.prepareCombatTextures();}
  const p=scene.world.player,e=scene.world.enemy;
  e.receiveHit({...normalFor('hp',false,p.character.id),damage:99999},p,false);assert.equal(e.state,'ko');if(airborne){e.airborne=true;e.jumpHeight=55;e.jumpVelocity=3;}

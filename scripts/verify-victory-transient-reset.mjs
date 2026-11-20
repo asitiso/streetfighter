@@ -1,3 +1,4 @@
+// V081: duels are best-of-3; fixtures start in the FINAL ROUND (1-1) so one KO decides the match.
 import assert from 'node:assert/strict';
 import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
 import {Fighter} from '../dist/assets/combat/Fighter.js';
@@ -15,7 +16,7 @@ const input={pressed:()=>false,held:()=>false,released:()=>false},audio={playSta
 let trades=0,cases=0;
 for(const c of roster){
  textures.setMode('lite');textures.setMode('hd');
- const scene=new Stage1Scene(input,audio,c,c.superArts[0]);scene.enter();scene.introFrames=0;scene.prepareDuel();scene.phase='duel';
+ const scene=new Stage1Scene(input,audio,c,c.superArts[0]);scene.enter();scene.introFrames=0;scene.prepareDuel();scene.phase='duel';scene.playerRoundWins=scene.enemyRoundWins=1;
  const f=scene.world.player,e=scene.world.enemy;f.receiveHit(normalFor('mp',false,e.character.id),e,false);assert(f.hitFlash>0);e.hp=0;
  const hp=f.hp,gauge=f.superGauge;scene.fixedUpdate(1/60,1);assert.equal(scene.phase,'clear');
  assert.equal(draw(f).filter,'none',c.id+' victory after trade must not retain hit flash');

@@ -37,6 +37,15 @@ import { drawCombatImpact } from '../render/CombatImpactAssets.js';
 const WAVE_BREAK_FRAMES = 54;
 const DEFEAT_PRESENTATION_FRAMES = { ko: 120, 'double-ko': 120, 'time-over': 90 } as const;
 
+type RoundWinner = 'player' | 'enemy' | 'draw';
+type RoundEndReason = 'ko' | 'double-ko' | 'time';
+export const ROUNDS_TO_WIN = 2;
+export const MAX_DUEL_ROUNDS = 5;
+export const ROUND_BREAK_FRAMES = 150;
+export const ROUND_ANNOUNCE_FRAMES = 105;
+export const ROUND_FIGHT_FRAMES = 40;
+const ROUND_ONE_BANNER_FRAMES = 72;
+
 export class Stage1Scene implements Scene {
   private world: CombatWorld;
   private phase: 'belt' | 'transition' | 'duel' | 'final-transition' | 'final-duel' | 'final-ko' | 'clear' | 'defeat' = 'belt';
@@ -60,6 +69,16 @@ export class Stage1Scene implements Scene {
   private defeatRetryQueued = false;
   private defeatReason: 'ko' | 'double-ko' | 'time-over' = 'ko';
   private paused = false;
+  // Best-of-3 duel rounds (Street Fighter III rules): first to ROUNDS_TO_WIN round wins takes the match.
+  private duelRound = 1;
+  private playerRoundWins = 0;
+  private enemyRoundWins = 0;
+  private roundBreakFrames = 0;
+  private roundAnnounceFrames = 0;
+  private roundOneBannerFrames = 0;
+  private lastRoundWinner: RoundWinner | null = null;
+  private lastRoundReason: RoundEndReason = 'ko';
+  private lastRoundPerfect = false;
   private fightersFrozenLastTick = false;
   private gillPhase: 1 | 2 | 3 = 1;
   private gillPhaseBanner = 0;
@@ -204,6 +223,7 @@ export class Stage1Scene implements Scene {
     // Reuse the freeze buffer for quick taps just before combat becomes ready.
     const readyFrames = this.introFrames > 0 ? this.introFrames
       : this.phase === 'transition' || this.phase === 'final-transition' ? this.phaseFrames
+      : (this.phase === 'duel' || this.phase === 'final-duel') && this.roundAnnounceFrames > 0 ? this.roundAnnounceFrames
       : this.phase === 'belt' ? this.waveBreakFrames : 0;
     if (readyFrames > 0 && readyFrames <= 6) this.world.player.captureInput(this.input, tick, true, this.world.rules);
     if (this.introFrames > 0) { this.introFrames -= 1; return; }
@@ -215,7 +235,7 @@ export class Stage1Scene implements Scene {
       this.updateKnockedOutFighters();
       this.phaseFrames -= 1;
       if (this.phaseFrames === transitionPolishProfile(this.stageId).duelPrepareAt) this.prepareDuel();
-      if (this.phaseFrames <= 0) this.phase = 'duel';
+      if (this.phaseFrames <= 0) { this.phase = 'duel'; this.beginDuelMatch(); }
       return;
     }
     if (this.phase === 'final-transition') {
@@ -225,7 +245,7 @@ export class Stage1Scene implements Scene {
       this.updateKnockedOutFighters();
       this.phaseFrames -= 1;
       if (this.phaseFrames === transitionPolishProfile(this.stageId).duelPrepareAt) this.prepareFinalDuel();
-      if (this.phaseFrames <= 0) this.phase = 'final-duel';
+      if (this.phaseFrames <= 0) { this.phase = 'final-duel'; this.beginDuelMatch(); }
       return;
     }
     if (this.phase === 'final-ko') {
@@ -266,22 +286,17 @@ export class Stage1Scene implements Scene {
       return;
     }
 
+    const inDuel = this.phase === 'duel' || this.phase === 'final-duel';
+    if (inDuel && this.roundBreakFrames > 0) { this.tickRoundBreak(); return; }
+    if (inDuel && this.roundAnnounceFrames > 0) { this.tickRoundAnnounce(); return; }
+    if (inDuel && this.roundOneBannerFrames > 0) this.roundOneBannerFrames -= 1;
+
     const timerActive = this.phase !== 'belt' || this.beltState === 'fight';
     const combatFrozen = this.world.superFreezeFrames > 0;
     if (timerActive && !combatFrozen) this.stageTime = Math.max(0, this.stageTime - dt);
-    if (timerActive && !combatFrozen && this.stageTime <= 0 && this.resolveDuelTimeOverWin()) return;
     if (timerActive && !combatFrozen && this.stageTime <= 0) {
-      this.phase = 'defeat';
-      this.onPostCombatChange?.(true);
-      this.defeatReason = 'time-over';
-      this.defeatFrames = DEFEAT_PRESENTATION_FRAMES['time-over'];
-      this.defeatDispatched = false;
-      this.world.projectiles.length = 0;
-      this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 90);
-      this.cameraFocusX = this.world.player.x;
-      this.cameraFocusY = this.world.player.y - 105;
-      this.cameraFocusZoom = 1.08;
-      this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 90);
+      if (inDuel) this.concludeDuelRound(this.timeOverWinner(), 'time');
+      else this.enterTimeOverDefeat();
       return;
     }
     if (!combatFrozen) this.elapsedCombatFrames += 1;
@@ -315,25 +330,8 @@ export class Stage1Scene implements Scene {
     if (this.hitPulse > 0) this.hitPulse -= 1;
 
     if (this.world.player.hp <= 0) {
-      this.phase = 'defeat';
-      this.onPostCombatChange?.(true);
-      this.defeatReason = this.world.livingEnemies.length === 0 ? 'double-ko' : 'ko';
-      this.defeatFrames = DEFEAT_PRESENTATION_FRAMES[this.defeatReason];
-      this.defeatDispatched = false;
-      this.world.projectiles.length = 0;
-      this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 120);
-      if (this.defeatReason === 'double-ko' && this.world.enemies.length > 0) {
-        const enemy = this.world.enemies[0]!;
-        this.cameraFocusX = (this.world.player.x + enemy.x) * .5;
-        this.cameraFocusY = Math.min(this.world.player.y, enemy.y) - 105;
-        this.cameraFocusZoom = 1.06;
-      } else {
-        this.cameraFocusX = this.world.player.x;
-        this.cameraFocusY = this.world.player.y - 105;
-        this.cameraFocusZoom = 1.1;
-      }
-      this.cameraSlowFrames = Math.max(this.cameraSlowFrames, 24);
-      this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 120);
+      if (inDuel) this.concludeDuelRound(this.world.livingEnemies.length === 0 ? 'draw' : 'enemy', this.world.livingEnemies.length === 0 ? 'double-ko' : 'ko');
+      else this.enterKoDefeat();
       return;
     }
 
@@ -357,33 +355,8 @@ export class Stage1Scene implements Scene {
       this.spawnBeltWave(this.beltWave);
       this.prepareCombatTextures();
       this.waveBreakFrames = WAVE_BREAK_FRAMES;
-    } else if (this.phase === 'duel' && this.world.enemy.hp <= 0) {
-      this.world.projectiles.length = 0;
-      if (this.stageId === 5) {
-        this.phase = 'final-transition';
-        this.phaseFrames = transitionPolishProfile(this.stageId).duelFrames;
-        this.audio.playDuelTransition?.(true);
-        this.audio.setStageIntensity?.('final');
-      } else {
-        this.phase = 'clear';
-        this.onPostCombatChange?.(true);
-        this.phaseFrames = transitionPolishProfile(this.stageId).clearFrames;
-        if (!this.world.player.airborne) this.world.player.enterVictoryPose();
-        this.audio.playStageClear?.(false);
-      }
-    } else if (this.phase === 'final-duel' && this.world.enemy.hp <= 0) {
-      this.phase = 'final-ko';
-      this.onPostCombatChange?.(true);
-      this.finalKoFrames = 180;
-      this.audio.playFinalKo?.();
-      this.world.projectiles.length = 0;
-      this.cameraFocusFrames = 180;
-      this.cameraFocusX = this.world.enemy.x;
-      this.cameraFocusY = this.world.enemy.y - 120;
-      this.cameraFocusZoom = 1.2;
-      this.cameraSlowFrames = 42;
-      this.cameraLetterboxFrames = 180;
-      this.world.events.push({ type: 'boss-burst', x: this.world.enemy.x, y: this.world.enemy.y - 120, power: 360, ttl: 90, label: 'DIVINITY COLLAPSE' });
+    } else if (inDuel && this.world.enemy.hp <= 0) {
+      this.concludeDuelRound('player', 'ko');
     }
   }
 
@@ -458,6 +431,7 @@ export class Stage1Scene implements Scene {
     this.drawWaveCard(ctx);
     this.drawAdvancePrompt(ctx);
     this.drawTransition(ctx);
+    this.drawRoundOverlay(ctx);
     this.drawFinalTransition(ctx);
     this.drawGillPhaseOverlay(ctx);
     this.drawBossPatternFlash(ctx);
@@ -662,26 +636,235 @@ export class Stage1Scene implements Scene {
   }
 
 
-  /**
-   * Street Fighter time-over judgement: in a 1 VS 1 duel the fighter with the larger
-   * remaining life ratio wins the decision. Belt sections keep the beat-em-up rule
-   * (running out of time is a loss). Returns true when the player won on time.
-   */
-  private resolveDuelTimeOverWin(): boolean {
-    if (this.phase !== 'duel' && this.phase !== 'final-duel') return false;
+  private enterKoDefeat(): void {
+    this.phase = 'defeat';
+    this.onPostCombatChange?.(true);
+    this.defeatReason = this.world.livingEnemies.length === 0 ? 'double-ko' : 'ko';
+    this.defeatFrames = DEFEAT_PRESENTATION_FRAMES[this.defeatReason];
+    this.defeatDispatched = false;
+    this.world.projectiles.length = 0;
+    this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 120);
+    if (this.defeatReason === 'double-ko' && this.world.enemies.length > 0) {
+      const enemy = this.world.enemies[0]!;
+      this.cameraFocusX = (this.world.player.x + enemy.x) * .5;
+      this.cameraFocusY = Math.min(this.world.player.y, enemy.y) - 105;
+      this.cameraFocusZoom = 1.06;
+    } else {
+      this.cameraFocusX = this.world.player.x;
+      this.cameraFocusY = this.world.player.y - 105;
+      this.cameraFocusZoom = 1.1;
+    }
+    this.cameraSlowFrames = Math.max(this.cameraSlowFrames, 24);
+    this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 120);
+  }
+
+  private enterTimeOverDefeat(): void {
+    this.phase = 'defeat';
+    this.onPostCombatChange?.(true);
+    this.defeatReason = 'time-over';
+    this.defeatFrames = DEFEAT_PRESENTATION_FRAMES['time-over'];
+    this.defeatDispatched = false;
+    this.world.projectiles.length = 0;
+    this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 90);
+    this.cameraFocusX = this.world.player.x;
+    this.cameraFocusY = this.world.player.y - 105;
+    this.cameraFocusZoom = 1.08;
+    this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 90);
+  }
+
+  /** Street Fighter time-over judgement: larger remaining life ratio wins the round; equal is a draw. */
+  private timeOverWinner(): RoundWinner {
     const player = this.world.player;
     const enemy = this.world.enemy;
     const playerRatio = player.hp / Math.max(1, player.maxHp);
     const enemyRatio = enemy.hp / Math.max(1, enemy.maxHp);
-    if (playerRatio <= enemyRatio) return false;
+    if (Math.abs(playerRatio - enemyRatio) < 1e-9) return 'draw';
+    return playerRatio > enemyRatio ? 'player' : 'enemy';
+  }
+
+  private beginDuelMatch(): void {
+    this.duelRound = 1;
+    this.playerRoundWins = 0;
+    this.enemyRoundWins = 0;
+    this.roundBreakFrames = 0;
+    this.roundAnnounceFrames = 0;
+    this.roundOneBannerFrames = ROUND_ONE_BANNER_FRAMES;
+    this.lastRoundWinner = null;
+  }
+
+  /** Score a finished duel round (KO, double KO or time) and either end the match or queue the next round. */
+  private concludeDuelRound(winner: RoundWinner, reason: RoundEndReason): void {
+    const player = this.world.player;
+    if (winner === 'player' || winner === 'draw') this.playerRoundWins += 1;
+    if (winner === 'enemy' || winner === 'draw') this.enemyRoundWins += 1;
+    this.lastRoundWinner = winner;
+    this.lastRoundReason = reason;
+    this.lastRoundPerfect = winner === 'player' && reason !== 'time' && player.hp >= player.maxHp;
+    this.roundOneBannerFrames = 0;
+    const playerMatch = this.playerRoundWins >= ROUNDS_TO_WIN;
+    const enemyMatch = this.enemyRoundWins >= ROUNDS_TO_WIN;
+    // A draw that hands both fighters match point, or running out of rounds, is a DRAW GAME: the challenger loses.
+    if (enemyMatch || (!playerMatch && this.duelRound >= MAX_DUEL_ROUNDS)) {
+      if (reason === 'time') this.enterTimeOverDefeat();
+      else this.enterKoDefeat();
+      return;
+    }
+    if (playerMatch) { this.enterDuelMatchVictory(reason === 'time'); return; }
     this.world.projectiles.length = 0;
-    this.world.events.push({ type: 'boss-warning', x: 640, y: 250, power: 0, ttl: 110, label: 'TIME OVER • DECISION WIN' });
-    this.phase = 'clear';
+    this.roundBreakFrames = ROUND_BREAK_FRAMES;
+    if (reason === 'time') this.audio.playBossCue?.(false);
+    this.cameraFocusFrames = Math.max(this.cameraFocusFrames, 70);
+    const focus = winner === 'enemy' ? player : this.world.enemy;
+    this.cameraFocusX = focus.x;
+    this.cameraFocusY = focus.y - 110;
+    this.cameraFocusZoom = 1.08;
+    this.cameraSlowFrames = Math.max(this.cameraSlowFrames, reason === 'time' ? 0 : 30);
+    this.cameraLetterboxFrames = Math.max(this.cameraLetterboxFrames, 80);
+  }
+
+  private settleDuelFighter(fighter: Fighter, opponent: Fighter, celebrate: boolean): void {
+    if (fighter.hp <= 0 || fighter.state === 'ko') return;
+    if (fighter.state === 'victory') { fighter.stateFrame += 1; fighter.animationFrame += 1; return; }
+    if (celebrate && !fighter.airborne && fighter.state !== 'hit' && fighter.state !== 'knockdown') { fighter.enterVictoryPose(); return; }
+    fighter.updateAiDirected(opponent, this.world.rules, { role: 'wait', desiredX: fighter.x, desiredY: fighter.y, attackAllowed: false, rangedAllowed: false }, true);
+    if (fighter.airborne && fighter.state === 'idle') fighter.state = 'jump';
+  }
+
+  private tickRoundBreak(): void {
+    this.advancePostCombatEffects();
+    this.updateKnockedOutFighters();
+    const celebrate = this.roundBreakFrames <= ROUND_BREAK_FRAMES - 70;
+    this.settleDuelFighter(this.world.player, this.world.enemy, celebrate && this.lastRoundWinner === 'player');
+    this.settleDuelFighter(this.world.enemy, this.world.player, celebrate && this.lastRoundWinner === 'enemy');
+    this.roundBreakFrames -= 1;
+    if (this.roundBreakFrames <= 0) this.startNextDuelRound();
+  }
+
+  /** Fresh round: full life and neutral positions; super meter carries over (SF3 rule). */
+  private startNextDuelRound(): void {
+    const playerGauge = this.world.player.superGauge;
+    const enemyGauge = this.world.enemy.superGauge;
+    this.duelRound += 1;
+    if (this.phase === 'final-duel') this.prepareFinalDuel(); else this.prepareDuel();
+    const player = this.world.player;
+    const enemy = this.world.enemy;
+    player.hp = player.maxHp;
+    enemy.hp = enemy.maxHp;
+    player.superGauge = Math.min(player.superGaugeMax, playerGauge);
+    enemy.superGauge = Math.min(enemy.superGaugeMax, Math.max(enemy.superGauge, enemyGauge));
+    this.input.resetCommandHistory?.();
+    this.roundAnnounceFrames = ROUND_ANNOUNCE_FRAMES;
+  }
+
+  private tickRoundAnnounce(): void {
+    this.advancePostCombatEffects();
+    this.settleDuelFighter(this.world.player, this.world.enemy, false);
+    this.settleDuelFighter(this.world.enemy, this.world.player, false);
+    this.roundAnnounceFrames -= 1;
+    if (this.roundAnnounceFrames === ROUND_FIGHT_FRAMES) this.audio.playDuelTransition?.(this.phase === 'final-duel');
+  }
+
+  private roundCallout(): string {
+    if (this.playerRoundWins === ROUNDS_TO_WIN - 1 && this.enemyRoundWins === ROUNDS_TO_WIN - 1) return 'FINAL ROUND';
+    return `ROUND ${this.duelRound}`;
+  }
+
+  private drawRoundPips(ctx: CanvasRenderingContext2D, x: number, y: number, wins: number, direction: 1 | -1, color: string): void {
+    ctx.save();
+    for (let i = 0; i < ROUNDS_TO_WIN; i += 1) {
+      const cx = x + direction * i * 20;
+      ctx.beginPath(); ctx.arc(cx, y, 6.5, 0, Math.PI * 2);
+      ctx.fillStyle = i < wins ? color : 'rgba(255,255,255,.08)'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = i < wins ? 'rgba(255,248,220,.95)' : 'rgba(255,255,255,.35)'; ctx.stroke();
+      if (i < wins) { ctx.beginPath(); ctx.arc(cx, y, 2.4, 0, Math.PI * 2); ctx.fillStyle = '#fff8dc'; ctx.fill(); }
+    }
+    ctx.restore();
+  }
+
+  private drawRoundBanner(ctx: CanvasRenderingContext2D, title: string, subtitle: string, alpha: number, scale: number, color: string): void {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+    ctx.fillStyle = 'rgba(3,5,10,.62)'; ctx.fillRect(0, 286, 1280, subtitle ? 150 : 120);
+    ctx.fillStyle = color; ctx.fillRect(0, 286, 1280, 3); ctx.fillRect(0, subtitle ? 433 : 403, 1280, 3);
+    ctx.translate(640, 372); ctx.scale(scale, scale);
+    ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+    ctx.font = '900 78px Impact, Arial Black, sans-serif';
+    ctx.lineWidth = 12; ctx.strokeStyle = 'rgba(0,0,0,.85)'; ctx.strokeText(title, 0, 0);
+    ctx.fillStyle = '#fff4d6'; ctx.fillText(title, 0, 0);
+    if (subtitle) {
+      ctx.font = '900 24px Arial Black, sans-serif'; ctx.lineWidth = 6; ctx.strokeText(subtitle, 0, 46);
+      ctx.fillStyle = color; ctx.fillText(subtitle, 0, 46);
+    }
+    ctx.restore();
+  }
+
+  private drawRoundOverlay(ctx: CanvasRenderingContext2D): void {
+    if (this.phase !== 'duel' && this.phase !== 'final-duel') return;
+    if (this.roundBreakFrames > 0) {
+      const elapsed = ROUND_BREAK_FRAMES - this.roundBreakFrames;
+      const title = this.lastRoundReason === 'time' ? 'TIME OVER' : this.lastRoundReason === 'double-ko' ? 'DOUBLE K.O.' : 'K.O.';
+      const winnerName = this.lastRoundWinner === 'player' ? this.world.player.character.name : this.lastRoundWinner === 'enemy' ? this.world.enemy.character.name : '';
+      const subtitle = elapsed < 45 ? '' : this.lastRoundWinner === 'draw' ? 'DRAW' : `${winnerName} WINS${this.lastRoundPerfect ? ' • PERFECT' : ''}`;
+      const pop = Math.min(1, elapsed / 8);
+      this.drawRoundBanner(ctx, title, subtitle, Math.min(pop, this.roundBreakFrames / 14), 1.25 - pop * .25, this.lastRoundWinner === 'enemy' ? '#ff6f63' : '#ffd34d');
+      return;
+    }
+    if (this.roundAnnounceFrames > 0) {
+      const fight = this.roundAnnounceFrames <= ROUND_FIGHT_FRAMES;
+      const local = fight ? ROUND_FIGHT_FRAMES - this.roundAnnounceFrames : ROUND_ANNOUNCE_FRAMES - this.roundAnnounceFrames;
+      const pop = Math.min(1, local / 7);
+      const fade = fight ? Math.min(1, this.roundAnnounceFrames / 10) : 1;
+      this.drawRoundBanner(ctx, fight ? 'FIGHT!' : this.roundCallout(), fight ? '' : `${this.playerRoundWins} - ${this.enemyRoundWins}`, pop * fade, 1.3 - pop * .3, '#ffd34d');
+      return;
+    }
+    if (this.roundOneBannerFrames > 0) {
+      const local = ROUND_ONE_BANNER_FRAMES - this.roundOneBannerFrames;
+      const fight = local >= 38;
+      const pop = Math.min(1, (fight ? local - 38 : local) / 6);
+      this.drawRoundBanner(ctx, fight ? 'FIGHT!' : 'ROUND 1', '', pop * Math.min(1, this.roundOneBannerFrames / 10) * .92, 1.2 - pop * .2, '#ffd34d');
+    }
+  }
+
+  /** Match won: hand off to the stage's original victory flow (clear, Urien -> Gill, or Gill final KO). */
+  private enterDuelMatchVictory(byTime: boolean): void {
+    if (this.phase === 'duel') {
+      this.world.projectiles.length = 0;
+      if (this.stageId === 5) {
+        this.phase = 'final-transition';
+        this.phaseFrames = transitionPolishProfile(this.stageId).duelFrames;
+        this.audio.playDuelTransition?.(true);
+        this.audio.setStageIntensity?.('final');
+      } else {
+        this.phase = 'clear';
+        this.onPostCombatChange?.(true);
+        this.phaseFrames = transitionPolishProfile(this.stageId).clearFrames;
+        if (!this.world.player.airborne) this.world.player.enterVictoryPose();
+        this.audio.playStageClear?.(false);
+      }
+      return;
+    }
+    if (byTime) {
+      // Gill is not knocked out on a decision, so skip the collapse cinematic and clear directly.
+      this.world.projectiles.length = 0;
+      this.phase = 'clear';
+      this.onPostCombatChange?.(true);
+      this.phaseFrames = transitionPolishProfile(this.stageId).finalClearFrames;
+      if (!this.world.player.airborne) this.world.player.enterVictoryPose();
+      this.audio.playStageClear?.(true);
+      return;
+    }
+    this.phase = 'final-ko';
     this.onPostCombatChange?.(true);
-    this.phaseFrames = this.stageId === 5 ? transitionPolishProfile(this.stageId).finalClearFrames : transitionPolishProfile(this.stageId).clearFrames;
-    if (!player.airborne) player.enterVictoryPose();
-    this.audio.playStageClear?.(this.stageId === 5);
-    return true;
+    this.finalKoFrames = 180;
+    this.audio.playFinalKo?.();
+    this.world.projectiles.length = 0;
+    this.cameraFocusFrames = 180;
+    this.cameraFocusX = this.world.enemy.x;
+    this.cameraFocusY = this.world.enemy.y - 120;
+    this.cameraFocusZoom = 1.2;
+    this.cameraSlowFrames = 42;
+    this.cameraLetterboxFrames = 180;
+    this.world.events.push({ type: 'boss-burst', x: this.world.enemy.x, y: this.world.enemy.y - 120, power: 360, ttl: 90, label: 'DIVINITY COLLAPSE' });
   }
 
   private spawnBeltWave(index: number): void {
@@ -1181,10 +1364,12 @@ export class Stage1Scene implements Scene {
     else if (this.world.rules.mode === 'duel') this.drawDuelHud(ctx, player, enemy);
     else this.drawBeltHud(ctx, player);
 
+    // Keep the combo card clear of the HUD header: belt panel ends at y110, duel at 120, boss at 122.
+    const comboTop = this.world.rules.mode === 'belt' ? 124 : 136;
     if (this.world.playerComboTimer > 0 && this.world.playerComboHits > 0) {
       const comboP = Math.min(1, this.world.playerComboTimer / 18);
       const x = 76;
-      const y = 154;
+      const y = comboTop + 34;
       ctx.save();
       ctx.globalAlpha = comboP;
       ctx.textAlign = 'left';
@@ -1209,7 +1394,7 @@ export class Stage1Scene implements Scene {
       ctx.textAlign = 'left';
       ctx.fillStyle = 'rgba(255,255,255,.7)';
       ctx.font = '800 11px Arial, sans-serif';
-      ctx.fillText(`${this.world.lastPlayerHitDamage} DAMAGE`, 78, 160);
+      ctx.fillText(`${this.world.lastPlayerHitDamage} DAMAGE`, 78, comboTop + 40);
       ctx.restore();
     }
 
@@ -1333,6 +1518,8 @@ export class Stage1Scene implements Scene {
     this.drawHudHp(ctx, 761, 58, layout.enemyPanelWidth, enemy.hp / enemy.maxHp, presentation.hudEnemy, true);
     this.drawSuperMeter(ctx, player, 44, 87, 330, false, '#51c7f4');
     this.drawSuperMeter(ctx, enemy, 906, 87, 330, true, '#a37cff');
+    this.drawRoundPips(ctx, 44 + layout.playerPanelWidth - 8, 40, this.playerRoundWins, -1, presentation.hudAccent);
+    this.drawRoundPips(ctx, 761 + 8, 40, this.enemyRoundWins, 1, presentation.hudEnemy);
     ctx.fillStyle = 'rgba(8,10,16,.98)'; ctx.beginPath(); ctx.arc(640, 62, layout.timerRadius, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = presentation.hudAccent; ctx.lineWidth = 3; ctx.stroke();
     ctx.textAlign = 'center'; ctx.fillStyle = '#fff7e8'; ctx.font = '900 31px Impact, sans-serif'; ctx.fillText(String(Math.ceil(this.stageTime)).padStart(2, '0'), 640, 72);
@@ -1367,6 +1554,8 @@ export class Stage1Scene implements Scene {
     ctx.textAlign = 'right'; ctx.fillStyle = phaseHud.accent; ctx.font = '900 10px Arial Black, sans-serif'; ctx.fillText(layout.bossLabel ?? 'BOSS', 1184, 31);
     ctx.fillStyle = '#fff'; ctx.font = '900 29px Impact, sans-serif'; ctx.fillText(boss.character.name, 1184, 57);
     this.drawHudHp(ctx, 612, 68, layout.enemyPanelWidth, hpRatio, phaseHud.accent, true);
+    this.drawRoundPips(ctx, 40 + layout.playerPanelWidth - 8, 54, this.playerRoundWins, -1, presentation.hudAccent);
+    this.drawRoundPips(ctx, 620, 50, this.enemyRoundWins, 1, phaseHud.accent);
 
     // Threshold ticks expose the actual phase structure: 66% -> Phase II, 30% -> Final.
     const hpX = 612; const hpW = layout.enemyPanelWidth;

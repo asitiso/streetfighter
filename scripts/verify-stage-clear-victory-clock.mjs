@@ -1,3 +1,4 @@
+// V081: duels are best-of-3; fixtures start in the FINAL ROUND (1-1) so one KO decides the match.
 import assert from 'node:assert/strict';
 import {CHARACTERS,BOSS_CHARACTERS} from '../dist/assets/game/characters.js';
 import {animationSequencesFor,animationSequenceFor} from '../dist/assets/render/AnimationSequenceLibrary.js';
@@ -11,7 +12,7 @@ const {drawCombatFighter}=await import('../dist/assets/render/Visuals.js');
 const input={pressed:()=>false,held:()=>false,released:()=>false},audio={playStagePulse(){},playHit(){},playParry(){}};
 function draw(scene){const images=[],stack=[],o={globalAlpha:1};const ctx=new Proxy(o,{get(o,k){if(k in o)return o[k];return ({save(){stack.push(o.globalAlpha);},restore(){o.globalAlpha=stack.pop();},drawImage(im,...args){images.push({asset:im.src,args});},createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}})})[k]??(()=>{});}});drawCombatFighter(ctx,scene.world.player,1,scene.time);assert.equal(stack.length,0);return images.at(-1);}
 function enterClear(c,stage,onClear){const scene=new Stage1Scene(input,audio,c,c.superArts[0],stage,onClear);scene.enter();scene.introFrames=0;
- if(stage===5){scene.prepareFinalDuel();scene.phase='final-duel';}else{scene.prepareDuel();scene.phase='duel';}
+ if(stage===5){scene.prepareFinalDuel();scene.phase='final-duel';scene.playerRoundWins=scene.enemyRoundWins=1;}else{scene.prepareDuel();scene.phase='duel';scene.playerRoundWins=scene.enemyRoundWins=1;}
  scene.world.enemy.hp=0;scene.fixedUpdate(1/60,1);
  if(stage===5){assert.equal(scene.phase,'final-ko');for(let i=0;i<180;i++)scene.fixedUpdate(1/60,i+2);}
  assert.equal(scene.phase,'clear');assert.equal(scene.world.player.state,'victory');assert.equal(scene.world.player.stateFrame,0);return scene;

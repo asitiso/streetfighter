@@ -69,10 +69,11 @@ const timeOver = (playerRatio, enemyRatio) => {
   scene.fixedUpdate(1 / 60, tick++);
   return scene;
 };
+// V081: duels are best-of-3, so a time-over decides the round (match flow is covered by verify-v081).
 const won = timeOver(.6, .4);
-if (won.phase !== 'clear') fail(`time-over with life lead should win, got ${won.phase}`);
+if (won.phase !== 'duel' || won.lastRoundWinner !== 'player' || won.playerRoundWins !== 1) fail(`time-over with life lead should win the round, got ${won.phase}/${won.lastRoundWinner}`);
 const lost = timeOver(.3, .7);
-if (lost.phase !== 'defeat' || lost.defeatReason !== 'time-over') fail(`time-over while behind should lose, got ${lost.phase}`);
+if (lost.phase !== 'duel' || lost.lastRoundWinner !== 'enemy' || lost.enemyRoundWins !== 1) fail(`time-over while behind should lose the round, got ${lost.phase}/${lost.lastRoundWinner}`);
 const belt = new Stage1Scene(stubInput, stubAudio, getCharacter('RYU'), getCharacter('RYU').superArts[0], 1);
 belt.introFrames = 0; belt.stageTime = .001; belt.fixedUpdate(1 / 60, 1);
 if (belt.phase !== 'defeat') fail(`belt time-over should stay a loss, got ${belt.phase}`);

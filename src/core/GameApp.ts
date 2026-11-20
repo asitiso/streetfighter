@@ -893,6 +893,8 @@ export class GameApp {
   };
 
   private installDebugOverlay(): void {
+    // QA hook (debug=1 only): lets headless browser checks inspect the live scene.
+    (window as unknown as { __sfDebug?: { activeScene: () => unknown } }).__sfDebug = { activeScene: () => this.scenes.activeScene };
     const overlay = document.createElement('div');
     overlay.className = 'debug-overlay';
     document.body.appendChild(overlay);
