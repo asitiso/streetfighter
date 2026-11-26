@@ -9,7 +9,7 @@ import {transitionPolishProfile} from '../dist/assets/render/FinalPolishProfiles
 const roster=[...CHARACTERS,...BOSS_CHARACTERS],audio={playStagePulse(){},playHit(){},playParry(){}};
 let cases=0,landings=0,victoryFrames=0,maxLandingTick=0;
 for(const c of roster)for(const stage of [1,2,3,4])for(const facing of [-1,1])for(const kind of ['air-light','air-heavy','rising']){
- let hostile=false,callbacks=0;const input={pressed:()=>hostile,held:()=>hostile,released:()=>false};
+ let hostile=false,callbacks=0;const input={pressed:action=>hostile&&action!=='start'&&action!=='confirm',held:()=>hostile,released:()=>false};
  const scene=new Stage1Scene(input,audio,c,c.superArts[0],stage,()=>callbacks++);scene.enter();scene.introFrames=0;scene.prepareDuel();scene.phase='duel';scene.playerRoundWins=scene.enemyRoundWins=1;
  const p=scene.world.player,e=scene.world.enemy,move=kind==='rising'?specialMovesFor(c.id).antiAir:airNormalFor(c.id,kind==='air-light'?'lp':'hk');p.facing=facing;p.startMove(move);assert(p.currentMove);
  p.airborne=true;p.jumpHeight=kind==='air-light'?120:55;p.jumpVelocity=kind==='air-light'?5:3;p.moveFrame=p.currentMove.startup+1;p.stateFrame=p.moveFrame;p.hitStop=2;
