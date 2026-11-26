@@ -14,7 +14,7 @@ function setup(){
  for(const directions of['up left','up right','down left','down right']){const n=new Element();n.dataset.directions=directions;nodes.set(directions,n);}
  const root=new Element(),dpad=new Element(),fight=new Element();dpad.dataset.layoutGroup='stick';fight.dataset.layoutGroup='buttons';
  root.querySelectorAll=s=>s==='[data-action]'?[...nodes.values()].filter(n=>n.dataset.action):s==='[data-layout-group]'?[dpad,fight]:[];
- root.querySelector=s=>s==='.dpad'?dpad:null;root.contains=n=>[...nodes.values()].includes(n);
+ root.querySelector=s=>s==='.dpad'?dpad:s==='.start-button'?nodes.get('start'):null;root.contains=n=>[...nodes.values()].includes(n);
  globalThis.document={createElement:()=>root,elementFromPoint:()=>document.hit,addEventListener(){},removeEventListener(){}};
  Object.defineProperty(globalThis,'navigator',{configurable:true,value:{getGamepads:()=>pads}});pads=[];
  const rect=()=>{const p=(window.shifted?300:50)+window.geometryOffset;return{left:p,top:p,right:p+200,bottom:p+200,width:200,height:200};};for(const node of nodes.values())node.getBoundingClientRect=rect;dpad.getBoundingClientRect=rect;const input=new InputManager(),touch=new TouchControls(input);return{input,touch,nodes,dpad,fight};
@@ -30,6 +30,42 @@ let blocked=0,lifecycle=0;
 for(const action of actions.filter(a=>a!=='start')){const t=setup();if(['left','right','up','down'].includes(action)){document.hit=t.nodes.get(action);pointer(t.dpad,'pointerdown',11);}else pointer(t.nodes.get(action),'pointerdown',11);assert(t.input.touchHeld(action));t.touch.setPaused(true);assert.equal(t.input.touchHeld(action),false);t.input.endTick();if(['left','right','up','down'].includes(action)){pointer(t.dpad,'pointerdown',22);pointer(t.dpad,'pointermove',11);}else pointer(t.nodes.get(action),'pointerdown',22);assert.equal(t.input.held(action),false);pointer(t.nodes.get('start'),'pointerdown',33);assert(t.input.pressed('start'));t.touch.setPaused(false);t.input.endTick();assert.equal(t.input.touchHeld('start'),false);if(['left','right','up','down'].includes(action))pointer(t.dpad,'pointerdown',44);else pointer(t.nodes.get(action),'pointerdown',44);assert(t.input.touchHeld(action));t.input.destroy();blocked++;}
 for(const c of [...CHARACTERS,...BOSS_CHARACTERS])for(const [index,Scene] of [Stage1Scene,Stage2Scene,Stage3Scene,Stage4Scene,Stage5Scene].entries())for(const finish of ['exit','destroy']){const t=setup(),events=[],callback=p=>{events.push(p);t.touch.setPaused(p);};const args=[t.input,{},c,c.superArts[0],...(index===0?[1]:[]),undefined,undefined,callback];const scene=new Scene(...args);scene.introFrames=0;pointer(t.nodes.get('start'),'pointerdown',1);t.input.prepareTick();scene.fixedUpdate(1/60,1);t.input.endTick();assert.equal(scene.paused,true);assert.equal(t.touch.paused,true);scene[finish]();assert.equal(t.touch.paused,false);assert.deepEqual(events,[true,false]);t.input.destroy();lifecycle++;}
 console.log(JSON.stringify({passed:true,blocked,lifecycle}));
+
+let boundaryInputCases = 0;
+const controlBoundaries = {
+  pause: (touch, active) => touch.setPaused(active),
+  hide: (touch, active) => touch.setVisible(!active),
+  edit: (touch, active) => touch.setEditMode(active),
+};
+for (const [mode, setBoundary] of Object.entries(controlBoundaries)) {
+  for (const completed of [false, true]) {
+    const t = setup();
+    const c = CHARACTERS[0];
+    const world = new CombatWorld(c, c, 'duel');
+    const punch = t.nodes.get('lp');
+    document.hit = t.nodes.get('up');
+    pointer(t.dpad, 'pointerdown', 11);
+    pointer(punch, 'pointerdown', 22);
+    if (completed) {
+      pointer(t.dpad, 'pointerup', 11);
+      pointer(punch, 'pointerup', 22);
+    }
+    const keyboard = new Event('keydown', { cancelable: true });
+    Object.defineProperty(keyboard, 'code', { value: 'KeyK' });
+    window.dispatchEvent(keyboard);
+
+    setBoundary(t.touch, true);
+    setBoundary(t.touch, false);
+    assert(!t.input.pressed('up') && !t.input.pressed('lp'), mode + ' must discard pending touch actions');
+    assert(t.input.pressed('mp'), mode + ' must preserve the pending keyboard attack');
+    world.update(t.input, 1);
+    assert.equal(world.player.currentMove?.id, '5MP');
+    assert.equal(world.player.airborne, false);
+    t.input.destroy();
+    boundaryInputCases++;
+  }
+}
+console.log('TOUCH_MODE_BOUNDARY_PASS', { boundaryInputCases });
 
 let postCombatCases=0;
 for(const c of CHARACTERS)for(const [index,Scene]of [Stage1Scene,Stage2Scene,Stage3Scene,Stage4Scene,Stage5Scene].entries())for(const reason of ['ko','time-over','clear'])for(const finish of ['exit','destroy']){
@@ -52,7 +88,27 @@ console.log('POST_COMBAT_SCENE_ROUTE_PASS',{postCombatRouteCases,failedRouteKeep
 import{GameApp}from'../dist/assets/core/GameApp.js';import{DEFAULT_SAVE}from'../dist/assets/save/SaveManager.js';
 let postCombatFactoryCases=0;
 for(const c of CHARACTERS)for(const stage of [1,2,3,4,5]){
- const t=setup(),app=Object.create(GameApp.prototype),audio=new Proxy({},{get:()=>()=>{}});Object.assign(app,{input:t.input,touch:t.touch,audio,scenes:new SceneManager(),assets:{prefetchGroup(){}},recovery:{checkpoint(){}},save:{...DEFAULT_SAVE,stageSelectUnlocked:true,selectedCharacter:c.id},loadStageModule:async(_group,importer)=>importer()});
+ const t=setup(),app=Object.create(GameApp.prototype),audio=new Proxy({},{get:()=>()=>{}});Object.assign(app,{input:t.input,touch:t.touch,audio,scenes:new SceneManager(),assets:{prefetchGroup(){}},recovery:{checkpoint(){}},save:{...DEFAULT_SAVE,stageSelectUnlocked:true,selectedCharacter:c.id},loadStageModule:async(_group,importer)=>importer(),hideLoading(){}});
  await app.startStageNumber(stage,c,c.superArts[0],false,true);const previous=app.scenes.activeScene;previous.introFrames=0;previous.world.player.hp=0;previous.world.player.state='ko';previous.world.player.stateFrame=-90;app.scenes.fixedUpdate(1/60,1);assert(t.touch.postCombatMode,'Real stage factory wires result controls');previous.defeatFrames=0;pointer(t.nodes.get('start'),'pointerdown',55);pointer(t.nodes.get('start'),'pointerup',55);t.input.prepareTick();app.scenes.fixedUpdate(1/60,2);t.input.endTick();for(let n=0;n<30&&app.scenes.activeScene===previous;n++)await new Promise(setImmediate);await app.scenes.transitionTail;const next=app.scenes.activeScene;assert(next&&next!==previous,'Real GameApp defeat callback restarts stage');assert.equal(next.constructor.name,['Stage1Scene','Stage2Scene','Stage3Scene','Stage4Scene','Stage5Scene'][stage-1]);assert(!t.touch.postCombatMode,'Factory restart restores combat presentation');assert(!t.input.pressed('start')&&!t.input.touchHeld('start'));assert(!next.paused);pointer(t.nodes.get('hp'),'pointerdown',66);assert(t.input.touchHeld('hp'),'Fresh attack works after factory restart');next.exit();next.destroy();t.input.destroy();postCombatFactoryCases++;
 }
 console.log('POST_COMBAT_GAMEAPP_FACTORY_PASS',{postCombatFactoryCases,realFactories:5,realDefeatCallbacks:true,restoredWithoutGhostStart:true});
+
+const pause = setup();
+const pauseStart = pause.nodes.get('start');
+pause.touch.setPaused(true);
+assert.equal(pauseStart.textContent, 'RESUME');
+pause.touch.setPaused(false);
+assert.equal(pauseStart.textContent, 'START');
+const pauseFighter = CHARACTERS[0];
+const pauseScene = new Stage1Scene(pause.input, {}, pauseFighter, pauseFighter.superArts[0]);
+pauseScene.paused = true;
+const pauseLabels = [];
+const pauseCanvas = new Proxy({}, {get: (_, key) => key === 'fillText' ? text => pauseLabels.push(text) : () => {}});
+pauseScene.drawPause(pauseCanvas, true);
+assert.deepEqual(pauseLabels, ['PAUSED', 'TAP RESUME']);
+pauseLabels.length = 0;
+pauseScene.drawPause(pauseCanvas, false);
+assert(pauseLabels.includes('START / P : CONTINUE'));
+assert(!pauseLabels.includes('TAP RESUME'));
+pause.input.destroy();
+console.log('TOUCH_RESUME_LABEL_PASS');

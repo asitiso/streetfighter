@@ -8,3 +8,26 @@ for(const c of roster)for(const stage of[1,5])for(const reason of['ko','double-k
 for(const end of['exit','destroy','reenter']){const t=fixture(roster[0],1,'ko');t.tap('start','touch');t.step();if(end==='reenter'){t.s.exit();t.s.enter();}else t.s[end]();for(let n=0;n<121;n++)t.step();assert.equal(t.calls(),0,'Lifecycle reset must discard queued retry');t.close();controls++;}
 {const t=fixture(roster[0],1,'ko');t.tap('start','touch');t.step();const texts=[],styles=[],ctx=new Proxy({globalAlpha:1},{get:(o,k)=>k in o?o[k]:k==='fillText'?(text)=>{texts.push(text);styles.push(o.fillStyle);}:()=>{}});t.s.drawDefeat(ctx);assert(texts.some(v=>v.includes('RETRY QUEUED')),'Queued tap must have visible feedback');assert(styles.some(v=>v==='rgba(241,189,81,1)'));t.close();controls++;}
 console.log(JSON.stringify({passed:true,cases,controls,roster:10,stages:2,reasons:3,sources:3,buttons:3,earlyAndLastFrame:true,koDurationUnchanged:true,statsFrozen:true,retryFailureRequiresFreshPress:true}));
+
+for (const boss of [false, true]) {
+  const t = fixture(roster[0], 1, 'ko');
+  if (boss) t.s.bossEntry = {phase: 'duel', hp: 361, gauge: 7, beltScore: 4650};
+  const labels = [];
+  const ctx = new Proxy({}, {get: (_, key) => key === 'fillText' ? text => labels.push(text) : () => {}});
+  t.s.drawDefeat(ctx, true);
+  assert(labels.includes(boss ? 'TAP START TO RETRY BOSS' : 'TAP START TO RETRY'));
+  assert(!labels.some(label => label.includes('P / ENTER')));
+  if (boss) {
+    assert(labels.some(label=>label.includes('361 HP / 7 METER / 4650 SCORE')), 'Retry must preview the actual checkpoint values');
+    labels.length = 0;
+    t.s.drawDefeat(ctx, false);
+    assert(labels.some(label=>label.includes('361 HP / 7 METER / 4650 SCORE')), 'The checkpoint preview must also be readable on desktop');
+  }
+  t.tap('start', 'touch');
+  t.step();
+  labels.length = 0;
+  t.s.drawDefeat(ctx, true);
+  assert(labels.includes('RETRY QUEUED'));
+  t.close();
+}
+console.log('TOUCH_DEFEAT_ACTION_PASS');

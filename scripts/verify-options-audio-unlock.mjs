@@ -6,7 +6,7 @@ import {DEFAULT_SAVE} from '../dist/assets/save/SaveManager.js';
 globalThis.window=new EventTarget();globalThis.document=new EventTarget();Object.defineProperty(globalThis,'navigator',{configurable:true,value:{getGamepads:()=>[]}});
 const flush=async()=>{for(let i=0;i<15;i++)await Promise.resolve();};
 function deferred(){let resolve,reject;const promise=new Promise((r,j)=>{resolve=r;reject=j;});return{promise,resolve,reject};}
-globalThis.AudioContext=class{state='suspended';gates=[];createGain(){return{gain:{value:0},connect(){}};}resume(){const gate=deferred();this.gates.push(gate);return gate.promise.then(()=>{this.state='running';});}suspend(){this.state='suspended';return Promise.resolve();}};
+globalThis.AudioContext=class{state='suspended';gates=[];createGain(){return{gain:{value:0,cancelScheduledValues(){},setValueAtTime(){}},connect(){}};}resume(){const gate=deferred();this.gates.push(gate);return gate.promise.then(()=>{this.state='running';});}suspend(){this.state='suspended';return Promise.resolve();}};
 function fixture(){const input=new InputManager(),audio=new AudioManager(),attempts=[],writes=[];audio.setEnabled(false);audio.playMenuMove=()=>{};audio.playUiConfirm=()=>attempts.push({enabled:audio.enabled,running:audio.isRunning()});const touch={setSettings(){},setVisible(){},setOptionsMode(){},setEditMode(){}};const scene=new OptionsScene(input,audio,touch,{...DEFAULT_SAVE,audioEnabled:false},p=>{writes.push(p);},()=>{});scene.enter();const tap=action=>{input.setTouch(action,true);input.setTouch(action,false);input.prepareTick();scene.fixedUpdate(1/60);input.endTick();};return{input,audio,scene,attempts,writes,tap,async ready(reverse=false){const gates=[...(audio.context?.gates??[])];for(const gate of reverse?gates.reverse():gates)gate.resolve();await flush();},close(){scene.exit();scene.destroy();input.destroy();}};}
 let cases=0;
 {const f=fixture();assert.equal(f.audio.context,null);f.tap('start');assert(f.scene.audioEnabled);assert(f.audio.context,'Enabling audio after muted boot must create the real audio context');assert.equal(f.audio.context.gates.length,1);assert.equal(f.attempts.length,0,'Confirmation waits for running audio');assert.equal(f.writes.at(-1).audioEnabled,true);f.tap('down');assert.equal(f.scene.index,1,'Navigation is not blocked by unlock');await f.ready();assert.deepEqual(f.attempts,[{enabled:true,running:true}]);f.close();cases++;}
@@ -15,4 +15,16 @@ for(const reverse of [false,true]){const f=fixture();f.tap('start');f.tap('start
 for(const end of ['exit','destroy']){const f=fixture();f.tap('start');f.scene[end]();await f.ready();assert.equal(f.attempts.length,0,'Inactive options cannot play delayed confirmation');f.close();cases++;}
 for(const flag of ['setBackgrounded','setPaused']){const f=fixture();f.tap('start');f.audio[flag](true);await f.ready();assert.equal(f.attempts.length,0,'Blocked audio must not queue a stale confirm');f.close();cases++;}
 {const f=fixture();f.tap('start');for(const g of f.audio.context.gates)g.reject(Error('resume denied'));await flush();f.tap('down');assert.equal(f.scene.index,1,'Rejected unlock leaves menu responsive');f.tap('up');f.tap('start');f.tap('start');await f.ready();assert.equal(f.attempts.filter(a=>a.enabled).length,1,'Fresh ON retries rejected unlock');f.close();cases++;}
-console.log(JSON.stringify({ok:true,cases,checks:['real cold audio context initialization','navigation/save independent from resume','latest toggle only','exit/destroy cancellation','background/pause suppression','rejection retry']}));
+{
+ const f=fixture(),themes=[];
+ f.audio.startFrontendTheme=theme=>themes.push(theme);
+ f.audio.stopFrontendTheme=()=>themes.push('stop');
+ f.tap('start');
+ await f.ready();
+ assert.deepEqual(themes,['title'],'Enabling from a cold muted save must start menu music inside Options');
+ f.scene.exit({frontendTheme:'title'});
+ assert.deepEqual(themes,['title'],'Returning to Title must preserve the same menu music');
+ f.close();
+ cases++;
+}
+console.log(JSON.stringify({ok:true,cases,checks:['real cold audio context initialization','navigation/save independent from resume','latest toggle only','exit/destroy cancellation','background/pause suppression','rejection retry','options music and title continuity']}));

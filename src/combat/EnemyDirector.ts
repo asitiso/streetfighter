@@ -1,6 +1,7 @@
 import type { EnemyDirective, EnemyRole, ModeRules } from './CombatTypes.js';
 import type { Fighter } from './Fighter.js';
 import { specialMovesFor } from './MoveLibrary.js';
+import { canFireGruntProjectile, GRUNTS } from './GruntLibrary.js';
 
 export class EnemyDirector {
   private frame = 0;
@@ -20,16 +21,34 @@ export class EnemyDirector {
     available.sort((a, b) => this.score(player, a) - this.score(player, b));
 
     const pressurePool = available.filter((enemy) => enemy.aiProfile.pressure >= .9);
-    const attackCount = available.length >= 4 ? Math.min(2, Math.max(1, pressurePool.length)) : Math.min(1, available.length);
-    const attackIds = new Set(available.slice(0, attackCount).map((enemy) => enemy.uid));
+    const attackCount = !rules.beltSingleMelee && available.length >= 4
+      ? Math.min(2, Math.max(1, pressurePool.length)) : Math.min(1, available.length);
+    // Started moves keep running even if the director assigns their owner a different role.
+    const committed = alive.filter((enemy) => enemy.state === 'attack' && enemy.currentMove
+      && enemy.moveFrame < enemy.currentMove.startup + enemy.currentMove.active);
+    const committedMelee = committed.filter((enemy) => !enemy.currentMove?.projectile).length;
+    const openings = Math.max(0, Math.min(attackCount - committedMelee, 2 - committed.length));
+    const candidates = available.filter((enemy) => enemy.state !== 'attack');
+    // Keep a ready bottle thrower beside a frontline threat. The market reserves
+    // its second slot for ranged support, even while the melee fighter is active.
+    const roomForSupport = rules.beltSingleMelee ? committed.length + openings < 2
+      : openings > 0 && openings + committedMelee === 2;
+    const support = roomForSupport
+      ? candidates.find((enemy) => enemy.character.id === GRUNTS.thrower.id && !enemy.airborne
+        && enemy.aiCooldown <= 1 && canFireGruntProjectile(GRUNTS.thrower.specials.primary.projectile,
+          Math.abs(enemy.x - player.x), Math.abs(enemy.y - player.y), enemy.aiProfile.preferredDistance))
+      : undefined;
+    const attackIds = new Set(candidates.filter((enemy) => enemy !== support)
+      .slice(0, openings - Number(!!support && !rules.beltSingleMelee)).map((enemy) => enemy.uid));
     let flankIndex = 0;
     let waitIndex = 0;
-    let activeThreats = attackCount;
+    let activeThreats = committed.length + attackIds.size + Number(!!support);
 
     for (const enemy of alive) {
       let role: EnemyRole;
-      if (recoveries.includes(enemy)) role = 'recovery';
+      if (recoveries.includes(enemy) || enemy.state === 'attack') role = 'recovery';
       else if (attackIds.has(enemy.uid)) role = 'attack';
+      else if (enemy === support) role = 'ranged';
       else if (activeThreats < 2 && Math.abs(enemy.x - player.x) > enemy.aiProfile.preferredDistance * 1.55 && this.canUseRanged(enemy)) { role = 'ranged'; activeThreats += 1; }
       else if (flankIndex < 2 && enemy.aiProfile.flankBias >= .45) { role = 'flank'; flankIndex += 1; }
       else { role = 'wait'; waitIndex += 1; }

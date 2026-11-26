@@ -12,6 +12,7 @@ const checks = [
   [options.includes('EDIT TOUCH LAYOUT'), 'layout edit overlay'],
   [options.includes('touchStickScale') && options.includes('touchButtonsX'), 'options persistence'],
   [touch.includes('setEditMode') && touch.includes('beginDrag'), 'drag layout editor'],
+  [touch.includes('class="layout-cancel" data-action="back"') && touch.includes("'DONE'") && css.includes('.editing .layout-cancel'), 'touch layout editor exposes cancel and done'],
   [touch.includes('vibrate') && touch.includes('vibrationEnabled'), 'touch haptics toggle'],
   [/if\s*\(!visible\)\s*this\.releaseAll\(\)/.test(touch), 'hidden touch controls release held input'],
   [touch.includes('onDpadPointerMove') && touch.includes('dpadActionsAt') && touch.includes('setDpadActions'), 'd-pad slide direction tracking'],

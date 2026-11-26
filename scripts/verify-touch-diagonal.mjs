@@ -19,3 +19,123 @@ for(const action of allDirections)for(const source of ['keyboard','gamepad']){co
 function commandTrace(c,facing,mode,command,touchInput){const s=setup(),f=new Fighter(c,'player',600,500,facing),r={mode,depthMovement:mode==='belt',laneTolerance:mode==='belt'?54:22,arenaLeft:120,arenaRight:1160,arenaTop:mode==='belt'?394:500,arenaBottom:mode==='belt'?580:500};f.superGauge=1000;const F=facing===1?'R':'L',B=facing===1?'L':'R',DF=facing===1?'DR':'DL',DB=facing===1?'DL':'DR',path=command==='dp'?[F,'D',DF]:command==='qcb'?['D',DB,B]:command==='super'?['D',DF,F,'D',DF,F]:['D',DF,F],attack=command==='qcb'?['lk']:command==='ex'?['lp','mp']:['lp'];let previous=[];const rows=[];for(let t=0;t<=path.length;t++){const name=path[Math.min(t,path.length-1)],wanted=[...directions[name],...(t===path.length?attack:[])];if(touchInput){if(t===0)down(s,name);else if(t<path.length)move(s,name);else for(const [i,a]of attack.entries())pointer(s.nodes.get(a),'pointerdown',40+i);}else{for(const a of previous)if(!wanted.includes(a))key('keyup',keyCodes[a]);for(const a of wanted)if(!previous.includes(a))key('keydown',keyCodes[a]);previous=wanted;}f.captureInput(s.input,t);f.updatePlayer(s.input,r);rows.push([f.x,f.y,f.state,f.stateFrame,f.moveFrame,f.currentMove?.id??null,f.superGauge,f.parryWindow,f.lowParryWindow]);s.input.endTick();}const expected=command==='dp'?specialMovesFor(c.id).antiAir:command==='qcb'?specialMovesFor(c.id).mobility:command==='ex'?specialMovesFor(c.id).exPrimary:command==='super'?specialMovesFor(c.id).super:specialMovesFor(c.id).primary;assert.equal(f.currentMove?.id,expected.id,c.id+' '+command+' actual command');s.touch.releaseAll();s.input.destroy();return rows;}
 for(const c of [...CHARACTERS,...BOSS_CHARACTERS])for(const facing of [-1,1])for(const mode of ['duel','belt'])for(const command of ['qcf','qcb','dp','ex','super']){const expected=commandTrace(c,facing,mode,command,false),actual=commandTrace(c,facing,mode,command,true);assert.deepEqual(actual,expected,'Touch commands must match real keyboard gameplay without shortcuts');gameplayCases++;keyboardComparisons++;}
 console.log('TOUCH_DIAGONAL_PASS',{directionCases,ownershipControls,resetControls,mixedControls,gameplayCases,keyboardComparisons,characters:10,facings:2,modes:2,commands:5,gutterControls,sharedDirectionsStable:true,realMotionBuffer:true});
+
+let wakeCases=0;
+for(const source of ['touch','keyboard'])for(const facing of [-1,1])for(const airborne of [false,true]){
+ for(const gesture of ['short diagonal','separate presses','latest down only']){
+  const s=setup(),c=CHARACTERS[0],f=new Fighter(c,'player',600,500,facing);
+  const rules={mode:'belt',depthMovement:true,laneTolerance:54,arenaLeft:120,arenaRight:1160,arenaTop:394,arenaBottom:580};
+  f.state='knockdown';f.stateFrame=-34;
+  if(airborne){f.airborne=true;f.jumpHeight=14;f.jumpVelocity=-5;}
+  const back=facing===1?'left':'right',backCell=facing===1?'L':'R';
+  const tap=(diagonal,id)=>{
+   if(source==='touch'){down(s,diagonal?'D'+backCell:'D',id);end(s,'pointerup',id);}
+   else{
+    key('keydown',keyCodes.down);
+    if(diagonal){key('keydown',keyCodes[back]);key('keyup',keyCodes[back]);}
+    key('keyup',keyCodes.down);
+   }
+  };
+  tap(gesture!=='separate presses',11);
+  if(gesture==='latest down only')tap(false,12);
+  if(gesture==='separate presses'){
+   if(source==='touch')down(s,backCell,12);
+   else key('keydown',keyCodes[back]);
+  }
+  assert(s.input.pressed('down')&&!s.input.held('down'));
+  s.input.prepareTick();f.updatePlayer(s.input,rules);s.input.endTick();
+  while(f.airborne)f.updatePlayer(s.input,rules);
+  const label=[source,facing,airborne,gesture].join('/');
+  assert.equal(f.quickRiseCount,1,label);
+  assert.equal(f.techRolling,gesture==='short diagonal',label);
+  s.touch.releaseAll();s.input.destroy();wakeCases++;
+ }
+}
+console.log('SUBFRAME_WAKE_DIRECTION_PASS',{wakeCases});
+
+const {CombatWorld}=await import('../dist/assets/combat/CombatWorld.js');
+let grabCases=0;
+for(const facing of [-1,1])for(const gesture of ['front','back','neutral then forward','keyboard','queued front']){
+ const s=setup(),c=CHARACTERS[0],world=new CombatWorld(c,c,'belt'),p=world.player,e=world.enemy;
+ p.x=600;p.y=e.y=500;p.facing=facing;e.x=p.x+facing*60;
+ const hold=world.belt.hold={holder:p,victim:e,frames:0,knees:0,mash:0,byPlayer:true,limit:105,queued:null};
+ const front=facing===1?'right':'left',back=facing===1?'left':'right';
+ const holdDir=dir=>down(s,dir==='left'?'L':'R',11);
+ const attack=s.nodes.get('lp');
+ if(gesture==='queued front'){
+  s.input.setTouch('lp',true);world.belt.tickPlayerSide(world,s.input);
+  s.input.setTouch('lp',false);s.input.endTick();
+  assert.equal(p.currentMove?.id,'BELT_KNEE');
+ }
+ if(gesture==='keyboard'){
+  key('keydown',keyCodes[front]);key('keydown',keyCodes.lp);
+ }else{
+  if(gesture!=='neutral then forward')holdDir(gesture==='back'?back:front);
+  pointer(attack,'pointerdown',22);pointer(attack,'pointerup',22);
+  if(gesture==='neutral then forward')holdDir(front);
+  else end(s,'pointerup',11);
+ }
+ s.input.prepareTick();world.belt.tickPlayerSide(world,s.input);s.input.endTick();
+ if(gesture==='queued front'){
+  assert.equal(hold.queued,'front','Short front throw survives a knee’s recovery');
+  p.state='idle';p.currentMove=null;
+  world.belt.tickPlayerSide(world,s.input);
+ }
+ if(gesture==='neutral then forward'){
+  assert.equal(world.belt.stats.knees,1,'Moving after the touch attack must not change the knee to a throw');
+  assert.equal(world.belt.hold,hold);
+ }else{
+  assert.equal(world.belt.hold,null,gesture+' resolves the hold');
+  assert.equal(world.belt.stats[gesture==='back'?'backThrows':'frontThrows'],1);
+ }
+ s.touch.releaseAll();s.input.destroy();grabCases++;
+}
+console.log('SUBFRAME_GRAB_DIRECTION_PASS',{grabCases});
+
+let combatStepCases=0;
+for(const mode of ['belt','duel'])for(const source of ['touch','keyboard'])for(const intent of ['move','attack','hit-stop']){
+ const s=setup(),c=CHARACTERS[0],world=new CombatWorld(c,c,mode),p=world.player;
+ p.x=p.previousX=600;p.y=p.previousY=500;
+ if(intent==='hit-stop')p.hitStop=2;
+ if(source==='touch'){
+  down(s,'DL');end(s);
+  if(intent==='attack'){pointer(s.nodes.get('lp'),'pointerdown',22);pointer(s.nodes.get('lp'),'pointerup',22);}
+ }else{
+  key('keydown',keyCodes.left);key('keydown',keyCodes.down);key('keyup',keyCodes.left);key('keyup',keyCodes.down);
+  if(intent==='attack'){key('keydown',keyCodes.lp);key('keyup',keyCodes.lp);}
+ }
+ s.input.prepareTick();p.captureInput(s.input,1);p.updatePlayer(s.input,world.rules);s.input.endTick();
+ const shouldMove=mode==='belt'&&intent==='move';
+ assert.equal(p.x<600,shouldMove,[mode,source,intent].join('/')+' horizontal step');
+ assert.equal(p.y>500,shouldMove,[mode,source,intent].join('/')+' depth step');
+ if(intent==='attack')assert.equal(p.currentMove?.id,'5LP','Fresh attack takes priority over the movement tap');
+ const position=[p.x,p.y];
+ p.captureInput(s.input,2);p.updatePlayer(s.input,world.rules);
+ assert.deepEqual([p.x,p.y],position,'A released step never repeats on the next tick');
+ s.touch.releaseAll();s.input.destroy();combatStepCases++;
+}
+console.log('SUBFRAME_BELT_STEP_PASS',{combatStepCases});
+
+let mixedStepCases=0;
+for(const source of ['touch','keyboard'])for(const [heldCell,diagonal] of [['L','DL'],['R','UR'],['D','DL'],['U','UR']]){
+ const s=setup(),c=CHARACTERS[0],world=new CombatWorld(c,c,'belt'),p=world.player;
+ p.x=p.previousX=600;p.y=p.previousY=500;
+ const [base]=directions[heldCell];
+ const pulse=directions[diagonal].find(action=>action!==base);
+ const step=tick=>{s.input.prepareTick();p.captureInput(s.input,tick);p.updatePlayer(s.input,world.rules);s.input.endTick();return [p.x,p.y];};
+ if(source==='touch')down(s,heldCell);
+ else key('keydown',keyCodes[base]);
+ const first=step(1);
+ if(source==='touch'){move(s,diagonal);move(s,heldCell);}
+ else{key('keydown',keyCodes[pulse]);key('keyup',keyCodes[pulse]);}
+ assert(s.input.held(base)&&!s.input.held(pulse)&&s.input.pressed(pulse));
+ const second=step(2),third=step(3);
+ const sign=action=>action==='left'||action==='up'?-1:1;
+ const baseAxis=base==='left'||base==='right'?0:1,pulseAxis=1-baseAxis;
+ assert.equal(Math.sign(second[baseAxis]-first[baseAxis]),sign(base),'The held axis keeps moving');
+ assert.equal(Math.sign(second[pulseAxis]-first[pulseAxis]),sign(pulse),'The released axis moves for one tick');
+ assert.equal(Math.sign(third[baseAxis]-second[baseAxis]),sign(base),'The held axis stays active');
+ assert.equal(third[pulseAxis],second[pulseAxis],'The short step does not drift');
+ s.touch.releaseAll();s.input.destroy();mixedStepCases++;
+}
+console.log('MIXED_BELT_STEP_PASS',{mixedStepCases});

@@ -1,7 +1,9 @@
+import { advanceThroughBeltLoot } from './duel-round-helpers.mjs';
 // V080: Street Fighter core rules — combo damage scaling, chip damage, time-over decision.
 import { Fighter, comboDamageScale, chipDamageFor } from '../dist/assets/combat/Fighter.js';
+import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
-import { normalFor, SPECIAL_MOVES } from '../dist/assets/combat/MoveLibrary.js';
+import { normalFor, SPECIAL_MOVES, superArtMoveFor } from '../dist/assets/combat/MoveLibrary.js';
 
 const fail = (message) => { console.error('V080_FIGHT_RULES_FAIL', message); process.exit(1); };
 
@@ -43,7 +45,36 @@ const guard2 = new Fighter(getCharacter('KEN'), 'enemy', 560, 500, -1);
 guard2.receiveHit(jab, attacker, true);
 if (guard2.hp !== guard2.maxHp) fail('blocked normal took damage');
 
-// 4) Time-over decision: duel won on life lead, lost when behind; belt time-over stays a loss.
+// 4) An unblockable projectile should leave retreat available.
+const ken = getCharacter('KEN');
+const ryu = getCharacter('RYU');
+for (const artId of [1, 3]) {
+  const canGuard = artId === 1;
+  const world = new CombatWorld(ken, ryu, 'duel', ken.superArts[0], ryu.superArts[artId - 1]);
+  const { player, enemy } = world;
+  enemy.updateAi = () => {};
+  enemy.updateAiDirected = () => {};
+  const move = superArtMoveFor('RYU', artId);
+  world.spawnScriptedProjectile(enemy, move);
+  world.projectiles[0].x = player.x + 130;
+  const startX = player.x;
+  const back = { held: action => action === 'left', pressed: () => false, released: () => false };
+  world.update(back, 1);
+  const retreated = player.x < startX;
+  if (retreated === canGuard || player.proximityGuarding !== canGuard) {
+    fail(`wrong initial defensive movement against Ryu SA${artId}`);
+  }
+  for (let tick = 2; tick <= 20; tick += 1) {
+    world.update(back, tick);
+    if (player.hp < player.maxHp) break;
+  }
+  const expectedContact = canGuard ? 'block' : 'hit';
+  if (!world.events.some(event => event.type === expectedContact && event.moveId === move.id)) {
+    fail(`wrong contact outcome against Ryu SA${artId}`);
+  }
+}
+
+// 5) Time-over decision: duel won on life lead, lost when behind; belt time-over stays a loss.
 const { Stage1Scene } = await import('../dist/assets/scenes/Stage1Scene.js');
 const stubInput = { held: () => false, pressed: () => false, released: () => false };
 const stubAudio = new Proxy({}, { get: () => () => {} });
@@ -55,6 +86,7 @@ const reachDuel = (scene) => {
     scene.fixedUpdate(1 / 60, tick++);
     if (wave < 2) { scene.world.player.x = scene.areaStarts[wave + 1] + 160; scene.fixedUpdate(1 / 60, tick++); for (let t = 0; t < 60; t += 1) scene.fixedUpdate(1 / 60, tick++); }
   }
+  tick = advanceThroughBeltLoot(scene, tick);
   for (let t = 0; t < 400 && scene.phase !== 'duel'; t += 1) scene.fixedUpdate(1 / 60, tick++);
   if (scene.phase !== 'duel') fail(`duel not reached: ${scene.phase}`);
   return tick;

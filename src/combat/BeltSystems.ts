@@ -1,4 +1,4 @@
-import type { InputManager } from '../input/InputManager.js';
+import { throwChordPressed, type Action, type InputManager } from '../input/InputManager.js';
 import type { CombatEvent, EnemyDirective, EnvironmentProp, ModeRules, MoveButton, MoveData } from './CombatTypes.js';
 import type { Fighter } from './Fighter.js';
 import { gruntById } from './GruntLibrary.js';
@@ -125,7 +125,6 @@ export function propDropFor(prop: Pick<EnvironmentProp, 'id'>): PickupKind {
 }
 
 function isTowardHeld(input: InputManager, facing: 1 | -1): boolean { return input.held(facing === 1 ? 'right' : 'left') && !input.held(facing === 1 ? 'left' : 'right'); }
-function isBackHeld(input: InputManager, facing: 1 | -1): boolean { return input.held(facing === 1 ? 'left' : 'right') && !input.held(facing === 1 ? 'right' : 'left'); }
 
 export interface BeltStats { grabs: number; knees: number; frontThrows: number; backThrows: number; crowdHits: number; breakFrees: number; enemyGrabs: number; enemyKnees: number; enemyThrows: number; playerEscapes: number; pickups: number; foodEaten: number; weaponHits: number; weaponBreaks: number; weaponDrops: number; weaponTosses: number; drops: number }
 
@@ -151,17 +150,66 @@ export class BeltSystems {
 
   giveWeapon(fighter: Fighter, kind: WeaponKind, durability = WEAPON_DURABILITY[kind]): void { heldWeapons.set(fighter, { kind, durability, maxDurability: WEAPON_DURABILITY[kind] }); }
 
-  /** Attack press over an item picks it up instead of attacking (returned input masks the press). */
-  collectPickups(world: BeltWorld, input: InputManager): InputManager {
-    const p = world.player;
-    if (this.hold || p.airborne || p.hp <= 0 || !(p.state === 'idle' || p.state === 'walk' || p.state === 'crouch')) return input;
-    if (!ATTACK_BUTTONS.some(button => input.pressed(button))) return input;
+  private canCollect(player: Fighter): boolean {
+    return !this.hold && !player.airborne && player.hitStop === 0 && player.hp > 0
+      && (player.state === 'idle' || player.state === 'walk' || player.state === 'crouch');
+  }
+
+  private inPickupRange(item: Pickup, player: Fighter): boolean {
+    return item.z <= 6 && Math.abs(item.x - player.x) <= 50 && Math.abs(item.y - player.y) <= 28;
+  }
+
+  hasReachableReward({ player, rules, props }: BeltWorld, scope: 'all' | 'manual-pickups' = 'all'): boolean {
+    const manualOnly = scope === 'manual-pickups';
+    const canUse = (kind: PickupKind) => !HEAL_FRACTION[kind] || player.hp < player.maxHp;
+    if (this.pickups.some(item => (!manualOnly || item.kind !== 'coins') && canUse(item.kind)
+      && item.x >= rules.arenaLeft - 50 && item.x <= rules.arenaRight + 50
+      && item.y >= rules.arenaTop - 28 && item.y <= rules.arenaBottom + 28)) return true;
+    return !manualOnly && props.some(prop => {
+      if (prop.broken || prop.hp <= 0 || prop.x < rules.arenaLeft || prop.x > rules.arenaRight
+        || prop.y < rules.arenaTop - 28 || prop.y > rules.arenaBottom + 28) return false;
+      const kind = propDropFor(prop);
+      return kind !== 'coins' && canUse(kind);
+    });
+  }
+
+  /** Item an attack press would collect in the player's current state. */
+  nearbyManualPickup(player: Fighter): Pickup | null {
+    if (!this.canCollect(player)) return null;
     let best: Pickup | null = null;
+    let bestDistance = Infinity;
     for (const item of this.pickups) {
-      if (item.z > 6 || Math.abs(item.x - p.x) > 50 || Math.abs(item.y - p.y) > 28) continue;
-      if (!best || Math.abs(item.x - p.x) < Math.abs(best.x - p.x)) best = item;
+      if (item.kind === 'coins' || (HEAL_FRACTION[item.kind] && player.hp >= player.maxHp) || !this.inPickupRange(item, player)) continue;
+      const dx = item.x - player.x;
+      const dy = item.y - player.y;
+      const distance = dx * dx + dy * dy;
+      if (distance < bestDistance) {
+        best = item;
+        bestDistance = distance;
+      }
+    }
+    return best;
+  }
+
+  /** Coins collect on contact. Food and weapons still use an attack press. */
+  collectPickups(world: BeltWorld, input: InputManager, bufferedPickup = false): InputManager {
+    const p = world.player;
+    if (!this.pickups.length || !this.canCollect(p)) return input;
+    const takeItem = !input.pressed('jump') && !throwChordPressed(input)
+      && (bufferedPickup || ATTACK_BUTTONS.some(button => input.pressed(button)));
+    const best = takeItem ? this.nearbyManualPickup(p) : null;
+    for (let index = 0; index < this.pickups.length; index += 1) {
+      const item = this.pickups[index]!;
+      if (item.kind !== 'coins' || !this.inPickupRange(item, p)) continue;
+      this.pickups.splice(index, 1);
+      index -= 1;
+      this.stats.pickups += 1;
+      this.score += COIN_SCORE;
+      world.events.push({ type: 'pickup', x: item.x, y: item.y - 70, power: COIN_SCORE, ttl: 46, label: `+${COIN_SCORE}`, color: '#ffd84a' });
     }
     if (!best) return input;
+    // Pickup and attack share one press; consuming the reward consumes that input.
+    p.discardBufferedAction();
     this.pickups.splice(this.pickups.indexOf(best), 1);
     this.stats.pickups += 1;
     const heal = HEAL_FRACTION[best.kind];
@@ -171,9 +219,6 @@ export class BeltSystems {
       this.stats.foodEaten += 1;
       this.score += 100;
       world.events.push({ type: 'pickup', x: best.x, y: best.y - 70, power: p.hp - before, ttl: 46, label: `${PICKUP_LABELS[best.kind]} +${p.hp - before}`, color: '#8cff8a' });
-    } else if (best.kind === 'coins') {
-      this.score += COIN_SCORE;
-      world.events.push({ type: 'pickup', x: best.x, y: best.y - 70, power: COIN_SCORE, ttl: 46, label: `+${COIN_SCORE}`, color: '#ffd84a' });
     } else {
       const old = heldWeapons.get(p);
       if (old) this.spawnPickup(old.kind, p.x - p.facing * 30, p.y, old.durability);
@@ -182,7 +227,8 @@ export class BeltSystems {
     }
     const masked = new Proxy(input, {
       get(target, key) {
-        if (key === 'pressed') return (action: string) => (ATTACK_BUTTONS as readonly string[]).includes(action) ? false : target.pressed(action as never);
+        if (key === 'pressed') return (action: Action) => !ATTACK_BUTTONS.some(button => button === action) && target.pressed(action);
+        if (key === 'firstTouchAttack' || key === 'directionSamplesAfterAttack') return () => undefined;
         const value = Reflect.get(target, key, target);
         return typeof value === 'function' ? value.bind(target) : value;
       },
@@ -197,8 +243,16 @@ export class BeltSystems {
     const p = world.player;
     if (hold.byPlayer) {
       if (p.hp <= 0 || hold.victim.hp <= 0 || p.state === 'hit' || p.state === 'knockdown' || p.state === 'ko' || p.airborne || !world.enemies.includes(hold.victim)) { this.release(false); return false; }
-      const pressed = ATTACK_BUTTONS.some(button => input.pressed(button));
-      const action = pressed ? (isTowardHeld(input, p.facing) ? 'front' : isBackHeld(input, p.facing) ? 'back' : 'knee') : null;
+      let action: GrabHold['queued'] = null;
+      if (ATTACK_BUTTONS.some(button => input.pressed(button))) {
+        const firstTouch = input.firstTouchAttack?.(ATTACK_BUTTONS);
+        const directions = firstTouch ? input.touchDirectionsAtAttack?.(firstTouch) : undefined;
+        const forward = p.facing === 1 ? 'right' : 'left';
+        const back = p.facing === 1 ? 'left' : 'right';
+        const towardHeld = directions?.includes(forward) ?? input.held(forward);
+        const backHeld = directions?.includes(back) ?? input.held(back);
+        action = towardHeld === backHeld ? 'knee' : towardHeld ? 'front' : 'back';
+      }
       if (p.state === 'attack') {
         // Buffer the next hold action during a knee so mashing chains knees and throws.
         if (action) hold.queued = action;
@@ -242,7 +296,8 @@ export class BeltSystems {
   /** Walking into an enemy for a few frames grabs it (no button). */
   detectPlayerGrab(world: BeltWorld, input: InputManager): void {
     const p = world.player;
-    if (this.hold || p.hp <= 0 || p.airborne || p.currentMove || (p.state !== 'walk' && p.state !== 'idle') || !isTowardHeld(input, p.facing) || ATTACK_BUTTONS.some(b => input.held(b))) { this.contactFrames = 0; this.contactUid = null; return; }
+    const bracing = p.proximityGuarding && p.walkDirection === 0;
+    if (this.hold || bracing || p.hp <= 0 || p.airborne || p.currentMove || (p.state !== 'walk' && p.state !== 'idle') || !isTowardHeld(input, p.facing) || ATTACK_BUTTONS.some(b => input.held(b))) { this.contactFrames = 0; this.contactUid = null; return; }
     let target: Fighter | null = null;
     for (const enemy of world.livingEnemies) {
       const dx = (enemy.x - p.x) * p.facing;
@@ -287,16 +342,17 @@ export class BeltSystems {
       if (this.hold) this.pin(this.hold);
       return true;
     }
-    if (!hold) this.maybeEnemyGrab(world, enemy);
+    if (!hold) this.maybeEnemyGrab(world, enemy, directive?.attackAllowed === true);
     return !!this.hold && !this.hold.byPlayer && this.hold.holder === enemy;
   }
 
-  private maybeEnemyGrab(world: BeltWorld, enemy: Fighter): void {
+  private maybeEnemyGrab(world: BeltWorld, enemy: Fighter, attackAllowed: boolean): void {
     const def = gruntById(enemy.character.id);
     const p = world.player;
     if (!def?.grabsPlayer || world.isHumanEnemy(enemy) || enemy.airborne || (enemy.state !== 'idle' && enemy.state !== 'walk')) return;
     const cooldown = this.grabCooldown.get(enemy.uid) ?? 90;
     if (cooldown > 0) { this.grabCooldown.set(enemy.uid, cooldown - 1); return; }
+    if (!attackAllowed) return;
     if (Math.abs(enemy.x - p.x) > 70 || Math.abs(enemy.y - p.y) > 24 || !p.canBeThrown() || p.isInvulnerable() || p.isMoveActive() || p.airborne) return;
     if (((enemy.uid * 31 + this.frame * 7) % 100) >= 9) return;
     this.grabCooldown.set(enemy.uid, 240);
@@ -317,13 +373,12 @@ export class BeltSystems {
     victim.setHeld(x, holder.y, holder.facing === 1 ? -1 : 1);
   }
 
-  private release(push: boolean): void {
+  private release(preserveVictimReaction: boolean): void {
     const hold = this.hold;
     if (!hold) return;
     heldFighters.delete(hold.victim);
     hold.holder.setGrabPose(false);
-    if (hold.victim.state === 'hit' && hold.victim.hp > 0) hold.victim.releaseHeld();
-    if (push) hold.victim.x += hold.holder.facing * 30;
+    if (!preserveVictimReaction && hold.victim.state === 'hit' && hold.victim.hp > 0) hold.victim.releaseHeld();
     this.hold = null;
     this.grabCooldown.set(hold.holder.uid, 200);
   }
@@ -372,9 +427,10 @@ export class BeltSystems {
     }
   }
 
-  /** Getting hit hard or knocked down drops the held weapon to the floor. */
-  onPlayerHit(world: BeltWorld, move: MoveData): void {
+  /** Outside hits break an enemy hold. Heavy hits also drop a held weapon. */
+  onPlayerHit(world: BeltWorld, move: MoveData, attacker: Fighter): void {
     const p = world.player;
+    if (this.hold?.victim === p && this.hold.holder !== attacker) this.release(true);
     const weapon = heldWeapons.get(p);
     if (!weapon || !(move.knockdown || move.level === 'throw' || move.damage >= 45 || p.state === 'knockdown' || p.hp <= 0)) return;
     heldWeapons.delete(p);
@@ -384,7 +440,7 @@ export class BeltSystems {
 
   onMoveStarted(fighter: Fighter): void { if (fighter.currentMove?.id.startsWith('WEAPON_TOSS')) this.stats.weaponTosses += 1; }
 
-  afterUpdate(world: BeltWorld): void {
+  afterUpdate(world: BeltWorld, preservePickupLife = false): void {
     this.frame += 1;
     // Thrown bodies travel and bowl over everyone they pass through (thrower's crowd damage).
     for (let i = 0; i < this.flying.length; i += 1) {
@@ -433,7 +489,7 @@ export class BeltSystems {
     }
     for (let i = 0; i < this.pickups.length; i += 1) {
       const item = this.pickups[i]!;
-      item.age += 1;
+      if (!preservePickupLife) item.age += 1;
       if (item.z > 0 || item.vz > 0) {
         item.vz -= .55;
         item.z = Math.max(0, item.z + item.vz);

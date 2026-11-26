@@ -31,8 +31,17 @@ for(const a of['left','right','up','down','up left','up right','down left','down
  document.hit=t.nodes.get('right');pointer(t.dpad,'pointerdown',33);assert(t.input.touchHeld('right'));const b=new InputBuffer();b.capture(t.input,100);assert.equal(b.doubleTap('right'),false,'Fresh post-resize touch cannot become false dash');pointer(t.dpad,end,11);assert(t.input.touchHeld('right'));pointer(t.dpad,end,33);assert.equal(t.input.touchHeld('right'),false);t.input.destroy();dpadCases++;
 }
 for(const group of['stick','buttons'])for(const end of['pointerup','pointercancel']){
- const t=setup(),node=group==='stick'?t.dpad:t.fight;let previews=0,commits=0;t.touch.setEditMode(true,()=>previews++,()=>commits++);pointer(node,'pointerdown',11,100,100);pointer(window,'pointermove',11,120,90);assert.equal(previews,1);resize();released(t);
- const saved=t.touch.getSettings();pointer(window,'pointermove',11,200,200);pointer(window,end,11,200,200);assert.deepEqual(t.touch.getSettings(),saved);assert.equal(previews,1);assert.equal(commits,0,'Interrupted drag cannot commit later');pointer(node,'pointerdown',33);pointer(window,'pointermove',33,110,95);pointer(window,'pointerup',33);assert.equal(previews,2);assert.equal(commits,1);t.input.destroy();dragCases++;
+ const t=setup(),node=group==='stick'?t.dpad:t.fight,saved=t.touch.getSettings(),previews=[];let commits=0;
+ t.touch.setEditMode(true,settings=>previews.push(settings),()=>commits++);
+ pointer(node,'pointerdown',11,100,100);pointer(window,'pointermove',11,120,90);
+ assert.equal(previews.length,1);assert.notDeepEqual(previews[0],saved);
+ resize();released(t);
+ assert.deepEqual(t.touch.getSettings(),saved,'Resizing must restore the last completed layout');
+ assert.deepEqual(previews.at(-1),saved,'Options must receive the rolled-back layout');
+ pointer(window,'pointermove',11,200,200);pointer(window,end,11,200,200);
+ assert.deepEqual(t.touch.getSettings(),saved);assert.equal(previews.length,2);assert.equal(commits,0,'Interrupted drag cannot commit later');
+ pointer(node,'pointerdown',33);pointer(window,'pointermove',33,110,95);pointer(window,'pointerup',33);
+ assert.equal(previews.length,3);assert.equal(commits,1);t.input.destroy();dragCases++;
 }
 for(const a of['left','right','up','down','lp','mp','hp','lk','mk','hk','jump','start']){
  const t=setup(),indexes={left:14,right:15,up:12,down:13,lp:0,mp:1,hp:3,lk:2,mk:4,hk:5,jump:8,start:9};pads=[{axes:[0,0],buttons:Array.from({length:16},()=>({pressed:false}))}];pads[0].buttons[indexes[a]].pressed=true;t.input.prepareTick();
@@ -45,4 +54,29 @@ for(const c of[...CHARACTERS,...BOSS_CHARACTERS])for(const face of[-1,1])for(con
 }
 let movedPointerControls=0,changedCellControls=0;for(const action of buttons){const t=setup(),node=t.nodes.get(action);pointer(node,'pointerdown',11);t.input.endTick();pointer(node,'pointermove',11,400,400);const epoch=t.input.historyEpoch;resize();assert(t.input.touchHeld(action),'Latest pointer position still matches relocated button');assert.equal(t.input.historyEpoch,epoch);pointer(node,'pointerup',11);assert.equal(t.touch.pointerPoints.size,0);t.input.destroy();movedPointerControls++;}for(const action of['left','right','up','down','up left','up right','down left','down right']){const t=setup();document.hit=t.nodes.get(action);pointer(t.dpad,'pointerdown',11);t.input.endTick();const epoch=t.input.historyEpoch;document.hit=t.nodes.get(action==='left'?'right':'left');window.dispatchEvent(new Event('resize'));released(t);assert(t.input.historyEpoch>epoch,'Changed pad cell invalidates old command intent');t.input.destroy();changedCellControls++;}
 let keyboardControls=0,keyboardPendingControls=0;for(const [action,code]of Object.entries({left:'ArrowLeft',right:'ArrowRight',up:'ArrowUp',down:'ArrowDown',lp:'KeyJ',mp:'KeyK',hp:'KeyL',lk:'KeyU',mk:'KeyI',hk:'KeyO',jump:'Space',start:'KeyP'})){const t=setup();const key=type=>{const e=new Event(type,{cancelable:true});Object.defineProperty(e,'code',{value:code});window.dispatchEvent(e);};key('keydown');if(['left','right','up','down'].includes(action)){document.hit=t.nodes.get(action);pointer(t.dpad,'pointerdown',11);}else pointer(t.nodes.get(action),'pointerdown',11);t.input.endTick();resize();assert.equal(t.input.touchHeld(action),false);assert(t.input.held(action),'Physical keyboard hold survives touch cancellation');assert.equal(t.input.pressed(action),false);key('keyup');assert.equal(t.input.held(action),false);t.input.destroy();keyboardControls++;const u=setup();const e=new Event('keydown',{cancelable:true});Object.defineProperty(e,'code',{value:code});window.dispatchEvent(e);const epoch=u.input.historyEpoch;resize();assert.equal(u.input.historyEpoch,epoch,'No active touch: keep non-touch command history');assert(u.input.pressed(action),'No active touch: keep pending physical key press');u.input.destroy();keyboardPendingControls++;}
-console.log(JSON.stringify({passed:true,movedPointerControls,changedCellControls,unchangedGeometryControls,keyboardControls,keyboardPendingControls,buttonCases,dpadCases,dragCases,mixedSourceControls,gameplayCases,noStuckTouch:true,oldPointerEventsIgnored:true,freshTouchWorks:true,gamepadOwnershipPreserved:true}));
+let selectiveResizeCases = 0;
+for (const moved of ['dpad', 'attack']) {
+  const t = setup();
+  const punch = t.nodes.get('lp');
+  const stableControl = moved === 'dpad' ? punch : t.dpad;
+  const stableBounds = stableControl.getBoundingClientRect();
+  stableControl.getBoundingClientRect = () => stableBounds;
+  document.hit = t.nodes.get('right');
+  pointer(t.dpad, 'pointerdown', 11);
+  pointer(punch, 'pointerdown', 22);
+  for (const type of ['keydown', 'keyup']) {
+    const event = new Event(type, { cancelable: true });
+    Object.defineProperty(event, 'code', { value: 'KeyK' });
+    window.dispatchEvent(event);
+  }
+
+  resize();
+  const keep = moved === 'dpad' ? 'lp' : 'right';
+  const cancel = moved === 'dpad' ? 'right' : 'lp';
+  assert(t.input.touchHeld(keep) && t.input.pressed(keep), moved + ' resize must preserve the other finger');
+  assert(!t.input.touchHeld(cancel) && !t.input.pressed(cancel), moved + ' resize must cancel only the displaced finger');
+  assert(t.input.pressed('mp'), moved + ' resize must preserve the pending keyboard tap');
+  t.input.destroy();
+  selectiveResizeCases++;
+}
+console.log(JSON.stringify({passed:true,movedPointerControls,changedCellControls,unchangedGeometryControls,keyboardControls,keyboardPendingControls,buttonCases,dpadCases,dragCases,mixedSourceControls,gameplayCases,selectiveResizeCases,noStuckTouch:true,oldPointerEventsIgnored:true,freshTouchWorks:true,gamepadOwnershipPreserved:true}));

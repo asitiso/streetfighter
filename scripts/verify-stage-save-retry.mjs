@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {CHARACTERS} from '../dist/assets/game/characters.js';
 import {Stage1Scene} from '../dist/assets/scenes/Stage1Scene.js';
+import {transitionPolishProfile} from '../dist/assets/render/FinalPolishProfiles.js';
 const audio={playStagePulse(){},playHit(){},playParry(){}};
 let cases=0;
 for(const c of CHARACTERS)for(const stage of [1,2,3,4,5])for(const phase of ['clear','defeat']) {
@@ -33,5 +34,55 @@ for(const phase of ['clear','defeat']) {
  const texts=[],ctx=new Proxy({globalCompositeOperation:'source-over'},{get:(o,k)=>o[k]??(k==='fillText'?text=>texts.push(text):k==='createLinearGradient'?()=>({addColorStop(){}}):()=>{})});
  scene.phase='clear';scene.phaseFrames=0;scene.drawStageClear(ctx);assert(texts.some(t=>t.includes('TRANSFERRING TO ENDING')));
  texts.length=0;scene.routeError='SAVE FAILED • PRESS START / ENTER / ATTACK TO RETRY';scene.drawStageClear(ctx);assert(!texts.some(t=>t.includes('TRANSFERRING TO ENDING')),'failed save must not claim ending transfer');scene.destroy();cases++;
+}
+for (const stage of [1, 3, 5]) for (const advance of ['start', 'confirm']) {
+ let pressed = '', calls = 0, reject;
+ const pending = new Promise((_, fail) => { reject = fail; });
+ const player = CHARACTERS[0];
+ const input = { pressed: action => action === pressed, held: () => false, released: () => false };
+ const profile = transitionPolishProfile(stage);
+ const scene = new Stage1Scene(input, audio, player, player.superArts[0], stage, () => {
+   calls++;
+   return calls === 1 ? pending : Promise.resolve();
+ });
+ scene.phase = 'clear';
+ scene.introFrames = 0;
+ scene.phaseFrames = stage === 5 ? profile.finalClearFrames : profile.clearFrames;
+ let tick = 0;
+ const step = (button = '') => { pressed = button; scene.fixedUpdate(1 / 60, ++tick); };
+ step('hp');
+ for (let i = 1; i < 61; i++) step();
+ assert.equal(calls, 0, 'A combat attack cannot skip the clear screen');
+ step(advance);
+ assert.equal(calls, 1, 'START or Enter after the reveal must dispatch at once');
+ step(advance);
+ assert.equal(calls, 1, 'Repeated confirm must not submit another save');
+ reject(Error('quota'));
+ await Promise.resolve();
+ await Promise.resolve();
+ assert.match(scene.routeError, /RETRY/);
+ step();
+ assert.equal(calls, 1, 'An early save failure must wait for a fresh retry');
+ step(advance);
+ assert.equal(calls, 2, 'A fresh press must retry after a failed early clear');
+ scene.destroy();
+ cases++;
+}
+{
+ const player = CHARACTERS[0];
+ let pressed = true, calls = 0;
+ const input = { pressed: action => pressed && action === 'start', held: () => false, released: () => false };
+ const scene = new Stage1Scene(input, audio, player, player.superArts[0], 1, () => { calls++; });
+ scene.phase = 'clear';
+ scene.introFrames = 0;
+ scene.phaseFrames = transitionPolishProfile(1).clearFrames;
+ scene.fixedUpdate(1 / 60, 1);
+ pressed = false;
+ for (let tick = 2; tick < 60; tick++) scene.fixedUpdate(1 / 60, tick);
+ assert.equal(calls, 0, 'The queued tap must give the score time to appear');
+ scene.fixedUpdate(1 / 60, 60);
+ assert.equal(calls, 1, 'A released early tap dispatches after the one-second reveal');
+ scene.destroy();
+ cases++;
 }
 console.log(JSON.stringify({passed:true,cases}));

@@ -9,7 +9,7 @@ for(const end of['exit','destroy']){const f=fixture('pending');f.tap('lk');f.sce
 {const f=fixture('pending');f.tap('lk');f.scene.exit();f.scene.enter();f.tap('lk');f.pending[0].resolve();await flush();assert.equal(f.backs.length,0);f.pending[1].resolve();await flush();assert.equal(f.backs.length,1);f.close();cases++;}
 {const f=fixture();f.input.setTouch('down',true);for(let n=0;n<20;n++)f.step();assert.equal(f.scene.index,1,'Held touch must not repeat navigation');f.input.setTouch('down',false);f.input.endTick();f.input.setTouch('right',true);for(let n=0;n<20;n++)f.step();assert.equal(f.touch.settings.vibrationEnabled,false,'Held adjust toggles once');await flush();f.close();cases++;}
 {const f=fixture();f.scene.index=3;for(let n=0;n<30;n++)f.tap('right');assert.equal(f.touch.settings.stickScale,1.4);for(let n=0;n<40;n++)f.tap('left');assert.equal(f.touch.settings.stickScale,.7);await flush();f.close();cases++;}
-{const f=fixture();f.scene.index=6;f.tap('start');assert(f.scene.editingLayout);const index=f.scene.index;f.tap('down');f.tap('right');assert.equal(f.scene.index,index);f.tap('start');assert.equal(f.scene.editingLayout,false);assert.equal(f.touch.editing,false);await flush();f.close();cases++;}
+{const f=fixture();f.scene.index=6;f.tap('start');assert(f.scene.editingLayout);const index=f.scene.index;f.tap('down');f.tap('right');assert.equal(f.scene.index,index);f.tap('start');await flush();assert.equal(f.scene.editingLayout,false);assert.equal(f.touch.editing,false);f.close();cases++;}
 {const f=fixture('pending');f.tap('right');f.tap('right');f.pending[1].resolve();await flush();f.pending[0].reject(Error('old write failed'));await flush();assert.equal(f.scene.saveError,'','Old failure must not overwrite current successful settings');f.close();cases++;}
 for(const mode of['reject','throw']){const f=fixture();f.scene.back=()=>{if(mode==='throw')throw Error('route');return Promise.reject(Error('route'));};f.tap('lk');await flush();assert.equal(f.scene.leaving,false);assert.match(f.scene.saveError,/RETRY/);f.scene.back=()=>f.backs.push('back');f.tap('lk');await flush();assert.equal(f.backs.length,1);f.close();cases++;}
 console.log(JSON.stringify({passed:true,cases,rapidNavigation:true,rapidAdjustments:true,heldNoRepeat:true,saveBeforeReturn:true,saveFailureRetry:true,lifetimeGuard:true,limitsPreserved:true,layoutEditingPreserved:true}));
@@ -28,11 +28,56 @@ for(const [x,y]of [[359,145],[920,145],[600,113],[600,160],[600,655]]){const f=f
 console.log('OPTIONS_DIRECT_SELECTION_PASS',{directCases});
 
 let optionsModeCases=0;
-{const f=fixture();assert.equal(f.touch.optionsMode,true,'Options list must use compact controls');f.scene.index=6;f.tap('start');assert.equal(f.touch.optionsMode,false,'Editing restores full controls');f.tap('start');assert.equal(f.touch.optionsMode,true,'Done restores compact controls');f.close();assert.equal(f.touch.optionsMode,false);optionsModeCases++;}
+{const f=fixture();assert.equal(f.touch.optionsMode,true,'Options list must use compact controls');f.scene.index=6;f.tap('start');assert.equal(f.touch.optionsMode,false,'Editing restores full controls');f.tap('start');await flush();assert.equal(f.touch.optionsMode,true,'Done restores compact controls');f.close();assert.equal(f.touch.optionsMode,false);optionsModeCases++;}
 for(const end of ['exit','destroy']){const f=fixture();f.scene[end]();assert.equal(f.touch.optionsMode,false,'Leaving cannot leak options controls');f.input.destroy();optionsModeCases++;}
 console.log('OPTIONS_COMPACT_MODE_PASS',{optionsModeCases});
 
+{
+ const f=fixture('throw');
+ const read=compactTouchControls=>{
+  const text=[];
+  const ctx=new Proxy({fillText:(label,x,y)=>text.push({label,x,y}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>o[k]??(()=>{})});
+  f.scene.render({ctx,width:1280,height:720,compactTouchControls});
+  return text;
+ };
+ assert(read(false).some(line=>line.label.startsWith('TAP ROW')),'Desktop keeps keyboard help');
+ assert(!read(true).some(line=>line.label.startsWith('TAP ROW')),'Compact touch controls replace the overlapping footer');
+ f.scene.pointerTap(600,549);
+ assert.equal(f.scene.index,9,'The compact last row must accept taps at its drawn position');
+ f.tap('lk');
+ await flush();
+ assert(read(true).some(line=>line.label.includes('SAVE FAILED')&&line.y<114),'Compact save errors belong above the list');
+ assert(read(false).some(line=>line.label.includes('SAVE FAILED')&&line.y===638),'Desktop save errors remain at the footer');
+ f.scene.pointerTap(600,549);
+ assert.equal(f.scene.index,8,'Returning to desktop must restore the original hit geometry');
+ f.close();
+}
+{
+ const f=fixture(),labels=[];
+ f.scene.index=6;
+ f.tap('start');
+ const ctx=new Proxy({fillText:(label,x,y)=>labels.push({label,y}),createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>o[k]??(()=>{})});
+ f.scene.render({ctx,width:1280,height:720,compactTouchControls:true});
+ assert(labels.some(line=>line.label==='EDIT TOUCH LAYOUT'&&line.y<114),'Compact editor instructions belong above the draggable controls');
+ assert(!labels.some(line=>line.label==='AUDIO'),'Inactive settings should not be drawn behind the editor');
+ f.close();
+}
+console.log('OPTIONS_COMPACT_HELP_PASS');
+
 let layoutBackCases=0;
+{
+ const f=fixture('pending');
+ f.scene.index=6;f.tap('start');f.tap('start');
+ assert(f.scene.editingLayout,'Done must keep the editor open while saving');
+ f.tap('start');
+ assert.equal(f.pending.length,1,'Repeated Done must not queue duplicate writes');
+ f.pending[0].reject(Error('quota'));await flush();
+ assert(f.scene.editingLayout,'A failed Done save must keep the editor open for retry');
+ assert.match(f.scene.saveError,/SAVE FAILED/);
+ f.tap('start');f.pending[1].resolve();await flush();
+ assert(!f.scene.editingLayout&&f.touch.optionsMode,'A successful retry returns to Options');
+ f.close();layoutBackCases++;
+}
 {const f=fixture();f.scene.index=6;f.tap('start');const writes=f.writes.length;f.tap('back');assert(!f.scene.editingLayout,'Back returns from editor to Options');assert(f.touch.optionsMode);assert.equal(f.touch.cancelledDrags,1);assert.equal(f.writes.length,writes,'Back does not add an unnecessary settings write');assert.equal(f.backs.length,0,'Back from editor cannot leave Options');f.close();layoutBackCases++;}
 {const f=fixture();f.scene.index=6;f.tap('start');f.input.setTouch('back',true);f.input.setTouch('confirm',true);f.input.setTouch('back',false);f.input.setTouch('confirm',false);f.step();assert(!f.scene.editingLayout);assert.equal(f.touch.cancelledDrags,1,'Back wins over simultaneous confirmation');assert.equal(f.writes.length,0);f.close();layoutBackCases++;}
 console.log('LAYOUT_BACK_PASS',{layoutBackCases});

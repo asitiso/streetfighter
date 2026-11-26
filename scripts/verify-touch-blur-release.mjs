@@ -31,8 +31,13 @@ for(const a of['left','right','up','down','up left','up right','down left','down
  document.hit=t.nodes.get('right');pointer(t.dpad,'pointerdown',33);assert(t.input.touchHeld('right'));const b=new InputBuffer();b.capture(t.input,100);assert.equal(b.doubleTap('right'),false,'Fresh post-blur touch cannot become false dash');pointer(t.dpad,end,11);assert(t.input.touchHeld('right'));pointer(t.dpad,end,33);assert.equal(t.input.touchHeld('right'),false);t.input.destroy();dpadCases++;
 }
 for(const group of['stick','buttons'])for(const end of['pointerup','pointercancel']){
- const t=setup(),node=group==='stick'?t.dpad:t.fight;let previews=0,commits=0;t.touch.setEditMode(true,()=>previews++,()=>commits++);pointer(node,'pointerdown',11,100,100);pointer(window,'pointermove',11,120,90);assert.equal(previews,1);blur();released(t);
- const saved=t.touch.getSettings();pointer(window,'pointermove',11,200,200);pointer(window,end,11,200,200);assert.deepEqual(t.touch.getSettings(),saved);assert.equal(previews,1);assert.equal(commits,0,'Interrupted drag cannot commit later');pointer(node,'pointerdown',33);pointer(window,'pointermove',33,110,95);pointer(window,'pointerup',33);assert.equal(previews,2);assert.equal(commits,1);t.input.destroy();dragCases++;
+ const t=setup(),node=group==='stick'?t.dpad:t.fight,saved=t.touch.getSettings(),previews=[];let commits=0;
+ t.touch.setEditMode(true,s=>previews.push(s),()=>commits++);pointer(node,'pointerdown',11,100,100);pointer(window,'pointermove',11,120,90);assert.equal(previews.length,1);
+ blur();released(t);
+ assert.deepEqual(t.touch.getSettings(),saved,'Losing focus must restore the last completed layout');
+ assert.deepEqual(previews.at(-1),saved);
+ pointer(window,'pointermove',11,200,200);pointer(window,end,11,200,200);assert.deepEqual(t.touch.getSettings(),saved);assert.equal(previews.length,2);assert.equal(commits,0,'Interrupted drag cannot commit later');
+ pointer(node,'pointerdown',33);pointer(window,'pointermove',33,110,95);pointer(window,'pointerup',33);assert.equal(previews.length,3);assert.equal(commits,1);t.input.destroy();dragCases++;
 }
 for(const a of['left','right','up','down','lp','mp','hp','lk','mk','hk','jump','start']){
  const t=setup(),indexes={left:14,right:15,up:12,down:13,lp:0,mp:1,hp:3,lk:2,mk:4,hk:5,jump:8,start:9};pads=[{axes:[0,0],buttons:Array.from({length:16},()=>({pressed:false}))}];pads[0].buttons[indexes[a]].pressed=true;t.input.prepareTick();
@@ -77,8 +82,14 @@ const visible=setup();pointer(visible.nodes.get('lp'),'pointerdown',11);document
 console.log('TOUCH_PAGE_LIFECYCLE_PASS',{lifecycleCases,visibleNotificationPreservesTouch:true});
 const interrupt=event=>{if(event==='hidden'){document.hidden=true;document.dispatchEvent(new Event('visibilitychange'));}else window.dispatchEvent(new Event('pagehide'));};
 let lifecycleDragCases=0,lifecycleGamepadCases=0,lifecycleGameplayCases=0;
-for(const event of ['pagehide','hidden'])for(const group of ['stick','buttons']){
- const t=setup(),node=group==='stick'?t.dpad:t.fight;let commits=0;t.touch.setEditMode(true,()=>{},()=>commits++);pointer(node,'pointerdown',11);pointer(window,'pointermove',11,120,90);interrupt(event);released(t);const preview=t.touch.getSettings();pointer(window,'pointerup',11);assert.equal(commits,0,'Interrupted layout cannot commit via stale release');assert.deepEqual(t.touch.getSettings(),preview,'Keep existing interrupted-layout preview contract');pointer(node,'pointerdown',33);pointer(window,'pointermove',33,110,95);pointer(window,'pointerup',33);assert.equal(commits,1,'Fresh layout drag saves');t.input.destroy();lifecycleDragCases++;
+for(const event of ['pagehide','hidden','lostpointercapture'])for(const group of ['stick','buttons']){
+ const t=setup(),node=group==='stick'?t.dpad:t.fight,saved=t.touch.getSettings();let commits=0;
+ t.touch.setEditMode(true,()=>{},()=>commits++);pointer(node,'pointerdown',11);pointer(window,'pointermove',11,120,90);
+ if(event==='lostpointercapture')pointer(node,event,11);else interrupt(event);
+ released(t);pointer(window,'pointerup',11);
+ assert.equal(commits,0,'Interrupted layout cannot commit via stale release');
+ assert.deepEqual(t.touch.getSettings(),saved,'Interrupted layout restores the previous coordinates');
+ pointer(node,'pointerdown',33);pointer(window,'pointermove',33,110,95);pointer(window,'pointerup',33);assert.equal(commits,1,'Fresh layout drag saves');t.input.destroy();lifecycleDragCases++;
 }
 for(const event of ['pagehide','hidden'])for(const a of ['right','lp','jump','start']){
  const t=setup(),index={right:15,lp:0,jump:8,start:9}[a];pads=[{axes:[0,0],buttons:Array.from({length:16},()=>({pressed:false}))}];pads[0].buttons[index].pressed=true;t.input.prepareTick();

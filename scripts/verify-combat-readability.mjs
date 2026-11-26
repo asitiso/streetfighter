@@ -5,3 +5,56 @@ for(const id of['RYU','KEN','CHUNLI','IBUKI','URIEN','GILL'])for(const face of[-
 {const c=getCharacter('KEN'),w=new CombatWorld(c,c,'belt'),p=w.player;p.x=p.previousX=600;p.y=495;w.enemies[0].x=658;w.enemies[0].y=495;const second=new Fighter(c,'enemy',758,495,-1);w.enemies.push(second);for(const e of w.enemies){e.hp=e.maxHp=2000;e.aiCooldown=0;e.updateAi=()=>{};e.updateAiDirected=()=>{};}w.enemyDefenseDecision=()=>false;p.startMove(throwMoveFor('KEN'));let n=0;while(second.hp===2000){w.update(q,n++);assert(n<80);}assert.equal(w.lastPlayerTargetUid,second.uid,'Thrown-body collateral damage updates focus');cases++;}
 {const c=getCharacter('KEN'),scene=new Stage1Scene(q,{},c,c.superArts[0],1),texts=[],bars=[];scene.world.enemies[0].character=getCharacter('DUDLEY');scene.world.enemies[0].hp=120;scene.world.enemies[0].maxHp=300;scene.drawHudPortrait=()=>{};scene.drawSuperMeter=()=>{};scene.drawHudHp=(...args)=>bars.push(args);const ctx={save(){},restore(){},createLinearGradient(){return{addColorStop(){}}},beginPath(){},roundRect(){},fill(){},stroke(){},fillRect(){},fillText:t=>texts.push(t)};scene.drawBeltHud(ctx,scene.world.player);assert(texts.includes('DUDLEY'),'Target name must be readable in HUD');assert(bars.some(b=>b[4]===.4),'Target bar must show actual target HP');cases++;}
 console.log('COMBAT_READABILITY_PASS',{cases,characters:10,facings:2,projectiles:12});
+
+
+// The camera's full transform must keep the painted stage behind the viewport.
+const cameraCharacter = getCharacter('KEN');
+let cameraCases = 0;
+for (const stageId of [1, 2, 3, 4, 5]) for (const mode of ['duel', 'belt']) {
+  for (const side of [-1, 1]) for (const effect of ['super', 'bounce', 'shake']) {
+    const s = new Stage1Scene(q, {}, cameraCharacter, cameraCharacter.superArts[0], stageId);
+    s.phase = mode;
+    s.world.rules.mode = mode;
+    const width = mode === 'belt' ? s.stageLength : 1280;
+    const scroll = mode === 'duel' ? 0 : side < 0 ? 0 : width - 1280;
+    const {player, enemy} = s.world;
+    player.x = side < 0 ? 130 : width - 130;
+    enemy.x = player.x - side * 70;
+    if (effect === 'super') {
+      s.superCameraFrames = 12;
+      s.superCameraZoom = 1.14;
+      s.superCameraForward = -side * 32;
+      s.superCameraPanY = side * 65;
+      s.cameraFocusFrames = 48;
+      s.cameraFocusX = player.x;
+      s.cameraFocusY = 350 + side * 240;
+    } else if (effect === 'bounce') {
+      s.cameraCatchFrames = 12;
+      s.cameraCatchTotal = 24;
+      s.cameraCatchX = player.x;
+      s.cameraCatchY = 350 + side * 230;
+      s.cameraCatchZoom = 1.07;
+    }
+    s.cameraKickFrames = 10;
+    s.cameraKickPower = 10;
+    s.hitPulse = 8;
+    const camera = s.cameraPresentation(scroll);
+    const {panX: x, panY: y} = camera;
+    const projectX = value => 640 + (value - scroll - 640 + x) * camera.zoom;
+    const projectY = value => 360 + (value - 360 + y) * camera.zoom;
+    const label = [stageId, mode, side, effect].join('/');
+    assert(projectX(0) <= 1e-6, 'Left stage edge must cover the viewport ' + label);
+    assert(projectX(width) >= 1280 - 1e-6, 'Right stage edge must cover the viewport ' + label);
+    assert(projectY(0) <= 1e-6, 'Top stage edge must cover the viewport ' + label);
+    assert(projectY(720) >= 720 - 1e-6, 'Bottom stage edge must cover the viewport ' + label);
+    cameraCases++;
+  }
+}
+const centeredCamera = new Stage1Scene(q, {}, cameraCharacter, cameraCharacter.superArts[0], 1);
+centeredCamera.cameraFocusZoom = 1.1;
+centeredCamera.cameraKickFrames = 6;
+centeredCamera.cameraKickPower = 8;
+const centered = centeredCamera.cameraPresentation(900);
+assert(Math.abs(centered.panX - Math.sin(6 * 2.73) * 4) < 1e-6);
+assert(Math.abs(centered.panY - Math.cos(6 * 2.73 * 1.43) * 4 * .42) < 1e-6);
+console.log('STAGE_CAMERA_COVERAGE_PASS', {cameraCases, centeredShakePreserved:true});

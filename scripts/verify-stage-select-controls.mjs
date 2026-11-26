@@ -7,3 +7,70 @@ for(const stage of [1,2,3,4,5])for(const confirm of ['confirm','lp','mp','hp','t
  const input={pressed:a=>a===confirm||a===back,touchPressed:a=>confirm==='touch-start'&&a==='start'};let plays=0,returns=0;const s=new StageSelectScene(input,audio,stage,()=>plays++,selected=>{returns++;assert.equal(selected,stage);});s.fixedUpdate(1/60);s.fixedUpdate(1/60);assert.equal(plays,0,'Back must cancel simultaneous stage launch');assert.equal(returns,1,'One pending return only');cancelPriorityCases++;
 }
 console.log('STAGE_CANCEL_PRIORITY_PASS',{cancelPriorityCases});
+import { GameApp } from '../dist/assets/core/GameApp.js';
+import { getCharacter } from '../dist/assets/game/characters.js';
+const fighter = getCharacter('RYU');
+for (const replayStage of [1, 2, 3, 4, 5]) {
+  const campaignStage = replayStage === 5 ? 2 : 5;
+  const app = Object.create(GameApp.prototype);
+  const save = { stageSelectUnlocked: true, currentStage: campaignStage, completedStages: [1, 2, 3, 4, 5], stageResults: [] };
+  const recorded = [];
+  Object.assign(app, {
+    input: q, audio: { ...audio, playStagePulse() {} }, save, touch: { setSelectionMode() {}, setPostCombatMode() {}, setPaused() {} },
+    scenes: new SceneManager(),
+    loadStageModule: async (_group, load) => load(),
+    enterLoadedScene: async (create) => { await app.scenes.setScene(create()); },
+    recordStageResult: async (result) => { recorded.push(result); },
+  });
+  await app.startStageNumber(replayStage, fighter, fighter.superArts[0], false, true);
+  const replay = app.scenes.activeScene;
+  const labels = [];
+  const canvas = new Proxy({}, {
+    get: (_, key) => key === 'fillText' ? text => labels.push(text)
+      : key === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {},
+  });
+  replay.phase = 'clear';
+  replay.phaseFrames = 0;
+  replay.drawStageClear(canvas);
+  assert(labels.includes('STAGE CLEAR'), 'Replay clears one stage');
+  assert(labels.some(label => label.includes('RETURNING TO STAGE SELECT')), 'Replay clear must name its actual destination');
+  assert(labels.every(label => !/NEXT STAGE READY|ENDING ROUTE OPEN|TRANSFERRING TO ENDING/.test(label)),
+    'Replay must not advertise a campaign transition');
+  replay.routeError = 'SAVE FAILED';
+  labels.length = 0;
+  replay.drawStageClear(canvas);
+  assert(labels.every(label => !label.includes('RETURNING TO STAGE SELECT')), 'A failed clear cannot claim to be returning');
+  await replay.onClear({ stageId: replayStage });
+  assert.equal(app.scenes.activeScene.index + 1, replayStage, 'Replay returns focus to the just-cleared stage');
+  assert.deepEqual(recorded, [{ stageId: replayStage }]);
+  assert.equal(save.currentStage, campaignStage, 'Replay must preserve campaign position');
+  await app.showStageSelect();
+  assert.equal(app.scenes.activeScene.index + 1, campaignStage, 'Opening from title still uses the campaign position');
+}
+console.log('STAGE_REPLAY_SELECTION_PASS', { stages: 5 });
+
+let replayLayoutCases = 0;
+for (const stage of [1, 2, 3, 4, 5]) {
+  const scene = new StageSelectScene(q, audio, stage, () => {}, () => {}, undefined, true);
+  scene.enter();
+  for (const compact of [false, true]) {
+    const rows = [];
+    const labels = new Map();
+    const ctx = new Proxy({}, {
+      get: (_, key) => key === 'roundRect' ? (x, y, w, h) => rows.push(y + h)
+        : key === 'fillText' ? (label, x, y) => labels.set(label, y)
+        : key === 'createLinearGradient' ? () => ({addColorStop() {}})
+        : () => {},
+    });
+    scene.render({ctx, width: 1280, height: 720, compactTouchControls: compact});
+    assert.equal(rows.length, 5);
+    assert.equal(rows.at(-1), compact ? 538 : 583);
+    assert.equal(labels.get(compact ? '← → SELECT • CONFIRM: PLAY • BACK: TITLE' : 'ARROWS: SELECT • CONFIRM: PLAY • BACK: TITLE'),
+      compact ? 527 : 570);
+    assert.equal(labels.get('OPEN FAILED • RETRY OR CHOOSE ANOTHER STAGE'), 166);
+    assert(labels.has('STAGE ' + stage));
+    replayLayoutCases++;
+  }
+  scene.exit();
+}
+console.log('COMPACT_STAGE_REPLAY_FOOTER_PASS', {replayLayoutCases});

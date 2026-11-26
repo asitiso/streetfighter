@@ -5,23 +5,23 @@ import { stageAiLevel } from '../combat/AiDifficulty.js';
 import type { RenderContext, Scene } from '../core/Scene.js';
 import type { CharacterDef, SuperArtDef } from '../game/characters.js';
 import { getCharacter } from '../game/characters.js';
-import type { InputManager } from '../input/InputManager.js';
-import { CombatWorld, type BeltEnemySpawn } from '../combat/CombatWorld.js';
+import { keysForAction, type InputManager } from '../input/InputManager.js';
+import { CombatWorld, meleeForwardReach, type BeltEnemySpawn, type ProjectileInstance } from '../combat/CombatWorld.js';
 import { GRUNTS, gruntById, gruntCharacter, type GruntKind } from '../combat/GruntLibrary.js';
-import { heldWeaponOf, PICKUP_LABELS } from '../combat/BeltSystems.js';
-import { drawGruntPortrait, drawHeldWeapon, drawItemProjectile, drawPickup } from '../render/GruntSprites.js';
-import type { CombatEvent, EnvironmentProp } from '../combat/CombatTypes.js';
-import type { Fighter } from '../combat/Fighter.js';
+import { heldWeaponOf, PICKUP_LABELS, PLAYER_ESCAPE_MASH, weaponMoveFor } from '../combat/BeltSystems.js';
+import { drawGruntAttackWarning, drawGruntRecoveryOpening, drawGruntPortrait, drawHeldWeapon, drawItemProjectile, drawPickup } from '../render/GruntSprites.js';
+import type { CombatEvent, EnvironmentProp, MoveData } from '../combat/CombatTypes.js';
+import { chipDamageFor, PARRY_WINDOW_TICKS, type Fighter } from '../combat/Fighter.js';
 import { drawPropImpact } from '../render/PropImpactAssets.js';
 import { drawStageAmbient } from '../render/StageAmbientAssets.js';
 import { drawStagePropSprite } from '../render/StagePropAssets.js';
-import { specialMovesFor } from '../combat/MoveLibrary.js';
-import { techniqueCatalogFor } from '../combat/TechniqueLibrary.js';
+import { normalFor, specialMovesFor, throwMoveFor } from '../combat/MoveLibrary.js';
+import { commandNormalFor, techniqueCatalogFor } from '../combat/TechniqueLibrary.js';
 import { drawCharacterPreview, drawCombatFighter, drawGroundedKoCinematic } from '../render/Visuals.js';
 import { superCameraProfileForMotif } from '../render/SuperCameraProfiles.js';
 import { bossCinematicPose, type BossCinematicKind } from '../render/BossCinematicProfiles.js';
 import { finalKoPose } from '../render/FinalSequenceProfiles.js';
-import type { StageResult } from '../game/StageResult.js';
+import type { StageResult, StageScoreRecord } from '../game/StageResult.js';
 import { formatClearTime } from '../game/StageResult.js';
 import { runtimeQuality } from '../core/RuntimeQuality.js';
 import { combatFxDensity, qualityDetailCount, stageVisualProfile } from '../render/FinalVisualProfiles.js';
@@ -33,6 +33,8 @@ import { artImage, characterPortraitKey, PLAYABLE_ATTACK_ATLAS_KEYS, PLAYABLE_CO
 import { characterTextureManager } from '../render/CharacterTextureManager.js';
 import { animationTextureManager, liteAnimationTextureManager } from '../render/AnimationTextureManager.js';
 import { animationSequenceFor } from '../render/AnimationSequenceLibrary.js';
+import { animationSequenceKindForAttack } from '../render/AnimationTimingMapper.js';
+import { usesGroundedSuperGrabPose } from '../render/ThrowAttackerProfiles.js';
 import { closeSpacingStrength, fighterReadabilityProfile, foregroundOcclusionAlpha } from '../render/FighterReadabilityProfiles.js';
 import { signatureMoveProfile } from '../render/SignatureMoveProfiles.js';
 import { locomotionProfile } from '../render/LocomotionProfiles.js';
@@ -40,7 +42,50 @@ import { contactVisualEnvelope, contactVisualProfile } from '../render/ContactVi
 import { heroContactSample } from '../render/HeroContactProfiles.js';
 import { drawCombatImpact } from '../render/CombatImpactAssets.js';
 
+type BeltSpawn = readonly [kind: GruntKind, offset: number, lane: number, elite?: boolean];
+
+const BELT_WAVES: Record<1 | 2 | 3 | 4 | 5, readonly (readonly BeltSpawn[])[]> = {
+  1: [
+    [['punk', 650, 490], ['punk', 775, 530], ['thrower', 935, 473]],
+    [['punk', 435, 473], ['knife', 595, 515], ['kicker', 745, 562], ['thrower', 775, 478], ['punk', 1005, 420]],
+    [['bruiser', 770, 465, true], ['kicker', 995, 545, true]],
+  ],
+  2: [
+    [['knife', 630, 467], ['kicker', 790, 534], ['knife', 1010, 432]],
+    [['knife', 305, 480], ['punk', 455, 532], ['kicker', 590, 453], ['thrower', 705, 490], ['knife', 990, 523]],
+    [['kicker', 705, 530, true], ['thrower', 925, 447, true]],
+  ],
+  3: [
+    [['kicker', 643, 465], ['punk', 795, 545], ['thrower', 930, 487]],
+    [['bruiser', 470, 474], ['kicker', 635, 555], ['thrower', 760, 479], ['knife', 945, 541]],
+    [['bruiser', 720, 475, true], ['knife', 935, 545, true]],
+  ],
+  4: [
+    [['bruiser', 650, 467], ['soldier', 810, 520], ['knife', 1010, 462]],
+    [['knife', 345, 480], ['soldier', 576, 550], ['thrower', 690, 483], ['kicker', 988, 435]],
+    [['soldier', 695, 466, true], ['bruiser', 855, 526, true]],
+  ],
+  5: [
+    [['soldier', 615, 465], ['thrower', 900, 493], ['kicker', 990, 540]],
+    [['knife', 350, 475], ['bruiser', 495, 530], ['thrower', 725, 483], ['soldier', 1010, 551]],
+    [['bruiser', 702, 520, true], ['thrower', 905, 469, true]],
+  ],
+};
+
+const BELT_WAVE_TIPS = {
+  1: ['BLOCK THE RUSH • STEP OFF THE BOTTLE LANE', 'KEEP OUT OF GRAB RANGE'],
+  2: ['STEP BACK • SWITCH LANES TO SPLIT THE CROWD', 'CLOSE IN ON THE THROWER'],
+  3: ['DRAW OUT THE GRAB • FLANK THE THROWER', 'KEEP THE KNIFE AND GRABBER APART'],
+  4: ['SIDESTEP BOTTLES • CUT OFF THE FAST FIGHTER', 'SEPARATE THE BRUISER FROM THE SOLDIER'],
+  5: ['GUARD THE BLADE FLURRY • HIT WHEN OPEN', 'EVADE THE GRAB • REACH THE THROWER'],
+} as const;
+
 const WAVE_BREAK_FRAMES = 54;
+const BOTTLE_GUARD_LOOKAHEAD = 24;
+const CLEAR_ADVANCE_READY_FRAMES = 60;
+const BOSS_PROJECTILE_WINDUP_FRAMES = 16;
+const BOSS_MELEE_WINDUP_FRAMES = 16;
+const BOSS_MELEE_RECOVERY_BONUS = 8;
 const DEFEAT_PRESENTATION_FRAMES = { ko: 120, 'double-ko': 120, 'time-over': 90 } as const;
 
 type RoundWinner = 'player' | 'enemy' | 'draw';
@@ -51,6 +96,18 @@ export const ROUND_BREAK_FRAMES = 150;
 export const ROUND_ANNOUNCE_FRAMES = 105;
 export const ROUND_FIGHT_FRAMES = 40;
 const ROUND_ONE_BANNER_FRAMES = 72;
+const CAMPAIGN_FIGHT_BANNER_FRAMES = 24;
+
+type BossPhase = 'duel' | 'final-duel';
+type CombatMetrics = Omit<StageResult, 'stageId' | 'beltScore' | 'clearSeconds' | 'defeatedEnemies'>;
+type BossEntry = {
+  phase: BossPhase;
+  hp: number;
+  gauge: number;
+  beltScore: number;
+  elapsedCombatFrames: number;
+  metrics: CombatMetrics;
+};
 
 export class Stage1Scene implements Scene {
   private world: CombatWorld;
@@ -65,14 +122,18 @@ export class Stage1Scene implements Scene {
   private defeatedEnemies = 0;
   private readonly beltWaveCount = 3;
   private cameraX = 0;
-  private beltState: 'fight' | 'travel' = 'fight';
+  private beltState: 'fight' | 'travel' | 'loot' = 'fight';
+  private lootExitArmed = false;
+  private travelExitInput: 'none' | 'release' | 'right' = 'none';
   private clearDispatched = false;
+  private clearAdvanceQueued = false;
   private routeRequest = 0;
   private routeError = '';
   private finalKoFrames = 0;
   private defeatFrames = 0;
   private defeatDispatched = false;
   private defeatRetryQueued = false;
+  private bossEntry: BossEntry | null = null;
   private defeatReason: 'ko' | 'double-ko' | 'time-over' = 'ko';
   private paused = false;
   /** Set by startTraining(): a 1v1 sandbox with no timer, rounds or boss scripts. */
@@ -85,7 +146,7 @@ export class Stage1Scene implements Scene {
   private enemyRoundWins = 0;
   private roundBreakFrames = 0;
   private roundAnnounceFrames = 0;
-  private roundOneBannerFrames = 0;
+  private roundStartBannerFrames = 0;
   private lastRoundWinner: RoundWinner | null = null;
   private lastRoundReason: RoundEndReason = 'ko';
   private lastRoundPerfect = false;
@@ -95,6 +156,9 @@ export class Stage1Scene implements Scene {
   private bossPatternCooldown = 0;
   private bossPatternFlash = 0;
   private bossPatternIndex = 0;
+  private rematchPattern: MoveData | null = null;
+  private urienPattern: { move: MoveData; label: string } | null = null;
+  private gillPattern: { move: MoveData; label: string } | null = null;
   private soundtrackStep = -1;
   private cameraKickFrames = 0;
   private cameraKickPower = 0;
@@ -119,14 +183,11 @@ export class Stage1Scene implements Scene {
   private readonly stageLength: number;
   private readonly areaStarts = [0, 1220, 2440] as const;
   private elapsedCombatFrames = 0;
-  private carriedDamageDealt = 0;
-  private carriedDamageTaken = 0;
-  private carriedMaxComboHits = 0;
-  private carriedMaxComboDamage = 0;
-  private carriedParries = 0;
-  private carriedRedParries = 0;
-  private carriedSupersUsed = 0;
-  private carriedThrowsLanded = 0;
+  private beltScore = 0;
+  private carried: CombatMetrics = {
+    damageDealt: 0, damageTaken: 0, maxComboHits: 0, maxComboDamage: 0,
+    parries: 0, redParries: 0, supersUsed: 0, throwsLanded: 0,
+  };
 
   constructor(
     private readonly input: InputManager,
@@ -138,6 +199,8 @@ export class Stage1Scene implements Scene {
     private readonly onDefeat?: () => void | Promise<void>,
     private readonly onPauseChange?: (paused: boolean) => void,
     private readonly onPostCombatChange?: (active: boolean) => void,
+    private readonly previousStageScore?: StageScoreRecord,
+    private readonly replay = false,
   ) {
     this.stageLength = stageId === 1 ? 3560 : stageId === 2 ? 3820 : stageId === 3 ? 4020 : stageId === 4 ? 4140 : 4320;
     this.introFrames = transitionPolishProfile(stageId).introFrames;
@@ -155,7 +218,7 @@ export class Stage1Scene implements Scene {
     session.attach(world);
     this.phase = 'duel';
     this.introFrames = 0;
-    this.roundOneBannerFrames = 0;
+    this.roundStartBannerFrames = 0;
     this.roundAnnounceFrames = 0;
     this.roundBreakFrames = 0;
     this.stageTime = 99;
@@ -223,6 +286,7 @@ export class Stage1Scene implements Scene {
   enter(): void {
     this.onPostCombatChange?.(false);
     this.defeatRetryQueued = false;
+    this.clearAdvanceQueued = false;
     this.routeRequest += 1;
     const preload = [stageArtKey(this.stageId), stageForegroundKey(this.stageId)] as Array<ReturnType<typeof stageArtKey> | ReturnType<typeof stageForegroundKey> | NonNullable<ReturnType<typeof characterPortraitKey>>>;
     const playerPortrait = characterPortraitKey(this.playerDef.id);
@@ -280,7 +344,8 @@ export class Stage1Scene implements Scene {
         this.cameraFocusZoom = 1.1;
       } else if (!this.defeatDispatched && (this.defeatRetryQueued || this.routeRetryPressed())) {
         this.defeatRetryQueued = false;
-        this.dispatchRoute('defeat');
+        if (this.bossEntry) this.retryBoss(this.bossEntry);
+        else this.dispatchRoute('defeat');
       }
       return;
     }
@@ -317,12 +382,11 @@ export class Stage1Scene implements Scene {
       const intensity = this.phase === 'final-duel' || this.phase === 'final-transition' ? 'final' : this.phase === 'duel' || this.phase === 'transition' ? 'duel' : 'belt';
       this.audio.playStageBeat?.(this.stageId, beat, intensity);
     }
-    // Reuse the freeze buffer for quick taps just before combat becomes ready.
+    // Record command directions throughout the cue, but reserve only late action presses.
     const readyFrames = this.introFrames > 0 ? this.introFrames
       : this.phase === 'transition' || this.phase === 'final-transition' ? this.phaseFrames
-      : (this.phase === 'duel' || this.phase === 'final-duel') && this.roundAnnounceFrames > 0 ? this.roundAnnounceFrames
-      : this.phase === 'belt' ? this.waveBreakFrames : 0;
-    if (readyFrames > 0 && readyFrames <= 6) this.world.player.captureInput(this.input, tick, true, this.world.rules);
+      : (this.phase === 'duel' || this.phase === 'final-duel') ? this.roundAnnounceFrames : 0;
+    if (readyFrames > 0) this.world.capturePausedInput(this.input, tick, readyFrames <= 6);
     if (this.introFrames > 0) { this.introFrames -= 1; return; }
 
     if (this.phase === 'transition') {
@@ -332,7 +396,7 @@ export class Stage1Scene implements Scene {
       this.updateKnockedOutFighters();
       this.phaseFrames -= 1;
       if (this.phaseFrames === transitionPolishProfile(this.stageId).duelPrepareAt) this.prepareDuel();
-      if (this.phaseFrames <= 0) { this.phase = 'duel'; this.beginDuelMatch(); }
+      if (this.phaseFrames <= 0) this.enterBossMatch('duel');
       return;
     }
     if (this.phase === 'final-transition') {
@@ -342,7 +406,7 @@ export class Stage1Scene implements Scene {
       this.updateKnockedOutFighters();
       this.phaseFrames -= 1;
       if (this.phaseFrames === transitionPolishProfile(this.stageId).duelPrepareAt) this.prepareFinalDuel();
-      if (this.phaseFrames <= 0) { this.phase = 'final-duel'; this.beginDuelMatch(); }
+      if (this.phaseFrames <= 0) this.enterBossMatch('final-duel');
       return;
     }
     if (this.phase === 'final-ko') {
@@ -371,12 +435,25 @@ export class Stage1Scene implements Scene {
       this.phaseFrames = Math.max(0, this.phaseFrames - 1);
       const timing = transitionPolishProfile(this.stageId);
       const dispatchAt = this.stageId === 5 ? timing.finalClearDispatchAt : timing.clearDispatchAt;
-      if (!this.clearDispatched && this.phaseFrames <= dispatchAt && (!this.routeError || this.routeRetryPressed())) this.dispatchRoute('clear');
+      const total = this.stageId === 5 ? timing.finalClearFrames : timing.clearFrames;
+      if (!this.clearDispatched) {
+        if (this.routeError) {
+          if (this.routeRetryPressed()) this.dispatchRoute('clear');
+        } else {
+          // Keep the score visible for the first second, even if START was tapped early.
+          this.clearAdvanceQueued ||= this.input.pressed('start') || this.input.pressed('confirm');
+          const advance = this.clearAdvanceQueued && total - this.phaseFrames >= CLEAR_ADVANCE_READY_FRAMES;
+          if (advance || this.phaseFrames <= dispatchAt) {
+            this.clearAdvanceQueued = false;
+            this.dispatchRoute('clear');
+          }
+        }
+      }
       return;
     }
     if (this.phase === 'belt' && this.waveBreakFrames > 0) {
       this.advancePostCombatEffects();
-      this.settlePlayerAfterCombat(true);
+      this.world.updateWaveArrival(this.input, tick, this.waveBreakFrames <= 6);
       this.waveBreakFrames -= 1;
       if (this.waveBreakFrames === 0) this.beltState = 'fight';
       this.updateCamera();
@@ -386,7 +463,7 @@ export class Stage1Scene implements Scene {
     const inDuel = this.phase === 'duel' || this.phase === 'final-duel';
     if (inDuel && this.roundBreakFrames > 0) { this.tickRoundBreak(); return; }
     if (inDuel && this.roundAnnounceFrames > 0) { this.tickRoundAnnounce(); return; }
-    if (inDuel && this.roundOneBannerFrames > 0) this.roundOneBannerFrames -= 1;
+    if (inDuel && this.roundStartBannerFrames > 0) this.roundStartBannerFrames -= 1;
 
     const timerActive = this.phase !== 'belt' || this.beltState === 'fight';
     const combatFrozen = this.world.superFreezeFrames > 0;
@@ -398,7 +475,11 @@ export class Stage1Scene implements Scene {
     }
     if (!combatFrozen) this.elapsedCombatFrames += 1;
     this.training?.beforeUpdate();
-    this.world.update(this.input, tick);
+    if (!combatFrozen && tick % 8 === 0) this.prepareLiteSuperAttacks();
+    if (!combatFrozen && !this.training && !this.versus && this.phase === 'duel' && this.stageId === 4 && this.bossEntry) {
+      this.updateLondonPattern();
+    }
+    this.world.update(this.input, tick, this.phase === 'belt' && this.beltState !== 'fight');
     this.playStunCues();
     this.updateCamera();
     if (!combatFrozen && !this.training && !this.versus && this.phase === 'duel' && this.stageId === 5) this.updateUrienPattern();
@@ -410,22 +491,28 @@ export class Stage1Scene implements Scene {
       event.audioPlayed = true;
       if (event.type === 'super-flash' && event.power > 0) this.prepareSuperHitTextures();
       this.triggerCameraForEvent(event);
-      if (event.type === 'hit' || event.type === 'counter') this.audio.playHit(event.power);
-      else if (event.type === 'air-hit') this.audio.playAirHit?.(event.power);
-      else if (event.type === 'command-hit') this.audio.playCommandHit?.(event.power);
-      else if (event.type === 'target-hit') this.audio.playTargetHit?.(event.power);
-      else if (event.type === 'block') this.audio.playBlock?.(event.power);
-      else if (event.type === 'parry' || event.type === 'red-parry') this.audio.playParry(event.type === 'red-parry');
-      else if (event.type === 'throw-escape') this.audio.playThrowEscape?.();
-      else if (event.type === 'super-flash') this.audio.playSuperStart?.();
-      else if (event.type === 'super-impact') this.audio.playSuperImpact?.(event.power);
-      else if (event.type === 'boss-warning' || event.type === 'boss-burst') this.audio.playBossCue?.(event.type === 'boss-burst');
-      else if (event.type === 'juggle') this.audio.playAirHit?.(Math.max(80, event.power * 28));
-      else if (event.type === 'wall-bounce' || event.type === 'ground-bounce') this.audio.playHit(Math.max(150, event.power));
-      else if (event.type === 'ko') this.audio.playKo?.();
-      else if (event.type === 'enemy-collision' || event.type === 'wall-impact' || event.type === 'prop-break') this.audio.playHit(Math.max(90, event.power));
-      else if (event.type === 'pickup') this.audio.playUiConfirm?.();
-      else if (event.type === 'grab') this.audio.playThrowEscape?.();
+      if (!event.superContact) {
+        if (event.type === 'hit' || event.type === 'counter') this.audio.playHit(event.power);
+        else if (event.type === 'air-hit') this.audio.playAirHit?.(event.power);
+        else if (event.type === 'command-hit') this.audio.playCommandHit?.(event.power);
+        else if (event.type === 'target-hit') this.audio.playTargetHit?.(event.power);
+        else if (event.type === 'block') this.audio.playBlock?.(event.power);
+        else if (event.type === 'parry' || event.type === 'red-parry') this.audio.playParry(event.type === 'red-parry');
+        else if (event.type === 'throw-escape') this.audio.playThrowEscape?.();
+        else if (event.type === 'super-flash') this.audio.playSuperStart?.();
+        else if (event.type === 'super-impact') this.audio.playSuperImpact?.(event.power, event.hitIndex, event.hitTotal);
+        else if (event.type === 'boss-warning' || event.type === 'boss-burst') this.audio.playBossCue?.(event.type === 'boss-burst');
+        else if (event.type === 'juggle') this.audio.playAirHit?.(Math.max(80, event.power * 28));
+        else if (event.type === 'wall-bounce' || event.type === 'ground-bounce') this.audio.playHit(Math.max(150, event.power));
+        else if (event.type === 'ko') {
+          const hasCinematicKo = this.phase === 'final-duel' && this.playerRoundWins + 1 >= ROUNDS_TO_WIN
+            && this.world.enemy.hp <= 0 && this.world.player.hp > 0 && this.audio.playFinalKo;
+          if (!hasCinematicKo) this.audio.playKo?.();
+        }
+        else if (event.type === 'enemy-collision' || event.type === 'wall-impact' || event.type === 'prop-break') this.audio.playHit(Math.max(90, event.power));
+        else if (event.type === 'pickup') this.audio.playUiConfirm?.();
+        else if (event.type === 'grab') this.audio.playThrowEscape?.();
+      }
       if (event.power > 0 && event.type !== 'block') this.hitPulse = Math.max(this.hitPulse, Math.min(12, Math.round(event.power / 18)));
     }
     if (this.hitPulse > 0) this.hitPulse -= 1;
@@ -439,30 +526,56 @@ export class Stage1Scene implements Scene {
 
     if (this.phase === 'belt' && this.beltState === 'fight' && this.world.livingEnemies.length === 0) {
       this.defeatedEnemies += this.world.enemies.length;
+      this.world.projectiles.length = 0;
       if (this.beltWave < this.beltWaveCount - 1) {
         this.beltWave += 1;
         this.beltState = 'travel';
-        this.world.projectiles.length = 0;
         this.world.enemies.length = 0;
         this.world.rules.arenaLeft = Math.max(96, this.areaStarts[this.beltWave - 1] + 120);
         this.world.rules.arenaRight = this.areaStarts[this.beltWave] + 260;
+        this.travelExitInput = this.input.held('right') && this.world.belt.hasReachableReward(this.world, 'manual-pickups')
+          ? 'release' : 'none';
+      } else if (this.world.belt.hasReachableReward(this.world)) {
+        this.beltState = 'loot';
+        this.lootExitArmed = !this.input.held('right');
       } else {
-        this.world.projectiles.length = 0;
-        this.phase = 'transition';
-        this.phaseFrames = transitionPolishProfile(this.stageId).duelFrames;
-        this.audio.playDuelTransition?.(false);
-        this.audio.setStageIntensity?.('duel');
+        this.beginBossTransition();
       }
-    } else if (this.phase === 'belt' && this.beltState === 'travel' && this.world.player.x >= this.areaStarts[this.beltWave] + 150) {
-      this.spawnBeltWave(this.beltWave);
-      this.prepareCombatTextures();
-      this.waveBreakFrames = WAVE_BREAK_FRAMES;
+    } else if (this.phase === 'belt' && this.beltState === 'loot') {
+      const player = this.world.player;
+      const right = this.input.held('right');
+      if (!this.lootExitArmed && (!right || this.input.released?.('right') || !this.world.belt.hasReachableReward(this.world))) {
+        this.lootExitArmed = true;
+      }
+      const atExit = this.lootExitArmed && right && !this.input.held('left') && player.x >= this.world.rules.arenaRight - 8;
+      if (!player.airborne && player.hitStop === 0 && (player.state === 'idle' || player.state === 'walk' || player.state === 'crouch')
+        && (atExit || this.input.pressed('confirm'))) this.beginBossTransition();
+    } else if (this.phase === 'belt' && this.beltState === 'travel') {
+      const right = this.input.held('right');
+      if (this.travelExitInput === 'release' && (!right || this.input.released?.('right')
+        || !this.world.belt.hasReachableReward(this.world, 'manual-pickups'))) {
+        this.travelExitInput = 'right';
+      }
+      const canEnter = this.travelExitInput === 'none' || (this.travelExitInput === 'right' && right && !this.input.held('left'));
+      if (canEnter && this.world.player.x >= this.areaStarts[this.beltWave] + 150) {
+        this.spawnBeltWave(this.beltWave);
+        this.prepareCombatTextures();
+        this.waveBreakFrames = WAVE_BREAK_FRAMES;
+      }
     } else if (inDuel && this.world.enemy.hp <= 0) {
       this.concludeDuelRound('player', 'ko');
     }
   }
 
-  render({ ctx, width, height }: RenderContext, alpha: number): void {
+  private beginBossTransition(): void {
+    this.world.projectiles.length = 0;
+    this.phase = 'transition';
+    this.phaseFrames = transitionPolishProfile(this.stageId).duelFrames;
+    this.audio.playDuelTransition?.(false);
+    this.audio.setStageIntensity?.('duel');
+  }
+
+  render({ ctx, width, height, compactTouchControls = false }: RenderContext, alpha: number): void {
     ctx.save();
     ctx.scale(width / 1280, height / 720);
     // Keep camera overscan and weather inside the game viewport, including letterboxed layouts.
@@ -472,7 +585,7 @@ export class Stage1Scene implements Scene {
     ctx.save();
     ctx.translate(640, 360);
     ctx.scale(camera.zoom, camera.zoom);
-    ctx.translate(-640 + camera.panX + camera.shakeX, -360 + camera.panY + camera.shakeY);
+    ctx.translate(-640 + camera.panX, -360 + camera.panY);
     ctx.translate(-scroll, 0);
     this.drawStageBackdrop(ctx);
     this.drawDepthParallax(ctx, scroll, 'far');
@@ -486,6 +599,7 @@ export class Stage1Scene implements Scene {
     // and those props fade locally around combatants to preserve silhouettes.
     this.drawStageForegroundArt(ctx, scroll);
     this.drawDepthParallax(ctx, scroll, 'near');
+    this.drawSuperOverlay(ctx, scroll);
     // Frozen ticks keep old movement endpoints; do not replay that movement each render.
     const fighterAlpha = this.paused || this.fightersFrozenLastTick || this.world.superFreezeFrames > 0 ? 1 : alpha;
     const fighters = [...this.world.enemies, this.world.player].filter((fighter) => !(this.phase === 'final-ko' && fighter.character.id === 'GILL')).sort((a, b) => a.y - b.y);
@@ -513,10 +627,22 @@ export class Stage1Scene implements Scene {
       // Final cinematic uses a separate clock; keep its completed body through clear.
       const heldFinalKo = this.stageId === 5 && this.phase === 'clear' && fighter === this.world.enemy
         && fighter.character.id === 'GILL' && fighter.state === 'ko';
-      if (!heldFinalKo || !drawGroundedKoCinematic(ctx, fighter, 180)) {
-        drawCombatFighter(ctx, fighter, bodyAlpha, this.time + index * .17);
+      const bodyX = fighter.previousX + (fighter.x - fighter.previousX) * bodyAlpha;
+      const guardReadyDirection = this.world.rules.mode === 'belt' && fighter === this.world.player
+        && fighter.state === 'idle' && !fighter.airborne ? fighter.proximityGuardDirection : 0;
+      // The guard pose faces the threat without changing targeting or input direction.
+      const guardDirection = fighter.state === 'block' ? fighter.lastHitDirection : guardReadyDirection;
+      const mirrorGuard = this.world.rules.mode === 'belt' && guardDirection === fighter.facing;
+      if (mirrorGuard) {
+        ctx.save();
+        ctx.translate(bodyX * 2, 0);
+        ctx.scale(-1, 1);
       }
-      if (fighter === this.world.player) drawHeldWeapon(ctx, fighter, fighter.previousX + (fighter.x - fighter.previousX) * bodyAlpha, fighter.previousY + (fighter.y - fighter.previousY) * bodyAlpha);
+      if (!heldFinalKo || !drawGroundedKoCinematic(ctx, fighter, 180)) {
+        drawCombatFighter(ctx, fighter, bodyAlpha, this.time + index * .17, guardReadyDirection !== 0);
+      }
+      if (fighter === this.world.player) drawHeldWeapon(ctx, fighter, bodyX, fighter.previousY + (fighter.y - fighter.previousY) * bodyAlpha);
+      if (mirrorGuard) ctx.restore();
       this.drawFighterRimLight(ctx, fighter);
     }
     this.drawProps(ctx, props, propIndex);
@@ -525,34 +651,41 @@ export class Stage1Scene implements Scene {
     this.drawFx(ctx);
     this.drawDizzyEffects(ctx, fighters);
     this.drawForegroundMotion(ctx, fighters);
+    if (this.phase === 'belt' && this.beltState === 'fight' && this.introFrames <= 0 && !this.paused) {
+      for (const enemy of this.world.enemies) {
+        if (!drawGruntRecoveryOpening(ctx, enemy, fighterAlpha)) drawGruntAttackWarning(ctx, enemy, fighterAlpha);
+      }
+    }
     ctx.restore();
     this.drawAtmosphere(ctx);
     this.drawStageColorGrade(ctx);
     this.drawImpactFrameOverlay(ctx);
     this.drawCinematicLetterbox(ctx);
-    this.drawSuperOverlay(ctx);
-    this.drawHud(ctx);
-    this.training?.render(ctx);
+    this.drawHud(ctx, compactTouchControls);
+    this.drawLondonPatternGuide(ctx, compactTouchControls);
+    this.drawUrienPatternGuide(ctx, compactTouchControls);
+    this.training?.render(ctx, compactTouchControls);
     this.versus?.render(ctx);
     this.drawIntro(ctx);
-    this.drawWaveCard(ctx);
+    this.drawWaveCard(ctx, compactTouchControls);
     this.drawAdvancePrompt(ctx);
     this.drawTransition(ctx);
     this.drawRoundOverlay(ctx);
     this.drawFinalTransition(ctx);
-    this.drawGillPhaseOverlay(ctx);
+    this.drawGillPhaseOverlay(ctx, compactTouchControls);
+    this.drawBossWakeGuide(ctx, compactTouchControls);
     this.drawBossPatternFlash(ctx);
-    this.drawStageClear(ctx);
-    this.drawHelp(ctx);
-    this.drawDefeat(ctx);
-    this.drawPause(ctx);
+    this.drawStageClear(ctx, compactTouchControls);
+    this.drawHelp(ctx, compactTouchControls);
+    this.drawDefeat(ctx, compactTouchControls);
+    this.drawPause(ctx, compactTouchControls);
     if (this.routeError) {
       ctx.fillStyle = 'rgba(3,6,10,.92)';
       ctx.fillRect(340, 180, 600, 44);
       ctx.textAlign = 'center';
       ctx.fillStyle = '#ff9b9b';
       ctx.font = '800 14px Arial, sans-serif';
-      ctx.fillText(this.routeError, 640, 208);
+      ctx.fillText(compactTouchControls ? 'SAVE FAILED • TAP START TO RETRY' : this.routeError, 640, 208);
     }
     ctx.restore();
   }
@@ -638,7 +771,7 @@ export class Stage1Scene implements Scene {
     }
   }
 
-  private cameraPresentation(scroll: number): { zoom: number; panX: number; panY: number; shakeX: number; shakeY: number } {
+  private cameraPresentation(scroll: number): { zoom: number; panX: number; panY: number } {
     let zoom = this.phase === 'final-duel' || this.phase === 'final-ko' ? 1.065 : this.phase === 'duel' || this.phase === 'defeat' ? 1.035 : 1;
     let panX = 0;
     let panY = 0;
@@ -695,7 +828,17 @@ export class Stage1Scene implements Scene {
       panY += this.superCameraPanY * fade;
       zoom = Math.max(zoom, 1 + (this.superCameraZoom - 1) * fade);
     }
-    return { zoom, panX, panY, shakeX, shakeY };
+    // Limit the combined camera movement to the painted background, including fallback scenery.
+    const stageWidth = this.world.rules.mode === 'belt' ? this.stageLength : 1280;
+    const horizontalMargin = 640 - 640 / zoom;
+    const verticalMargin = 360 - 360 / zoom;
+    const minX = scroll + 1280 - stageWidth - horizontalMargin;
+    const maxX = scroll + horizontalMargin;
+    return {
+      zoom,
+      panX: Math.max(minX, Math.min(maxX, panX + shakeX)),
+      panY: Math.max(-verticalMargin, Math.min(verticalMargin, panY + shakeY)),
+    };
   }
 
   private drawImpactFrameOverlay(ctx: CanvasRenderingContext2D): void {
@@ -704,9 +847,11 @@ export class Stage1Scene implements Scene {
     );
     if (!impact) return;
     const fx = fxPolishProfile(impact);
-    const life = Math.max(0, Math.min(1, impact.ttl / Math.max(1, fx.baseTtl)));
-    const sharp = Math.pow(life, 1.7);
     const superImpact = impact.type === 'super-impact';
+    const visibleTtl = superImpact ? impact.ttl - fx.baseTtl + 6 : impact.ttl;
+    if (visibleTtl <= 0) return;
+    const life = Math.min(1, visibleTtl / (superImpact ? 6 : fx.baseTtl));
+    const sharp = Math.pow(life, 1.7);
     const red = impact.type === 'red-parry';
     const hitTotal = Math.max(1, impact.hitTotal ?? 1);
     const hitIndex = Math.max(1, Math.min(hitTotal, impact.hitIndex ?? 1));
@@ -715,16 +860,16 @@ export class Stage1Scene implements Scene {
     const cadence = hitTotal > 1 ? .82 + hitRatio * .14 + (finalHit ? .24 : 0) : 1;
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
-    const flashAlpha = (superImpact ? .12 : red ? .085 : .045) * sharp * cadence;
+    const flashAlpha = (superImpact ? .055 : red ? .085 : .045) * sharp * cadence;
     ctx.fillStyle = red ? `rgba(255,72,106,${flashAlpha})` : superImpact ? `rgba(255,238,174,${flashAlpha})` : `rgba(114,211,255,${flashAlpha})`;
     ctx.fillRect(0, 0, 1280, 720);
     if (runtimeQuality.currentTier !== 'low') {
-      ctx.globalAlpha = sharp * (superImpact ? .22 : .1);
+      ctx.globalAlpha = sharp * (superImpact ? .09 : .1);
       ctx.fillStyle = superImpact ? '#fff1aa' : red ? '#ff5779' : '#77dfff';
       const band = (8 + (1 - life) * 18) * (finalHit ? 1.28 : 1);
       const cadenceOffset = hitTotal > 1 ? (hitIndex % 2 === 0 ? 5 : -5) : 0;
       ctx.fillRect(0, Math.max(0, impact.y - 3 - band * .5 + cadenceOffset), 1280, band);
-      ctx.globalAlpha = sharp * .08 * cadence;
+      ctx.globalAlpha = sharp * (superImpact ? .04 : .08) * cadence;
       ctx.fillRect(Math.max(0, impact.x - 5), 0, 10 + (finalHit ? 4 : 0), 720);
     }
     ctx.restore();
@@ -789,14 +934,43 @@ export class Stage1Scene implements Scene {
     return playerRatio > enemyRatio ? 'player' : 'enemy';
   }
 
+  private enterBossMatch(phase: BossPhase): void {
+    const { hp, superGauge: gauge } = this.world.player;
+    this.bossEntry = {
+      phase, hp, gauge, beltScore: this.beltScore, elapsedCombatFrames: this.elapsedCombatFrames,
+      metrics: { ...this.carried },
+    };
+    this.phase = phase;
+    this.beginDuelMatch();
+  }
+
+  private retryBoss(entry: BossEntry): void {
+    this.beltScore = entry.beltScore;
+    this.elapsedCombatFrames = entry.elapsedCombatFrames;
+    this.carried = { ...entry.metrics };
+    this.hitPulse = this.cameraKickFrames = this.cameraKickPower = 0;
+    this.cameraSlowFrames = this.superCameraFrames = this.cameraRhythmFrames = this.cameraCatchFrames = 0;
+    this.bossPatternFlash = 0;
+    this.stunCueCounts.clear();
+    if (entry.phase === 'final-duel') this.prepareFinalDuel(entry);
+    else this.prepareDuel(entry);
+    this.phase = entry.phase;
+    this.beginDuelMatch();
+    this.input.resetCommandHistory?.();
+    this.onPostCombatChange?.(false);
+    this.audio.playDuelTransition?.(entry.phase === 'final-duel');
+  }
+
   private beginDuelMatch(): void {
     this.duelRound = 1;
     this.playerRoundWins = 0;
     this.enemyRoundWins = 0;
     this.roundBreakFrames = 0;
     this.roundAnnounceFrames = 0;
-    this.roundOneBannerFrames = ROUND_ONE_BANNER_FRAMES;
+    this.roundStartBannerFrames = this.versus ? ROUND_ONE_BANNER_FRAMES : CAMPAIGN_FIGHT_BANNER_FRAMES;
     this.lastRoundWinner = null;
+    this.lastRoundReason = 'ko';
+    this.lastRoundPerfect = false;
   }
 
   /** Score a finished duel round (KO, double KO or time) and either end the match or queue the next round. */
@@ -807,7 +981,7 @@ export class Stage1Scene implements Scene {
     this.lastRoundWinner = winner;
     this.lastRoundReason = reason;
     this.lastRoundPerfect = winner === 'player' && reason !== 'time' && player.hp >= player.maxHp;
-    this.roundOneBannerFrames = 0;
+    this.roundStartBannerFrames = 0;
     const playerMatch = this.playerRoundWins >= ROUNDS_TO_WIN;
     const enemyMatch = this.enemyRoundWins >= ROUNDS_TO_WIN;
     if (this.versus && (playerMatch || enemyMatch || this.duelRound >= MAX_DUEL_ROUNDS)) { this.finishVersusMatch(reason); return; }
@@ -818,6 +992,7 @@ export class Stage1Scene implements Scene {
       return;
     }
     if (playerMatch) { this.enterDuelMatchVictory(reason === 'time'); return; }
+    if (winner !== 'draw') characterTextureManager.prepareLiteVictory((winner === 'player' ? player : this.world.enemy).character.id);
     this.world.projectiles.length = 0;
     this.roundBreakFrames = ROUND_BREAK_FRAMES;
     if (reason === 'time') this.audio.playBossCue?.(false);
@@ -871,6 +1046,7 @@ export class Stage1Scene implements Scene {
     this.settleDuelFighter(this.world.enemy, this.world.player, false);
     this.roundAnnounceFrames -= 1;
     if (this.roundAnnounceFrames === ROUND_FIGHT_FRAMES) this.audio.playDuelTransition?.(this.phase === 'final-duel');
+    if (this.roundAnnounceFrames === 0 && !this.versus) this.roundStartBannerFrames = CAMPAIGN_FIGHT_BANNER_FRAMES;
   }
 
   private roundCallout(): string {
@@ -1003,19 +1179,31 @@ export class Stage1Scene implements Scene {
       const local = fight ? ROUND_FIGHT_FRAMES - this.roundAnnounceFrames : ROUND_ANNOUNCE_FRAMES - this.roundAnnounceFrames;
       const pop = Math.min(1, local / 7);
       const fade = fight ? Math.min(1, this.roundAnnounceFrames / 10) : 1;
-      this.drawRoundBanner(ctx, fight ? 'FIGHT!' : this.roundCallout(), fight ? '' : `${this.playerRoundWins} - ${this.enemyRoundWins}`, pop * fade, 1.3 - pop * .3, '#ffd34d');
+      this.drawRoundBanner(ctx, fight ? (this.versus ? 'FIGHT!' : 'GET READY') : this.roundCallout(),
+        fight ? '' : `${this.playerRoundWins} - ${this.enemyRoundWins}`, pop * fade, 1.3 - pop * .3, '#ffd34d');
       return;
     }
-    if (this.roundOneBannerFrames > 0) {
-      const local = ROUND_ONE_BANNER_FRAMES - this.roundOneBannerFrames;
+    if (this.roundStartBannerFrames > 0) {
+      if (!this.versus) {
+        // Live combat keeps the center clear for fighters and the touch START button.
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, this.roundStartBannerFrames / 8);
+        ctx.fillStyle = 'rgba(3,5,10,.88)'; ctx.fillRect(1008, 124, 232, 32);
+        ctx.textAlign = 'center'; ctx.fillStyle = '#fff4d6'; ctx.font = '900 24px Impact, Arial Black, sans-serif';
+        ctx.fillText('FIGHT!', 1124, 148, 216);
+        ctx.restore();
+        return;
+      }
+      const local = ROUND_ONE_BANNER_FRAMES - this.roundStartBannerFrames;
       const fight = local >= 38;
       const pop = Math.min(1, (fight ? local - 38 : local) / 6);
-      this.drawRoundBanner(ctx, fight ? 'FIGHT!' : 'ROUND 1', '', pop * Math.min(1, this.roundOneBannerFrames / 10) * .92, 1.2 - pop * .2, '#ffd34d');
+      this.drawRoundBanner(ctx, fight ? 'FIGHT!' : 'ROUND 1', '', pop * Math.min(1, this.roundStartBannerFrames / 10) * .92, 1.2 - pop * .2, '#ffd34d');
     }
   }
 
   /** Match won: hand off to the stage's original victory flow (clear, Urien -> Gill, or Gill final KO). */
   private enterDuelMatchVictory(byTime: boolean): void {
+    if (this.phase !== 'duel' || this.stageId !== 5) characterTextureManager.prepareLiteVictory(this.world.player.character.id);
     if (this.phase === 'duel') {
       this.world.projectiles.length = 0;
       if (this.stageId === 5) {
@@ -1058,56 +1246,33 @@ export class Stage1Scene implements Scene {
 
   private spawnBeltWave(index: number): void {
     const base = this.areaStarts[index];
+    const marketAmbush = this.stageId === 2 && index === 1;
     this.beltState = 'fight';
     this.stageTime = 99;
-    this.world.rules.arenaLeft = Math.max(96, base + 70);
+    this.world.rules.beltSingleMelee = marketAmbush;
+    this.world.rules.quickRiseLandingAssist = this.stageId === 2 && index < 2;
+    this.world.rules.arenaLeft = Math.max(96, base + (marketAmbush ? -60 : 70));
     this.world.rules.arenaRight = Math.min(this.stageLength - 80, base + 1120);
-    this.world.rules.arenaTop = this.stageId === 2 ? (index === 1 ? 420 : 405) : this.stageId === 3 ? (index === 2 ? 410 : 398) : this.stageId === 4 ? (index === 2 ? 428 : 408) : this.stageId === 5 ? (index === 2 ? 420 : 404) : 394;
-    this.world.rules.arenaBottom = this.stageId === 2 ? (index === 1 ? 558 : 575) : this.stageId === 3 ? (index === 2 ? 560 : 578) : this.stageId === 4 ? (index === 2 ? 552 : 574) : this.stageId === 5 ? (index === 2 ? 558 : 572) : 580;
+    this.world.rules.arenaTop = this.stageId === 2 ? 405 : this.stageId === 3 ? (index === 2 ? 410 : 398) : this.stageId === 4 ? (index === 2 ? 428 : 408) : this.stageId === 5 ? (index === 2 ? 420 : 404) : 394;
+    this.world.rules.arenaBottom = this.stageId === 2 ? 575 : this.stageId === 3 ? (index === 2 ? 560 : 578) : this.stageId === 4 ? (index === 2 ? 552 : 574) : this.stageId === 5 ? (index === 2 ? 558 : 572) : 580;
     if (index > 0) this.world.player.x = Math.max(this.world.player.x, base + 170);
     this.world.replaceEnemies(this.beltWaveRoster(index, base));
   }
 
-  /**
-   * Rank-and-file grunts per stage (never the playable roster): each stage introduces a new type
-   * and the last area of each stage is an elite pair, Final Fight style.
-   */
   private beltWaveRoster(index: number, base: number): BeltEnemySpawn[] {
-    const g = (kind: GruntKind, dx: number, y: number, elite = false): BeltEnemySpawn => this.gruntSpawn(kind, base + dx, y, elite);
-    const rosters: Record<1 | 2 | 3 | 4 | 5, BeltEnemySpawn[][]> = {
-      1: [
-        [g('punk', 790, 478), g('punk', 960, 535), g('thrower', 1090, 430)],
-        [g('punk', 700, 455), g('thrower', 820, 550), g('punk', 930, 425), g('punk', 1030, 575), g('knife', 1100, 500)],
-        [g('bruiser', 850, 455, true), g('punk', 1030, 545, true)],
-      ],
-      2: [
-        [g('knife', 790, 455), g('kicker', 970, 548), g('knife', 1080, 420)],
-        [g('knife', 115, 430), g('kicker', 835, 555), g('punk', 960, 470), g('thrower', 1070, 545), g('knife', 1120, 405)],
-        [g('kicker', 860, 450, true), g('knife', 1040, 548, true)],
-      ],
-      3: [
-        [g('kicker', 790, 452), g('punk', 970, 548), g('kicker', 1090, 420)],
-        [g('bruiser', 700, 445), g('kicker', 835, 560), g('thrower', 950, 420), g('knife', 1060, 560)],
-        [g('bruiser', 850, 448, true), g('kicker', 1035, 545, true)],
-      ],
-      4: [
-        [g('bruiser', 785, 455), g('soldier', 965, 548), g('punk', 1090, 420)],
-        [g('soldier', 690, 440), g('bruiser', 825, 560), g('knife', 945, 420), g('kicker', 1075, 555)],
-        [g('soldier', 840, 450, true), g('bruiser', 1035, 545, true)],
-      ],
-      5: [
-        [g('soldier', 780, 455), g('soldier', 960, 548), g('thrower', 1090, 420)],
-        [g('soldier', 690, 440), g('kicker', 820, 560), g('knife', 950, 420), g('bruiser', 1080, 555)],
-        [g('soldier', 835, 450, true), g('bruiser', 1035, 545, true)],
-      ],
-    };
-    return rosters[this.stageId][index] ?? rosters[this.stageId][0]!;
+    const spawns = BELT_WAVES[this.stageId];
+    const telegraphFlurry = index === 1 && (this.stageId === 2 || this.stageId === 5);
+    return (spawns[index] ?? spawns[0]!).map(([kind, offset, lane, elite = false]) =>
+      this.gruntSpawn(kind, base + offset, lane, elite, telegraphFlurry && kind === 'knife'));
   }
 
-  private gruntSpawn(kind: GruntKind, x: number, y: number, elite: boolean): BeltEnemySpawn {
+  private gruntSpawn(kind: GruntKind, x: number, y: number, elite: boolean, telegraphFlurry = false): BeltEnemySpawn {
     const def = GRUNTS[kind];
     const hp = Math.round(def.hp * (1 + (this.stageId - 1) * .12) * (elite ? 1.65 : 1));
-    return { character: gruntCharacter(kind, elite ? `ELITE ${def.name}` : def.name, elite ? 1.06 : 1), archetype: def.archetype, x, y, hp };
+    return {
+      character: gruntCharacter(kind, elite ? `ELITE ${def.name}` : def.name, elite ? 1.06 : 1),
+      archetype: def.archetype, x, y, hp, lateElite: telegraphFlurry || (elite && this.stageId >= 4),
+    };
   }
 
   private seedStageProps(): void {
@@ -1171,18 +1336,33 @@ export class Stage1Scene implements Scene {
     ctx.fillText(this.stageId === 2 ? 'MOVE THROUGH THE MARKET' : this.stageId === 3 ? 'ADVANCE TOWARD THE DOJO' : this.stageId === 4 ? 'DESCEND INTO THE FIGHT CLUB' : this.stageId === 5 ? 'PUSH DEEPER INTO THE FACILITY' : 'ADVANCE THROUGH DOWNTOWN', 1208, 378);
   }
 
-  private drawWaveCard(ctx: CanvasRenderingContext2D): void {
+  private drawWaveCard(ctx: CanvasRenderingContext2D, compactTouchControls = false): void {
     if (this.phase !== 'belt' || this.waveBreakFrames <= 0) return;
-    const progress = 1 - this.waveBreakFrames / WAVE_BREAK_FRAMES;
-    const alpha = Math.sin(Math.min(1, progress * 1.5) * Math.PI) * .86;
-    ctx.fillStyle = `rgba(5,7,11,${alpha * .55})`; ctx.fillRect(0, 0, 1280, 720);
+    const elapsed = WAVE_BREAK_FRAMES - this.waveBreakFrames;
+    const fadeFrames = WAVE_BREAK_FRAMES / 3;
+    const fade = Math.min(1, elapsed / fadeFrames, this.waveBreakFrames / fadeFrames);
+    const alpha = Math.sin(fade * Math.PI / 2) * .86;
+    const area = `AREA ${this.beltWave + 1} / ${this.beltWaveCount}`;
+    const tactics = BELT_WAVE_TIPS[this.stageId][this.beltWave === 1 ? 0 : 1];
+    if (compactTouchControls) {
+      ctx.fillStyle = `rgba(5,7,11,${alpha * 1.07})`;
+      ctx.fillRect(542, 65, 428, 69);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = `rgba(244,194,82,${alpha})`; ctx.font = '900 16px Arial, sans-serif';
+      ctx.fillText(area, 756, 83);
+      ctx.fillStyle = `rgba(255,235,190,${alpha})`; ctx.font = '900 22px Arial, sans-serif';
+      const lines = tactics.split(' • ');
+      lines.forEach((line, index) => ctx.fillText(line, 756, (lines.length === 1 ? 113 : 103) + index * 23, 408));
+      return;
+    }
+    ctx.fillStyle = `rgba(5,7,11,${Math.min(.92, alpha * 1.07)})`; ctx.fillRect(310, 128, 660, 97);
     ctx.textAlign = 'center';
     ctx.fillStyle = `rgba(244,194,82,${alpha})`; ctx.font = '900 15px Arial Black, sans-serif';
-    ctx.fillText(`AREA ${this.beltWave + 1} / ${this.beltWaveCount}`, 640, 316);
-    ctx.fillStyle = `rgba(255,255,255,${alpha})`; ctx.font = '900 44px Impact, Arial Black, sans-serif';
-    ctx.fillText(this.beltWave === 1 ? (this.stageId === 2 ? 'NIGHT MARKET RUSH' : this.stageId === 3 ? 'PARRY TEST' : this.stageId === 4 ? 'UNDERGROUND QUALIFIER' : this.stageId === 5 ? 'SECURITY LOCKDOWN' : 'THE CROWD CLOSES IN') : (this.stageId === 3 ? 'DOJO ELITES' : this.stageId === 4 ? 'FIGHT CLUB ELITES' : this.stageId === 5 ? 'SOCIETY ELITES' : 'ELITE FIGHTERS'), 640, 367);
-    ctx.fillStyle = `rgba(255,255,255,${alpha * .6})`; ctx.font = '700 12px Arial, sans-serif';
-    ctx.fillText('KEEP MOVING • CONTROL THE LANE • PICK YOUR OPENING', 640, 396);
+    ctx.fillText(area, 640, 150);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`; ctx.font = '900 34px Impact, Arial Black, sans-serif';
+    ctx.fillText(this.beltWave === 1 ? (this.stageId === 2 ? 'NIGHT MARKET RUSH' : this.stageId === 3 ? 'DOJO AMBUSH' : this.stageId === 4 ? 'UNDERGROUND QUALIFIER' : this.stageId === 5 ? 'SECURITY LOCKDOWN' : 'THE CROWD CLOSES IN') : (this.stageId === 3 ? 'DOJO ELITES' : this.stageId === 4 ? 'FIGHT CLUB ELITES' : this.stageId === 5 ? 'SOCIETY ELITES' : 'ELITE FIGHTERS'), 640, 185, 620);
+    ctx.fillStyle = `rgba(255,235,190,${alpha})`; ctx.font = '800 19px Arial, sans-serif';
+    ctx.fillText(tactics, 640, 211, 620);
   }
 
   private drawProps(ctx: CanvasRenderingContext2D, props: readonly EnvironmentProp[] = [...this.world.props].sort((a, b) => a.y - b.y), start = 0): void {
@@ -1467,13 +1647,13 @@ export class Stage1Scene implements Scene {
     ctx.fillStyle = reflection; ctx.fillRect(0, 512, this.stageLength, 168);
   }
 
-  private drawHud(ctx: CanvasRenderingContext2D): void {
+  private drawHud(ctx: CanvasRenderingContext2D, compactTouchControls = false): void {
     const player = this.world.player;
     const enemy = this.world.enemy;
     const finalBoss = this.stageId === 5 && this.phase === 'final-duel' && enemy.character.id === 'GILL';
     if (finalBoss) this.drawBossHud(ctx, player, enemy);
     else if (this.world.rules.mode === 'duel') this.drawDuelHud(ctx, player, enemy);
-    else this.drawBeltHud(ctx, player);
+    else this.drawBeltHud(ctx, player, compactTouchControls);
 
     // Keep the combo card clear of the HUD header: belt panel ends at y110, duel at 120, boss at 122.
     const comboTop = this.world.rules.mode === 'belt' ? 124 : 136;
@@ -1522,18 +1702,77 @@ export class Stage1Scene implements Scene {
       ctx.restore();
     }
 
-    if (player.currentMove) {
+    const compactCombat = compactTouchControls && !this.training;
+    const currentMove = player.currentMove;
+    const namedMove = currentMove && (!compactCombat || !currentMove.button || currentMove.exCost || currentMove.superCost
+      || currentMove.technique === 'command' || currentMove.technique === 'target' || currentMove.identityTag === 'WEAPON')
+      ? currentMove : null;
+    const flash = this.world.latestSuperFlash;
+    const moveBanner = this.world.superFreezeFrames > 0
+      ? flash ?? namedMove
+      : namedMove ?? (compactCombat ? null : flash);
+    if (moveBanner) {
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
-      ctx.fillStyle = 'rgba(8,10,15,.75)'; ctx.beginPath(); ctx.roundRect(485, 112, 310, 40, 9); ctx.fill();
-      ctx.fillStyle = player.currentMove.color; ctx.font = '900 17px Arial Black, sans-serif'; ctx.fillText(player.currentMove.label, 640, 139, 278);
+      ctx.fillStyle = compactCombat ? 'rgba(8,10,15,.92)' : 'rgba(8,10,15,.75)';
+      ctx.beginPath();
+      if (compactCombat) ctx.roundRect(980, 157, 276, 29, 7);
+      else ctx.roundRect(485, 112, 310, 40, 9);
+      ctx.fill();
+      ctx.fillStyle = compactCombat ? '#fff4d6' : moveBanner.color ?? '#fff5a0';
+      ctx.font = compactCombat ? '900 20px Arial, sans-serif' : '900 17px Arial Black, sans-serif';
+      if (compactCombat) ctx.fillText(moveBanner.label ?? 'SUPER ART', 1118, 178, 260);
+      else ctx.fillText(moveBanner.label ?? 'SUPER ART', 640, 139, 278);
       ctx.restore();
-    }
+    } else this.drawFirstBossGuide(ctx, player, enemy, compactTouchControls);
     if (this.world.rules.mode === 'duel' && enemy.aiCornerPressureFrames > 0) {
       ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(255,144,96,.9)'; ctx.font = '900 11px Arial Black, sans-serif';
       ctx.fillText('CORNER PRESSURE', 1228, 118);
     }
+  }
+
+  private drawFirstBossGuide(ctx: CanvasRenderingContext2D, player: Fighter, enemy: Fighter, compactTouchControls: boolean): void {
+    if (this.stageId !== 1 || this.phase !== 'duel' || !this.bossEntry || this.training || this.versus
+      || this.paused || this.roundBreakFrames || this.roundAnnounceFrames || this.world.superFreezeFrames
+      || player.hp <= 0 || enemy.hp <= 0 || player.dizzy || !player.canDefend()) return;
+
+    const move = enemy.currentMove;
+    const back = player.facing === 1 ? '←' : '→';
+    let label: string;
+    let color: string;
+    if (enemy.state === 'attack' && move) {
+      const recoveryStart = move.startup + move.active;
+      if (enemy.moveFrame < recoveryStart) {
+        const distance = (player.x - enemy.x) * enemy.facing;
+        if (move.kind !== 'melee' || move.level === 'throw' || move.guardBreak
+          || !enemy.hasRemainingHitsFor(player)
+          || distance < -move.hitbox.back || distance > meleeForwardReach(enemy, move) + 24) return;
+        label = compactTouchControls ? `BLOCK NOW • HOLD ${back}` : `BLOCK NOW • HOLD ${back} AWAY`;
+        color = '#ffe194';
+      } else {
+        const button = this.bossRecoveryResponse(player, enemy, move)?.button;
+        if (!button) return;
+        const key = compactTouchControls ? undefined : keysForAction(this.input.bindings ?? [], button)[0];
+        const punch = button === 'lp' ? 'LIGHT PUNCH' : 'MEDIUM PUNCH';
+        const control = key ? `${key} / ${button.toUpperCase()}` : button.toUpperCase();
+        label = compactTouchControls ? `HIT BACK • ${control}` : `HIT BACK • ${punch} (${control})`;
+        color = '#a8facf';
+      }
+    } else {
+      if (this.duelRound !== 1 || this.stageTime <= 93 || player.state === 'block' || player.state === 'parry') return;
+      label = compactTouchControls ? `HOLD ${back} TO BLOCK` : `GET READY • HOLD ${back} TO BLOCK`;
+      color = '#ebe5d9';
+    }
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(5,8,13,.92)';
+    ctx.beginPath(); ctx.roundRect(422, compactTouchControls ? 120 : 124, 436, compactTouchControls ? 42 : 35, 8); ctx.fill();
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.font = compactTouchControls ? '900 28px Arial, sans-serif' : '900 20px Arial, sans-serif';
+    ctx.fillText(label, 640, 148, 405);
+    ctx.restore();
   }
 
   private drawHudPortrait(ctx: CanvasRenderingContext2D, character: CharacterDef, x: number, y: number, size: number, right = false, accent?: string): void {
@@ -1575,6 +1814,7 @@ export class Stage1Scene implements Scene {
   }
 
   private drawBeltCallout(ctx: CanvasRenderingContext2D, event: CombatEvent): void {
+    if (event.type === 'grab' && !this.world.belt.hold) return;
     const p = Math.max(0, Math.min(1, event.ttl / 40));
     ctx.save();
     ctx.globalAlpha = Math.min(1, p * 1.6);
@@ -1595,7 +1835,7 @@ export class Stage1Scene implements Scene {
     ctx.restore();
   }
 
-  private drawBeltHud(ctx: CanvasRenderingContext2D, player: Fighter): void {
+  private drawBeltHud(ctx: CanvasRenderingContext2D, player: Fighter, compactTouchControls = false): void {
     const presentation = stagePresentationProfile(this.stageId);
     const layout = hudModeProfile('belt');
     ctx.save();
@@ -1616,10 +1856,13 @@ export class Stage1Scene implements Scene {
       ctx.fillStyle = '#e7f2ff'; ctx.font = '900 10px Arial, sans-serif';
       ctx.fillText(PICKUP_LABELS[weapon.kind] + ' ' + weapon.durability + '/' + weapon.maxDurability + '  •  HK TOSS', layout.playerPanelWidth + 88, 62);
     }
-    if (belt.hold && !belt.hold.byPlayer) {
+    const hold = belt.hold;
+    const escapeProgress = hold && !hold.byPlayer
+      ? Math.min(100, Math.round(hold.mash / PLAYER_ESCAPE_MASH * 100)) : null;
+    if (!compactTouchControls && escapeProgress !== null) {
       ctx.textAlign = 'center'; ctx.fillStyle = '#ff7a5c'; ctx.font = '900 22px Impact, sans-serif';
-      ctx.fillText('MASH TO ESCAPE!  ' + Math.min(100, Math.round(belt.hold.mash / 12 * 100)) + '%', 640, 150);
-    } else if (belt.hold?.byPlayer) {
+      ctx.fillText(`MASH TO ESCAPE!  ${escapeProgress}%`, 640, 150);
+    } else if (!compactTouchControls && hold?.byPlayer) {
       ctx.textAlign = 'center'; ctx.fillStyle = '#ffe39e'; ctx.font = '900 14px Arial Black, sans-serif';
       ctx.fillText('ATTACK: KNEE   •   FWD+ATTACK: THROW   •   BACK+ATTACK: BACK DROP', 640, 150);
     }
@@ -1639,10 +1882,205 @@ export class Stage1Scene implements Scene {
     }
     ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.font = '800 9px ui-monospace, monospace';
     ctx.fillText('AREA ' + (this.beltWave + 1) + '/' + this.beltWaveCount + ' • ' + this.defeatedEnemies + ' DOWN', 1020, 98);
-    ctx.textAlign = 'center'; ctx.fillStyle = '#fff7e8'; ctx.font = '900 31px Impact, sans-serif'; ctx.fillText(String(Math.ceil(this.stageTime)).padStart(2, '0'), 640, 49);
-    ctx.fillStyle = presentation.hudAccent; ctx.fillRect(606, 58, 68, 2);
-    ctx.fillStyle = 'rgba(255,255,255,.48)'; ctx.font = '800 9px ui-monospace, monospace'; ctx.fillText('SCROLL FORWARD // CLEAR ACTIVE THREATS', 640, 77);
+    const lowTime = this.phase === 'belt' && this.beltState === 'fight' && !this.paused
+      && this.introFrames <= 0 && this.waveBreakFrames === 0 && this.stageTime > 0 && this.stageTime <= 10;
+    if (lowTime) {
+      ctx.fillStyle = 'rgba(54,12,19,.94)';
+      ctx.beginPath(); ctx.roundRect(586, 15, 108, 50, 9); ctx.fill();
+      ctx.strokeStyle = '#ff9578'; ctx.stroke();
+    }
+    ctx.textAlign = 'center'; ctx.fillStyle = lowTime ? '#ffe0bc' : '#fff7e8'; ctx.font = '900 31px Impact, sans-serif';
+    ctx.fillText(String(Math.ceil(this.stageTime)).padStart(2, '0'), 640, 49);
+    ctx.fillStyle = lowTime ? '#ff9578' : presentation.hudAccent; ctx.fillRect(606, 58, 68, 2);
+    if (this.phase !== 'belt') {
+      ctx.restore();
+      return;
+    }
+    const active = this.introFrames <= 0 && this.waveBreakFrames === 0 && !this.paused && this.world.superFreezeFrames === 0;
+    const pickup = active ? belt.nearbyManualPickup(player) : null;
+    const loot = this.beltState === 'loot';
+    const travel = this.beltState === 'travel';
+    const releaseRight = loot ? !this.lootExitArmed : this.travelExitInput === 'release';
+    const touchExit = `${releaseRight ? 'LET GO OF →, THEN ' : ''}HOLD → FOR ${loot ? 'BOSS' : 'NEXT AREA'}`;
+    const exit = compactTouchControls ? (loot || travel ? touchExit : null) : loot
+      ? (this.lootExitArmed ? 'MOVE RIGHT FOR BOSS' : 'RELEASE, THEN HOLD RIGHT FOR BOSS')
+      : travel ? (this.travelExitInput === 'release' ? 'RELEASE, THEN HOLD RIGHT FOR NEXT AREA' : 'MOVE RIGHT TO THE NEXT AREA')
+      : null;
+    const rewardsRemain = active && !pickup && !!exit && belt.hasReachableReward(this.world, loot ? 'all' : 'manual-pickups');
+    const grabHint = !compactTouchControls || !hold ? null
+      : escapeProgress !== null ? `TAP LP / LK FAST • ESCAPE ${escapeProgress}%` : 'TAP LP • KNEE';
+    const earlyMarket = this.stageId === 2 && this.beltWave < 2;
+    const dojoFinalWave = this.stageId === 3 && this.beltWave === 2;
+    const coachRegularKnife = earlyMarket || dojoFinalWave;
+    const wakeGuide = (compactTouchControls || earlyMarket) && active && !hold
+      ? this.quickRiseGuide(player, !compactTouchControls, this.world.rules.quickRiseLandingAssist) : null;
+    const showThreat = (compactTouchControls || coachRegularKnife) && active && !hold && this.beltState === 'fight' && player.canDefend();
+    const guardBreakHint = showThreat && (compactTouchControls || dojoFinalWave)
+      ? this.beltGuardBreakHint(player, compactTouchControls) : null;
+    let bottleTick = Infinity;
+    let bottleHint: string | null = null;
+    if (showThreat && !guardBreakHint) {
+      for (const shot of this.world.projectiles) {
+        if (shot.move.id !== GRUNTS.thrower.specials.primary.id || shot.vx === 0) continue;
+        const tick = this.world.projectileContactTick(player, shot, BOTTLE_GUARD_LOOKAHEAD);
+        if (tick === undefined || tick >= bottleTick) continue;
+        bottleTick = tick;
+        bottleHint = `BOTTLE • HOLD ${shot.vx < 0 ? '←' : '→'} TO BLOCK`;
+      }
+    }
+    const meleeHint = showThreat && !guardBreakHint && (coachRegularKnife || !bottleHint)
+      ? this.beltMeleeHint(player, !pickup && !bottleHint, coachRegularKnife, earlyMarket, bottleTick) : null;
+    const objective = grabHint ?? wakeGuide?.rise ?? guardBreakHint ?? meleeHint?.label ?? bottleHint ?? (pickup ? `${compactTouchControls ? 'TAP LP • PICK UP' : 'ATTACK TO PICK UP'} ${PICKUP_LABELS[pickup.kind]}`
+      : rewardsRemain ? 'AREA CLEAR • COLLECT REWARDS'
+      : exit ?? (this.stageId === 1 && this.beltWave === 0 && this.stageTime > 85 ? '↑ ↓ LINE UP WITH ENEMIES • ATTACK' : null));
+    const toward = player.facing === 1 ? '→' : '←';
+    const away = player.facing === 1 ? '←' : '→';
+    const objectiveNote = grabHint ? (hold?.byPlayer ? `${toward} + LP THROW  /  ${away} + LP BACK DROP` : null)
+      : wakeGuide ? wakeGuide.roll : objective === exit ? null : exit;
+    if (active && objective) {
+      // The compact panel fits between the belt health panels and above the START control.
+      const panelX = compactTouchControls ? 542 : 422;
+      const panelY = compactTouchControls ? 80 : 114;
+      const panelWidth = compactTouchControls ? 428 : 436;
+      const textX = panelX + panelWidth / 2;
+      ctx.fillStyle = 'rgba(5,8,13,.88)';
+      ctx.beginPath(); ctx.roundRect(panelX, panelY, panelWidth, objectiveNote ? 50 : 30, 7); ctx.fill();
+      ctx.fillStyle = meleeHint?.color
+        ?? (guardBreakHint || bottleHint || (grabHint && escapeProgress !== null) ? '#ffac96' : pickup || grabHint || wakeGuide ? '#ffe39e' : '#f3ecdf');
+      ctx.font = compactTouchControls ? '900 22px Arial, sans-serif' : '800 19px Arial, sans-serif';
+      ctx.fillText(objective, textX, panelY + 21, panelWidth - 20);
+      if (objectiveNote) {
+        ctx.fillStyle = '#f3ecdf';
+        ctx.font = compactTouchControls ? '900 18px Arial, sans-serif' : '800 16px Arial, sans-serif';
+        ctx.fillText(objectiveNote, textX, panelY + 42, panelWidth - 20);
+      }
+    } else if (!compactTouchControls || this.waveBreakFrames === 0) {
+      ctx.fillStyle = '#d8d1c5'; ctx.font = '800 12px Arial, sans-serif';
+      ctx.fillText('CLEAR THE AREA', 640, 80);
+    }
     ctx.restore();
+  }
+
+  private quickRiseGuide(player: Fighter, keyboard = false, showLandingCue = false): { rise: string; roll: string | null } | null {
+    const ready = player.canQuickRiseOnNextTick;
+    if (!ready && (!showLandingCue || !player.canPrepareQuickRise)) return null;
+    const bindings = this.input.bindings ?? [];
+    const downKeys = keyboard ? keysForAction(bindings, 'down') : [];
+    const down = downKeys[0] ?? '↓';
+    if (!ready) return { rise: `TAP ${downKeys.join(' OR ') || down} • RISE ON LANDING`, roll: null };
+    const target = this.world.closestEnemyToPlayer();
+    const rollLeft = target ? target.x >= player.x : player.facing === 1;
+    const backArrow = rollLeft ? '←' : '→';
+    const back = keyboard ? keysForAction(bindings, rollLeft ? 'left' : 'right')[0] ?? backArrow : backArrow;
+    const rollInput = keyboard ? `HOLD ${back} + TAP ${down}` : `TAP ${rollLeft ? '↙' : '↘'}`;
+    return {
+      rise: `TAP ${down} • QUICK RISE`,
+      roll: this.world.hasPlayerRollRoom(rollLeft ? -1 : 1) ? `${rollInput} • ROLL BACK` : null,
+    };
+  }
+
+  private drawBossWakeGuide(ctx: CanvasRenderingContext2D, compactTouchControls: boolean): void {
+    if (!compactTouchControls || (this.phase !== 'duel' && this.phase !== 'final-duel')
+      || this.versus || this.training || this.paused || this.introFrames || this.roundBreakFrames
+      || this.roundAnnounceFrames || this.world.superFreezeFrames) return;
+    const guide = this.quickRiseGuide(this.world.player);
+    if (!guide) return;
+    ctx.save();
+    ctx.fillStyle = 'rgba(5,8,13,.92)';
+    ctx.beginPath(); ctx.roundRect(990, 124, 256, guide.roll ? 48 : 28, 7); ctx.fill();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffe39e'; ctx.font = '900 21px Arial, sans-serif';
+    ctx.fillText(guide.rise, 1118, 144, 240);
+    if (guide.roll) {
+      ctx.fillStyle = '#f3ecdf'; ctx.font = '900 18px Arial, sans-serif';
+      ctx.fillText(guide.roll, 1118, 164, 240);
+    }
+    ctx.restore();
+  }
+
+  private meleeInRange(attacker: Fighter, defender: Fighter, move: MoveData): boolean {
+    const forward = (defender.x - attacker.x) * attacker.facing;
+    return forward >= -move.hitbox.back && forward <= meleeForwardReach(attacker, move)
+      && Math.abs(defender.y - attacker.y) <= Math.max(this.world.rules.laneTolerance, move.hitbox.lane);
+  }
+
+  private beltGuardBreakHint(player: Fighter, compactTouchControls: boolean): string | null {
+    let incoming: MoveData | undefined;
+    let untilImpact = Infinity;
+    for (const enemy of this.world.enemies) {
+      const move = enemy.currentMove;
+      if (enemy.hp <= 0 || enemy.airborne || enemy.state !== 'attack' || !move?.guardBreak || move.kind !== 'melee'
+        || move.launch || enemy.moveFrame >= move.startup + move.active || enemy.hasHitTarget(player)
+        || !this.meleeInRange(enemy, player, move)) continue;
+      const remaining = Math.max(0, move.startup - enemy.moveFrame);
+      if (remaining < untilImpact) { incoming = move; untilImpact = remaining; }
+    }
+    if (!incoming) return null;
+    // The input tick starts the jump; height is applied on later ticks.
+    const airTicks = untilImpact - 1;
+    const { jumpVelocity, gravity } = player.combatProfile;
+    const jumpHeight = airTicks * (jumpVelocity - gravity * (airTicks - 1) / 2);
+    const canJump = airTicks > 0 && !player.hitStop && player.state !== 'block' && player.state !== 'parry'
+      && jumpHeight > Math.max(62, incoming.hitbox.height * .72);
+    if (!canJump) return `${incoming.label} • UNBLOCKABLE`;
+    const bindings = this.input.bindings ?? [];
+    const key = compactTouchControls ? undefined : keysForAction(bindings, 'jump')[0] ?? keysForAction(bindings, 'up')[0];
+    return `${incoming.label} • ${key ? `JUMP (${key})` : 'TAP JUMP'}`;
+  }
+
+  private beltMeleeContactTick(enemy: Fighter, player: Fighter): number | undefined {
+    const move = enemy.currentMove;
+    if (enemy.hp <= 0 || enemy.state !== 'attack' || !move || move.kind === 'projectile' || move.install) return undefined;
+    // Enemies advance their attack before collision unless hitstop keeps the current frame active.
+    const nextMoveFrame = enemy.moveFrame + (enemy.hitStop === 0 ? 1 : 0);
+    if (nextMoveFrame >= move.startup + move.active || !enemy.hasRemainingHitsFor(player)
+      || !this.meleeInRange(enemy, player, move)) return undefined;
+    const lastContact = enemy.attackVictimFrames.get(player.uid);
+    const contactFrame = lastContact !== undefined && move.multiHit
+      ? Math.max(move.startup, lastContact + move.multiHit.interval) : move.startup;
+    const advance = contactFrame - enemy.moveFrame;
+    return advance > 0 ? advance + enemy.hitStop : 1;
+  }
+
+  private beltMeleeHint(player: Fighter, canUseAttack: boolean, coachRegularKnife: boolean, coachMarketKicks: boolean, beforeTick: number): { label: string; color: string } | null {
+    const { enemies } = this.world;
+    const guardDelay = player.guardAttackBufferDelay;
+    const canCounter = canUseAttack && !player.hitStop && !player.techRolling
+      && (player.state !== 'block' || guardDelay > 0) && player.state !== 'parry';
+    let counter: 'lp' | 'mp' | undefined;
+    let guard: string | null = null;
+    let guardTick = Infinity;
+    for (const enemy of enemies) {
+      const move = enemy.currentMove;
+      if (!move || enemy.hp <= 0 || enemy.airborne || enemy.state !== 'attack') continue;
+      const flurry = (enemy.lateElite || coachRegularKnife) && move.id === GRUNTS.knife.specials.primary.id && !!move.multiHit;
+      const marketKick = coachMarketKicks && (move.id === GRUNTS.kicker.specials.primary.id || move.id === GRUNTS.kicker.heavy.id);
+      if (!flurry && !marketKick) continue;
+      const recoveryStart = move.startup + move.active;
+      const tick = this.beltMeleeContactTick(enemy, player);
+      if (tick !== undefined) {
+        // Melee resolves before projectiles within a tick. Keep enemy order for melee ties.
+        if (tick <= beforeTick && tick < guardTick) {
+          guardTick = tick;
+          const away = this.world.meleeGuardDirection(player, enemy) < 0 ? '←' : '→';
+          guard = flurry ? `FLURRY • HOLD ${away} FOR ALL HITS` : `${move.label} • HOLD ${away} TO BLOCK`;
+        }
+        continue;
+      }
+      if (!flurry || !canCounter || counter || !enemy.eliteRecoveryOpen || enemy.isInvulnerable()
+        || (enemy.x - player.x) * player.facing < 0) continue;
+      const remaining = recoveryStart + move.recovery - enemy.moveFrame;
+      counter = (['lp', 'mp'] as const).find(button => {
+        const attack = weaponMoveFor(player, normalFor(button, false, player.character.id));
+        const contactTick = guardDelay + attack.startup + 1;
+        if (remaining <= contactTick || !this.meleeInRange(player, enemy, attack)
+          || this.world.projectileThreatDuring(player, contactTick)) return false;
+        return !enemies.some(other => other !== enemy
+          && (this.beltMeleeContactTick(other, player) ?? Infinity) <= contactTick);
+      });
+    }
+    if (guard) return { label: guard, color: '#ffac96' };
+    return counter ? { label: `FLURRY OPEN • TAP ${counter.toUpperCase()}`, color: '#a8facf' } : null;
   }
 
   private drawDuelHud(ctx: CanvasRenderingContext2D, player: Fighter, enemy: Fighter): void {
@@ -1806,12 +2244,17 @@ export class Stage1Scene implements Scene {
     for (const event of this.world.events) {
       if (drawPropImpact(ctx, event)) continue;
       if (event.type === 'pickup' || event.type === 'grab') { this.drawBeltCallout(ctx, event); continue; }
+      if (event.type === 'super-flash') continue;
+      if (event.type === 'super-impact') {
+        this.drawSuperImpact(ctx, event);
+        continue;
+      }
       const fx = fxPolishProfile(event);
       const rawP = Math.max(0, Math.min(1, event.ttl / fx.baseTtl));
       const p = Math.pow(rawP, fx.fadePower);
       const fxScale = fx.size;
-      const authoredImpact = (this.phase === 'belt' || this.phase === 'duel' || this.phase === 'final-duel') && drawCombatImpact(ctx, event);
-      if (!authoredImpact && fx.afterglow > 0 && event.type !== 'ko') {
+      const authoredImpact = !event.superContact && (this.phase === 'belt' || this.phase === 'duel' || this.phase === 'final-duel') && drawCombatImpact(ctx, event);
+      if (!event.superContact && !authoredImpact && fx.afterglow > 0 && event.type !== 'ko') {
         ctx.save(); ctx.globalCompositeOperation = 'screen';
         const glow = ctx.createRadialGradient(event.x, event.y, 2, event.x, event.y, 28 + event.power * .08 * fxScale);
         glow.addColorStop(0, `rgba(255,242,204,${p * fx.afterglow})`); glow.addColorStop(1, 'rgba(255,242,204,0)');
@@ -1834,7 +2277,7 @@ export class Stage1Scene implements Scene {
         }
         ctx.restore();
       } else if (event.type === 'hit' || event.type === 'air-hit' || event.type === 'command-hit' || event.type === 'target-hit' || event.type === 'counter' || event.type === 'block' || event.type === 'throw-escape') {
-        if (!authoredImpact) {
+        if (!authoredImpact && !event.superContact) {
           ctx.save(); ctx.translate(event.x, event.y); ctx.rotate(this.time * 5);
           const spark = event.type === 'block' ? `rgba(180,200,226,${p})` : event.type === 'counter' ? `rgba(255,94,75,${p})` : event.type === 'throw-escape' ? `rgba(136,240,220,${p})` : event.type === 'air-hit' ? `rgba(136,222,255,${p})` : event.type === 'command-hit' ? `rgba(255,166,83,${p})` : event.type === 'target-hit' ? `rgba(255,237,112,${p})` : `rgba(255,210,82,${p})`;
           ctx.fillStyle = spark;
@@ -1862,18 +2305,6 @@ export class Stage1Scene implements Scene {
           ctx.fillStyle = event.type === 'counter' ? `rgba(255,110,92,${p})` : `rgba(155,255,230,${p})`;
           ctx.fillText(event.type === 'counter' ? 'COUNTER!' : 'THROW ESCAPE!', event.x, event.y - 34);
         }
-      } else if (event.type === 'super-impact') {
-        ctx.save(); ctx.translate(event.x, event.y); ctx.globalCompositeOperation = 'screen';
-        const color = event.color ?? '#fff06b';
-        ctx.strokeStyle = event.accent ?? color; ctx.lineWidth = 10 * p + 3;
-        for (let ring = 0; ring < (runtimeQuality.currentTier === 'high' ? 4 : 3); ring += 1) { ctx.beginPath(); ctx.arc(0, 0, (34 + ring * 30 + (1 - p) * 96) * fxScale, 0, Math.PI * 2); ctx.stroke(); }
-        ctx.fillStyle = `rgba(255,255,255,${p * .75})`;
-        const superRays = combatFxDensity(runtimeQuality.currentTier, event.power + 80);
-        for (let i = 0; i < superRays; i += 1) { const a = i * Math.PI * 2 / superRays + this.time * .7; ctx.save(); ctx.rotate(a); ctx.fillRect(22, -4, (100 + event.power * .12) * fxScale, 8 * fxScale); ctx.restore(); }
-        ctx.restore();
-        if (event.label) { ctx.textAlign = 'center'; ctx.font = '900 21px Impact, sans-serif'; ctx.fillStyle = `rgba(255,248,205,${p})`; ctx.fillText(event.label, event.x, event.y - 72); }
-      } else if (event.type === 'super-flash') {
-        ctx.save(); ctx.translate(event.x, event.y); ctx.globalCompositeOperation = 'screen'; ctx.strokeStyle = event.color ?? '#fff5a0'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, (54 + (1 - p) * 88) * fxScale, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
       } else if (event.type === 'boss-warning' || event.type === 'boss-burst') {
         ctx.save(); ctx.translate(event.x, event.y); ctx.globalCompositeOperation = 'screen';
         const warning = event.type === 'boss-warning';
@@ -1891,7 +2322,9 @@ export class Stage1Scene implements Scene {
         ctx.strokeStyle = isJuggle ? `rgba(116,222,255,${p})` : isWallBounce ? `rgba(255,113,84,${p})` : `rgba(255,211,93,${p})`;
         ctx.lineWidth = isJuggle ? 4 : 7;
         const rays = isJuggle ? 6 : 10;
-        for (let i = 0; i < rays; i += 1) { const a = i * Math.PI * 2 / rays + this.time * (isJuggle ? 2.4 : 1.1); ctx.beginPath(); ctx.moveTo(Math.cos(a) * 16, Math.sin(a) * 16); ctx.lineTo(Math.cos(a) * (isJuggle ? 54 : 82) * fxScale, Math.sin(a) * (isJuggle ? 54 : 82) * fxScale); ctx.stroke(); }
+        if (!event.superContact) {
+          for (let i = 0; i < rays; i += 1) { const a = i * Math.PI * 2 / rays + this.time * (isJuggle ? 2.4 : 1.1); ctx.beginPath(); ctx.moveTo(Math.cos(a) * 16, Math.sin(a) * 16); ctx.lineTo(Math.cos(a) * (isJuggle ? 54 : 82) * fxScale, Math.sin(a) * (isJuggle ? 54 : 82) * fxScale); ctx.stroke(); }
+        }
         if (isWallBounce) { ctx.beginPath(); ctx.moveTo(-48, -54); ctx.lineTo(-48, 54); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-62, -40); ctx.lineTo(-48, -55); ctx.lineTo(-34, -40); ctx.stroke(); }
         if (event.type === 'ground-bounce') { ctx.beginPath(); ctx.ellipse(0, 28, 76, 16, 0, 0, Math.PI * 2); ctx.stroke(); }
         ctx.restore();
@@ -1944,14 +2377,45 @@ export class Stage1Scene implements Scene {
     }
   }
 
-  private drawSuperOverlay(ctx: CanvasRenderingContext2D): void {
-    const flash = [...this.world.events].reverse().find((event) => event.type === 'super-flash');
+  private drawSuperImpact(ctx: CanvasRenderingContext2D, event: CombatEvent): void {
+    const decisive = (event.hitIndex ?? 1) >= (event.hitTotal ?? 1);
+    const duration = decisive ? 10 : 6;
+    const elapsed = fxPolishProfile(event).baseTtl - event.ttl;
+    if (elapsed >= duration) return;
+    const progress = Math.max(0, elapsed / duration);
+    const strength = 1 - progress;
+    const rays = decisive ? 8 : 5;
+    const radius = (decisive ? 36 : 27) + progress * 18;
+
+    ctx.save();
+    ctx.translate(event.x, event.y);
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha *= strength * (decisive ? .58 : .43);
+    ctx.strokeStyle = event.accent ?? event.color ?? '#fff06b';
+    ctx.lineWidth = 4;
+    if (decisive) {
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = event.color ?? '#fff1aa';
+    for (let i = 0; i < rays; i += 1) {
+      ctx.rotate(Math.PI * 2 / rays);
+      ctx.fillRect(radius * .52, -1.5, radius * .62, 3);
+    }
+    ctx.restore();
+  }
+
+  private drawSuperOverlay(ctx: CanvasRenderingContext2D, scroll: number): void {
+    if (this.world.superFreezeFrames <= 0) return;
+    const flash = this.world.latestSuperFlash;
     if (!flash) return;
-    const p = Math.max(0, Math.min(1, flash.ttl / 36));
+    const p = Math.min(1, this.world.superFreezeFrames / 9);
     const burst = Math.sin((1 - p) * Math.PI);
     ctx.save();
+    ctx.translate(scroll, 0);
     ctx.globalCompositeOperation = 'screen';
-    ctx.fillStyle = `rgba(255,246,190,${.08 + p * .18})`;
+    ctx.fillStyle = `rgba(255,246,190,${p * .14})`;
     ctx.fillRect(0, 0, 1280, 720);
     const color = flash.color ?? '#fff06b';
     const grad = ctx.createRadialGradient(640, 345, 20, 640, 345, 520 + burst * 120);
@@ -1959,8 +2423,9 @@ export class Stage1Scene implements Scene {
     grad.addColorStop(.3, `${color}${Math.round(.28 * p * 255).toString(16).padStart(2, '0')}`);
     grad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = grad; ctx.fillRect(0, 0, 1280, 720);
+    ctx.globalAlpha *= p * .65;
     ctx.strokeStyle = flash.accent ?? color;
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 4;
     const motif = flash.style ?? 'burst';
     if (motif === 'wave' || motif === 'electric' || motif === 'kunai') {
       for (let i = 0; i < 9; i += 1) { const y = 160 + i * 52; ctx.beginPath(); ctx.moveTo(70, y); for (let x = 160; x <= 1210; x += 110) ctx.lineTo(x, y + Math.sin(i * 1.7 + x * .018 + this.time * 8) * (motif === 'electric' ? 24 : 10)); ctx.stroke(); }
@@ -1973,16 +2438,6 @@ export class Stage1Scene implements Scene {
     } else if (motif === 'install' || motif === 'flame') {
       for (let ring = 0; ring < 5; ring += 1) { ctx.beginPath(); ctx.arc(640, 345, 95 + ring * 72 + burst * 18, 0, Math.PI * 2); ctx.stroke(); }
     }
-    ctx.restore();
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.font = '900 42px Impact, Arial Black, sans-serif';
-    ctx.strokeStyle = 'rgba(0,0,0,.72)'; ctx.lineWidth = 8;
-    ctx.fillStyle = `rgba(255,248,210,${Math.min(1, p * 1.5)})`;
-    const label = flash.label ?? 'SUPER ART';
-    ctx.strokeText(label, 640, 188); ctx.fillText(label, 640, 188);
-    ctx.font = '900 13px Arial Black, sans-serif'; ctx.fillStyle = `rgba(255,225,125,${p})`;
-    ctx.fillText('SUPER ART', 640, 215);
     ctx.restore();
   }
 
@@ -2083,40 +2538,42 @@ export class Stage1Scene implements Scene {
 
 
   private absorbWorldMetrics(): void {
-    this.carriedDamageDealt += this.world.totalPlayerDamage;
-    this.carriedDamageTaken += this.world.totalEnemyDamage;
-    this.carriedMaxComboHits = Math.max(this.carriedMaxComboHits, this.world.maxPlayerComboHits);
-    this.carriedMaxComboDamage = Math.max(this.carriedMaxComboDamage, this.world.maxPlayerComboDamage);
-    this.carriedParries += this.world.playerParries;
-    this.carriedRedParries += this.world.playerRedParries;
-    this.carriedSupersUsed += this.world.playerSupersUsed;
-    this.carriedThrowsLanded += this.world.playerThrowsLanded;
+    if (this.world.rules.mode === 'belt') this.beltScore = this.world.belt.score;
+    this.carried.damageDealt += this.world.totalPlayerDamage;
+    this.carried.damageTaken += this.world.totalEnemyDamage;
+    this.carried.maxComboHits = Math.max(this.carried.maxComboHits, this.world.maxPlayerComboHits);
+    this.carried.maxComboDamage = Math.max(this.carried.maxComboDamage, this.world.maxPlayerComboDamage);
+    this.carried.parries += this.world.playerParries;
+    this.carried.redParries += this.world.playerRedParries;
+    this.carried.supersUsed += this.world.playerSupersUsed;
+    this.carried.throwsLanded += this.world.playerThrowsLanded;
   }
 
   private stageResult(): StageResult {
     const duelDefeats = this.stageId === 5 ? 2 : 1;
     return {
       stageId: this.stageId,
+      beltScore: this.world.rules.mode === 'belt' ? this.world.belt.score : this.beltScore,
       clearSeconds: this.elapsedCombatFrames / 60,
       defeatedEnemies: this.defeatedEnemies + duelDefeats,
-      damageDealt: this.carriedDamageDealt + this.world.totalPlayerDamage,
-      damageTaken: this.carriedDamageTaken + this.world.totalEnemyDamage,
-      maxComboHits: Math.max(this.carriedMaxComboHits, this.world.maxPlayerComboHits),
-      maxComboDamage: Math.max(this.carriedMaxComboDamage, this.world.maxPlayerComboDamage),
-      parries: this.carriedParries + this.world.playerParries,
-      redParries: this.carriedRedParries + this.world.playerRedParries,
-      supersUsed: this.carriedSupersUsed + this.world.playerSupersUsed,
-      throwsLanded: this.carriedThrowsLanded + this.world.playerThrowsLanded,
+      damageDealt: this.carried.damageDealt + this.world.totalPlayerDamage,
+      damageTaken: this.carried.damageTaken + this.world.totalEnemyDamage,
+      maxComboHits: Math.max(this.carried.maxComboHits, this.world.maxPlayerComboHits),
+      maxComboDamage: Math.max(this.carried.maxComboDamage, this.world.maxPlayerComboDamage),
+      parries: this.carried.parries + this.world.playerParries,
+      redParries: this.carried.redParries + this.world.playerRedParries,
+      supersUsed: this.carried.supersUsed + this.world.playerSupersUsed,
+      throwsLanded: this.carried.throwsLanded + this.world.playerThrowsLanded,
     };
   }
 
 
-  private settlePlayerAfterCombat(preserveInstall = false): void {
+  private settlePlayerAfterCombat(): void {
     const player = this.world.player;
     player.updateAiDirected(this.world.enemy, this.world.rules, {
       role: 'wait', desiredX: player.x, desiredY: player.y,
       attackAllowed: false, rangedAllowed: false,
-    }, preserveInstall);
+    });
     if (player.airborne && player.state === 'idle') player.state = 'jump';
   }
 
@@ -2143,6 +2600,45 @@ export class Stage1Scene implements Scene {
     }
   }
 
+  private prepareLiteSuperAttacks(): void {
+    if (characterTextureManager.wantsHd()) return;
+    const player = this.world.player;
+    for (const fighter of [player, ...this.world.enemies]) {
+      const trainingMeter = fighter === player && this.training?.settings.infiniteMeter;
+      if (fighter.hp <= 0 || fighter.currentMove?.superCost || gruntById(fighter.character.id)
+        || (!trainingMeter && fighter.superGauge < fighter.superStockCost * .75)) continue;
+      const id = fighter.character.id;
+      const move = fighter.selectedSuperMove();
+      const kind = animationSequenceKindForAttack(id, move);
+      const startup = kind ? animationSequenceFor(id, kind, true) : null;
+      if (startup?.liteAsset) liteAnimationTextureManager.selection(startup);
+      if (usesGroundedSuperGrabPose(id, move.id)) {
+        const hold = animationSequenceFor(id, 'throw-attacker', true);
+        if (hold?.liteAsset) liteAnimationTextureManager.selection(hold);
+      }
+      // In a duel the potential grab victim is known before the move starts.
+      if (move.kind === 'throw' && this.world.rules.mode === 'duel') {
+        const victim = fighter === player ? this.world.enemies[0] : player;
+        if (!victim || victim.hp <= 0) continue;
+        const caught = animationSequenceFor(victim.character.id, 'throw-victim', true);
+        if (caught?.liteAsset) liteAnimationTextureManager.selection(caught);
+      }
+    }
+  }
+
+  onQualityChange(): void {
+    this.prepareLiteOpening();
+    this.prepareLiteSuperAttacks();
+  }
+
+  private prepareLiteOpening(): void {
+    if (this.phase !== 'belt' || this.world.player.hp <= 0 || characterTextureManager.wantsHd()) return;
+    for (const kind of ['stand-light', 'stand-light-kick'] as const) {
+      const opening = animationSequenceFor(this.playerDef.id, kind, true);
+      if (opening) liteAnimationTextureManager.selection(opening);
+    }
+  }
+
   private prepareCombatTextures(): void {
     // Grunts use their own grunts-v1 atlases, never the playable texture slots.
     const gruntKinds = [...new Set(this.world.enemies.map((enemy) => gruntById(enemy.character.id)?.kind).filter((kind): kind is GruntKind => !!kind))];
@@ -2153,25 +2649,17 @@ export class Stage1Scene implements Scene {
       for (const id of new Set([this.playerDef.id, ...opponentIds])) {
         animationTextureManager.preloadCharacter(id, 'combat');
       }
+    } else {
+      this.prepareLiteOpening();
+      this.prepareLiteSuperAttacks();
     }
   }
 
-  private prepareDuel(): void {
-    this.absorbWorldMetrics();
-    const hp = Math.max(1, this.world.player.hp);
-    const gauge = this.world.player.superGauge;
-    const boss = this.stageId === 2
-      ? (this.playerDef.id === 'YUN' ? getCharacter('CHUNLI') : getCharacter('YUN'))
-      : this.stageId === 3
-        ? (this.playerDef.id === 'MAKOTO' ? getCharacter('RYU') : getCharacter('MAKOTO'))
-        : this.stageId === 4
-          ? (this.playerDef.id === 'DUDLEY' ? getCharacter('ALEX') : getCharacter('DUDLEY'))
-          : this.stageId === 5
-            ? getCharacter('URIEN')
-            : (this.playerDef.id === 'DUDLEY' ? getCharacter('ALEX') : getCharacter('DUDLEY'));
-    const duel = new CombatWorld(this.playerDef, boss, 'duel', this.superArt);
-    duel.player.hp = hp;
-    duel.player.superGauge = gauge;
+  private prepareDuel(entry?: BossEntry): void {
+    if (!entry) this.absorbWorldMetrics();
+    const duel = new CombatWorld(this.playerDef, this.stageBossDef(), 'duel', this.superArt);
+    duel.player.hp = entry?.hp ?? Math.max(1, this.world.player.hp);
+    duel.player.superGauge = entry?.gauge ?? this.world.player.superGauge;
     duel.enemy.hp = 1000;
     duel.enemy.maxHp = 1000;
     duel.enemy.setAiLevel(stageAiLevel(this.stageId));
@@ -2184,23 +2672,24 @@ export class Stage1Scene implements Scene {
     this.cameraFocusY = duel.enemy.y - 105;
     this.cameraFocusZoom = this.stageId === 5 ? 1.115 : 1.085;
     this.cameraLetterboxFrames = 64;
-    this.bossPatternCooldown = this.stageId === 5 ? 150 : 0;
+    this.bossPatternCooldown = this.stageId === 5 ? 150 : this.stageId === 4 ? 84 : 0;
     this.bossPatternIndex = 0;
+    this.rematchPattern = null;
+    this.urienPattern = null;
   }
 
-  private prepareFinalDuel(): void {
-    this.absorbWorldMetrics();
-    const hp = Math.max(1, this.world.player.hp);
-    const gauge = this.world.player.superGauge;
+  private prepareFinalDuel(entry?: BossEntry): void {
+    if (!entry) this.absorbWorldMetrics();
     const duel = new CombatWorld(this.playerDef, getCharacter('GILL'), 'duel', this.superArt);
-    duel.player.hp = hp;
-    duel.player.superGauge = gauge;
+    duel.player.hp = entry?.hp ?? Math.max(1, this.world.player.hp);
+    duel.player.superGauge = entry?.gauge ?? this.world.player.superGauge;
     duel.enemy.hp = 1500;
     duel.enemy.maxHp = 1500;
     duel.enemy.superGauge = 65;
     duel.enemy.aiTempoScale = 1.08;
     duel.enemy.aiSuperBias = .08;
     this.gillPhase = 1;
+    this.gillPattern = null;
     this.gillPhaseBanner = 90;
     duel.enemy.setAiLevel(stageAiLevel(this.stageId, true));
     this.world = duel;
@@ -2217,17 +2706,268 @@ export class Stage1Scene implements Scene {
     this.bossPatternIndex = 0;
   }
 
-  private canStartBossPattern(boss: Fighter): boolean {
+  private canStartBossPattern(boss: Fighter, allowProjectileCancel = true): boolean {
     if (boss.airborne || boss.hitStop > 0) return false;
     return boss.state === 'idle' || boss.state === 'walk' || boss.state === 'crouch'
-      || (boss.state === 'attack' && boss.moveEffectTriggered && boss.currentMove?.kind === 'projectile');
+      || (allowProjectileCancel && boss.state === 'attack' && boss.moveEffectTriggered && boss.currentMove?.kind === 'projectile');
   }
 
-  private startBossScriptedMove(boss: Fighter, move: ReturnType<typeof specialMovesFor>['primary']): void {
+  private startBossProjectile(boss: Fighter, move: ReturnType<typeof specialMovesFor>['primary'],
+    label: string, count: number, verticalSpread: number, speedScale = 1): void {
+    if (!move.projectile) return;
     const cost = move.superCost ?? move.exCost ?? 0;
     if (cost > 0) boss.superGauge = Math.max(boss.superGauge, cost);
-    boss.startMove(move);
-    boss.moveEffectTriggered = true;
+    boss.startMove({
+      ...move,
+      startup: Math.max(move.startup, BOSS_PROJECTILE_WINDUP_FRAMES),
+      projectile: { ...move.projectile, count, verticalSpread, bossBurst: { label, speedScale } },
+    });
+  }
+
+  private startBossMelee(boss: Fighter, move: ReturnType<typeof specialMovesFor>['primary']): void {
+    boss.startMove({
+      ...move,
+      startup: Math.max(move.startup, BOSS_MELEE_WINDUP_FRAMES),
+      recovery: move.recovery + BOSS_MELEE_RECOVERY_BONUS,
+    });
+  }
+
+  private updateLondonPattern(): void {
+    if (this.bossPatternCooldown > 0) this.bossPatternCooldown -= 1;
+    const { player, enemy: boss } = this.world;
+    if (this.bossPatternCooldown > 0 || boss.hp <= 0 || player.hp <= 0
+      || !this.canStartBossPattern(boss) || !player.canDefend() || player.hitStop > 0
+      || player.state === 'block' || player.state === 'parry') return;
+
+    const distance = Math.abs(player.x - boss.x);
+    if (distance > 195) return;
+    const specials = specialMovesFor(boss.character.id);
+    const rush = distance >= 120;
+    const powerThrow = boss.character.id === 'ALEX' ? throwMoveFor(boss.character.id) : null;
+    const move = rush ? specials.mobility
+      : powerThrow && distance <= meleeForwardReach(boss, powerThrow) ? powerThrow : specials.primary;
+
+    const throwing = move.kind === 'throw';
+    const startup = Math.max(move.startup, throwing ? 20 : rush ? 14 : 16);
+    const recovery = move.recovery + (move.multiHit ? 12 : 8);
+    boss.facing = player.x >= boss.x ? 1 : -1;
+    boss.startMove({ ...move, startup, recovery });
+    if (!boss.currentMove) return;
+    this.rematchPattern = boss.currentMove;
+    this.bossPatternCooldown = rush ? 142 : 170;
+    this.audio.playBossCue?.(false);
+  }
+
+  private drawLondonPatternGuide(ctx: CanvasRenderingContext2D, compactTouchControls = false): void {
+    const move = this.rematchPattern;
+    if (!move || this.phase !== 'duel' || this.paused || this.roundBreakFrames || this.roundAnnounceFrames
+      || this.world.superFreezeFrames) return;
+    const { player, enemy: boss } = this.world;
+    if (boss.hp <= 0 || boss.state !== 'attack' || boss.currentMove !== move) return;
+    const recovering = boss.moveFrame >= move.startup + move.active;
+    if (!recovering && !boss.hasRemainingHitsFor(player)) return;
+    const away = player.facing === 1 ? '←' : '→';
+    const bindings = this.input.bindings ?? [];
+    const guard = compactTouchControls ? away : keysForAction(bindings, player.facing === 1 ? 'left' : 'right')[0] ?? away;
+    let label = move.label;
+    let cue: string;
+    let highlight = recovering;
+    if (recovering) {
+      cue = 'RECOVERING';
+      const response = this.bossRecoveryResponse(player, boss, move);
+      if (response?.button) {
+        cue = this.bossCounterCue(response.button, compactTouchControls);
+      } else if (response?.projectile) {
+        label = response.projectile.move.label.toUpperCase();
+        cue = `HOLD ${guard} TO GUARD`;
+        highlight = false;
+      }
+    } else if (move.kind === 'throw') {
+      if (player.airborne || !this.meleeInRange(boss, player, move)) return;
+      const canJump = player.canDefend() && player.hitStop === 0
+        && player.state !== 'block' && player.state !== 'parry';
+      const jump = keysForAction(bindings, 'jump')[0] ?? keysForAction(bindings, 'up')[0] ?? '↑';
+      cue = !canJump ? 'UNBLOCKABLE' : compactTouchControls ? 'TAP JUMP NOW' : `JUMP NOW (${jump})`;
+    } else if (player.airborne) {
+      cue = 'GUARD ON LANDING';
+    } else {
+      cue = move.multiHit ? `HOLD ${guard} • GUARD ALL HITS` : `HOLD ${guard} TO GUARD`;
+    }
+    this.drawBossPatternGuide(ctx, compactTouchControls ? cue : `${label} • ${cue}`, highlight, compactTouchControls, label);
+  }
+
+  private drawUrienPatternGuide(ctx: CanvasRenderingContext2D, compactTouchControls: boolean): void {
+    if (this.stageId === 5 && this.phase === 'duel' && this.urienPattern) {
+      this.drawScriptedBossGuide(ctx, this.urienPattern, compactTouchControls, true);
+    }
+  }
+
+  private drawGillPatternGuide(ctx: CanvasRenderingContext2D, compactTouchControls = false): boolean {
+    return this.phase === 'final-duel'
+      && this.drawScriptedBossGuide(ctx, this.gillPattern, compactTouchControls);
+  }
+
+  private drawScriptedBossGuide(
+    ctx: CanvasRenderingContext2D,
+    pattern: { move: MoveData; label: string } | null,
+    compactTouchControls: boolean,
+    showCompactMoveLabel = false,
+  ): boolean {
+    if (this.paused || this.roundBreakFrames || this.roundAnnounceFrames
+      || this.world.superFreezeFrames) return false;
+    const { player, enemy: boss } = this.world;
+    if (player.hp <= 0 || boss.hp <= 0) return false;
+
+    const patternMove = pattern?.move;
+    const response = patternMove && !patternMove.projectile && boss.state === 'attack' && boss.currentMove === patternMove
+      && boss.moveFrame >= patternMove.startup + patternMove.active
+      ? this.bossRecoveryResponse(player, boss, patternMove) : null;
+    const incoming = response?.button ? undefined : this.firstBossGuideProjectile(player, boss) ?? response?.projectile;
+    const move = incoming?.move ?? pattern?.move;
+    const label = incoming && incoming.move !== pattern?.move
+      ? incoming.move.projectile?.bossBurst?.label ?? incoming.move.label
+      : pattern?.label;
+    if (!move || !label) return false;
+
+    const projectile = move.projectile;
+    if (!incoming && (boss.state !== 'attack' || boss.currentMove !== move || (projectile && boss.moveEffectTriggered))) return false;
+    const back = this.bossDirectionKey(player.facing === 1 ? 'left' : 'right', compactTouchControls);
+    const recoveryStart = move.startup + move.active;
+    const recovering = !projectile && boss.moveFrame >= recoveryStart;
+    if (!projectile && !recovering && !boss.hasRemainingHitsFor(player)) return false;
+    let cue = projectile && (projectile.count ?? 1) > 1 ? `HOLD ${back} • GUARD ALL SHOTS` : `HOLD ${back} TO GUARD`;
+    let counterButton: 'lp' | 'mp' | undefined;
+    if (recovering) {
+      counterButton = response?.button;
+      if (counterButton) {
+        cue = this.bossCounterCue(counterButton, compactTouchControls);
+      } else {
+        cue = 'RECOVERING';
+      }
+    } else if (this.bossGuardChipCanKo(player, move, !!incoming)) {
+      cue = this.bossParryCue(player, boss, move, compactTouchControls, incoming) ?? 'GUARD CHIP CAN KO';
+    } else if (player.airborne) {
+      cue = 'GUARD ON LANDING';
+    }
+    this.drawBossPatternGuide(ctx, compactTouchControls ? cue : `${label} • ${cue}`,
+      !!counterButton, compactTouchControls, showCompactMoveLabel ? label : undefined);
+    return true;
+  }
+
+  private firstBossGuideProjectile(player: Fighter, boss: Fighter): ProjectileInstance | undefined {
+    let earliest: ProjectileInstance | undefined;
+    let airborneFallback: ProjectileInstance | undefined;
+    let earliestTick = Infinity;
+    for (const shot of this.world.projectiles) {
+      if (shot.owner !== boss || shot.hitVictims.has(player.uid)) continue;
+      const scripted = shot.move.projectile?.bossBurst;
+      if (!scripted && this.phase !== 'final-duel') continue;
+      const tick = this.world.projectileContactTick(player, shot, earliestTick - 1);
+      if (tick === 1) return shot;
+      if (tick !== undefined) {
+        earliest = shot;
+        earliestTick = tick;
+      } else if (scripted && player.airborne && (player.x - shot.x) * shot.vx > 0) {
+        airborneFallback ??= shot;
+      }
+    }
+    return earliest ?? airborneFallback;
+  }
+
+  private bossParryCue(player: Fighter, boss: Fighter, move: MoveData, compactTouchControls: boolean, incoming?: ProjectileInstance): string | null {
+    if (move.level === 'low' || !player.canDefend() || player.state === 'block' || player.state === 'parry'
+      || player.hitStop || player.techRolling || player.dizzyPending || player.parryWindow > 0
+      || (boss.x - player.x) * player.facing < 0 || this.input.held('left') || this.input.held('right')) return null;
+
+    if (move.projectile) {
+      if (!incoming || (move.projectile.count ?? 1) !== 1
+        || !this.world.projectileCanReach(player, incoming, PARRY_WINDOW_TICKS)) return null;
+    } else {
+      const untilActive = move.startup - boss.moveFrame;
+      if (move.kind !== 'melee' || move.launch || boss.airborne
+        || (untilActive > 0 && untilActive + boss.hitStop > PARRY_WINDOW_TICKS)
+        || boss.moveFrame >= move.startup + move.active - 1
+        || !this.meleeInRange(boss, player, move)) return null;
+    }
+    const toward = this.bossDirectionKey(player.facing === 1 ? 'right' : 'left', compactTouchControls);
+    return `TAP ${toward} TO PARRY`;
+  }
+
+  private bossDirectionKey(direction: 'left' | 'right', compactTouchControls: boolean): string {
+    const arrow = direction === 'left' ? '←' : '→';
+    if (compactTouchControls) return arrow;
+    return keysForAction(this.input.bindings ?? [], direction).join(' OR ') || arrow;
+  }
+
+  private bossGuardChipCanKo(player: Fighter, move: MoveData, launched: boolean): boolean {
+    if (move.guardBreak || (!move.projectile && move.multiHit)) return false;
+    const chip = chipDamageFor(move);
+    if (chip >= player.hp) return true;
+    if (!launched || chip * (move.projectile?.count ?? 1) < player.hp) return false;
+
+    let remainingHp = player.hp;
+    for (const shot of this.world.projectiles) {
+      if (shot.move !== move || !this.world.projectileCanReach(player, shot)) continue;
+      remainingHp -= chip;
+      if (remainingHp <= 0) return true;
+    }
+    return false;
+  }
+
+  private bossCounterCue(button: 'lp' | 'mp', compactTouchControls: boolean): string {
+    const key = compactTouchControls ? undefined : keysForAction(this.input.bindings ?? [], button)[0];
+    return `HIT BACK • ${key ? `${key} / ` : ''}${button.toUpperCase()}`;
+  }
+
+  private bossRecoveryResponse(player: Fighter, boss: Fighter, move: MoveData): { button?: 'lp' | 'mp'; projectile?: ProjectileInstance } | null {
+    const distance = (boss.x - player.x) * player.facing;
+    if ((player.state !== 'idle' && player.state !== 'walk' && player.state !== 'crouch')
+      || !player.canDefend() || player.hitStop || player.techRolling || player.dizzyPending
+      || boss.airborne || boss.isInvulnerable() || distance < 0) return null;
+    const remaining = move.startup + move.active + move.recovery - boss.moveFrame;
+    const crouching = this.input.held('down');
+    const forward = player.facing === 1 ? 'right' : 'left';
+    const back = player.facing === 1 ? 'left' : 'right';
+    const forwardHeld = !crouching && this.input.held(forward) && !this.input.held(back);
+    const punchIsSpecial = player.hasBufferedPunchCommand(this.input);
+    let projectile: ProjectileInstance | undefined;
+    for (const button of ['lp', 'mp'] as const) {
+      if (this.input.held(button)) continue;
+      // A fresh LP overlaps the held LK and becomes a throw.
+      if (button === 'lp' && this.input.held('lk')) continue;
+      const attack = commandNormalFor(player.character.id, button, forwardHeld) ?? normalFor(button, crouching, player.character.id);
+      // A fresh input starts the move at frame zero; a projectile can trade on the first active tick.
+      const contactTick = attack.startup + 1;
+      if (remaining <= contactTick || distance > meleeForwardReach(player, attack)) continue;
+      const threat = this.world.projectileThreatDuring(player, contactTick);
+      if (threat) projectile ??= threat;
+      else if (!punchIsSpecial) return { button };
+    }
+    return projectile ? { projectile } : null;
+  }
+
+  private drawBossPatternGuide(ctx: CanvasRenderingContext2D, text: string, highlight: boolean, compactTouchControls = false, compactMoveLabel?: string): void {
+    ctx.save();
+    ctx.fillStyle = 'rgba(5,8,13,.92)';
+    if (compactTouchControls) {
+      const boss = this.world.enemy;
+      ctx.beginPath(); ctx.roundRect(306, 100, 668, 36, 8); ctx.fill();
+      ctx.textAlign = 'center';
+      ctx.fillStyle = compactMoveLabel || this.gillPhase === 1 ? '#e3cf8a' : this.gillPhase === 2 ? '#9cd9ff' : '#ff9a77';
+      ctx.font = '900 18px Arial, sans-serif';
+      ctx.fillText(compactMoveLabel ?? `PHASE ${this.gillPhase} • ${Math.ceil(boss.hp)}/${boss.maxHp}`, 434, 127, 228);
+      ctx.fillStyle = highlight ? '#a8facf' : '#ffe194';
+      ctx.font = '900 26px Arial, sans-serif';
+      ctx.fillText(text, 760, 129, 390);
+      ctx.restore();
+      return;
+    }
+    ctx.beginPath(); ctx.roundRect(306, 157, 668, 34, 8); ctx.fill();
+    ctx.fillStyle = highlight ? '#a8facf' : '#ffe194';
+    ctx.textAlign = 'center';
+    ctx.font = '900 19px Arial, sans-serif';
+    ctx.fillText(text, 640, 180, 636);
+    ctx.restore();
   }
 
   private updateUrienPattern(): void {
@@ -2236,27 +2976,33 @@ export class Stage1Scene implements Scene {
     this.bossPatternCooldown -= 1;
     if (this.bossPatternCooldown > 0 || !this.canStartBossPattern(boss)) return;
     const specials = specialMovesFor('URIEN');
+    const previousMove = boss.currentMove;
     const pattern = this.bossPatternIndex++ % 3;
+    let label: string;
     if (pattern === 0) {
+      label = 'AEGIS REFLECTOR';
       const aegis = specials.super;
-      this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 150, power: 0, ttl: 42, label: 'AEGIS REFLECTOR' });
-      this.startBossScriptedMove(boss, aegis);
-      this.world.spawnProjectileBurst(boss, aegis, 1, 0, 1);
-      this.world.events.push({ type: 'boss-burst', x: boss.x + boss.facing * 54, y: boss.y - 92, power: aegis.damage, ttl: 30, label: 'AEGIS WALL' });
+      this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 150, power: 0, ttl: 42, label });
+      this.startBossProjectile(boss, aegis, 'AEGIS WALL', 1, 0);
       this.bossPatternCooldown = 238;
     } else if (pattern === 1) {
-      this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 150, power: 0, ttl: 34, label: 'CHARGING TACKLE' });
-      boss.startMove(specials.mobility);
+      label = 'CHARGING TACKLE';
+      this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 150, power: 0, ttl: 34, label });
+      this.startBossMelee(boss, specials.mobility);
       this.world.events.push({ type: 'boss-burst', x: boss.x, y: boss.y - 92, power: specials.mobility.damage, ttl: 26, label: 'TACKLE RUSH' });
       this.bossPatternCooldown = 168;
     } else {
       const punish = this.world.player.airborne ? specials.antiAir : specials.exPrimary;
-      this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 150, power: 0, ttl: 34, label: this.world.player.airborne ? 'DANGER KNEE' : 'METALLIC CROSS FIRE' });
-      if (punish.kind === 'projectile') { this.startBossScriptedMove(boss, punish); this.world.spawnProjectileBurst(boss, punish, 2, 34, 1.06); }
-      else boss.startMove(punish);
-      this.world.events.push({ type: 'boss-burst', x: boss.x, y: boss.y - 96, power: punish.damage, ttl: 28, label: punish.label });
+      label = this.world.player.airborne ? 'DANGER KNEE' : 'METALLIC CROSS FIRE';
+      this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 150, power: 0, ttl: 34, label });
+      if (punish.kind === 'projectile') this.startBossProjectile(boss, punish, punish.label, 2, 34, 1.06);
+      else {
+        this.startBossMelee(boss, punish);
+        this.world.events.push({ type: 'boss-burst', x: boss.x, y: boss.y - 96, power: punish.damage, ttl: 28, label: punish.label });
+      }
       this.bossPatternCooldown = 192;
     }
+    this.urienPattern = boss.currentMove && boss.currentMove !== previousMove ? { move: boss.currentMove, label } : null;
     this.bossPatternFlash = 36;
   }
 
@@ -2264,55 +3010,48 @@ export class Stage1Scene implements Scene {
     const boss = this.world.enemy;
     if (boss.character.id !== 'GILL' || boss.hp <= 0) return;
     this.bossPatternCooldown -= 1;
-    if (this.bossPatternCooldown > 0 || !this.canStartBossPattern(boss)) return;
+    if (this.bossPatternCooldown > 0 || !this.canStartBossPattern(boss, false)) return;
 
     const specials = specialMovesFor('GILL');
+    const previousMove = boss.currentMove;
     // Keep Gill readable while making each phase materially broader:
     // I: sphere / anti-air-or-lariat, II: + EX cross / seraphic volley, III: all five families + rain finisher.
     const sequences = this.gillPhase === 1 ? [0, 2] : this.gillPhase === 2 ? [1, 0, 2, 3] : [3, 4, 2, 0, 1];
     const pattern = sequences[this.bossPatternIndex++ % sequences.length]!;
     let label = 'ELEMENTAL SPHERE';
-    let power = specials.primary.damage;
+
     let cooldown = this.gillPhase === 1 ? 220 : this.gillPhase === 2 ? 168 : 122;
 
     if (pattern === 0) {
       label = this.gillPhase === 3 ? 'SERAPHIC SPHERE' : 'ELEMENTAL SPHERE';
-      power = specials.primary.damage;
       this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 160, power: 0, ttl: 34, label });
-      this.startBossScriptedMove(boss, specials.primary);
-      this.world.spawnProjectileBurst(boss, specials.primary, 1, 0, 1.02 + this.gillPhase * .03);
+      this.startBossProjectile(boss, specials.primary, label, 1, 0, 1.02 + this.gillPhase * .03);
     } else if (pattern === 1) {
       label = this.gillPhase === 3 ? 'SERAPHIC CROSS' : 'CROSS ELEMENT';
-      power = specials.exPrimary.damage;
       this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 160, power: 0, ttl: 36, label });
-      this.startBossScriptedMove(boss, specials.exPrimary);
-      this.world.spawnProjectileBurst(boss, specials.exPrimary, this.gillPhase === 3 ? 3 : 2, this.gillPhase === 3 ? 48 : 38, 1.08);
+      this.startBossProjectile(boss, specials.exPrimary, label, this.gillPhase === 3 ? 3 : 2, this.gillPhase === 3 ? 48 : 38, 1.08);
       cooldown += 10;
     } else if (pattern === 2) {
       const antiAir = this.world.player.airborne || this.world.player.jumpHeight > 24;
       const move = antiAir ? specials.antiAir : specials.mobility;
       label = antiAir ? (this.gillPhase === 3 ? 'SERAPHIC ASCENT' : 'CRYO ASCENT') : this.gillPhase === 3 ? 'SERAPHIC LARIAT' : 'ELEMENTAL LARIAT';
-      power = move.damage;
       this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 160, power: 0, ttl: 32, label });
-      boss.startMove(move);
+      this.startBossMelee(boss, move);
+      this.world.events.push({ type: 'boss-burst', x: boss.x, y: boss.y - 100, power: move.damage, ttl: 34, label });
       cooldown -= 8;
     } else if (pattern === 3) {
       label = this.gillPhase === 3 ? 'SERAPHIC VOLLEY' : 'DIVINE VOLLEY';
-      power = specials.super.damage;
       this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 160, power: 0, ttl: 40, label });
-      this.startBossScriptedMove(boss, specials.super);
-      this.world.spawnProjectileBurst(boss, specials.super, this.gillPhase === 3 ? 3 : 2, this.gillPhase === 3 ? 46 : 36, this.gillPhase === 3 ? 1.14 : 1.08);
+      this.startBossProjectile(boss, specials.super, label, this.gillPhase === 3 ? 3 : 2, this.gillPhase === 3 ? 46 : 36, this.gillPhase === 3 ? 1.14 : 1.08);
       cooldown += 16;
     } else {
       label = 'SERAPHIC RAIN';
-      power = specials.super.damage;
       this.world.events.push({ type: 'boss-warning', x: boss.x, y: boss.y - 160, power: 0, ttl: 46, label });
-      this.startBossScriptedMove(boss, specials.super);
-      this.world.spawnProjectileBurst(boss, specials.super, 5, 52, 1.16);
+      this.startBossProjectile(boss, specials.super, label, 5, 52, 1.16);
       cooldown += 34;
     }
 
-    this.world.events.push({ type: 'boss-burst', x: boss.x, y: boss.y - 100, power, ttl: 34, label });
+    this.gillPattern = boss.currentMove && boss.currentMove !== previousMove ? { move: boss.currentMove, label } : null;
     this.bossPatternFlash = pattern === 4 ? 54 : 40;
     this.bossPatternCooldown = Math.max(88, cooldown);
   }
@@ -2856,16 +3595,24 @@ export class Stage1Scene implements Scene {
     ctx.restore();
   }
 
-  private drawGillPhaseOverlay(ctx: CanvasRenderingContext2D): void {
+  private drawGillPhaseOverlay(ctx: CanvasRenderingContext2D, compactTouchControls: boolean): void {
     if (this.phase !== 'final-duel') return;
     const boss = this.world.enemy;
+    const message = this.gillPhase === 1 ? 'THE FINAL DUEL BEGINS' : this.gillPhase === 2 ? 'ATTACK TEMPO INCREASED • SUPER READY' : 'MAXIMUM PRESSURE • SUPER FREQUENCY UP';
+    if (compactTouchControls) {
+      if (this.drawGillPatternGuide(ctx, true)) return;
+      if (this.gillPhaseBanner > 0 && this.world.superFreezeFrames <= 0) {
+        this.drawBossPatternGuide(ctx, message, false, true);
+        return;
+      }
+    }
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(12,8,22,.82)'; ctx.beginPath(); ctx.roundRect(482, 108, 316, 34, 9); ctx.fill();
     ctx.fillStyle = this.gillPhase === 1 ? '#e3cf8a' : this.gillPhase === 2 ? '#9cd9ff' : '#ff9a77';
     ctx.font = '900 13px Arial Black, sans-serif'; ctx.fillText(`FINAL BOSS • PHASE ${this.gillPhase} • ${Math.ceil(boss.hp)} / ${boss.maxHp}`, 640, 130);
+    if (!compactTouchControls && this.drawGillPatternGuide(ctx)) return;
     if (this.gillPhaseBanner <= 0) return;
     const p = Math.min(1, this.gillPhaseBanner / 45);
-    const message = this.gillPhase === 1 ? 'THE FINAL DUEL BEGINS' : this.gillPhase === 2 ? 'ATTACK TEMPO INCREASED • SUPER READY' : 'MAXIMUM PRESSURE • SUPER FREQUENCY UP';
     // Once combat resumes, keep the warning above the actors instead of covering them.
     if (this.world.superFreezeFrames <= 0) {
       ctx.save(); ctx.globalAlpha = p;
@@ -2912,7 +3659,7 @@ export class Stage1Scene implements Scene {
       ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.font = '800 13px Arial, sans-serif'; ctx.fillText('FINAL APPROACH', 640, 245);
       ctx.fillStyle = '#f0cf73'; ctx.font = '900 72px Impact, sans-serif'; ctx.fillText('GILL', 640, 355);
       ctx.fillStyle = '#fff'; ctx.font = '900 28px Arial Black, sans-serif'; ctx.fillText('FINAL DUEL', 640, 405);
-      if (this.phaseFrames < 55) { ctx.fillStyle = '#fff3bc'; ctx.font = '900 88px Impact, sans-serif'; ctx.fillText('FIGHT!', 640, 520); }
+      if (this.phaseFrames < 55) { ctx.fillStyle = '#fff3bc'; ctx.font = '900 88px Impact, sans-serif'; ctx.fillText('GET READY', 640, 520); }
     }
   }
 
@@ -2955,13 +3702,13 @@ export class Stage1Scene implements Scene {
         ctx.strokeStyle = '#8f2634';
         ctx.lineWidth = 8;
         ctx.font = '900 92px Impact, Arial Black, sans-serif';
-        ctx.strokeText('FIGHT!', 640, 480);
-        ctx.fillText('FIGHT!', 640, 480);
+        ctx.strokeText('GET READY', 640, 480);
+        ctx.fillText('GET READY', 640, 480);
       }
     }
   }
 
-  private drawStageClear(ctx: CanvasRenderingContext2D): void {
+  private drawStageClear(ctx: CanvasRenderingContext2D, compactTouchControls = false): void {
     if (this.phase !== 'clear') return;
     const timing = transitionPolishProfile(this.stageId);
     const total = this.stageId === 5 ? timing.finalClearFrames : timing.clearFrames;
@@ -2985,37 +3732,80 @@ export class Stage1Scene implements Scene {
     ctx.fillStyle = `rgba(255,255,255,${reveal})`;
     ctx.font = '900 84px Impact, Arial Black, sans-serif';
     ctx.strokeStyle = 'rgba(93,25,35,.92)'; ctx.lineWidth = 10;
-    const clearLabel = this.stageId === 5 ? 'CAMPAIGN CLEAR' : 'STAGE CLEAR';
-    ctx.strokeText(clearLabel, 640, 365); ctx.fillText(clearLabel, 640, 365);
-    ctx.fillStyle = `rgba(255,255,255,${.64 * reveal})`;
-    ctx.font = '800 12px Arial, sans-serif';
+    const campaignFinalClear = this.stageId === 5 && !this.replay;
+    if (compactTouchControls && !this.routeError && !this.clearDispatched) {
+      const next = this.replay ? 'STAGE SELECT' : campaignFinalClear ? 'ENDING' : 'NEXT STAGE';
+      ctx.fillStyle = `rgba(246,229,154,${reveal})`;
+      ctx.font = '900 21px Arial, sans-serif';
+      ctx.fillText(this.clearAdvanceQueued ? 'CONTINUE QUEUED' : `TAP START FOR ${next}`, 640, 235);
+      ctx.fillStyle = `rgba(255,255,255,${reveal})`;
+      ctx.font = '900 84px Impact, Arial Black, sans-serif';
+    }
+    const clearLabel = campaignFinalClear ? 'CAMPAIGN CLEAR' : 'STAGE CLEAR';
+    ctx.strokeText(clearLabel, 640, 351); ctx.fillText(clearLabel, 640, 351);
     const result = this.stageResult();
-    ctx.fillText(`${this.playerDef.name} • SA ${this.superArt.id}: ${this.superArt.name} • ${result.defeatedEnemies} FIGHTERS DEFEATED`, 640, 408);
+    this.drawStageScoreComparison(ctx, result.beltScore ?? 0, reveal);
+    ctx.fillStyle = `rgba(255,255,255,${.68 * reveal})`;
+    ctx.font = '800 12px Arial, sans-serif';
+    ctx.fillText(`${this.playerDef.name} • SA ${this.superArt.id}: ${this.superArt.name} • ${result.defeatedEnemies} FIGHTERS DEFEATED`, 640, 481);
     ctx.fillStyle = `rgba(255,255,255,${.76 * reveal})`; ctx.font = '900 11px ui-monospace, monospace';
-    ctx.fillText(`TIME ${formatClearTime(result.clearSeconds)}   DMG ${result.damageDealt}   TAKEN ${result.damageTaken}   MAX ${result.maxComboHits} HIT / ${result.maxComboDamage}`, 640, 428);
-    ctx.fillStyle = `rgba(241,189,81,${.95 * reveal})`; ctx.fillRect(456, 446, 368 * sweep, 3);
-    ctx.fillStyle = `rgba(255,255,255,${.48 * reveal})`; ctx.font = '900 10px Arial Black, sans-serif';
-    ctx.fillText(this.stageId === 5 ? `GILL DEFEATED • PARRY ${result.parries} • SUPER ${result.supersUsed} • ENDING ROUTE OPEN` : `PARRY ${result.parries} • THROW ${result.throwsLanded} • SUPER ${result.supersUsed} • NEXT STAGE READY`, 640, 478);
-    if (this.stageId === 5 && !this.routeError) {
+    ctx.fillText(`TIME ${formatClearTime(result.clearSeconds)}   DMG ${result.damageDealt}   TAKEN ${result.damageTaken}   MAX ${result.maxComboHits} HIT / ${result.maxComboDamage}`, 640, 499);
+    ctx.fillStyle = `rgba(241,189,81,${.95 * reveal})`; ctx.fillRect(456, 511, 368 * sweep, 3);
+    ctx.fillStyle = `rgba(255,255,255,${.55 * reveal})`; ctx.font = '900 10px Arial Black, sans-serif';
+    const summary = this.stageId === 5
+      ? `GILL DEFEATED • PARRY ${result.parries} • SUPER ${result.supersUsed}`
+      : `PARRY ${result.parries} • THROW ${result.throwsLanded} • SUPER ${result.supersUsed}`;
+    const destination = campaignFinalClear ? 'ENDING ROUTE OPEN' : 'NEXT STAGE READY';
+    ctx.fillText(this.replay || this.routeError || compactTouchControls ? summary : `${summary} • ${destination}`, 640, 537);
+    if (this.replay && !this.routeError && !compactTouchControls) {
+      ctx.fillStyle = `rgba(246,229,154,${.92 * reveal})`;
+      ctx.font = '900 21px Arial, sans-serif';
+      ctx.fillText('RETURNING TO STAGE SELECT', 640, 573);
+    }
+    if (campaignFinalClear && !this.routeError) {
       const bridge = Math.max(0, Math.min(1, (p - .48) / .52));
       ctx.save(); ctx.globalCompositeOperation = 'screen';
       ctx.strokeStyle = `rgba(255,225,154,${bridge * .22})`; ctx.lineWidth = 3;
       for (let i = 0; i < 4; i += 1) { const r = 150 + i * 54 + bridge * 70; ctx.beginPath(); ctx.arc(640, 350, r, Math.PI * .08, Math.PI * .92); ctx.stroke(); }
       ctx.fillStyle = `rgba(255,248,224,${Math.max(0, bridge - .55) * 1.18})`; ctx.fillRect(0, 0, 1280, 720);
       ctx.restore();
-      if (bridge > .18) {
+      if (!compactTouchControls && bridge > .18) {
         const a = Math.min(1, (bridge - .18) * 1.7);
         ctx.fillStyle = `rgba(246,229,184,${a})`; ctx.font = '900 13px Arial Black, sans-serif';
-        ctx.fillText('SECRET SOCIETY SIGNAL — LOST', 640, 518);
+        ctx.fillText('SECRET SOCIETY SIGNAL — LOST', 640, 565);
         ctx.fillStyle = `rgba(255,255,255,${a * .82})`; ctx.font = '800 11px ui-monospace, monospace';
-        ctx.fillText('FINAL BATTLE RECORD SEALED  •  TRANSFERRING TO ENDING', 640, 542);
+        ctx.fillText('FINAL BATTLE RECORD SEALED  •  TRANSFERRING TO ENDING', 640, 588);
       }
     }
     ctx.restore();
   }
 
 
-  private drawDefeat(ctx: CanvasRenderingContext2D): void {
+  private drawStageScoreComparison(ctx: CanvasRenderingContext2D, score: number, reveal: number): void {
+    const previous = this.previousStageScore;
+    const newRecord = !previous || score > previous.best;
+    ctx.save();
+    ctx.globalAlpha = reveal;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(5,8,15,.9)';
+    ctx.beginPath(); ctx.roundRect(332, 368, 616, 94, 12); ctx.fill();
+    const columns: readonly [string, number | undefined, number][] = [
+      ['THIS CLEAR', score, 435], ['LAST SCORE', previous?.latest, 640], ['PREVIOUS BEST', previous?.best, 845],
+    ];
+    for (const [label, value, x] of columns) {
+      ctx.fillStyle = '#f0e7d3'; ctx.font = '900 18px Arial, sans-serif';
+      ctx.fillText(label, x, 390, 184);
+      ctx.fillStyle = x === 435 ? '#ffdd7f' : '#fff5e8'; ctx.font = '900 30px Arial, sans-serif';
+      ctx.fillText(value === undefined ? '—' : String(value), x, 423, 184);
+    }
+    if (newRecord) {
+      ctx.fillStyle = '#ffdd7f'; ctx.font = '900 19px Arial, sans-serif';
+      ctx.fillText('NEW RECORD', 435, 450);
+    }
+    ctx.restore();
+  }
+
+  private drawDefeat(ctx: CanvasRenderingContext2D, compactTouchControls = false): void {
     if (this.phase !== 'defeat') return;
     const total = DEFEAT_PRESENTATION_FRAMES[this.defeatReason];
     const elapsed = total - this.defeatFrames;
@@ -3034,14 +3824,21 @@ export class Stage1Scene implements Scene {
     ctx.fillText(defeatTitle, 640, 350);
     ctx.fillStyle = `rgba(241,189,81,${retryReveal})`;
     ctx.font = '900 16px Arial Black, sans-serif';
-    ctx.fillText(this.defeatRetryQueued ? 'RETRY QUEUED' : this.defeatFrames > 0 ? 'BATTLE STOPPED' : 'PRESS START / P / ENTER / ATTACK TO RETRY', 640, 406);
-    ctx.fillStyle = `rgba(255,255,255,${.62 * retryReveal})`;
-    ctx.font = '800 11px Arial, sans-serif';
-    ctx.fillText('CHARACTER / SUPER ART / CAMPAIGN PROGRESS KEPT', 640, 430);
+    const retryTarget = this.bossEntry ? 'RETRY BOSS' : 'RETRY';
+    const retryPrompt = compactTouchControls ? `TAP START TO ${retryTarget}`
+      : this.defeatFrames > 0 ? 'BATTLE STOPPED' : `PRESS START / P / ENTER / ATTACK TO ${retryTarget}`;
+    ctx.fillText(this.defeatRetryQueued ? 'RETRY QUEUED' : retryPrompt, 640, 406);
+    ctx.fillStyle = `rgba(255,255,255,${.76 * retryReveal})`;
+    ctx.font = compactTouchControls && this.bossEntry ? '800 20px Arial, sans-serif' : '800 15px Arial, sans-serif';
+    const entry = this.bossEntry;
+    const retryDetail = entry
+      ? `${this.world.enemy.character.name} • ${Math.ceil(entry.hp)} HP / ${Math.floor(entry.gauge)} METER / ${entry.beltScore} SCORE`
+      : 'CHARACTER / SUPER ART / CAMPAIGN PROGRESS KEPT';
+    ctx.fillText(retryDetail, 640, 430, 560);
     ctx.restore();
   }
 
-  private drawPause(ctx: CanvasRenderingContext2D): void {
+  private drawPause(ctx: CanvasRenderingContext2D, compactTouchControls = false): void {
     if (!this.paused || this.phase === 'defeat') return;
     ctx.save();
     ctx.fillStyle = 'rgba(3,4,8,.72)';
@@ -3052,6 +3849,12 @@ export class Stage1Scene implements Scene {
     ctx.fillText('PAUSED', 640, 334);
     ctx.fillStyle = '#f1bd51';
     ctx.font = '900 16px Arial Black, sans-serif';
+    if (compactTouchControls) {
+      ctx.font = '900 22px Arial, sans-serif';
+      ctx.fillText('TAP RESUME', 640, 388);
+      ctx.restore();
+      return;
+    }
     ctx.fillText('START / P : CONTINUE', 640, 388);
     ctx.fillStyle = 'rgba(255,255,255,.68)';
     ctx.font = '800 11px Arial, sans-serif';
@@ -3358,8 +4161,9 @@ export class Stage1Scene implements Scene {
     return 'NEW YORK — DOWNTOWN';
   }
 
-  private drawHelp(ctx: CanvasRenderingContext2D): void {
-    if (this.paused || (this.phase !== 'belt' && this.phase !== 'duel' && this.phase !== 'final-duel')) return;
+  private drawHelp(ctx: CanvasRenderingContext2D, compactTouchControls = false): void {
+    if (this.paused || this.versus?.result || (this.phase !== 'belt' && this.phase !== 'duel' && this.phase !== 'final-duel')) return;
+    if (compactTouchControls && !this.versus) return;
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(5,7,12,.62)';
     ctx.beginPath(); ctx.roundRect(22, 672, 1236, 32, 10); ctx.fill();

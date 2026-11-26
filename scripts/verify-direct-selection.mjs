@@ -22,10 +22,28 @@ let retryCases=0;
 console.log('DIRECT_SELECTION_RETRY_PASS',{retryCases});
 
 import {SceneManager} from '../dist/assets/core/SceneManager.js';
-{const a=Object.create(GameApp.prototype);Object.assign(a,{input:q,audio,save:{selectedCharacter:'KEN'},errors:{record(){}},touch:{setSelectionMode(){}},scenes:new SceneManager()});a.showTitle=async()=>{await a.scenes.setScene({enter(){throw Error('title open failed');},exit(){},destroy(){},resize(){},fixedUpdate(){},render(){}});};await a.showCharacterSelect();a.scenes.activeScene.pointerTap(129,469);a.scenes.activeScene.input={...q,pressed:k=>k==='lk'};a.scenes.activeScene.fixedUpdate(1/60);for(let n=0;n<8;n++)await new Promise(setImmediate);assert(a.scenes.activeScene instanceof CharacterSelectScene,'Failed BACK route after exit must restore usable selection');assert.equal(a.scenes.activeScene.index,4,'Recovery keeps cursor character');a.scenes.activeScene.exit();a.scenes.activeScene.destroy();console.log('DIRECT_SELECTION_BACK_RECOVERY_PASS');}
+{const a=Object.create(GameApp.prototype);Object.assign(a,{input:q,audio,save:{selectedCharacter:'KEN'},assets:{prefetchGroup(){}},errors:{record(){}},touch:{setSelectionMode(){}},scenes:new SceneManager()});a.showTitle=async()=>{await a.scenes.setScene({enter(){throw Error('title open failed');},exit(){},destroy(){},resize(){},fixedUpdate(){},render(){}});};await a.showCharacterSelect();a.scenes.activeScene.pointerTap(129,469);a.scenes.activeScene.input={...q,pressed:k=>k==='lk'};a.scenes.activeScene.fixedUpdate(1/60);for(let n=0;n<8;n++)await new Promise(setImmediate);assert(a.scenes.activeScene instanceof CharacterSelectScene,'Failed BACK route after exit must restore usable selection');assert.equal(a.scenes.activeScene.index,4,'Recovery keeps cursor character');a.scenes.activeScene.exit();a.scenes.activeScene.destroy();console.log('DIRECT_SELECTION_BACK_RECOVERY_PASS');}
 
 import{TitleScene}from'../dist/assets/scenes/TitleScene.js';
-const warmUrls=[];globalThis.Image=class{naturalWidth=64;naturalHeight=64;set src(url){warmUrls.push(url);queueMicrotask(()=>this.onload?.());}get src(){return'';}};const title=new TitleScene(q,audio,[]);title.enter();for(const id of['ryu','ken','chunli','alex','dudley','makoto','ibuki','yun'])assert(warmUrls.includes('/art/portraits/'+id+'.webp'),'Title must warm decoded menu portrait '+id+' before selection');title.exit();console.log('SELECTION_PORTRAIT_PREWARM_PASS');
+import {ART_ASSET_PATHS, PLAYABLE_PORTRAIT_KEYS, unloadArtAsset} from '../dist/assets/render/ImageAssets.js';
+const portraitUrls = PLAYABLE_PORTRAIT_KEYS.map(key => ART_ASSET_PATHS[key]);
+const warmUrls = [];
+for (const key of ['title-keyart', ...PLAYABLE_PORTRAIT_KEYS]) unloadArtAsset(key);
+globalThis.Image = class {
+  naturalWidth = 64;
+  set src(url) { warmUrls.push(url); queueMicrotask(() => this.onload?.()); }
+  get src() { return ''; }
+};
+const title = new TitleScene(q, audio, []);
+title.enter();
+assert(warmUrls.includes(ART_ASSET_PATHS['title-keyart']));
+for (const url of portraitUrls) assert(!warmUrls.includes(url), 'Title defers fighter portraits');
+title.exit();
+const roster = new CharacterSelectScene(q, audio, 'KEN', () => {});
+roster.enter();
+for (const url of portraitUrls) assert(warmUrls.includes(url), 'Character selection prepares ' + url);
+roster.exit();
+console.log('SELECTION_PORTRAIT_PREWARM_PASS');
 
 
 import{TouchControls}from'../dist/assets/ui/TouchControls.js';
@@ -53,3 +71,55 @@ for(const c of CHARACTERS)for(const art of [1,2,3])for(const confirm of ['confir
  let confirmations=0;const input={pressed:a=>a===confirm,touchPressed:a=>confirm==='touch-start'&&a==='start'};const s=new SuperArtSelectScene(input,audio,c,art,selected=>{confirmations++;assert.equal(selected.id,art);},()=>assert.fail('Confirm-only cannot return'));s.fixedUpdate(1/60);s.fixedUpdate(1/60);assert.equal(confirmations,1,'Normal confirm remains immediate and single');superArtConfirmControls++;
 }
 console.log('SUPER_ART_CONFIRM_CONTROL_PASS',{superArtConfirmControls});
+let compactRosterCases = 0;
+for (const character of CHARACTERS) {
+  const scene = new CharacterSelectScene(q, audio, character.id, () => {});
+  for (const compact of [false, true]) {
+    const labels = new Map();
+    const gradient = {addColorStop() {}};
+    const ctx = new Proxy({}, {
+      get: (_, key) => key === 'fillText' ? (value, x, y) => labels.set(value, {x, y})
+        : key === 'createLinearGradient' || key === 'createRadialGradient' ? () => gradient
+        : () => {},
+    });
+    scene.render({ctx, width: 1280, height: 720, compactTouchControls: compact});
+    assert.deepEqual(['SPD', 'PWR', 'RCH'].map(label => labels.get(label)?.y),
+      compact ? [518, 533, 548] : [630, 647, 664]);
+    assert.equal(labels.has('TAP A FIGHTER • CONFIRM TO CONTINUE'), compact);
+    const style = labels.get(character.country + '  •  ' + character.style);
+    const badge = ['POWER FIGHTER', 'SPEED FIGHTER', 'FOOTSIE FIGHTER', 'ALL-ROUNDER'].map(value => labels.get(value)).find(Boolean);
+    if (compact) assert(badge.y <= style.y - 12, 'Compact badge stays above the style line');
+    compactRosterCases++;
+  }
+}
+console.log('COMPACT_ROSTER_FOOTER_PASS', {compactRosterCases});
+
+let superArtFooterCases = 0;
+for (const character of CHARACTERS) {
+  const confirmed = [];
+  const scene = new SuperArtSelectScene(q, audio, character, 1, art => confirmed.push(art.id), () => {});
+  const stats = [];
+  const gradient = {addColorStop() {}};
+  const ctx = new Proxy({}, {
+    get: (_, key) => key === 'fillText' ? (label, x, y) => {
+      if (label.startsWith('STOCK ×')) stats.push(y);
+    } : key === 'createLinearGradient' || key === 'createRadialGradient' ? () => gradient
+      : () => {},
+  });
+
+  scene.render({ctx, width: 1280, height: 720, compactTouchControls: true});
+  assert.deepEqual(stats, [241, 377, 513]);
+  scene.pointerTap(1090, 424);
+  assert.equal(scene.selected, 2, 'Tap follows the displayed third card');
+  assert.deepEqual(confirmed, [], 'First tap only selects');
+  scene.pointerTap(1090, 545);
+  assert.deepEqual(confirmed, [], 'The area below the compact card cannot confirm');
+
+  stats.length = 0;
+  scene.render({ctx, width: 1280, height: 720});
+  assert.deepEqual(stats, [247, 407, 567]);
+  scene.pointerTap(1090, 545);
+  assert.deepEqual(confirmed, [3], 'Normal panel and hit area return together');
+  superArtFooterCases++;
+}
+console.log('COMPACT_SUPER_ART_FOOTER_PASS', {superArtFooterCases});

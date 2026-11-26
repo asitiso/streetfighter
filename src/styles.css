@@ -66,7 +66,15 @@ body { position: fixed; inset: 0; overscroll-behavior: none; -webkit-touch-callo
 .touch-controls.editing .layout-handle { display: block; }
 .touch-controls.editing .dpad, .touch-controls.editing .fight-buttons { pointer-events: auto; outline: 3px dashed rgba(255,226,112,.78); outline-offset: 8px; cursor: move; }
 .touch-controls.editing .dpad button, .touch-controls.editing .fight-buttons button { pointer-events: none; opacity: .38; }
-.touch-controls.editing .start-button, .touch-controls.editing .jump-button { opacity: .3; }
+.touch-controls .layout-cancel { display: none; }
+.touch-controls.editing .layout-cancel,
+.touch-controls.editing .start-button {
+  position: absolute; z-index: 6; top: calc(8px + var(--safe-top)) !important;
+  width: 84px; height: 44px; border-radius: 12px; padding: 0; opacity: 1; font-size: 12px;
+}
+.touch-controls.editing .layout-cancel { display: block; left: calc(12px + var(--safe-left)); }
+.touch-controls.editing .start-button { left: auto !important; right: calc(12px + var(--safe-right)) !important; }
+.touch-controls.editing .jump-button { opacity: .3; }
 
 .loading-overlay { position: absolute; inset: 0; z-index: 80; display: grid; place-items: center; pointer-events: none; background: rgba(5,7,12,.58); backdrop-filter: blur(3px); transition: opacity .12s ease; }
 .loading-overlay.hidden { opacity: 0; visibility: hidden; }
@@ -79,6 +87,7 @@ body { position: fixed; inset: 0; overscroll-behavior: none; -webkit-touch-callo
 .loading-actions { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
 .loading-actions button { min-height: 42px; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; background: rgba(255,255,255,.07); color: #f3f5f8; font: 900 10px/1 Arial Black, sans-serif; letter-spacing: 1px; }
 .loading-actions button:first-child { border-color: rgba(240,186,69,.6); color: #ffd46f; }
+.loading-actions button:focus-visible { outline: 2px solid #ffd46f; outline-offset: 2px; }
 .loading-overlay.failed { pointer-events: auto; background: rgba(8,8,13,.78); }
 .loading-overlay.failed .loading-card { border-color: rgba(255,105,125,.42); }
 .loading-overlay.failed .loading-card strong { color: #ff7387; }
@@ -128,6 +137,17 @@ body { position: fixed; inset: 0; overscroll-behavior: none; -webkit-touch-callo
 .touch-controls.post-combat-mode .start-button {
   left: calc(50% - 42px) !important; top: auto !important; right: auto;
   bottom: calc(8px + var(--safe-bottom)); width: 84px; height: 44px; padding: 0;
+}
+
+.touch-controls.ending-mode {
+  --idle-control-background: rgba(13,16,24,.92);
+}
+.touch-controls.ending-mode .start-button {
+  left: calc(50% - 66px) !important;
+  width: 132px;
+  color: #fff4dc;
+  font-size: 12px;
+  opacity: 1;
 }
 
 /* Selection uses a compact footer; fighters and super cards remain unobscured. */

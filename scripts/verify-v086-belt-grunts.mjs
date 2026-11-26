@@ -35,7 +35,7 @@ function beltWorld(spawns, playerId = 'RYU') {
   w.replaceEnemies(spawns);
   w.player.x = w.player.previousX = 600; w.player.y = w.player.previousY = 495;
   let tick = 1; const events = []; const held = new Set();
-  const step = (each) => { each?.(); input.prepareTick(); w.update(input, tick++); for (const e of w.events) if (!events.includes(e)) events.push(e); input.endTick(); };
+  const step = (each, inRewardWindow = false) => { each?.(); input.prepareTick(); w.update(input, tick++, inRewardWindow); for (const e of w.events) if (!events.includes(e)) events.push(e); input.endTick(); };
   const hold = (a) => { if (!held.has(a)) { held.add(a); key('keydown', a); } };
   const release = (a) => { if (held.has(a)) { held.delete(a); key('keyup', a); } };
   const releaseAll = () => { for (const a of [...held]) release(a); };
@@ -81,14 +81,158 @@ const freeze = (w) => () => { for (const e of w.enemies) e.aiCooldown = 9999; };
     const kinds = new Set();
     for (const wave of [0, 1, 2]) {
       s.spawnBeltWave(wave);
-      ok(s.world.enemies.length >= 2, `stage ${stage} wave ${wave} has enemies`);
-      for (const e of s.world.enemies) { ok(isGruntId(e.character.id), `stage ${stage} wave ${wave}: ${e.character.id} is a grunt`); kinds.add(e.character.id); seen.add(e.character.id); }
+      const expected = wave === 0 ? 3 : wave === 2 ? 2 : stage < 3 ? 5 : 4;
+      ok(s.world.enemies.length === expected, `stage ${stage} wave ${wave} retains its enemy count`);
+      const { arenaLeft, arenaRight, arenaTop, arenaBottom } = s.world.rules;
+      const entryX = wave === 0 ? 360 : s.areaStarts[wave] + 170;
+      for (const e of s.world.enemies) {
+        const label = `stage ${stage} wave ${wave} ${e.character.id}`;
+        ok(isGruntId(e.character.id), label + ' is a grunt');
+        ok(e.x >= entryX + 120 && e.x >= arenaLeft && e.x <= arenaRight, label + ' leaves room at entry');
+        ok(e.y >= arenaTop + 8 && e.y <= arenaBottom - 8, label + ' spawns inside the lane');
+        ok(!s.world.props.some(p => p.solid && Math.abs(e.x - p.x) < p.width / 2 + 28
+          && Math.abs(e.y - p.y) < p.depth / 2 + 16), label + ' starts clear of solid props');
+        kinds.add(e.character.id); seen.add(e.character.id);
+      }
     }
     ok(kinds.size >= 2, `stage ${stage} mixes grunt types`);
     perStage[stage] = [...kinds].map(id => id.replace('GRUNT_', '').toLowerCase());
   }
   ok(seen.size === GRUNT_KINDS.length, 'all grunt types appear across the campaign');
   report.stageRosters = perStage;
+}
+
+// A clear bottle lane keeps one of the two pressure slots when the crowd is active.
+{
+  const t = beltWorld([spawn('knife', 760), spawn('kicker', 840, 565), spawn('bruiser', 875, 435), spawn('thrower', 1100)]);
+  const [knife, kicker, bruiser, thrower] = t.w.enemies;
+  thrower.aiCooldown = 1;
+  t.step();
+  const role = enemy => t.w.director.roleFor(enemy);
+  ok(role(thrower) === 'ranged' && role(knife) === 'attack', 'aligned thrower supports a frontline enemy in a full wave');
+  ok([kicker, bruiser].every(e => role(e) !== 'attack' && role(e) !== 'ranged'), 'still at most two simultaneous threats');
+  t.run(15);
+  ok(t.w.projectiles.some(p => p.owner === thrower), 'support role launches a bottle through the normal startup');
+  t.close();
+}
+{
+  const t = beltWorld([spawn('knife', 760), spawn('kicker', 840, 565), spawn('bruiser', 875, 435), spawn('thrower', 1100, 570)]);
+  t.w.enemies[3].aiCooldown = 1;
+  t.step();
+  ok(t.w.director.activeAttackers(t.w.enemies) === 2, 'an off-lane thrower leaves both melee slots available');
+  t.close();
+}
+
+// The market keeps two kinds of pressure without overlapping melee startups.
+{
+  const c = getCharacter('RYU');
+  const s = new Stage1Scene({ held: () => false, pressed: () => false }, {}, c, c.superArts[0], 2);
+  s.spawnBeltWave(1);
+  const w = s.world;
+  const thrower = w.enemies.find(e => e.character.id === 'GRUNT_THROWER');
+  const knife = w.enemies.find(e => e.character.id === 'GRUNT_KNIFE');
+  for (const [index, enemy] of w.enemies.entries()) {
+    enemy.x = w.player.x + 90 + 25 * index;
+    enemy.y = w.player.y;
+    enemy.aiCooldown = 0;
+  }
+  thrower.x = w.player.x + 360;
+  thrower.y = w.player.y + 80;
+  const update = () => w.director.update(w.player, w.enemies, w.rules);
+  update();
+  ok(w.director.activeAttackers(w.enemies) === 1, 'market ambush allows only one melee attacker even without a bottle threat');
+  thrower.y = w.player.y;
+  const supported = update();
+  ok(supported.get(thrower.uid).rangedAllowed && supported.get(knife.uid).attackAllowed, 'market ambush retains one melee fighter and a supporting thrower');
+  knife.startMove(GRUNTS.knife.heavy);
+  const committed = update();
+  ok(![...committed.values()].some(d => d.attackAllowed) && committed.get(thrower.uid).rangedAllowed, 'an ongoing melee move excludes another melee startup while the bottle remains available');
+  s.spawnBeltWave(2);
+  ok(!w.rules.beltSingleMelee, 'market-only melee pacing resets at the next wave');
+}
+
+// The market and security ambushes telegraph their knife fighters' three-hit flurry.
+{
+  const c = getCharacter('RYU');
+  const flurry = GRUNTS.knife.specials.primary;
+  for (const [stage, wave] of [[1, 1], [2, 0], [2, 1], [5, 1]]) {
+    const s = new Stage1Scene({}, {}, c, c.superArts[0], stage);
+    s.spawnBeltWave(wave);
+    const knives = s.world.enemies.filter(e => e.character.id === GRUNTS.knife.id);
+    const telegraphed = stage === 5 || (stage === 2 && wave === 1);
+    if (stage === 2 && wave === 1) ok(knives.length === 2, 'market keeps both knife fighters');
+    for (const knife of knives) {
+      knife.startMove(flurry);
+      const move = knife.currentMove;
+      const ctx = new Proxy({}, { get: () => () => {} });
+      ok(move.startup === (telegraphed ? 13 : 7) && move.recovery === (telegraphed ? 28 : 18), 'authored flurry has a stage-specific opening');
+      ok(move.active === flurry.active && move.damage === flurry.damage && move.multiHit.hits === 3, 'all three flurry hits are preserved');
+      ok(knife.maxHp === Math.round(GRUNTS.knife.hp * (1 + (stage - 1) * .12)), 'knife HP keeps the standard wave scale');
+      ok(Sprites.drawGruntAttackWarning(ctx, knife, 1) === telegraphed, 'the flurry shows its authored windup warning');
+      knife.moveFrame = move.startup + move.active - 1;
+      ok(!knife.eliteRecoveryOpen, 'the last active frame is not an opening');
+      knife.moveFrame++;
+      ok(Sprites.drawGruntRecoveryOpening(ctx, knife, 1) === telegraphed, 'OPEN appears after the final active frame');
+      knife.startMove(GRUNTS.knife.light);
+      ok(knife.currentMove.startup === GRUNTS.knife.light.startup && !knife.eliteRecoveryOpen, 'quick knife pokes keep their timing');
+    }
+  }
+}
+
+// Late elites expose authored strong attacks after the final active frame.
+{
+  const c = getCharacter('RYU');
+  for (const [stage, kind, move, bonus] of [
+    [4, 'soldier', GRUNTS.soldier.heavy, 12],
+    [4, 'bruiser', GRUNTS.bruiser.specials.primary, 14],
+    [5, 'bruiser', GRUNTS.bruiser.heavy, 12],
+    [5, 'thrower', GRUNTS.thrower.specials.primary, 12],
+  ]) {
+    const authored = new Stage1Scene({}, {}, c, c.superArts[0], stage);
+    authored.spawnBeltWave(2);
+    const foe = authored.world.enemies.find(e => e.character.id === GRUNTS[kind].id);
+    foe.startMove(move);
+    ok(foe.currentMove.recovery === move.recovery + bonus, `stage ${stage} ${move.label} adds recovery`);
+    ok(foe.currentMove.startup === move.startup && foe.currentMove.active === move.active
+      && foe.currentMove.damage === move.damage, 'attack timing and damage up to the recovery are unchanged');
+    ok(foe.maxHp === Math.round(GRUNTS[kind].hp * (1 + (stage - 1) * .12) * 1.65), 'elite HP stays unchanged');
+    const painted = [];
+    const ctx = new Proxy({}, { get: (_, key) => (...args) => painted.push([key, args]) });
+    foe.moveFrame = move.startup + move.active - 1;
+    ok(!foe.eliteRecoveryOpen && !Sprites.drawGruntRecoveryOpening(ctx, foe, 1), 'last active frame is still dangerous');
+    foe.moveFrame++;
+    ok(foe.eliteRecoveryOpen && Sprites.drawGruntRecoveryOpening(ctx, foe, 1), 'opening starts on the first recovery frame');
+    ok(painted.some(([key, args]) => key === 'fillText' && args[0] === 'OPEN'), 'recovery has a distinct on-screen cue');
+    foe.moveFrame += foe.currentMove.recovery;
+    ok(!foe.eliteRecoveryOpen && !Sprites.drawGruntRecoveryOpening(ctx, foe, 1), 'cue never outlives the recovery');
+    foe.startMove(GRUNTS[kind].light);
+    ok(foe.currentMove.recovery === GRUNTS[kind].light.recovery && !foe.eliteRecoveryOpen, 'light attack recovery stays unchanged');
+  }
+  for (const [stage, elite, recover, shouldOpen] of [[3, true, true, false], [4, false, true, false], [4, true, false, false], [4, true, true, true]]) {
+    const authored = new Stage1Scene({}, {}, c, c.superArts[0], stage);
+    const t = beltWorld([authored.gruntSpawn('soldier', 658, 495, elite)]);
+    const foe = t.w.enemies[0], heavy = GRUNTS.soldier.heavy;
+    foe.startMove(heavy);
+    foe.moveFrame = recover ? heavy.startup + heavy.active : 0;
+    const before = foe.hp;
+    t.tap('lp');
+    t.run(8);
+    const fullDamage = normalFor('lp', false, c.id).damage;
+    ok(shouldOpen ? foe.hp === before - fullDamage && foe.state === 'hit'
+      : t.events.some(e => e.label === 'ARMOR') && foe.state === 'attack', 'only a late elite strong recovery loses light armor');
+    t.close();
+  }
+}
+
+// An enemy on the same lane as a solid prop must be able to walk around it.
+{
+  const t = beltWorld([spawn('punk', 400)]);
+  t.w.addProp({ id: 'crate-route', label: 'CRATE', x: 500, y: 495, width: 70, depth: 60, hp: 9999, solid: true });
+  t.run(210);
+  const enemy = t.w.enemies[0];
+  ok(enemy.x > 500, `enemy must route around the solid crate (x=${enemy.x}, y=${enemy.y})`);
+  ok(t.P.hp < t.P.maxHp, 'enemy can resume attacking after the detour');
+  t.close();
 }
 
 // 3) Grunt AI fights with its own move set (thrower bottles, knife slashes) and hurts the player.
@@ -103,6 +247,25 @@ const freeze = (w) => () => { for (const e of w.enemies) e.aiCooldown = 9999; };
     report[`ai_${kind}`] = [...used].length;
     t.close();
   }
+}
+
+// A supporting bottle thrower attacks from a valid distant lane instead of walking first.
+for (const [distance, depthOffset, shouldThrow] of [[470, 0, true], [470, 90, false], [840, 0, false]]) {
+  const t = beltWorld([spawn('punk', 680), spawn('thrower', 600 + distance, 495 + depthOffset)]);
+  const [front, thrower] = t.w.enemies;
+  const x = thrower.x;
+  const holdFront = () => { front.aiCooldown = 9999; };
+  thrower.aiCooldown = 0;
+  t.step(holdFront);
+  ok(t.w.director.roleFor(thrower) === 'ranged', 'director grants the bottle thrower its support role');
+  if (shouldThrow) {
+    ok(thrower.currentMove?.id === 'GRUNT_THROWER_BOTTLE' && thrower.x === x, 'aligned thrower starts the windup before walking');
+    t.run(GRUNTS.thrower.specials.primary.startup, holdFront);
+    ok(t.w.projectiles.some(shot => shot.owner === thrower), 'windup releases a real bottle into the lane');
+  } else {
+    ok(!thrower.currentMove && thrower.x < x, 'out-of-range or misaligned thrower repositions before tossing');
+  }
+  t.close();
 }
 
 // 4) Walk-in grab: holding toward an enemy grabs it; attack = knees (3rd knocks down).
@@ -174,6 +337,47 @@ const freeze = (w) => () => { for (const e of w.enemies) e.aiCooldown = 9999; };
   u.close();
 }
 
+// A new grappler hold uses the same melee opening as other belt attacks.
+{
+  const t = beltWorld([spawn('bruiser', 662), spawn('punk', 930)]);
+  const [bruiser, committed] = t.w.enemies;
+  committed.startMove(GRUNTS.punk.heavy);
+  const keepPositions = () => {
+    bruiser.x = 662;
+    bruiser.y = 495;
+    for (const enemy of t.w.enemies) enemy.aiCooldown = 9999;
+  };
+  t.run(240, () => {
+    keepPositions();
+    committed.moveFrame = GRUNTS.punk.heavy.startup - 2;
+  });
+  ok(!t.w.belt.hold && t.w.belt.stats.enemyGrabs === 0, 'bruiser cannot start a hold through a committed melee slot');
+  committed.moveFrame = GRUNTS.punk.heavy.startup + GRUNTS.punk.heavy.active;
+  for (let frame = 0; frame < 120 && !t.w.belt.hold; frame += 1) t.step(keepPositions);
+  ok(t.w.belt.hold?.holder === bruiser && t.w.belt.stats.enemyGrabs === 1, 'bruiser can use the next free melee opening');
+  committed.interruptMove();
+  committed.state = 'idle';
+  t.step(() => {
+    keepPositions();
+    bruiser.hitStop = 1;
+    committed.x = t.P.x - 68;
+    committed.y = t.P.y;
+    committed.aiCooldown = 0;
+  });
+  ok(t.w.belt.hold?.holder === bruiser && !committed.currentMove, 'nearby grunt may not start a new attack on a held player');
+  const hp = t.P.hp;
+  committed.interruptMove();
+  committed.startMove(GRUNTS.punk.light);
+  committed.moveFrame = GRUNTS.punk.light.startup - 1;
+  committed.x = t.P.x - 68;
+  committed.y = t.P.y;
+  t.step(keepPositions);
+  ok(t.P.hp < hp, 'separate enemy hits the grabbed player');
+  ok(!t.w.belt.hold && !Belt.isHeldByGrab(t.P), 'outside hit releases the hold immediately');
+  ok(t.P.state === 'hit' && t.P.stateFrame < 0 && t.P.hitStop > 0, 'outside hit retains its reaction');
+  t.close();
+}
+
 // 8) Breakables drop items; food heals instead of attacking; coins score.
 {
   const quiet = { held: () => false, pressed: () => false }, audio = new Proxy({}, { get: () => () => {} }), c = getCharacter('RYU');
@@ -199,8 +403,73 @@ const freeze = (w) => () => { for (const e of w.enemies) e.aiCooldown = 9999; };
   ok(t.P.hp > 400 && t.w.belt.pickups.length === 0 && t.w.belt.stats.foodEaten === 1, 'chicken heals');
   ok(!t.P.currentMove, 'picking up does not throw an attack');
   const s0 = t.w.belt.score; const coin = t.w.belt.spawnPickup('coins', t.P.x, t.P.y); coin.z = 0; coin.vz = 0;
-  t.run(2, fz); t.tap('lp', fz);
-  ok(t.w.belt.score >= s0 + 1000, 'coins add score');
+  t.step(fz);
+  ok(t.w.belt.score === s0 + 1000 && t.w.belt.pickups.length === 0, 'grounded coin collects without an input');
+  t.step(fz);
+  ok(t.w.belt.score === s0 + 1000, 'collected coin scores only once');
+  t.close();
+}
+
+// An incidental pickup must not consume an attack or use food at full health.
+{
+  const t = beltWorld([spawn('punk', 1000)]);
+  const fz = freeze(t.w);
+  const food = t.w.belt.spawnPickup('chicken', t.P.x, t.P.y);
+  const coin = t.w.belt.spawnPickup('coins', t.P.x + 10, t.P.y);
+  food.z = food.vz = coin.z = coin.vz = 0;
+  t.P.hitStop = 1;
+  t.step(fz);
+  ok(t.w.belt.pickups.includes(coin), 'hitstop does not collect coins');
+  t.tap('lp', fz);
+  ok(t.P.currentMove?.id === '5LP', 'attack still starts over coins and full-health food');
+  ok(t.w.belt.score === 1000 && !t.w.belt.pickups.includes(coin), 'coin collects alongside the attack');
+  ok(t.w.belt.pickups.includes(food) && t.w.belt.stats.foodEaten === 0, 'full-health food is preserved');
+  t.close();
+}
+
+// Two items in range can share a horizontal position but occupy different lanes.
+for (const startWithWeapon of [false, true]) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  t.P.hp = 500;
+  const { belt } = t.w;
+  const spawnFood = () => belt.spawnPickup('apple', t.P.x + 8, t.P.y + 4);
+  const spawnWeapon = () => belt.spawnPickup('pipe', t.P.x + 1, t.P.y + 26, 3);
+  const [food, weapon] = startWithWeapon ? [spawnWeapon(), spawnFood()].reverse() : [spawnFood(), spawnWeapon()];
+  food.z = food.vz = weapon.z = weapon.vz = 0;
+  ok(belt.nearbyManualPickup(t.P) === food, 'Nearest usable item accounts for depth as well as horizontal distance');
+  t.tap('lp', freeze(t.w));
+  ok(t.P.hp === 660 && belt.score === 100 && belt.pickups.includes(weapon) && !heldWeaponOf(t.P),
+    'The indicated food is collected without swapping the weapon');
+  t.tap('lp', freeze(t.w));
+  ok(heldWeaponOf(t.P)?.durability === 3 && belt.pickups.length === 0, 'The remaining weapon stays available on the next press');
+  t.close();
+}
+
+// Actual touch attack ordering must respect the consumed pickup press.
+for (const [kind, button] of [['chicken', 'lp'], ['pipe', 'hk']]) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  t.P.hp = 400;
+  const item = t.w.belt.spawnPickup(kind, t.P.x, t.P.y);
+  item.z = item.vz = 0;
+  t.input.setTouch(button, true);
+  t.input.setTouch(button, false);
+  t.step(freeze(t.w));
+  ok(!t.w.belt.pickups.includes(item), `touch ${button} collects ${kind}`);
+  ok(!t.P.currentMove, `touch pickup must not start ${t.P.currentMove?.id}`);
+  ok(!t.P.buffer.latest().pressed.has(button), 'the consumed press is absent from combat history');
+  if (kind === 'pipe') ok(heldWeaponOf(t.P)?.kind === 'pipe', 'freshly picked up weapon must stay equipped');
+  t.close();
+}
+
+for (const [buttons, move] of [[['jump', 'lp'], /_AIR_LP$/], [['lp', 'lk'], /THROW/]]) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  const item = t.w.belt.spawnPickup('pipe', t.P.x, t.P.y);
+  item.z = item.vz = 0;
+  for (const button of buttons) t.input.setTouch(button, true);
+  for (const button of buttons) t.input.setTouch(button, false);
+  t.step(freeze(t.w));
+  assert.match(t.P.currentMove?.id ?? '', move, 'A deliberate combat chord takes priority over a pickup');
+  ok(t.w.belt.pickups.includes(item), 'The higher priority action leaves the item available');
   t.close();
 }
 
@@ -221,7 +490,7 @@ const freeze = (w) => () => { for (const e of w.enemies) e.aiCooldown = 9999; };
   const u = beltWorld([spawn('soldier', 700)]);
   u.w.belt.giveWeapon(u.P, 'sword');
   const smash = GRUNTS.soldier.heavy;
-  u.P.receiveHit(smash, u.w.enemies[0], false); u.w.belt.onPlayerHit(u.w, smash);
+  u.P.receiveHit(smash, u.w.enemies[0], false); u.w.belt.onPlayerHit(u.w, smash, u.w.enemies[0]);
   ok(!heldWeaponOf(u.P) && u.w.belt.pickups.some(p => p.kind === 'sword'), 'heavy hit knocks the weapon loose');
   u.close();
   const v = beltWorld([spawn('knife', 655, 495, 1)]);
@@ -261,6 +530,313 @@ const freeze = (w) => () => { for (const e of w.enemies) e.aiCooldown = 9999; };
   key('keyup', 'left'); input.destroy();
 }
 
+// A belt guard must not pin retreat for an unblockable or an attack in another lane.
+for (const side of [-1, 1]) for (const [test, laneOffset] of [['guardable', 0], ['off-lane', 60], ['body-press', 0], ['shield-charge', 0]]) {
+  const kind = test === 'shield-charge' ? 'soldier' : 'bruiser';
+  const t = beltWorld([spawn(kind, 600 + side * 90, 495 + laneOffset)]);
+  const enemy = t.w.enemy;
+  const move = test === 'body-press' ? GRUNTS.bruiser.specials.primary
+    : test === 'shield-charge' ? GRUNTS.soldier.specials.mobility : GRUNTS.bruiser.heavy;
+  enemy.facing = side === 1 ? -1 : 1;
+  enemy.startMove(move);
+  t.hold(side === 1 ? 'left' : 'right');
+  const x = t.P.x;
+  t.step(freeze(t.w));
+  if (test === 'guardable') ok(t.P.x === x && t.P.proximityGuarding, 'Same-lane guardable melee holds position');
+  else ok((t.P.x - x) * side < 0 && !t.P.proximityGuarding, test + ' must allow walking out');
+  t.close();
+}
+
+// A closer enemy on the opposite side must not choose the guard direction for a rear attack.
+for (const side of [-1, 1]) for (const [correct, fresh] of [[true, true], [true, false], [false, false]]) {
+  const t = beltWorld([spawn('punk', 600 + side * 62), spawn('bruiser', 600 - side * 74)]);
+  const attacker = t.w.enemies[1];
+  const move = GRUNTS.bruiser.light;
+  attacker.startMove(move);
+  attacker.moveFrame = move.startup - 1;
+  const x = t.P.x;
+  t.hold(side * (correct ? 1 : -1) > 0 ? 'right' : 'left');
+  if (!fresh) { t.input.prepareTick(); t.input.endTick(); }
+  t.step(freeze(t.w));
+  ok(t.P.facing === side && t.P.state === (correct ? 'block' : 'hit'), 'Rear melee uses the direction away from the attacker');
+  if (correct) ok(t.P.previousX === x && t.P.walkDirection === 0, 'Rear melee guard does not walk before contact');
+  else ok(!t.P.proximityGuarding && t.P.walkDirection === -side, 'Walking toward the rear attacker must not engage guard');
+  t.close();
+}
+
+// Holding a rear guard is stationary even when the input points toward a closer enemy.
+{
+  const t = beltWorld([spawn('punk', 538), spawn('bruiser', 674)]);
+  const attacker = t.w.enemies[1];
+  attacker.startMove(GRUNTS.bruiser.light);
+  t.hold('left');
+  t.run(GRUNTS.bruiser.light.startup, freeze(t.w));
+  ok(!t.w.belt.hold && t.P.state === 'block', 'A rear guard must reach contact without grabbing the closer opposite enemy');
+  t.close();
+}
+
+// Reapplying guard inside the double-tap window keeps the brace through contact.
+for (const side of [-1, 1]) for (const threatened of [true, false]) {
+  const t = beltWorld([spawn('punk', 600 + side * 62), spawn('bruiser', 600 - side * 74)]);
+  const away = side === 1 ? 'right' : 'left';
+  const attacker = t.w.enemies[1];
+  const move = GRUNTS.bruiser.light;
+  if (threatened) attacker.startMove(move);
+  t.hold(away); t.step(freeze(t.w));
+  t.release(away); t.step(freeze(t.w));
+  if (threatened) attacker.moveFrame = move.startup - 1;
+  t.hold(away); t.step(freeze(t.w));
+  if (threatened) {
+    ok(t.P.state === 'block' && t.P.dashFrames === 0 && t.P.walkDirection === 0, 'A double tap away from a current threat stays on guard');
+  } else {
+    ok(t.P.dashFrames > 0 && t.P.walkDirection === side, 'The same double tap still dashes without a threat');
+  }
+  t.close();
+}
+
+// Reversing into a valid guard brakes an approach dash before contact.
+for (const side of [-1, 1]) for (const threatened of [true, false]) {
+  const t = beltWorld([spawn('bruiser', 600 + side * 120)]);
+  const toward = side === 1 ? 'right' : 'left';
+  const away = side === 1 ? 'left' : 'right';
+  const pin = () => { t.w.enemy.x = t.w.enemy.previousX = 600 + side * 120; freeze(t.w)(); };
+  t.tap(toward, pin);
+  t.hold(toward); t.step(pin); t.release(toward);
+  ok(t.P.dashFrames === 8, 'Approach dash starts before the threat');
+  if (threatened) t.w.enemy.startMove(GRUNTS.bruiser.light);
+  const x = t.P.x;
+  t.hold(away); t.step(pin);
+  if (threatened) {
+    ok(t.P.x === x && t.P.dashFrames === 0 && t.P.state === 'idle' && t.P.proximityGuarding, 'Emergency guard brakes an approach dash immediately');
+  } else {
+    ok((t.P.x - x) * side > 0 && t.P.dashFrames === 7, 'The ordinary dash keeps its existing travel');
+  }
+  t.close();
+}
+
+// Nearby enemies may change during startup, but a committed kick keeps its direction.
+for (const side of [-1, 1]) {
+  const t = beltWorld([spawn('punk', 600 + side * 85), spawn('knife', 600 - side * 62, 555)]);
+  const [front, rear] = t.w.enemies;
+  t.w.defenseOverride = () => false;
+  let rearLane = 555;
+  const pin = () => {
+    freeze(t.w)();
+    front.x = front.previousX = 600 + side * 85;
+    rear.x = rear.previousX = 600 - side * 62;
+    rear.y = rear.previousY = rearLane;
+  };
+  t.hold('hk'); t.step(pin); t.release('hk');
+  const move = t.P.currentMove;
+  ok(move?.id === '5HK' && t.P.facing === side, 'Kick starts toward the initial target');
+  rearLane = 507;
+  pin();
+  ok(t.w.closestEnemyToPlayer() === rear, 'The opposite enemy is now the closest');
+  t.step(pin);
+  ok(t.P.facing === side, 'Nearest enemy change during startup does not turn the kick');
+  t.run(move.startup - 1, pin);
+  ok(t.P.facing === side && front.hp < front.maxHp && rear.hp === rear.maxHp, 'Kick lands in its original direction');
+  t.run(move.active + move.recovery + 20, pin);
+  ok(t.P.state === 'idle' && t.P.facing === -side, 'Automatic targeting resumes after recovery');
+  t.close();
+}
+
+// A fireball also travels in the direction chosen when its startup began.
+for (const side of [-1, 1]) {
+  const t = beltWorld([spawn('punk', 600 + side * 240), spawn('knife', 600 - side * 170)]);
+  const move = specialsFor('RYU').primary;
+  t.P.facing = side;
+  t.P.startMove(move);
+  t.run(move.startup, freeze(t.w));
+  ok(t.w.projectiles.some(shot => shot.owner === t.P && Math.sign(shot.vx) === side), 'Fireball launches toward its committed side');
+  t.close();
+}
+
+// A near enemy outside the attack lane must not pull the aim off a reachable one.
+for (const side of [-1, 1]) for (const reachable of [true, false]) {
+  const distance = reachable ? 114 : 190;
+  const t = beltWorld([spawn('punk', 600 + side * distance), spawn('knife', 600 - side, 575)]);
+  const [aligned, offLane] = t.w.enemies;
+  t.w.defenseOverride = () => false;
+  const pin = () => {
+    freeze(t.w)();
+    aligned.x = aligned.previousX = 600 + side * distance;
+    aligned.hitStop = 1;
+    offLane.x = offLane.previousX = 600 - side;
+    offLane.y = offLane.previousY = 575;
+  };
+  t.hold('hk'); t.step(pin); t.release('hk');
+  ok(t.P.facing === (reachable ? side : -side), 'Aim prefers a reachable same-lane enemy and otherwise keeps the distance fallback');
+  if (reachable) {
+    t.run(t.P.currentMove.startup, pin);
+    ok(aligned.hp < aligned.maxHp && offLane.hp === offLane.maxHp, 'Aim puts the kick into the reachable lane');
+  }
+  t.close();
+}
+
+// A brief jump press in the final recovery frames launches on the first free frame.
+for (const framesLeft of [4, 5]) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  const move = normalFor('hk', false, 'RYU');
+  const end = move.startup + move.active + move.recovery;
+  t.P.startMove(move);
+  t.P.moveFrame = end - framesLeft;
+  t.hold('jump'); t.step(freeze(t.w)); t.release('jump');
+  ok(t.P.state === 'attack' && !t.P.airborne, 'The input cannot skip recovery');
+  t.run(framesLeft - 1, freeze(t.w));
+  ok(t.P.state === 'idle' && !t.P.airborne, 'The final recovery tick is still grounded');
+  t.step(freeze(t.w));
+  ok(t.P.airborne === (framesLeft === 4), 'Only a late jump press survives recovery');
+  t.close();
+}
+
+// A fresh action or lost focus invalidates a remembered recovery jump.
+for (const next of ['attack', 'blur']) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  const move = normalFor('hk', false, 'RYU');
+  t.P.startMove(move);
+  t.P.moveFrame = move.startup + move.active + move.recovery - 1;
+  t.hold('jump'); t.step(freeze(t.w)); t.release('jump');
+  if (next === 'attack') t.hold('lp');
+  else window.dispatchEvent(new Event('blur'));
+  t.step(freeze(t.w));
+  ok(!t.P.airborne && (next === 'attack' ? t.P.currentMove?.id === '5LP' : t.P.state === 'idle'), 'Recovery jump yields to a fresh action or loses focus');
+  t.close();
+}
+
+// A direction tapped just before recovery ends is a single step on the first free tick.
+for (const [framesLeft, heldRight] of [[4, false], [4, true], [5, false]]) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  const move = normalFor('hk', false, 'RYU');
+  t.P.startMove(move);
+  t.P.moveFrame = move.startup + move.active + move.recovery - framesLeft;
+  const x = t.P.x, y = t.P.y;
+  t.hold('right'); t.hold('down'); t.step(freeze(t.w));
+  t.release('down');
+  if (!heldRight) t.release('right');
+  t.run(framesLeft - 1, freeze(t.w));
+  ok(t.P.x === x && t.P.y === y, 'A recovery direction does not move before recovery ends');
+  t.step(freeze(t.w));
+  ok((t.P.x > x) === (framesLeft === 4) && (t.P.y > y) === (framesLeft === 4), 'Late direction is one step and merges with a held axis');
+  const steppedX = t.P.x, steppedY = t.P.y;
+  t.step(freeze(t.w));
+  ok(t.P.y === steppedY && (heldRight ? t.P.x > steppedX : t.P.x === steppedX), 'Released axes stop after one step');
+  t.close();
+}
+
+// Recovery movement must not replace a jump that belongs to the same window.
+for (const [first, second] of [['down', 'jump'], ['jump', 'down']]) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  const move = normalFor('hk', false, 'RYU');
+  t.P.startMove(move);
+  t.P.moveFrame = move.startup + move.active + move.recovery - 4;
+  t.tap(first, freeze(t.w)); t.tap(second, freeze(t.w));
+  const y = t.P.y;
+  t.step(freeze(t.w));
+  ok(t.P.airborne && t.P.y === y, 'Recovery jump owns the first free tick over a remembered step');
+  t.close();
+}
+
+// A basic attack tapped just before recovery ends starts on the first free tick.
+for (const [framesLeft, fresh] of [[4, false], [5, false], [4, true]]) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  const move = normalFor('hk', false, 'RYU');
+  t.P.startMove(move);
+  t.P.moveFrame = move.startup + move.active + move.recovery - framesLeft;
+  t.hold('lp'); t.step(freeze(t.w)); t.release('lp');
+  ok(t.P.currentMove === move, 'A remembered jab does not cancel kick recovery');
+  t.run(framesLeft - 1, freeze(t.w));
+  ok(t.P.state === 'idle', 'The last recovery frame finishes before another move starts');
+  if (fresh) t.hold('mp');
+  t.step(freeze(t.w));
+  const expected = fresh ? '5MP' : framesLeft === 4 ? '5LP' : undefined;
+  ok(t.P.currentMove?.id === expected, 'A late jab executes once and yields to a fresh attack');
+  if (fresh) t.release('mp');
+  t.run(35, freeze(t.w));
+  ok(t.P.state === 'idle', 'A remembered attack does not repeat without new input');
+  t.close();
+}
+
+// An attack tapped late in recovery can claim a nearby reward on the first free tick.
+for (const [kind, rewardWindow] of [['apple', true], ['pipe', true], ['apple', false]]) {
+  const t = beltWorld([spawn('punk', 1000)]);
+  const move = normalFor('hk', false, 'RYU');
+  t.P.hp = 400;
+  const item = t.w.belt.spawnPickup(kind, t.P.x, t.P.y);
+  item.z = item.vz = 0;
+  t.P.startMove(move);
+  t.P.moveFrame = move.startup + move.active + move.recovery - 1;
+  t.hold('lp'); t.step(freeze(t.w), rewardWindow); t.release('lp');
+  t.step(freeze(t.w), rewardWindow);
+  if (rewardWindow) {
+    ok(!t.P.currentMove && !t.w.belt.pickups.includes(item), 'The nearby reward owns the buffered input');
+    ok(kind === 'apple' ? t.P.hp > 400 : heldWeaponOf(t.P)?.kind === 'pipe', 'The reward is applied once without starting an attack');
+  } else {
+    ok(t.P.currentMove?.id === '5LP' && t.w.belt.pickups.includes(item), 'The same timing in combat starts a jab');
+  }
+  t.close();
+}
+
+// A guardable attack may call for a ground guard without locking air movement.
+for (const side of [-1, 1]) for (const threat of ['melee', 'bottle']) {
+  const t = beltWorld([spawn(threat === 'melee' ? 'bruiser' : 'thrower', 600 + side * 135)]);
+  const enemy = t.w.enemy;
+  enemy.facing = side === 1 ? -1 : 1;
+  t.P.state = 'jump'; t.P.airborne = true; t.P.jumpHeight = 90; t.P.jumpVelocity = 3;
+  if (threat === 'melee') enemy.startMove(GRUNTS.bruiser.heavy);
+  else {
+    t.w.spawnScriptedProjectile(enemy, GRUNTS.thrower.specials.primary);
+    t.w.projectiles[0].y = t.P.y - 88 - t.P.jumpHeight * .9;
+  }
+  const x = t.P.x;
+  t.hold(side === 1 ? 'left' : 'right');
+  t.step(freeze(t.w));
+  ok(t.P.airborne && (t.P.x - x) * side < 0 && !t.P.proximityGuarding, threat + ' must not stop air retreat');
+  if (threat === 'melee') {
+    const landingX = t.P.x;
+    t.P.jumpHeight = 1; t.P.jumpVelocity = -3;
+    t.step(freeze(t.w));
+    ok(!t.P.airborne && t.P.x === landingX && t.P.proximityGuarding, 'The landing tick can guard on the ground');
+  }
+  t.close();
+}
+
+// Both a fresh press and a held guard use the incoming bottle's direction.
+for (const side of [-1, 1]) for (const correct of [true, false]) for (const freshPress of [true, false]) {
+  const t = beltWorld([spawn('punk', 600 + side * 100), spawn('thrower', 600 - side * 370)]);
+  const thrower = t.w.enemies[1];
+  thrower.facing = side;
+  t.w.spawnScriptedProjectile(thrower, GRUNTS.thrower.specials.primary);
+  t.w.projectiles[0].x = t.P.x - side * 35;
+  const x = t.P.x;
+  t.hold(side * (correct ? 1 : -1) > 0 ? 'right' : 'left');
+  if (!freshPress) {
+    t.input.prepareTick();
+    t.input.endTick();
+  }
+  t.step(freeze(t.w));
+  ok(t.P.state === (correct ? 'block' : 'hit'), 'rear bottle tests the direction away from the incoming shot');
+  if (correct) ok(t.P.previousX === x && t.P.walkDirection === 0, 'rear bottle guard does not walk forward before impact');
+  t.close();
+}
+
+// An off-lane bottle shouldn't stop walking, even within the horizontal guard range.
+for (const side of [-1, 1]) {
+  const t = beltWorld([spawn('punk', 600 + side * 134), spawn('thrower', 600 - side * 170, 425)]);
+  const thrower = t.w.enemies[1];
+  thrower.facing = side;
+  t.w.spawnScriptedProjectile(thrower, GRUNTS.thrower.specials.primary);
+  const x = t.P.x;
+  t.hold(side > 0 ? 'right' : 'left');
+  t.step(freeze(t.w));
+  ok((t.P.x - x) * side > 0 && !t.P.proximityGuarding, 'an off-lane bottle leaves horizontal movement available');
+  t.run(24, freeze(t.w));
+  const bottle = t.w.projectiles[0];
+  ok(bottle && Math.abs(bottle.x - t.P.x) <= bottle.radius + 34 && t.P.hp === t.P.maxHp
+    && !t.events.some(event => event.type === 'block'), 'the bottle can overlap horizontally without making contact');
+  t.close();
+}
+
 // 12) Rendering: grunt atlas frames per pose, pickups, held weapon and item projectiles; read-only.
 {
   const calls = []; const ctx = new Proxy({ globalAlpha: 1 }, { get: (o, k) => k in o ? o[k] : (...args) => calls.push([k, args]), set: (o, k, v) => { o[k] = v; return true; } });
@@ -283,6 +859,32 @@ const freeze = (w) => () => { for (const e of w.enemies) e.aiCooldown = 9999; };
   ok(Sprites.drawItemProjectile(ctx, { move: { id: 'GRUNT_THROWER_BOTTLE' }, x: 1, y: 1, vx: 3 }, 1) && calls.some(([k, a]) => k === 'drawImage' && a[1] === 6 * 320), 'bottle projectile sprite');
   calls.length = 0;
   ok(Sprites.drawGruntPortrait(ctx, e.character, 0, 0, 34, '#fff'), 'grunt HUD portrait');
+  t.close();
+}
+
+// Strong attacks warn during startup only. The cue follows the displayed body.
+{
+  const calls = [];
+  const ctx = new Proxy({}, { get: (_, key) => (...args) => calls.push([key, args]) });
+  const t = beltWorld([spawn('bruiser', 700), spawn('thrower', 780)]);
+  for (const [index, def] of [GRUNTS.bruiser, GRUNTS.thrower].entries()) {
+    const fighter = t.w.enemies[index];
+    const move = def.specials.primary;
+    fighter.startMove(move);
+    fighter.moveFrame = move.startup - 1;
+    fighter.previousX = fighter.x - 20;
+    const before = JSON.stringify(fighter);
+    ok(Sprites.drawGruntAttackWarning(ctx, fighter, .5), `${def.kind} shows a startup cue`);
+    ok(calls.at(-1)[0] === 'restore', 'cue restores canvas state');
+    ok(calls.filter(([key]) => key === 'translate').at(-1)[1][0] === fighter.x - 10, 'cue interpolates with fighter');
+    ok(JSON.stringify(fighter) === before, 'cue leaves combat state untouched');
+    fighter.moveFrame = move.startup;
+    ok(!Sprites.drawGruntAttackWarning(ctx, fighter, 1), 'cue disappears on first active frame');
+    fighter.startMove(def.light);
+    ok(!Sprites.drawGruntAttackWarning(ctx, fighter, 1), 'light attacks do not add visual noise');
+  }
+  t.P.startMove(normalFor('hp', false, t.P.character.id));
+  ok(!Sprites.drawGruntAttackWarning(ctx, t.P, 1), 'player attack has no enemy cue');
   t.close();
 }
 

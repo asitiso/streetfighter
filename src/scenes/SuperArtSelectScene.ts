@@ -7,14 +7,17 @@ import { artImage, characterPortraitKey, preloadArtAssets } from '../render/Imag
 import { characterTextureManager } from '../render/CharacterTextureManager.js';
 
 const SUPER_CARD = { x: 600, y: 152, width: 615, height: 130, step: 160 };
+const COMPACT_SUPER_CARD = { ...SUPER_CARD, y: 146, height: 124, step: 136 };
 
 export class SuperArtSelectScene implements Scene {
+  readonly frontendTheme = 'select';
   private selected = 0;
   private tapArmed = false;
   private time = 0;
   private themeRequest = 0;
   private transitioning = false;
   private errorMessage = '';
+  private cardLayout = SUPER_CARD;
 
   constructor(
     private readonly input: InputManager,
@@ -43,7 +46,11 @@ export class SuperArtSelectScene implements Scene {
       if (themeRequest === this.themeRequest) this.audio.startFrontendTheme?.('select');
     }).catch(() => undefined);
   }
-  exit(): void { this.onSelectionModeChange?.(false); this.themeRequest += 1; this.audio.stopFrontendTheme?.(); }
+  exit(next?: Scene): void {
+    this.onSelectionModeChange?.(false);
+    this.themeRequest += 1;
+    if (next?.frontendTheme !== this.frontendTheme) this.audio.stopFrontendTheme?.();
+  }
   resize(_width: number, _height: number): void {}
   destroy(): void { this.onSelectionModeChange?.(false); this.themeRequest += 1; }
 
@@ -66,10 +73,11 @@ export class SuperArtSelectScene implements Scene {
   }
 
   pointerTap(x: number, y: number): void {
-    if (this.transitioning || x < SUPER_CARD.x || x >= SUPER_CARD.x + SUPER_CARD.width) return;
+    const card = this.cardLayout;
+    if (this.transitioning || x < card.x || x >= card.x + card.width) return;
     for (let i = 0; i < 3; i += 1) {
-      const top = SUPER_CARD.y + i * SUPER_CARD.step;
-      if (y < top || y >= top + SUPER_CARD.height) continue;
+      const top = card.y + i * card.step;
+      if (y < top || y >= top + card.height) continue;
       if (i === this.selected && this.tapArmed) this.confirmSelection(this.character.superArts[i]!);
       else { this.selected = i; this.tapArmed = true; this.errorMessage = ''; this.audio.playMenuMove(); }
       return;
@@ -95,7 +103,8 @@ export class SuperArtSelectScene implements Scene {
     catch (error) { failed(error); }
   }
 
-  render({ ctx, width, height }: RenderContext): void {
+  render({ ctx, width, height, compactTouchControls = false }: RenderContext): void {
+    this.cardLayout = compactTouchControls ? COMPACT_SUPER_CARD : SUPER_CARD;
     ctx.save();
     ctx.scale(width / 1280, height / 720);
     this.drawBackground(ctx);
@@ -159,14 +168,15 @@ export class SuperArtSelectScene implements Scene {
     ctx.fillStyle = '#fff'; ctx.font = '900 32px Arial Black, sans-serif'; ctx.fillText('SUPER ART SELECT', 610, 86);
     ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.font = '600 12px Arial, sans-serif'; ctx.fillText('GAUGE LENGTH AND STOCK COUNT CHANGE YOUR BATTLE PLAN', 612, 108);
 
+    const card = this.cardLayout;
     for (let i = 0; i < 3; i += 1) {
       const art = this.character.superArts[i]!;
-      const y = SUPER_CARD.y + i * SUPER_CARD.step;
+      const y = card.y + i * card.step;
       const active = i === this.selected;
       ctx.fillStyle = active ? 'rgba(255,255,255,.105)' : 'rgba(255,255,255,.035)';
       ctx.strokeStyle = active ? this.character.accent : 'rgba(255,255,255,.09)';
       ctx.lineWidth = active ? 4 : 2;
-      ctx.beginPath(); ctx.roundRect(SUPER_CARD.x, y, SUPER_CARD.width, SUPER_CARD.height, 18); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(card.x, y, card.width, card.height, 18); ctx.fill(); ctx.stroke();
       ctx.fillStyle = active ? this.character.accent : 'rgba(255,255,255,.32)';
       ctx.font = '900 30px Impact, Arial Black, sans-serif'; ctx.fillText(`SA ${['I', 'II', 'III'][i]}`, 626, y + 43);
       ctx.fillStyle = '#f6f1e8'; ctx.font = '900 24px Arial Black, sans-serif'; ctx.fillText(art.name, 730, y + 42);

@@ -370,10 +370,15 @@ function sequenceImageHeight(image: HTMLImageElement | ImageBitmap): number {
 }
 
 const LITE_RISING_RECOVERY_KINDS = new Set(['shoryuken', 'tensei-ranka', 'rocket-uppercut', 'stun-gun-headbutt', 'abare-tosanami', 'you-hou']);
+const liteQuickAttackFallback = new WeakMap<Fighter, { moveId: string; startFrame: number }>();
+const LITE_MOVEMENT_KINDS = new Set(['idle', 'jump', 'landing', 'dash', 'dash-back', 'crouch', 'walk', 'walk-back', 'victory']);
+const liteMovementFallback = new WeakMap<Fighter, { kind: string; motionFrame: number }>();
 
 function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number, time: number, override?: AnimationSequenceSample, showShadow = true, groundedPresentation = false): boolean {
   const hd = characterTextureManager.wantsHd();
   const liteCinematicKo = !hd && groundedPresentation && override?.sequence.kind === 'ko' ? override : null;
+  const liteDefenseOverride = !hd && (override?.sequence.kind === 'guard'
+    || override?.sequence.kind === 'crouch-guard' || override?.sequence.kind === 'crouch-parry') ? override : null;
   const liteThrow = !hd && !override && !groundedPresentation
     ? throwVictimSample(fighter) ?? throwAttackerSample(fighter) : null;
   const liteSuperHit = !hd && !override && !groundedPresentation ? superHitSample(fighter) : null;
@@ -391,21 +396,60 @@ function drawHighFrameSequenceSprite(ctx: CanvasRenderingContext2D, fighter: Fig
   const liteAirReaction = !hd && !override && !groundedPresentation
     && (((fighter.state === 'knockdown' || fighter.state === 'hit') && fighter.hp > 0)
       || (fighter.state === 'ko' && fighter.hp <= 0)) ? airFallSample(fighter) : null;
-  const liteBody = liteCinematicKo ?? liteThrow ?? liteSuperHit ?? liteBounce
+  const liteBody = liteCinematicKo ?? liteDefenseOverride ?? liteThrow ?? liteSuperHit ?? liteBounce
     ?? (liteEscape?.sequence.kind === 'throw-escape' ? liteEscape : null)
     ?? (liteDefense?.sequence.kind === 'guard' || liteDefense?.sequence.kind === 'parry' ? liteDefense : null) ?? liteAirReaction
     ?? (liteGroundReaction?.sequence.kind === 'knockdown' || liteGroundReaction?.sequence.kind === 'hit'
       || liteGroundReaction?.sequence.kind === 'ko' ? liteGroundReaction : null);
-  const recovery = !liteBody && fighter.state !== 'attack';
-  if (!hd && !liteBody && (fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0
-    || fighter.currentMove?.kind === 'throw' || fighter.currentMove?.level === 'throw')) return false;
+  const move = fighter.currentMove;
+  const normalThrow = !move?.superCost && (move?.kind === 'throw' || move?.level === 'throw');
+  const liteMovementBlocked = !hd && !liteBody && (fighter.throwSyncFrames > 0 || fighter.superVictimFrames > 0 || normalThrow);
+  const liteLocomotion = !hd && !liteBody && !override && !groundedPresentation && !liteMovementBlocked;
+  const inJump = fighter.state === 'jump' && fighter.airborne;
+  if (liteLocomotion && inJump && fighter.jumpVelocity < 0 && !fighter.visualRecoveryMoveId) {
+    const landing = animationSequenceFor(fighter.character.id, 'landing', true);
+    if (landing?.liteAsset) liteAnimationTextureManager.selection(landing);
+  }
+  const inGroundMove = !fighter.airborne && (fighter.state === 'crouch' || fighter.state === 'walk'
+    || ((fighter.state === 'idle' || fighter.state === 'victory') && fighter.hp > 0));
+  const movement = liteLocomotion && (inJump || inGroundMove) ? animationSequenceSample(fighter, time) : null;
+  const movementKind = movement?.sequence.kind;
+  const liteMovement = movement?.sequence.liteAsset && LITE_MOVEMENT_KINDS.has(movement.sequence.kind) ? movement : null;
+  const movementFallback = liteMovementFallback.get(fighter);
+  if ((movementFallback?.kind === 'crouch' || movementFallback?.kind === 'idle') && movementFallback.kind !== movementKind) {
+    liteMovementFallback.delete(fighter);
+  }
+  if (liteMovementBlocked) return false;
+  const recovery = !liteBody && !liteMovement && fighter.state !== 'attack';
   if (!hd && recovery && (!fighter.visualRecoveryMoveId || !(fighter.state === 'jump'
     || (!fighter.airborne && fighter.landingFrames > 0 && (fighter.state === 'idle' || fighter.state === 'walk'))))) return false;
-  let sample = liteBody ?? override ?? animationSequenceSample(fighter, time) ?? airFallSample(fighter) ?? superHitSample(fighter) ?? wallBounceSample(fighter) ?? groundBounceSample(fighter) ?? throwVictimSample(fighter) ?? releasedThrowSample(fighter) ?? throwAttackerSample(fighter);
+  let sample = liteBody ?? liteMovement ?? override ?? animationSequenceSample(fighter, time) ?? airFallSample(fighter) ?? superHitSample(fighter) ?? wallBounceSample(fighter) ?? groundBounceSample(fighter) ?? throwVictimSample(fighter) ?? releasedThrowSample(fighter) ?? throwAttackerSample(fighter);
   if (!sample) return false;
   if (!hd && recovery && !LITE_RISING_RECOVERY_KINDS.has(sample.sequence.kind)) return false;
-  // Reuse only an already prepared attack strip; landing never starts new work.
+  const moveId = fighter.currentMove?.id;
+  const quickAttack = !hd && !override && fighter.state === 'attack' && (moveId === '5LP' || moveId === '5LK');
+  const startFrame = fighter.animationFrame - fighter.moveFrame;
+  if (quickAttack) {
+    const fallback = liteQuickAttackFallback.get(fighter);
+    if (fallback?.moveId === moveId && fallback.startFrame === startFrame) return false;
+  }
+  // Held crouches and idles have no fixed duration.
+  const idle = movementKind === 'idle';
+  const victory = movementKind === 'victory';
+  const walking = movementKind === 'walk' || movementKind === 'walk-back';
+  const elapsed = walking ? fighter.walkAnimationFrame ?? fighter.stateFrame : fighter.stateFrame;
+  const motionFrame = idle || movementKind === 'crouch' ? 0 : fighter.animationFrame + (inJump || walking || victory ? -elapsed
+    : movementKind === 'landing' ? fighter.landingFrames : fighter.dashFrames);
+  // Idle can join at the next loop start; victory can also join on its final held pose.
+  const canJoin = (idle || victory) && (sample.frame === 0 || (victory && sample.frame === sample.sequence.frameCount - 1));
+  if (liteMovement && movementFallback && movementFallback.kind === movementKind && movementFallback.motionFrame === motionFrame
+    && !canJoin) return false;
+  // Rising attack recovery reuses its prepared attack strip without queuing new work.
   let texture = hd ? animationTextureManager.selection(sample.sequence) : liteAnimationTextureManager.selection(sample.sequence, recovery);
+  // A late decode is useful to the next attack; changing art during this one causes a visible pop.
+  if (quickAttack && !texture) liteQuickAttackFallback.set(fighter, { moveId, startFrame });
+  if (liteMovement && !texture) liteMovementFallback.set(fighter, { kind: liteMovement.sequence.kind, motionFrame });
+  else if (canJoin && movementFallback?.kind === movementKind) liteMovementFallback.delete(fighter);
   // Prepare only this body's grounded recovery, through the same bounded queue.
   if ((liteAirReaction && (fighter.state === 'knockdown' || fighter.state === 'ko')) || (liteThrow?.sequence.kind === 'throw-victim' && fighter.state === 'knockdown' && fighter.hp > 0
     && !fighter.airborne && fighter.jumpHeight <= 0 && fighter.superVictimFrames <= 0)) {
@@ -541,24 +585,34 @@ function drawAuthoredCrouchSprite(ctx: CanvasRenderingContext2D, fighter: Fighte
   const guarding = fighter.state === 'block';
   const parrying = fighter.state === 'parry';
   const defensive = guarding || parrying;
+  const hd = characterTextureManager.wantsHd();
   const recovery = crouchAttackRecoveryBlend(fighter);
   const blend = defensive ? defenseCrouchBlend(fighter) : recovery > 0 ? recovery : neutralCrouchBlend(fighter);
-  if (blend <= 0 || !characterTextureManager.wantsHd()) return false;
+  if (blend <= 0) return false;
+  if (!hd && (!defensive || fighter.hp <= 0 || fighter.jumpHeight > 0 || fighter.throwSyncFrames > 0
+    || fighter.superVictimFrames > 0 || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0)) return false;
   const sample = animationSequenceSample(fighter, time);
   if (!sample || (recovery > 0 ? !sample.sequence.kind.startsWith('crouch-')
     : sample.sequence.kind !== (guarding ? 'guard' : parrying ? 'parry' : 'crouch'))) return false;
   const sequence = animationSequenceFor(fighter.character.id, parrying ? 'crouch-parry' : 'crouch-guard');
   if (!sequence) return false;
-  const texture = animationTextureManager.selection(sequence);
-  if (!texture || texture.image.naturalWidth !== sequence.frameWidth * sequence.frameCount
-    || texture.image.naturalHeight !== sequence.frameHeight) return false;
-  // A supplemental strip must never hide the established fallback while loading.
-  if (blend < 1 && !animationTextureManager.selection(sample.sequence)) return false;
   const lowSample = {
     ...sample, sequence, frame: defensive
       ? Math.min(sequence.frameCount - 1, Math.floor(sample.progress * sequence.frameCount))
       : sequence.frameCount - 1,
   };
+  if (!hd) {
+    if (blend < 1) {
+      liteAnimationTextureManager.selection(sequence);
+      return false;
+    }
+    return drawHighFrameSequenceSprite(ctx, fighter, x, y, time, lowSample);
+  }
+  const texture = animationTextureManager.selection(sequence);
+  if (!texture || texture.image.naturalWidth !== sequence.frameWidth * sequence.frameCount
+    || texture.image.naturalHeight !== sequence.frameHeight) return false;
+  // A supplemental strip must never hide the established fallback while loading.
+  if (blend < 1 && !animationTextureManager.selection(sample.sequence)) return false;
   if (blend >= 1) return drawHighFrameSequenceSprite(ctx, fighter, x, y, time, lowSample);
   return drawBlendedSequenceSprite(ctx, fighter, x, y, time, sample, lowSample, blend);
 }
@@ -896,7 +950,7 @@ function drawAssetCombatSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, 
   return true;
 }
 
-export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighter, alpha: number, time: number): void {
+export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighter, alpha: number, time: number, guardReady = false): void {
   if (!characterTextureManager.wantsHd()) releasePoseBlendCanvas();
   // Every body route, including loaded fallback sprites, shares the freeze clock.
   time = fighter.animationFrame / 60;
@@ -910,6 +964,14 @@ export function drawCombatFighter(ctx: CanvasRenderingContext2D, fighter: Fighte
     ctx.rotate(transition.rotation);
     ctx.scale(transition.scaleX, transition.scaleY);
     ctx.translate(-x, -y);
+  }
+  if (guardReady) {
+    // Hold the brace pose until a hit starts the normal block animation.
+    const sequence = animationSequenceFor(fighter.character.id, 'guard');
+    if (sequence && drawHighFrameSequenceSprite(ctx, fighter, x, y, time, { sequence, frame: 0, progress: 0, contact: false })) {
+      ctx.restore();
+      return;
+    }
   }
   if (drawGruntSprite(ctx, fighter, x, y)) { ctx.restore(); return; }
   if (drawAuthoredThrowVictimHandoffSprite(ctx, fighter, x, y, time)) { ctx.restore(); return; }

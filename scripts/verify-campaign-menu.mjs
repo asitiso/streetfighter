@@ -1,9 +1,7 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { join } from 'node:path';
 import { TitleScene } from '../dist/assets/scenes/TitleScene.js';
 import { StageSelectScene } from '../dist/assets/scenes/StageSelectScene.js';
 import { GameApp } from '../dist/assets/core/GameApp.js';
+import { getCharacter } from '../dist/assets/game/characters.js';
 
 class StubInput {
   constructor() { this.keys = new Set(); }
@@ -60,8 +58,6 @@ const backScene = new StageSelectScene(backInput, audio, 3, () => {}, () => { ba
 backInput.set('back'); backScene.fixedUpdate(1 / 60);
 if (!backed) fail('stage select back action missing');
 
-const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
-const appSource = readFileSync(join(distRoot, 'assets/core/GameApp.js'), 'utf8');
 let wiredSelection; let replayArguments; let backCalls = 0;
 const fighter = { character: { id: 'KEN' }, art: { id: 2 } };
 const wiredApp = {
@@ -80,7 +76,27 @@ const backResult = wiredSelection.back(4);
 if (typeof backResult?.then !== 'function') fail('stage back must return title Promise');
 await backResult;
 if (backCalls !== 1) fail('stage back must dispatch title once');
-if (!appSource.includes('replay ? this.showStageSelect()')) fail('replay clear does not return to stage select');
-if (!appSource.includes('if (!replay)')) fail('replay mode still mutates campaign progression');
+const replayCharacter = getCharacter('RYU');
+for (const stage of [1, 2, 3, 4, 5]) {
+  let replayScene;
+  const calls = [];
+  const app = {
+    input: stageInput, audio,
+    save: { stageSelectUnlocked: true, currentStage: 5, completedStages: [1, 2, 3, 4, 5], stageResults: [] },
+    persist: async () => { fail('replay start changed campaign progression: ' + stage); },
+    loadStageModule: async (_group, load) => load(),
+    enterLoadedScene: async (create) => { replayScene = create(); },
+    withStageRouteRecovery: async (route) => route(),
+    recordStageResult: async (result) => { calls.push(['score', result.stageId]); },
+    showStageSelect: async (selected) => { calls.push(['select', selected]); },
+  };
+  const args = stage === 1 ? [replayCharacter, replayCharacter.superArts[0], false, true]
+    : [replayCharacter, replayCharacter.superArts[0], true];
+  await GameApp.prototype[stage === 1 ? 'startStage' : 'startStage' + stage].call(app, ...args);
+  await replayScene.onClear(replayScene.stageResult());
+  if (JSON.stringify(calls) !== JSON.stringify([['score', stage], ['select', stage]])) {
+    fail('replay should record the result and return to the same stage selection: ' + stage);
+  }
+}
 
-console.log('CAMPAIGN_MENU_VERIFY_PASS', { titleAction: chosen, pauseInputSeparated: true, selectedStage, stageConfirmCount, back: backed, isolatedReplay: true, menuMoves: audio.moves });
+console.log('CAMPAIGN_MENU_VERIFY_PASS', { titleAction: chosen, pauseInputSeparated: true, selectedStage, stageConfirmCount, back: backed, isolatedReplay: true, replayStages: 5, menuMoves: audio.moves });

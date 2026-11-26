@@ -62,11 +62,11 @@ scene.introFrames = 0;
 scene.prepareDuel(); scene.phase = 'duel'; scene.bossPatternCooldown = 0; scene.bossPatternIndex = 0;
 scene.updateUrienPattern();
 assert.equal(scene.world.enemy.currentMove?.id, 'URIEN_SUPER', 'scripted Aegis should drive Urien animation state');
-assert.equal(scene.world.enemy.moveEffectTriggered, true, 'scripted Aegis must not double-spawn through normal projectile emitter');
+assert.equal(scene.world.enemy.moveEffectTriggered, false, 'scripted Aegis waits for the active cast animation');
 scene.prepareFinalDuel(); scene.phase = 'final-duel'; scene.gillPhase = 3; scene.bossPatternCooldown = 0; scene.bossPatternIndex = 0;
 scene.updateGillPattern();
 assert.equal(scene.world.enemy.currentMove?.id, 'GILL_SUPER', 'scripted Gill volley should drive boss animation state');
-assert.equal(scene.world.enemy.moveEffectTriggered, true, 'scripted Gill volley must not double-spawn');
+assert.equal(scene.world.enemy.moveEffectTriggered, false, 'scripted Gill volley waits for the active cast animation');
 
 console.log('V019_SYNC_POLISH_VERIFY_PASS', {
   hitZones: ['head','torso','leg','launch','throw'],

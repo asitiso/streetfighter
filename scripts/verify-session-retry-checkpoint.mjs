@@ -13,4 +13,42 @@ for(const route of ['stage-1','stage-2','stage-3','stage-4','stage-5','ending'])
 }
 {const{recovery,seed}=store('stage-3');const consumed=recovery.consumeRecovery();recovery.restoreRecovery(consumed);consumed.character='RYU';assert.deepEqual(recovery.snapshot().checkpoint,seed);const view=recovery.snapshot().checkpoint;view.stage=1;assert.equal(recovery.snapshot().checkpoint.stage,3);recovery.restoreRecovery({...seed,stage:4});assert.equal(recovery.snapshot().checkpoint.stage,3,'Do not overwrite an available recovery');cases++;}
 {const{recovery}=store('stage-2');recovery.consumeRecovery();let titles=0;await GameApp.prototype.recoverInterruptedSession.call({recovery,showTitle:async()=>titles++});assert.equal(titles,1);cases++;}
-console.log(JSON.stringify({passed:true,cases,retryFailureCases:18,cloneAndAvailableControl:1,emptyControl:1}));
+{
+  const { recovery } = store('stage-3');
+  recovery.checkpoint('ending', 5, 'KEN', 2);
+  recovery.deferEnding();
+  recovery.checkpoint('title', null, null, null);
+  const pending = recovery.consumeRecovery();
+  assert.equal(pending.route, 'ending', 'The pending ending takes precedence over an older interrupted stage');
+  assert.equal(new SessionRecoveryStore('test').begin().available, false, 'Leaving recovery for another route clears the persisted ending');
+  recovery.restoreRecovery(pending);
+  assert.equal(new SessionRecoveryStore('test').begin().checkpoint.route, 'ending', 'A failed attempt can restore the durable ending');
+  assert.equal(new SessionRecoveryStore('next-build').begin().available, false, 'A foreign build does not resume the old checkpoint');
+  cases++;
+}
+let committedStageControls = 0;
+for (const stage of [1,2,3,4,5]) {
+ const next = Math.min(stage+1,5), route = stage === 5 ? 'ending' : 'stage-'+next;
+ const complete = {
+  currentStage:next, completedStages:Array.from({length:stage}, (_,index)=>index+1),
+  selectedCharacter:'KEN', selectedSuperArt:2, hasCampaignStarted:stage<5, stageSelectUnlocked:stage===5,
+  stageResults:[{stageId:stage}],
+ };
+ const { recovery } = store('stage-'+stage);
+ recovery.reconcileCampaign(complete);
+ assert.equal(recovery.snapshot().checkpoint.route, route);
+ assert.equal(recovery.snapshot().checkpoint.stage, next);
+ assert.equal(recovery.snapshot().checkpoint.character, 'KEN');
+ assert.equal(recovery.snapshot().checkpoint.superArt, 2);
+ if(stage===5) assert.equal(new SessionRecoveryStore('test').begin().checkpoint.route, 'ending');
+
+ for(const save of [{...complete,stageResults:[]},{...complete,selectedCharacter:'RYU'},
+  {...complete,selectedSuperArt:1},{...complete,completedStages:complete.completedStages.slice(0,-1)},
+  stage===5?{...complete,hasCampaignStarted:true}:{...complete,currentStage:stage}]){
+  const { recovery:unchanged,seed } = store('stage-'+stage);
+  unchanged.reconcileCampaign(save);
+  assert.deepEqual(unchanged.snapshot().checkpoint, seed);
+ }
+ committedStageControls++;
+}
+console.log(JSON.stringify({passed:true,cases,retryFailureCases:18,cloneAndAvailableControl:1,emptyControl:1,pendingEndingControl:1,committedStageControls}));

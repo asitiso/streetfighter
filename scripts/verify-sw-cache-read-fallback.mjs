@@ -52,5 +52,47 @@ assert.equal(await r.response.text(),'fresh');
 assert.equal(r.fetches,1);
 cases++;
 }
-console.log(JSON.stringify({passed:true,cases,networkControls:18,offlineControls:10,rollbackControls:2}));
+const handlers = new Map();
+const existing = origin + '/existing.webp';
+const missing = origin + '/missing.webp';
+const stored = new Map([[existing, new Response('cached')]]);
+const requests = [];
+let matchFails = false;
+let openFails = false;
+const caches = {
+  open: async cacheName => {
+    assert.equal(cacheName, name);
+    if (openFails) throw Error('cache unavailable');
+    return {
+      match: async url => {
+        if (matchFails) throw Error('read unavailable');
+        return stored.get(url);
+      },
+      put: async (url, response) => { stored.set(url, response); },
+    };
+  },
+};
+runInNewContext(source, {
+  URL, Response, caches,
+  fetch: async url => { requests.push(url); return new Response('fetched'); },
+  self: { location: { origin }, addEventListener: (type, handler) => handlers.set(type, handler) },
+});
+const warm = urls => {
+  let completion;
+  handlers.get('message')({ data: { type: 'CACHE_URLS', urls }, waitUntil: promise => { completion = promise; } });
+  return completion;
+};
+await warm([existing, missing, missing]);
+assert.deepEqual(requests, [missing], 'Only unique missing files need network fetches');
+assert.equal(await stored.get(existing).text(), 'cached');
+assert.equal(await stored.get(missing).text(), 'fetched');
+await warm([existing, missing]);
+assert.deepEqual(requests, [missing], 'A repeated warm request uses current cache entries');
+matchFails = true;
+await warm([existing]);
+assert.deepEqual(requests, [missing, existing], 'A read failure can repopulate a cache that still accepts writes');
+openFails = true;
+await warm([missing]);
+assert.deepEqual(requests, [missing, existing], 'An unavailable cache needs no warming downloads');
+console.log(JSON.stringify({passed:true,cases,networkControls:18,offlineControls:10,rollbackControls:2,warmCacheControls:4}));
 

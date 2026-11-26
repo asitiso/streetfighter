@@ -1,7 +1,7 @@
 import type { AudioManager } from '../core/AudioManager.js';
 import type { RenderContext, Scene } from '../core/Scene.js';
 import type { InputManager } from '../input/InputManager.js';
-import type { StageResult } from '../game/StageResult.js';
+import type { StageResult, StageScoreRecord } from '../game/StageResult.js';
 import { campaignTotals, formatClearTime } from '../game/StageResult.js';
 
 const STAGE_NAMES = ['NEW YORK', 'HONG KONG', 'JAPAN', 'LONDON', 'SECRET SOCIETY'] as const;
@@ -22,6 +22,7 @@ export class ResultsScene implements Scene {
     initialPage: 0 | 1 = 0,
     private initialFailed = false,
     private readonly onControlsChange?: (recordsMode: boolean) => void,
+    private readonly scores: Readonly<Partial<Record<StageResult['stageId'], StageScoreRecord>>> = {},
   ) { this.page = initialPage; }
 
   enter(): void {
@@ -60,7 +61,7 @@ export class ResultsScene implements Scene {
     }
   }
 
-  render({ ctx, width, height }: RenderContext): void {
+  render({ ctx, width, height, compactTouchControls = false }: RenderContext): void {
     ctx.save(); ctx.scale(width / 1280, height / 720);
     const bg = ctx.createLinearGradient(0, 0, 0, 720);
     bg.addColorStop(0, '#161b29'); bg.addColorStop(.45, '#251b28'); bg.addColorStop(1, '#080b11');
@@ -71,47 +72,61 @@ export class ResultsScene implements Scene {
     ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0, 510, 1280, 210);
     ctx.textAlign = 'center'; ctx.fillStyle = '#e7c568'; ctx.font = '900 14px Arial Black, sans-serif'; ctx.fillText('CAMPAIGN ARCHIVE', 640, 72);
     ctx.fillStyle = '#fff'; ctx.font = '900 56px Impact, Arial Black, sans-serif'; ctx.fillText(this.page === 0 ? 'BATTLE RECORD' : 'CAMPAIGN TOTALS', 640, 132);
-    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillText('← → CHANGE PAGE   •   ENTER / ESC / START / LP / LK RETURN', 640, 160);
+    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillText(compactTouchControls ? '← → CHANGE PAGE  •  START: RETURN' : '← → CHANGE PAGE   •   ENTER / ESC / START / LP / LK RETURN', 640, 160);
 
-    if (this.page === 0) this.drawStageTable(ctx);
+    if (this.page === 0) this.drawStageTable(ctx, compactTouchControls);
     else this.drawTotals(ctx);
 
     const dotX = 620;
     for (let i = 0; i < 2; i += 1) { ctx.fillStyle = i === this.page ? '#e7c568' : 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.arc(dotX + i * 40, 560, 6, 0, Math.PI * 2); ctx.fill(); }
     if (this.returnError) {
       ctx.textAlign = 'center'; ctx.fillStyle = '#ff9b9b'; ctx.font = '800 14px Arial, sans-serif';
-      ctx.fillText(this.returnError, 640, 590);
+      ctx.fillText(this.returnError, 640, compactTouchControls ? 185 : 590);
     }
     ctx.restore();
   }
 
-  private drawStageTable(ctx: CanvasRenderingContext2D): void {
+  private drawStageTable(ctx: CanvasRenderingContext2D, compactTouchControls: boolean): void {
     const rows = [...this.results].sort((a, b) => a.stageId - b.stageId);
-    const headers = ['STAGE', 'TIME', 'DEFEATED', 'DAMAGE', 'TAKEN', 'MAX COMBO', 'PARRY', 'SUPER'];
-    const xs = [115, 305, 405, 530, 650, 790, 980, 1100];
-    ctx.textAlign = 'left'; ctx.font = '900 10px Arial Black, sans-serif'; ctx.fillStyle = 'rgba(231,197,104,.82)';
-    headers.forEach((header, i) => ctx.fillText(header, xs[i]!, 222));
+    const headers = ['STAGE', 'TIME', 'DEFEATED', 'DAMAGE', 'TAKEN', 'MAX COMBO', 'PARRY', 'SUPER', 'LAST SCORE', 'BEST SCORE'];
+    const xs = [115, 300, 373, 470, 565, 655, 800, 896, 976, 1076];
+    ctx.textAlign = 'left'; ctx.font = compactTouchControls ? '900 17px Arial, sans-serif' : '900 12px Arial Black, sans-serif';
+    ctx.fillStyle = 'rgba(231,197,104,.9)';
+    headers.forEach((header, i) => ctx.fillText(header, xs[i]!, 222, (xs[i + 1] ?? 1175) - xs[i]! - 10));
     ctx.fillStyle = 'rgba(231,197,104,.45)'; ctx.fillRect(105, 238, 1070, 2);
     for (let index = 0; index < 5; index += 1) {
       const stageId = (index + 1) as 1 | 2 | 3 | 4 | 5;
       const result = rows.find((row) => row.stageId === stageId);
+      const score = this.scores[stageId];
       const y = 280 + index * 58;
       ctx.fillStyle = index % 2 === 0 ? 'rgba(255,255,255,.045)' : 'rgba(255,255,255,.025)'; ctx.beginPath(); ctx.roundRect(100, y - 30, 1080, 44, 8); ctx.fill();
-      ctx.fillStyle = result ? '#f4efe6' : 'rgba(255,255,255,.24)'; ctx.font = '800 12px Arial, sans-serif';
-      ctx.fillText(`${stageId}. ${STAGE_NAMES[index]}`, xs[0]!, y);
-      if (!result) { ctx.fillText('—', xs[1]!, y); continue; }
-      ctx.font = '800 11px ui-monospace, monospace';
-      ctx.fillText(formatClearTime(result.clearSeconds), xs[1]!, y);
-      ctx.fillText(String(result.defeatedEnemies), xs[2]!, y);
-      ctx.fillText(String(result.damageDealt), xs[3]!, y);
-      ctx.fillText(String(result.damageTaken), xs[4]!, y);
-      ctx.fillText(`${result.maxComboHits}H / ${result.maxComboDamage}`, xs[5]!, y);
-      ctx.fillText(result.redParries > 0 ? `${result.parries} (${result.redParries}R)` : String(result.parries), xs[6]!, y);
-      ctx.fillText(String(result.supersUsed), xs[7]!, y);
+      ctx.fillStyle = result || score ? '#f4efe6' : 'rgba(255,255,255,.36)';
+      ctx.font = compactTouchControls ? '800 19px Arial, sans-serif' : '800 14px Arial, sans-serif';
+      ctx.fillText(`${stageId}. ${STAGE_NAMES[index]}`, xs[0]!, y, xs[1]! - xs[0]! - 10);
+      ctx.font = compactTouchControls ? '800 19px ui-monospace, monospace' : '800 13px ui-monospace, monospace';
+      if (result) {
+        ctx.fillText(formatClearTime(result.clearSeconds), xs[1]!, y);
+        ctx.fillText(String(result.defeatedEnemies), xs[2]!, y);
+        ctx.fillText(String(result.damageDealt), xs[3]!, y, xs[4]! - xs[3]! - 10);
+        ctx.fillText(String(result.damageTaken), xs[4]!, y, xs[5]! - xs[4]! - 10);
+        ctx.fillText(`${result.maxComboHits}H / ${result.maxComboDamage}`, xs[5]!, y, xs[6]! - xs[5]! - 10);
+        ctx.fillText(result.redParries > 0 ? `${result.parries} (${result.redParries}R)` : String(result.parries), xs[6]!, y, xs[7]! - xs[6]! - 10);
+        ctx.fillText(String(result.supersUsed), xs[7]!, y);
+      } else {
+        ctx.fillText('—', xs[1]!, y);
+      }
+      const latest = score?.latest ?? result?.beltScore;
+      ctx.fillText(String(latest ?? '—'), xs[8]!, y, 90);
+      ctx.fillText(String(score?.best ?? latest ?? '—'), xs[9]!, y, 89);
     }
   }
 
   private drawTotals(ctx: CanvasRenderingContext2D): void {
+    if (!this.results.length) {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#f3eee5'; ctx.font = '900 22px Arial, sans-serif';
+      ctx.fillText('NO COMBAT TOTALS YET', 640, 346);
+      return;
+    }
     const total = campaignTotals(this.results);
     const cards = [
       ['CLEAR TIME', formatClearTime(total.clearSeconds)], ['FIGHTERS DEFEATED', String(total.defeatedEnemies)],

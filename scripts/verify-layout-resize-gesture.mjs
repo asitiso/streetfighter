@@ -21,10 +21,46 @@ function setup(){
 function pointer(node,type,id,x=100,y=100){const e=new Event(type,{cancelable:true});Object.defineProperties(e,{currentTarget:{value:node},pointerId:{value:id},clientX:{value:x},clientY:{value:y}});node.dispatchEvent(e);}
 let gestureCases=0,heldControls=0,gameplayCases=0;
 for(const group of['stick','buttons'])for(const moved of[false,true])for(const size of[[1024,720],[1280,600],[640,360]])for(const end of['pointerup','pointercancel','lostpointercapture'])for(const second of[false,true]){
- const t=setup(),node=group==='stick'?t.dpad:t.fight;let previews=0,commits=0;t.touch.setEditMode(true,()=>previews++,()=>commits++);pointer(node,'pointerdown',11,100,100);if(moved)pointer(window,'pointermove',11,116,92);if(second)pointer(node,'pointerdown',22,200,200);const before=t.touch.getSettings(),count=previews;
- window.innerWidth=size[0];window.innerHeight=size[1];window.dispatchEvent(new Event('resize'));assert.equal(t.touch.drag,null,'Resize invalidates old screen-coordinate gesture');assert(t.touch.editing);assert.deepEqual(t.touch.getSettings(),before,'Resize must preserve latest desired settings');assert.equal(commits,0,'Resize alone cannot write layout');
- pointer(window,'pointermove',11,360,260);pointer(window,'pointermove',22,360,260);pointer(end==='lostpointercapture'?node:window,end,11);pointer(node,'lostpointercapture',22);assert.equal(previews,count);assert.equal(commits,0);assert.deepEqual(t.touch.getSettings(),before,'Late pre-resize pointer cannot change layout');
- pointer(node,'pointerdown',33,200,200);assert.equal(t.touch.drag.pointerId,33);pointer(window,'pointermove',33,204,196);pointer(window,'pointerup',11);assert.equal(t.touch.drag.pointerId,33);pointer(window,'pointerup',33);assert.equal(commits,1);assert.equal(previews,count+1);t.input.destroy();gestureCases++;
+ const t = setup();
+ const node = group === 'stick' ? t.dpad : t.fight;
+ t.touch.setSettings({stickX: 60, stickY: 42, buttonsX: 56, buttonsY: 35});
+ const original = t.touch.getSettings();
+ const previews = [];
+ let commits = 0;
+ t.touch.setEditMode(true, settings => previews.push(settings), () => commits++);
+ pointer(node, 'pointerdown', 11, 100, 100);
+ if (moved) pointer(window, 'pointermove', 11, 116, 92);
+ if (second) pointer(node, 'pointerdown', 22, 200, 200);
+ assert.equal(previews.length, Number(moved));
+
+ [window.innerWidth, window.innerHeight] = size;
+ window.dispatchEvent(new Event('resize'));
+ assert.equal(t.touch.drag, null, 'Resize invalidates the old gesture');
+ assert(t.touch.editing);
+ assert.deepEqual(t.touch.getSettings(), original, 'Resize restores the settings from before the drag');
+ if (moved) assert.deepEqual(previews[1], original, 'Options receives the restored preview');
+ const previewCount = 2 * Number(moved);
+ assert.equal(previews.length, previewCount);
+ assert.equal(commits, 0, 'Resize alone cannot write layout');
+
+ pointer(window, 'pointermove', 11, 360, 260);
+ pointer(window, 'pointermove', 22, 360, 260);
+ pointer(end === 'lostpointercapture' ? node : window, end, 11);
+ pointer(node, 'lostpointercapture', 22);
+ assert.equal(previews.length, previewCount);
+ assert.equal(commits, 0);
+ assert.deepEqual(t.touch.getSettings(), original, 'Late pre-resize events cannot change layout');
+
+ pointer(node, 'pointerdown', 33, 200, 200);
+ assert.equal(t.touch.drag.pointerId, 33);
+ pointer(window, 'pointermove', 33, 204, 196);
+ pointer(window, 'pointerup', 11);
+ assert.equal(t.touch.drag.pointerId, 33);
+ pointer(window, 'pointerup', 33);
+ assert.equal(commits, 1);
+ assert.equal(previews.length, previewCount + 1);
+ t.input.destroy();
+ gestureCases++;
 }
 for(const a of['left','right','up','down','up left','up right','down left','down right','lp','mp','hp','lk','mk','hk','jump','start'])for(const size of[[1024,720],[640,360]]){
  const t=setup();if(a.includes(' ')||['left','right','up','down'].includes(a)){document.hit=t.nodes.get(a);pointer(t.dpad,'pointerdown',11);}else pointer(t.nodes.get(a),'pointerdown',11);t.input.endTick();const held=actions.filter(k=>t.input.touchHeld(k)),epoch=t.input.historyEpoch;

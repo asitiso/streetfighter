@@ -1,6 +1,6 @@
 import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
-import { normalFor, THROW_MOVE } from '../dist/assets/combat/MoveLibrary.js';
+import { normalFor, specialMovesFor, THROW_MOVE } from '../dist/assets/combat/MoveLibrary.js';
 
 class StubInput {
   heldSet = new Set();
@@ -25,6 +25,48 @@ directorWorld.replaceEnemies([
 directorWorld.update(input, 1);
 const activeAttackers = directorWorld.director.activeAttackers(directorWorld.enemies);
 if (activeAttackers < 1 || activeAttackers > 2) fail(`director attack slots invalid: ${activeAttackers}`);
+
+const pressureWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'belt');
+pressureWorld.player.x = 600;
+pressureWorld.player.y = 500;
+pressureWorld.replaceEnemies([
+  { character: getCharacter('KEN'), x: 680, y: 500 },
+  { character: getCharacter('ALEX'), x: 750, y: 500 },
+  { character: getCharacter('DUDLEY'), x: 800, y: 500 },
+]);
+const [nearby, committed, other] = pressureWorld.enemies;
+const windup = normalFor('hp', false, committed.character.id);
+committed.startMove(windup);
+committed.aiCooldown = 60;
+for (const frame of [0, windup.startup, windup.startup + windup.active - 1]) {
+  committed.moveFrame = frame;
+  committed.hitStop = frame === 0 ? 3 : 0;
+  const directives = pressureWorld.director.update(pressureWorld.player, pressureWorld.enemies, pressureWorld.rules);
+  if (directives.get(nearby.uid).attackAllowed || directives.get(other.uid).attackAllowed) fail('new melee start while the small wave slot is committed');
+}
+committed.moveFrame = windup.startup + windup.active;
+const recoveryDirectives = pressureWorld.director.update(pressureWorld.player, pressureWorld.enemies, pressureWorld.rules);
+if (!recoveryDirectives.get(nearby.uid).attackAllowed) fail('first recovery frame must release the attack slot');
+
+const mixedWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'belt');
+mixedWorld.player.x = 600;
+mixedWorld.player.y = 500;
+mixedWorld.replaceEnemies([
+  { character: getCharacter('RYU'), archetype: 'ranged', x: 960, y: 500 },
+  { character: getCharacter('ALEX'), x: 680, y: 500 },
+  { character: getCharacter('DUDLEY'), x: 725, y: 500 },
+  { character: getCharacter('KEN'), archetype: 'ranged', x: 1100, y: 500 },
+]);
+const [thrower, brawler] = mixedWorld.enemies;
+const projectile = specialMovesFor(thrower.character.id).primary;
+if (!projectile.projectile) fail('test requires a ranged special');
+thrower.startMove(projectile);
+brawler.startMove(normalFor('hp', false, brawler.character.id));
+let mixed = mixedWorld.director.update(mixedWorld.player, mixedWorld.enemies, mixedWorld.rules);
+if ([...mixed.values()].some(d => d.attackAllowed || d.rangedAllowed)) fail('already committed melee and projectile fill the total attack budget');
+thrower.hp = 0;
+mixed = mixedWorld.director.update(mixedWorld.player, mixedWorld.enemies, mixedWorld.rules);
+if (mixed.has(thrower.uid) || ![...mixed.values()].some(d => d.rangedAllowed)) fail('KO releases the ranged opening without releasing the melee slot');
 
 const multiWorld = new CombatWorld(getCharacter('RYU'), getCharacter('KEN'), 'belt');
 multiWorld.player.x = 500; multiWorld.player.y = 500;

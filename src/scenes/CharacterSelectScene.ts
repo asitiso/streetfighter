@@ -9,6 +9,7 @@ import { characterTextureManager } from '../render/CharacterTextureManager.js';
 const FIGHTER_CARD = { x: 52, y: 180, width: 154, height: 182, gapX: 14, gapY: 16 };
 
 export class CharacterSelectScene implements Scene {
+  readonly frontendTheme = 'select';
   private index = 0;
   private tapArmed = false;
   private time = 0;
@@ -43,7 +44,11 @@ export class CharacterSelectScene implements Scene {
       if (themeRequest === this.themeRequest) this.audio.startFrontendTheme?.('select');
     }).catch(() => undefined);
   }
-  exit(): void { this.onSelectionModeChange?.(false); this.themeRequest += 1; this.audio.stopFrontendTheme?.(); }
+  exit(next?: Scene): void {
+    this.onSelectionModeChange?.(false);
+    this.themeRequest += 1;
+    if (next?.frontendTheme !== this.frontendTheme) this.audio.stopFrontendTheme?.();
+  }
   resize(_width: number, _height: number): void {}
   destroy(): void { this.onSelectionModeChange?.(false); this.themeRequest += 1; }
 
@@ -103,14 +108,14 @@ export class CharacterSelectScene implements Scene {
     catch (error) { failed(error); }
   }
 
-  render({ ctx, width, height }: RenderContext): void {
+  render({ ctx, width, height, compactTouchControls = false }: RenderContext): void {
     ctx.save();
     ctx.scale(width / 1280, height / 720);
     this.drawBackground(ctx);
     this.drawStageLights(ctx);
-    this.drawHeader(ctx);
+    this.drawHeader(ctx, compactTouchControls);
     this.drawGrid(ctx);
-    this.drawSelected(ctx, CHARACTERS[this.index]!);
+    this.drawSelected(ctx, CHARACTERS[this.index]!, compactTouchControls);
     if (this.errorMessage) {
       ctx.textAlign = 'right';
       ctx.fillStyle = '#ff9b9b';
@@ -160,7 +165,7 @@ export class CharacterSelectScene implements Scene {
     ctx.restore();
   }
 
-  private drawHeader(ctx: CanvasRenderingContext2D): void {
+  private drawHeader(ctx: CanvasRenderingContext2D, compact: boolean): void {
     ctx.textAlign = 'left';
     ctx.fillStyle = '#f1c052';
     ctx.font = '900 18px Arial Black, sans-serif';
@@ -170,7 +175,7 @@ export class CharacterSelectScene implements Scene {
     ctx.fillText('CHARACTER SELECT', 52, 101);
     ctx.fillStyle = 'rgba(232,236,244,.62)';
     ctx.font = '600 13px Arial, sans-serif';
-    ctx.fillText('8 PLAYABLE FIGHTERS • BELT ACTION + DUEL READY', 54, 126);
+    ctx.fillText(compact ? 'TAP A FIGHTER • CONFIRM TO CONTINUE' : '8 PLAYABLE FIGHTERS • BELT ACTION + DUEL READY', 54, 126);
   }
 
   private drawPortraitCover(ctx: CanvasRenderingContext2D, image: CanvasImageSource, x: number, y: number, width: number, height: number, focusY = .28): void {
@@ -241,14 +246,16 @@ export class CharacterSelectScene implements Scene {
     }
   }
 
-  private drawSelected(ctx: CanvasRenderingContext2D, character: CharacterDef): void {
+  private drawSelected(ctx: CanvasRenderingContext2D, character: CharacterDef, compact: boolean): void {
     const panelX = 770;
+    const footerInset = compact ? 112 : 0;
+    const portraitHeight = 360 - footerInset;
     ctx.fillStyle = 'rgba(6,8,13,.5)';
-    ctx.beginPath(); ctx.roundRect(panelX, 132, 458, 530, 24); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(panelX, 132, 458, 530 - footerInset, 24); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 2; ctx.stroke();
 
     ctx.save();
-    ctx.beginPath(); ctx.roundRect(panelX + 18, 150, 422, 360, 18); ctx.clip();
+    ctx.beginPath(); ctx.roundRect(panelX + 18, 150, 422, portraitHeight, 18); ctx.clip();
     const glow = ctx.createRadialGradient(1000, 330, 30, 1000, 330, 260);
     glow.addColorStop(0, `${character.accent}55`);
     glow.addColorStop(1, 'rgba(0,0,0,0)');
@@ -256,38 +263,39 @@ export class CharacterSelectScene implements Scene {
     const portrait = characterPortraitKey(character.id);
     const portraitImage = portrait ? artImage(portrait) : null;
     if (portraitImage) {
-      this.drawPortraitCover(ctx, portraitImage, panelX + 18, 150, 422, 360, .09);
-      const veil = ctx.createLinearGradient(panelX + 18, 150, panelX + 18, 510);
+      this.drawPortraitCover(ctx, portraitImage, panelX + 18, 150, 422, portraitHeight, .09);
+      const veil = ctx.createLinearGradient(panelX + 18, 150, panelX + 18, 150 + portraitHeight);
       veil.addColorStop(0, 'rgba(0,0,0,.02)');
       veil.addColorStop(.6, 'rgba(5,8,14,.1)');
       veil.addColorStop(1, 'rgba(5,8,14,.52)');
       ctx.fillStyle = veil;
-      ctx.fillRect(panelX + 18, 150, 422, 360);
+      ctx.fillRect(panelX + 18, 150, 422, portraitHeight);
     } else {
-      drawCharacterPreview(ctx, character, 1004, 525, 1.75, -1, this.time + this.index * .19);
+      drawCharacterPreview(ctx, character, 1004, 525 - footerInset, compact ? 1.45 : 1.75, -1, this.time + this.index * .19);
     }
     ctx.restore();
 
     ctx.fillStyle = '#f4efe6';
     ctx.textAlign = 'left';
     ctx.font = '900 52px Impact, Arial Black, sans-serif';
-    ctx.fillText(character.name, panelX + 28, 565);
+    ctx.fillText(character.name, panelX + 28, 565 - footerInset);
     ctx.fillStyle = character.accent;
     ctx.font = '800 14px Arial Black, sans-serif';
-    ctx.fillText(`${character.country}  •  ${character.style}`, panelX + 30, 592);
+    ctx.fillText(`${character.country}  •  ${character.style}`, panelX + 30, 592 - footerInset);
     const previewPose = characterPreviewPose(this.time + this.index * .19);
     const poseLabel = previewPose === 'signature' ? 'SIGNATURE ATTACK' : previewPose.toUpperCase();
     ctx.fillStyle = 'rgba(255,255,255,.55)';
     ctx.font = '900 9px Arial Black, sans-serif';
-    ctx.fillText(`LIVE MOVE PREVIEW • ${poseLabel}`, panelX + 30, 609);
-    ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.beginPath(); ctx.roundRect(panelX + 270, 568, 145, 30, 15); ctx.fill();
+    ctx.fillText(`LIVE MOVE PREVIEW • ${poseLabel}`, panelX + 30, 609 - footerInset);
+    const badgeY = 568 - footerInset - (compact ? 20 : 0);
+    ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.beginPath(); ctx.roundRect(panelX + 270, badgeY, 145, 30, 15); ctx.fill();
     ctx.textAlign = 'center'; ctx.fillStyle = character.accent; ctx.font = '900 10px Arial Black, sans-serif';
-    ctx.fillText(character.power > 1.05 ? 'POWER FIGHTER' : character.speed > 1.08 ? 'SPEED FIGHTER' : character.reach > 1.08 ? 'FOOTSIE FIGHTER' : 'ALL-ROUNDER', panelX + 342, 588);
+    ctx.fillText(character.power > 1.05 ? 'POWER FIGHTER' : character.speed > 1.08 ? 'SPEED FIGHTER' : character.reach > 1.08 ? 'FOOTSIE FIGHTER' : 'ALL-ROUNDER', panelX + 342, badgeY + 20);
     ctx.textAlign = 'left';
 
     const stats = [['SPD', character.speed], ['PWR', character.power], ['RCH', character.reach]] as const;
     stats.forEach(([label, value], index) => {
-      const y = 630 + index * 17;
+      const y = 630 - footerInset + index * (compact ? 15 : 17);
       ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.font = '800 10px Arial, sans-serif'; ctx.fillText(label, panelX + 30, y);
       ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fillRect(panelX + 70, y - 8, 120, 7);
       ctx.fillStyle = character.accent; ctx.fillRect(panelX + 70, y - 8, Math.min(120, 96 * value), 7);
@@ -296,6 +304,7 @@ export class CharacterSelectScene implements Scene {
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(255,255,255,.72)';
     ctx.font = '800 13px Arial, sans-serif';
-    ctx.textAlign = 'left'; ctx.fillText('TAP / ARROWS: SELECT • TAP AGAIN / CONFIRM: READY', 54, 594);
+    ctx.textAlign = 'left';
+    if (!compact) ctx.fillText('TAP / ARROWS: SELECT • TAP AGAIN / CONFIRM: READY', 54, 594);
   }
 }

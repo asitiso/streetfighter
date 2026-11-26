@@ -1,4 +1,4 @@
-import type { StageResult } from '../game/StageResult.js';
+import type { StageResult, StageScoreRecord } from '../game/StageResult.js';
 import { AI_DIFFICULTY_SETTINGS, type AiDifficultySetting } from '../combat/AiDifficulty.js';
 
 function aiDifficultyValue(value: unknown, issues: string[]): AiDifficultySetting {
@@ -35,6 +35,26 @@ export interface GameSave {
   touchButtonsY: number;
   hasCampaignStarted: boolean;
   stageResults: StageResult[];
+  stageScoreRecords?: Partial<Record<StageResult['stageId'], StageScoreRecord>>;
+}
+
+export function campaignStagePatch(save: GameSave | null | undefined, stage: number): Pick<GameSave, 'currentStage' | 'completedStages' | 'hasCampaignStarted'> | undefined {
+  const previousStages = save?.completedStages ?? [];
+  const earlierStages = Array.from({ length: stage - 1 }, (_, index) => index + 1);
+  const completedStages = Array.from(new Set([...previousStages, ...earlierStages]));
+  if (save?.currentStage === stage && save.hasCampaignStarted && completedStages.length === previousStages.length) {
+    return undefined;
+  }
+  return { currentStage: stage, completedStages, hasCampaignStarted: true };
+}
+
+export function campaignCompletionPatch(save: GameSave | null | undefined): Pick<GameSave, 'currentStage' | 'completedStages' | 'hasCampaignStarted' | 'stageSelectUnlocked'> | undefined {
+  const previousStages = save?.completedStages ?? [];
+  const completedStages = Array.from(new Set([...previousStages, 1, 2, 3, 4, 5]));
+  if (save?.currentStage === 5 && !save.hasCampaignStarted && save.stageSelectUnlocked && completedStages.length === previousStages.length) {
+    return undefined;
+  }
+  return { currentStage: 5, completedStages, hasCampaignStarted: false, stageSelectUnlocked: true };
 }
 
 export interface SaveHealth {
@@ -97,6 +117,7 @@ function sanitizeStageResult(value: unknown): StageResult | null {
   };
   return {
     stageId: stageId as 1 | 2 | 3 | 4 | 5,
+    ...(item.beltScore === undefined ? {} : { beltScore: Math.round(number('beltScore', 9_999_999)) }),
     clearSeconds: number('clearSeconds', 24 * 60 * 60),
     defeatedEnemies: number('defeatedEnemies', 10_000),
     damageDealt: number('damageDealt'),
@@ -108,6 +129,38 @@ function sanitizeStageResult(value: unknown): StageResult | null {
     supersUsed: number('supersUsed', 100_000),
     throwsLanded: number('throwsLanded', 100_000),
   };
+}
+
+export function savedStageScore(save: GameSave | null | undefined, stageId: StageResult['stageId']): StageScoreRecord | undefined {
+  const stored = save?.stageScoreRecords?.[stageId];
+  if (stored) return stored;
+  const score = save?.stageResults.find(result => result.stageId === stageId)?.beltScore;
+  return score === undefined ? undefined : { latest: score, best: score };
+}
+
+function stageScoresWithLegacy(save: GameSave): NonNullable<GameSave['stageScoreRecords']> {
+  const scores = { ...save.stageScoreRecords };
+  for (const { stageId, beltScore } of save.stageResults) {
+    if (beltScore !== undefined && !scores[stageId]) scores[stageId] = { latest: beltScore, best: beltScore };
+  }
+  return scores;
+}
+
+function sanitizeStageScores(raw: unknown, issues: string[]): GameSave['stageScoreRecords'] {
+  if (raw === undefined) return undefined;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) { issues.push('STAGE SCORES'); return undefined; }
+  const result: NonNullable<GameSave['stageScoreRecords']> = {};
+  const isScore = (value: unknown): value is number => typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 9_999_999;
+  for (const [key, value] of Object.entries(raw)) {
+    const stage = Number(key) as StageResult['stageId'];
+    const { latest, best } = (value ?? {}) as Partial<StageScoreRecord>;
+    if (!['1', '2', '3', '4', '5'].includes(key) || !isScore(latest) || !isScore(best) || best < latest) {
+      issues.push('STAGE SCORES');
+      continue;
+    }
+    result[stage] = { latest, best };
+  }
+  return Object.keys(result).length ? result : undefined;
 }
 
 export function sanitizeGameSave(raw: unknown): { save: GameSave; issues: string[] } {
@@ -134,6 +187,8 @@ export function sanitizeGameSave(raw: unknown): { save: GameSave; issues: string
     : [];
   if (source.stageResults !== undefined && (!Array.isArray(source.stageResults) || stageResults.length !== source.stageResults.length)) issues.push('STAGE RESULTS');
 
+  const stageScoreRecords = sanitizeStageScores(source.stageScoreRecords, issues);
+
   return {
     save: {
       schemaVersion: SAVE_SCHEMA_VERSION,
@@ -155,6 +210,7 @@ export function sanitizeGameSave(raw: unknown): { save: GameSave; issues: string
       touchButtonsY: finiteNumber(source.touchButtonsY, DEFAULT_SAVE.touchButtonsY, 0, 1024, issues, 'BUTTON Y'),
       hasCampaignStarted: booleanValue(source.hasCampaignStarted, DEFAULT_SAVE.hasCampaignStarted, issues, 'CAMPAIGN STARTED'),
       stageResults,
+      ...(stageScoreRecords ? { stageScoreRecords } : {}),
     },
     issues: Array.from(new Set(issues)),
   };
@@ -296,7 +352,29 @@ export class SaveManager {
 
   async write(patch: Partial<GameSave>): Promise<GameSave> {
     if (!this.db) throw new Error('SaveManager not initialized');
-    return this.transactSave((current) => sanitizeGameSave({ ...current, ...patch, schemaVersion: SAVE_SCHEMA_VERSION }));
+    return this.transactSave(current => {
+      // Preserve legacy scores before clearing the current campaign's results.
+      const preserveScores = patch.stageResults === undefined ? {} : { stageScoreRecords: stageScoresWithLegacy(current) };
+      return sanitizeGameSave({ ...current, ...preserveScores, ...patch, schemaVersion: SAVE_SCHEMA_VERSION });
+    });
+  }
+
+  async recordStageResult(result: StageResult, advanceCampaign = false): Promise<GameSave> {
+    const record = sanitizeStageResult(result);
+    if (!record) throw new Error('Invalid stage result');
+    return this.transactSave(current => {
+      const stageResults = [...current.stageResults.filter(item => item.stageId !== record.stageId), record];
+      const stageScoreRecords = stageScoresWithLegacy(current);
+      const latest = record.beltScore;
+      if (latest !== undefined) {
+        const previous = stageScoreRecords[record.stageId];
+        stageScoreRecords[record.stageId] = { latest, best: Math.max(previous?.best ?? latest, latest) };
+      }
+      const progress = advanceCampaign
+        ? record.stageId === 5 ? campaignCompletionPatch(current) : campaignStagePatch(current, record.stageId + 1)
+        : undefined;
+      return sanitizeGameSave({ ...current, ...progress, stageResults, stageScoreRecords });
+    });
   }
 
   async exportPortable(): Promise<{ filename: string; text: string }> {

@@ -2,33 +2,168 @@
 import assert from 'node:assert/strict';
 import { Stage1Scene, ROUNDS_TO_WIN, ROUND_BREAK_FRAMES, ROUND_ANNOUNCE_FRAMES, ROUND_FIGHT_FRAMES, MAX_DUEL_ROUNDS } from '../dist/assets/scenes/Stage1Scene.js';
 import { getCharacter } from '../dist/assets/game/characters.js';
-import { advanceThroughRoundBreak, winDuelMatch, loseDuelMatch } from './duel-round-helpers.mjs';
+import { InputManager } from '../dist/assets/input/InputManager.js';
+import { advanceThroughBeltLoot, advanceThroughRoundBreak, winDuelMatch, loseDuelMatch } from './duel-round-helpers.mjs';
 
 const input = { held: () => false, pressed: () => false, released: () => false, resetCommandHistory() {} };
 const audioCalls = [];
 const audio = new Proxy({}, { get: (_, key) => (...args) => { audioCalls.push(String(key)); } });
 const character = getCharacter('RYU');
 
-function reachDuel(stageId = 1) {
-  const scene = new Stage1Scene(input, audio, character, character.superArts[0], stageId);
+function reachDuel(stageId = 1, scene = new Stage1Scene(input, audio, character, character.superArts[0], stageId)) {
   let tick = 1; scene.introFrames = 0;
   for (let wave = 0; wave < 3; wave += 1) {
     for (const enemy of scene.world.enemies) enemy.hp = 0;
     scene.fixedUpdate(1 / 60, tick++);
     if (wave < 2) { scene.world.player.x = scene.areaStarts[wave + 1] + 160; scene.fixedUpdate(1 / 60, tick++); for (let t = 0; t < 60; t += 1) scene.fixedUpdate(1 / 60, tick++); }
   }
+  tick = advanceThroughBeltLoot(scene, tick);
   for (let t = 0; t < 400 && scene.phase !== 'duel'; t += 1) scene.fixedUpdate(1 / 60, tick++);
   assert.equal(scene.phase, 'duel');
   return { scene, tick };
 }
 let checks = 0;
 
-// Round 1 starts immediately (non-blocking ROUND 1 / FIGHT banner) with 0-0 markers.
+{
+  const labels = (scene, draw) => {
+    const out = [];
+    const ctx = new Proxy({}, { get: (target, key) => target[key] ?? (key === 'fillText' ? text => out.push(text) : () => {}) });
+    scene[draw](ctx);
+    return out;
+  };
+  for (const [phase, draw] of [['transition', 'drawTransition'], ['final-transition', 'drawFinalTransition']]) {
+    const scene = new Stage1Scene(input, audio, character, character.superArts[0], 5);
+    scene.drawBossVersusCloseup = () => {};
+    scene.phase = phase;
+    scene.phaseFrames = 1;
+    const locked = labels(scene, draw);
+    assert(locked.includes('GET READY') && !locked.includes('FIGHT!'), 'The paused boss entrance must not advertise live combat');
+    scene.enterBossMatch(phase === 'transition' ? 'duel' : 'final-duel');
+    assert.deepEqual(labels(scene, 'drawRoundOverlay'), ['FIGHT!'], 'The very first live frame announces combat');
+    scene.roundAnnounceFrames = 1;
+    const nextRound = labels(scene, 'drawRoundOverlay');
+    assert(nextRound.includes('GET READY') && !nextRound.includes('FIGHT!'), 'The later round cue waits for the release tick');
+    scene.tickRoundAnnounce();
+    assert.equal(scene.roundAnnounceFrames, 0);
+    assert.deepEqual(labels(scene, 'drawRoundOverlay'), ['FIGHT!']);
+    scene.destroy();
+    checks++;
+  }
+}
+
+// Commands may start before the last six ticks, while only late buttons are reserved.
+{
+  globalThis.window = new EventTarget();
+  globalThis.document = new EventTarget();
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { getGamepads: () => [] } });
+  for (const phase of ['transition', 'final-transition', 'duel', 'final-duel']) for (const timing of ['early', 'late']) {
+    const controls = new InputManager();
+    const scene = new Stage1Scene(controls, audio, character, character.superArts[0], 5);
+    scene.introFrames = 0;
+    if (phase.startsWith('final')) scene.prepareFinalDuel();
+    else scene.prepareDuel();
+    scene.phase = phase;
+    if (phase.endsWith('transition')) scene.phaseFrames = 11;
+    else scene.roundAnnounceFrames = 11;
+    const p = scene.world.player;
+    let tick = 1;
+    const step = () => { controls.prepareTick(); scene.fixedUpdate(1 / 60, tick++); controls.endTick(); };
+    const punch = () => { controls.setTouch('lp', true); controls.setTouch('lp', false); };
+    controls.setTouchDirections(['down']); step();
+    controls.setTouchDirections(['down', 'right']); step();
+    controls.setTouchDirections(['right']); if (timing === 'early') punch(); step();
+    controls.setTouchDirections([]); for (let n = 0; n < 4; n++) step();
+    controls.setTouchDirections(['right']); if (timing === 'late') punch(); step();
+    controls.setTouchDirections([]); for (let n = 0; n < 3; n++) step();
+    assert.equal(p.currentMove, null, 'Announcement keeps combat frozen');
+    assert.equal(scene.stageTime, 99);
+    step();
+    assert.equal(p.currentMove?.id, timing === 'late' ? 'RYU_PRIMARY' : undefined, phase + '/' + timing);
+    assert(scene.stageTime < 99);
+    controls.destroy();
+    scene.destroy();
+    checks++;
+  }
+}
+
+// A boss retry goes directly to round 1 of that match, using its original entry resources.
+for (const [stageId, boss, reason] of [[1, 'DUDLEY', 'ko'], [2, 'YUN', 'double-ko'], [3, 'MAKOTO', 'time-over'], [4, 'DUDLEY', 'ko'], [5, 'URIEN', 'ko'], [5, 'GILL', 'ko']]) {
+  let pressed = '', stageRestarts = 0, resets = 0;
+  const postCombat = [];
+  const retryInput = { ...input, pressed: action => action === pressed, resetCommandHistory() { resets++; } };
+  const scene = new Stage1Scene(retryInput, audio, character, character.superArts[0], stageId,
+    undefined, () => { stageRestarts++; }, undefined, active => postCombat.push(active));
+  scene.world.player.hp = 672;
+  scene.world.player.superGauge = 41;
+  scene.world.belt.score = 3200;
+  scene.world.totalPlayerDamage = 230;
+  let { tick } = reachDuel(stageId, scene);
+  if (boss === 'GILL') {
+    tick = winDuelMatch(scene, tick);
+    assert.equal(scene.phase, 'final-transition');
+    scene.world.player.hp = 517;
+    scene.world.player.superGauge = 76;
+    for (let n = 0; n < 400 && scene.phase === 'final-transition'; n++) scene.fixedUpdate(1 / 60, tick++);
+  }
+  const phase = boss === 'GILL' ? 'final-duel' : 'duel';
+  const entryStats = scene.stageResult();
+  const entryResources = [scene.world.player.hp, scene.world.player.superGauge];
+  assert.deepEqual(entryResources, boss === 'GILL' ? [517, 76] : [672, 41]);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const oldWorld = scene.world;
+    scene.world.totalPlayerDamage += 530;
+    scene.world.player.superGauge = 1;
+    if (boss === 'GILL') scene.gillPhase = 3;
+    if (reason === 'time-over') {
+      scene.enemyRoundWins = 1;
+      scene.world.player.hp = 50;
+      scene.stageTime = 0;
+    } else if (reason === 'double-ko') {
+      scene.playerRoundWins = scene.enemyRoundWins = 1;
+      scene.world.player.hp = scene.world.enemy.hp = 0;
+    } else {
+      tick = loseDuelMatch(scene, tick);
+    }
+    if (scene.phase === phase) scene.fixedUpdate(1 / 60, tick++);
+    assert.equal(scene.phase, 'defeat');
+    assert.equal(scene.defeatReason, reason);
+    // Cover queued START during the KO and a fresh attack after the fade.
+    if (attempt === 0) {
+      pressed = 'start';
+      scene.fixedUpdate(1 / 60, tick++);
+      pressed = '';
+    } else {
+      while (scene.defeatFrames > 0) scene.fixedUpdate(1 / 60, tick++);
+      scene.fixedUpdate(1 / 60, tick++);
+      assert.equal(scene.phase, 'defeat', 'Defeat must wait for a fresh input');
+      pressed = 'lp';
+    }
+    const beforeReset = resets;
+    for (let n = 0; n < 130 && scene.phase === 'defeat'; n++) scene.fixedUpdate(1 / 60, tick++);
+    pressed = '';
+    assert.equal(scene.phase, phase, 'Retry skips the three waves and boss transition');
+    assert.equal(scene.world.enemy.character.id, boss);
+    assert.notEqual(scene.world, oldWorld);
+    assert.deepEqual([scene.world.player.hp, scene.world.player.superGauge], entryResources);
+    assert.deepEqual(scene.stageResult(), entryStats, 'Failed attempts add no time, score or combat stats');
+    assert.deepEqual([scene.duelRound, scene.playerRoundWins, scene.enemyRoundWins, scene.stageTime], [1, 0, 0, 99]);
+    assert.equal(scene.world.projectiles.length, 0);
+    assert.equal(scene.world.events.length, 0);
+    assert.equal(scene.gillPhase, 1);
+    assert.equal(postCombat.at(-1), false, 'Normal touch controls return immediately');
+    assert.equal(resets, beforeReset + 1, 'Retry button cannot carry into combat');
+    assert.equal(stageRestarts, 0);
+  }
+  checks++;
+}
+
+
+// Round 1 starts immediately with a non-blocking FIGHT banner and 0-0 markers.
 {
   const { scene } = reachDuel();
   assert.equal(ROUNDS_TO_WIN, 2);
   assert.deepEqual([scene.duelRound, scene.playerRoundWins, scene.enemyRoundWins, scene.roundAnnounceFrames], [1, 0, 0, 0]);
-  assert.ok(scene.roundOneBannerFrames > 0, 'round 1 banner shows');
+  assert.ok(scene.roundStartBannerFrames > 0, 'round 1 banner shows');
   checks++;
 }
 

@@ -9,9 +9,53 @@ globalThis.window=new EventTarget();globalThis.document=new EventTarget();const 
 {let passed;const s=new EndingScene({pressed:k=>k==='start',touchPressed:()=>false},audio,c,art,[],r=>{passed=r;});s.enter();s.fixedUpdate(1/60);assert.deepEqual(passed,{time:s.time,stateFrame:s.hero.stateFrame,animationFrame:s.hero.animationFrame});const before=s.time;passed.time=99;assert.equal(s.time,before,'Snapshot must not mutate live scene');s.destroy();cases++;}
 {let active=true,calls=0,logged=0;const s=new EndingScene({pressed:k=>active&&k==='start',touchPressed:()=>false},audio,c,art,[],async()=>{if(++calls===1)throw Error('return failure');},()=>{logged++;throw Error('diagnostic failure');});s.enter();s.fixedUpdate(1/60);await flush();assert.equal(s.returning,false);assert.match(s.returnError,/RETRY/);assert.equal(logged,1);active=false;for(let i=0;i<8;i++)s.fixedUpdate(1/60);assert.equal(calls,1);active=true;s.fixedUpdate(1/60);await flush();assert.equal(calls,2);assert.equal(s.returnError,'');s.destroy();cases++;}
 const dummy=enter=>({enter:enter??(()=>{}),exit(){},destroy(){},resize(){},fixedUpdate(){},render(){}});
-function app(){memory.clear();const r=new SessionRecoveryStore('test');r.begin();const a={input:{pressed:()=>false,touchPressed:()=>false},audio,touch:{setEndingMode(){}},save:{completedStages:[1,2,3,4,5],stageResults:[result]},recovery:r,scenes:new SceneManager(),errors:{record(){}},persist:async patch=>{Object.assign(a.save,patch);},loadStageModule:async()=>({EndingScene})};return a;}
+function app(){memory.clear();const r=new SessionRecoveryStore('test');r.begin();const a={input:{pressed:()=>false,touchPressed:()=>false},audio,touch:{setEndingMode(){}},save:{completedStages:[1,2,3,4,5],stageResults:[result]},recovery:r,scenes:new SceneManager(),errors:{record(){}},persist:async patch=>{Object.assign(a.save,patch);},enterLoadedScene(createScene){return this.scenes.setScene(createScene());},loadStageModule:async()=>({EndingScene})};return a;}
 for(const mode of ['active','empty','newer','diagnostic']){const a=app(),error=Error('title failed'),newer=dummy();a.showTitle=async()=>{a.recovery.checkpoint('title',null,null,null);if(mode==='active')throw error;const failed=a.scenes.setScene(dummy(()=>{throw error;}));if(mode==='newer')void a.scenes.setScene(newer);await failed;};if(mode==='diagnostic')a.errors.record=()=>{throw Error('diagnostic failure');};await GameApp.prototype.showEnding.call(a,c,art);const old=a.scenes.current;await assert.rejects(old.onFinish(resume),e=>e===error);await a.scenes.transitionTail;if(mode==='newer'){assert.equal(a.scenes.current,newer);}else if(mode==='active'){assert.equal(a.scenes.current,old);/* onError is emitted by active EndingScene's guarded failure handler */}else{const fresh=a.scenes.current;assert.equal(fresh.constructor.name,'EndingScene');assert.notEqual(fresh,old);assert.equal(fresh.time,resume.time);assert.equal(fresh.hero.animationFrame,resume.animationFrame);assert.deepEqual(fresh.totals,old.totals);assert.match(fresh.returnError,/RETRY/);assert.equal(a.recovery.activeRoute(),'ending');}cases++;}
-console.log(JSON.stringify({passed:true,cases,resumePhase:1,snapshot:1,activeDiagnosticRetry:1,gameAppControls:4}));
+{
+  const a = app();
+  let endingReady = false;
+  let completionWrites = 0;
+  const persist = a.persist;
+  a.persist = async patch => { completionWrites++; await persist(patch); };
+  a.loadStageModule = async () => endingReady ? { EndingScene } : null;
+  a.showTitle = async () => a.recovery.checkpoint('title', null, null, null);
+  a.showEnding = GameApp.prototype.showEnding.bind(a);
+  a.recoveryHistory = { record() {} };
+
+  await a.showEnding(c, art);
+  assert.equal(completionWrites, 1, 'The first ending route must persist campaign completion');
+  assert.equal(a.recovery.activeRoute(), 'title');
+  const expectedCheckpoint = { route: 'ending', stage: 5, character: c.id, superArt: art.id };
+  const checkpointDetails = () => {
+    const { route, stage, character, superArt } = a.recovery.snapshot().checkpoint ?? {};
+    return { route, stage, character, superArt };
+  };
+  assert.deepEqual(checkpointDetails(), expectedCheckpoint, 'Leaving the failed loader must leave RESUME ENDING available');
+  const reload = () => {
+    a.recovery.markClean('pagehide');
+    a.recovery = new SessionRecoveryStore('test');
+    a.recovery.begin();
+  };
+  reload();
+  assert.deepEqual(checkpointDetails(), expectedCheckpoint, 'Reloading from title must preserve the pending ending');
+  reload();
+  assert.deepEqual(checkpointDetails(), expectedCheckpoint, 'The pending ending must survive repeated reloads');
+  await GameApp.prototype.recoverInterruptedSession.call(a);
+  assert.deepEqual(checkpointDetails(), expectedCheckpoint, 'Leaving another failed recovery preserves the same ending');
+  assert.equal(completionWrites, 1, 'A saved campaign must not depend on another completion write during recovery');
+
+  endingReady = true;
+  await GameApp.prototype.recoverInterruptedSession.call(a);
+  assert.equal(a.scenes.current.character.id, c.id);
+  assert.equal(a.scenes.current.superArt.id, art.id);
+  assert.equal(a.recovery.snapshot().available, false);
+  assert.deepEqual(a.save.stageResults, [result]);
+  assert.equal(completionWrites, 1, 'Opening the restored ending still requires no repeat write');
+  reload();
+  assert.equal(a.recovery.snapshot().available, false, 'A viewed ending must not reappear on the next launch');
+  cases++;
+}
+console.log(JSON.stringify({passed:true,cases,resumePhase:1,snapshot:1,activeDiagnosticRetry:1,gameAppControls:4,loadBackRecovery:1}));
 
 import{InputManager}from'../dist/assets/input/InputManager.js';import{CHARACTERS}from'../dist/assets/game/characters.js';
 let allAttackReturnCases=0;

@@ -20,13 +20,36 @@ for(const spec of patterns)for(const facing of [-1,1])for(const kind of ['hit','
   assert(!b.airborne&&['idle','walk','crouch'].includes(b.state));trigger(scene,spec.id);assert.equal(scene.bossPatternIndex,index+1,'Due pattern resumes without a fresh cooldown');assert(b.currentMove);resumeCases++;
  }
 }
-// Ground-neutral and already-emitted projectile handoffs keep old patterns exactly.
+// Both bosses can start on the ground. Only Urien may cancel an emitted projectile.
+let gillProjectileRecoveries=0;
 for(const spec of patterns)for(const facing of [-1,1])for(const initial of ['idle','walk','crouch','emitted-projectile']){
- const {scene,b}=setup(spec,facing);if(initial==='emitted-projectile'){b.startMove(specialMovesFor(b.character.id).primary);b.moveEffectTriggered=true;}else b.state=initial;
+ const {scene,b,p}=setup(spec,facing);
+ if(initial==='emitted-projectile'){
+  b.startMove(specialMovesFor(b.character.id).primary);
+  b.moveFrame=b.currentMove.startup;
+  b.moveEffectTriggered=true;
+  if(spec.id==='GILL'){
+   const before=state(b),events=scene.world.events.length,projectiles=scene.world.projectiles.length;
+   const directive={role:'attack',desiredX:b.x,desiredY:b.y,attackAllowed:false,rangedAllowed:false};
+   trigger(scene,spec.id);
+   assert.deepEqual(state(b),before,'Gill keeps the current projectile move after release');
+   assert.equal(scene.bossPatternIndex,spec.index);
+   assert.equal(scene.world.events.length,events);
+   assert.equal(scene.world.projectiles.length,projectiles);
+   for(let t=0;t<60&&b.state==='attack';t++){
+    b.updateAiDirected(p,scene.world.rules,directive);
+    if(b.state!=='attack') break;
+    trigger(scene,spec.id);
+    assert.equal(scene.bossPatternIndex,spec.index,'Gill cannot start a pattern during projectile recovery');
+   }
+   assert(['idle','walk','crouch'].includes(b.state));
+   gillProjectileRecoveries++;
+  }
+ }else b.state=initial;
  trigger(scene,spec.id);assert.equal(scene.bossPatternIndex,spec.index+1);records.push({spec,facing,initial,boss:state(b),cooldown:scene.bossPatternCooldown,index:scene.bossPatternIndex,flash:scene.bossPatternFlash,events:scene.world.events.map(({type,x,y,power,ttl,label})=>({type,x,y,power,ttl,label})),projectiles:scene.world.projectiles.map(p=>({move:p.move.id,x:p.x,y:p.y,vx:p.vx,vy:p.vy,life:p.life,radius:p.radius,piercing:p.piercing,burstIndex:p.burstIndex,burstTotal:p.burstTotal}))});groundControls++;
 }
 // Actual stage loop must retain hit/block/parry recovery on the due-pattern tick.
 for(const id of ['URIEN','GILL'])for(const facing of [-1,1])for(const kind of ['hit','block','parry']){
  const {scene,b,p}=setup({id,phase:1,index:0},facing);lock(b,p,scene,kind);const frame=b.stateFrame;scene.fixedUpdate(1/60,1);if(!recording){assert.equal(b.state,kind);assert.equal(b.stateFrame,frame+1);assert.equal(scene.bossPatternIndex,0);assert.equal(scene.world.projectiles.length,0);}sceneCases++;
 }
-if(recording)console.log(JSON.stringify(records));else console.log('BOSS_PATTERN_RECOVERY_PASS',{patterns:patterns.length,lockedCases,resumeCases,groundControls,sceneCases,bosses:2});
+if(recording)console.log(JSON.stringify(records));else console.log('BOSS_PATTERN_RECOVERY_PASS',{patterns:patterns.length,lockedCases,resumeCases,groundControls,gillProjectileRecoveries,sceneCases,bosses:2});

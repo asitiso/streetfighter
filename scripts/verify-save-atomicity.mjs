@@ -11,4 +11,72 @@ for(const kind of['corrupt','legacy'])for(const reverse of[false,true]){const ba
 {const db=seeded(),base={...DEFAULT_SAVE,selectedCharacter:'CHUNLI'};db.records.set('profile',{bad:true,checksum:'bad'});db.records.set('profile-backup',encodeSaveRecord(base));const before=structuredClone(db.records),m=manager(db);db.failPut=1;await assert.rejects(m.load());assert.deepEqual(db.records,before);assert.deepEqual(await m.load(),base);rollbackControls++;}
 {const db=seeded(),a=manager(db),b=manager(db);const[,file]=await Promise.all([a.write({audioEnabled:false}),b.exportPortable()]);assert.equal(JSON.parse(file.text).data.audioEnabled,false);exportControls++;}
 {const m=new SaveManager();assert.deepEqual(await m.load(),DEFAULT_SAVE);await assert.rejects(m.write({audioEnabled:false}),/not initialized/);await assert.rejects(m.importPortable('{}'),/not initialized/);}
-console.log('SAVE_ATOMICITY_PASS',JSON.stringify({batches,orderingControls,recoveryControls,rollbackControls,exportControls}));
+// Existing scored records seed the first comparison and survive a new campaign.
+{
+ const stageResult = (stageId, beltScore) => ({
+  stageId, beltScore, clearSeconds: 17, defeatedEnemies: 3, damageDealt: 120, damageTaken: 30,
+  maxComboHits: 2, maxComboDamage: 80, parries: 0, redParries: 0, supersUsed: 0, throwsLanded: 0,
+ });
+ const legacy = { ...DEFAULT_SAVE, completedStages: [1, 2], stageResults: [stageResult(1, 5000), stageResult(2, 3150)] };
+ const db = seeded(legacy), first = manager(db), second = manager(db);
+ assert.deepEqual(await first.load(), legacy, 'Loading a scored save keeps its previous checksum shape');
+ const lower = await first.recordStageResult(stageResult(1, 2900));
+ assert.deepEqual(lower.stageScoreRecords, {1:{latest:2900,best:5000},2:{latest:3150,best:3150}});
+ await Promise.all([first.recordStageResult(stageResult(1, 7000)), second.recordStageResult(stageResult(1, 4100)),
+  first.recordStageResult(stageResult(3, 3750))]);
+ const latest = raw(db);
+ assert.deepEqual(latest.stageScoreRecords, {1:{latest:4100,best:7000},2:{latest:3150,best:3150},3:{latest:3750,best:3750}});
+ assert.deepEqual(latest.stageResults.map(r=>[r.stageId,r.beltScore]), [[1,4100],[2,3150],[3,3750]]);
+ db.failPut = 2;
+ await assert.rejects(first.recordStageResult(stageResult(1, 9000)));
+ assert.deepEqual(raw(db), latest, 'A failed transaction never advances the high score');
+ const reset = await first.write({ completedStages: [], stageResults: [] });
+ assert.deepEqual(reset.stageScoreRecords, latest.stageScoreRecords);
+ const imported = await second.importPortable(JSON.stringify(createPortableSave(reset)));
+ assert.deepEqual(imported, reset, 'Portable save round-trip keeps recent and best score');
+ const legacyReset = await manager(seeded(legacy)).write({completedStages:[],stageResults:[]});
+ assert.deepEqual(legacyReset.stageScoreRecords, {1:{latest:5000,best:5000},2:{latest:3150,best:3150}});
+}
+{
+ const prior = {
+  ...DEFAULT_SAVE, currentStage: 5, completedStages: [1,2,3,4], hasCampaignStarted: true,
+  stageScoreRecords: {2:{latest:840,best:920},5:{latest:2000,best:4600}},
+ };
+ const stageResult = {
+  stageId: 5, beltScore: 4350, clearSeconds: 140, defeatedEnemies: 12, damageDealt: 5600, damageTaken: 820,
+  maxComboHits: 7, maxComboDamage: 245, parries: 3, redParries: 0, supersUsed: 2, throwsLanded: 1,
+ };
+ const db = seeded(prior), save = manager(db);
+ const original = structuredClone(db.records);
+ db.failPut = 2;
+ await assert.rejects(save.recordStageResult(stageResult, true), /injected write failure/);
+ assert.deepEqual(db.records, original, 'A failed final clear must roll back both progress and score');
+ const completed = await save.recordStageResult(stageResult, true);
+ assert.deepEqual(completed, {
+  ...prior, completedStages: [1,2,3,4,5], hasCampaignStarted: false, stageSelectUnlocked: true,
+  stageResults: [stageResult], stageScoreRecords: {...prior.stageScoreRecords,5:{latest:4350,best:4600}},
+ });
+ assert.deepEqual(raw(db, 'profile-backup'), prior, 'Final score and unlock share one committed transaction');
+
+ const replay = await manager(seeded(prior)).recordStageResult(stageResult);
+ assert.deepEqual(replay, {...prior, stageResults: [stageResult], stageScoreRecords: completed.stageScoreRecords});
+ assert.deepEqual(raw(db), completed);
+ for (const stageId of [1,2,3,4]) {
+  const earlier = Array.from({length:stageId-1}, (_, index) => index+1);
+  const progress = {...prior, currentStage:stageId, completedStages:earlier, stageSelectUnlocked:stageId===4};
+  const interimDb = seeded(progress), interimSave = manager(interimDb);
+  const result = {...stageResult,stageId};
+  interimDb.failPut = 2;
+  await assert.rejects(interimSave.recordStageResult(result, true), /injected write failure/);
+  assert.deepEqual(raw(interimDb), progress);
+  const next = await interimSave.recordStageResult(result, true);
+  assert.equal(next.currentStage, stageId+1);
+  assert.deepEqual(next.completedStages, [...earlier,stageId]);
+  assert.equal(next.hasCampaignStarted, true);
+  assert.equal(next.stageSelectUnlocked, progress.stageSelectUnlocked);
+  assert.deepEqual(next.stageResults, [result]);
+  assert.deepEqual(next.stageScoreRecords[stageId], {latest:4350,best:4350});
+  assert.deepEqual(raw(interimDb, 'profile-backup'), progress);
+ }
+}
+console.log('SAVE_ATOMICITY_PASS',JSON.stringify({batches,orderingControls,recoveryControls,rollbackControls,exportControls,finalCampaignClear:true,interimCampaignClears:4}));

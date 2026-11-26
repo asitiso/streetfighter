@@ -203,5 +203,26 @@ function versusScene(winnerSide, exits) {
   checks++;
 }
 
+// Both players get the same input window before the next round goes live.
+for (const remaining of [1, 3, 6, 7]) {
+  const { p1, p2, scene, stepN } = versusScene('p1', []);
+  scene.startNextDuelRound();
+  stepN(scene.roundAnnounceFrames - remaining);
+  const { player, enemy } = scene.world;
+  const clock = scene.stageTime;
+  p1.pressed = (action) => action === 'lp';
+  p2.pressed = (action) => action === 'hp';
+  stepN(1);
+  p1.pressed = p2.pressed = () => false;
+  stepN(remaining - 1);
+  assert.equal(player.currentMove, null, 'P1 must stay idle while the announcement is active');
+  assert.equal(enemy.currentMove, null, 'P2 must stay idle while the announcement is active');
+  assert.equal(scene.stageTime, clock, 'The timer must stay frozen during the announcement');
+  stepN(1);
+  assert.equal(player.currentMove?.button, remaining <= 6 ? 'lp' : undefined, 'P1 ready-window behavior');
+  assert.equal(enemy.currentMove?.button, remaining <= 6 ? 'hp' : undefined, 'P2 must buffer the same late tap as P1');
+  checks++;
+}
+
 if (REPORT) console.log(JSON.stringify(report, null, 1));
 console.log(`V085_VERSUS_PASS checks=${checks}`);

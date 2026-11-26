@@ -30,9 +30,42 @@ if(!layoutOnly)for(const a of buttons)for(const reverse of[false,true])for(const
  t.input.endTick();pointer(n,'pointerdown',33);assert(t.input.touchHeld(a));assert(t.input.touchPressed(a));pointer(n,'lostpointercapture',ids[0]);pointer(n,duplicate,ids[1]);assert(t.input.touchHeld(a),'Old capture event cannot release new finger');pointer(n,'lostpointercapture',33);assert.equal(t.input.touchHeld(a),false);t.input.destroy();buttonCases++;
 }
 for(const group of['stick','buttons'])for(const duplicate of['pointerup','pointercancel','lostpointercapture']){
- const t=setup(),node=group==='stick'?t.dpad:t.fight;let previews=0,commits=[];t.touch.setEditMode(true,()=>previews++,s=>commits.push({...s}));pointer(node,'pointerdown',11);pointer(window,'pointermove',11,120,90);assert.equal(previews,1);const saved=t.touch.getSettings();
- pointer(node,'lostpointercapture',99);assert(t.touch.drag);assert.equal(commits.length,0);pointer(node,'lostpointercapture',11);assert.equal(t.touch.drag,null,'Capture loss ends editing drag');assert.deepEqual(commits,[saved]);pointer(window,'pointermove',11,200,200);pointer(duplicate==='lostpointercapture'?node:window,duplicate,11);assert.equal(previews,1);assert.equal(commits.length,1,'Lost capture followed by end must commit once');assert.deepEqual(t.touch.getSettings(),saved);
- pointer(node,'pointerdown',33);pointer(window,'pointermove',33,110,95);pointer(node,'lostpointercapture',11);assert(t.touch.drag);pointer(node,'lostpointercapture',33);assert.equal(commits.length,2);assert.equal(previews,2);t.input.destroy();dragCases++;
+ const t = setup();
+ const node = group === 'stick' ? t.dpad : t.fight;
+ const original = t.touch.getSettings();
+ const previews = [];
+ const commits = [];
+ t.touch.setEditMode(true, settings => previews.push(settings), settings => commits.push(settings));
+
+ pointer(node, 'pointerdown', 11);
+ pointer(window, 'pointermove', 11, 120, 90);
+ assert.equal(previews.length, 1);
+ assert.notDeepEqual(t.touch.getSettings(), original);
+ pointer(node, 'lostpointercapture', 99);
+ assert(t.touch.drag);
+ assert.equal(commits.length, 0);
+
+ pointer(node, 'lostpointercapture', 11);
+ assert.equal(t.touch.drag, null);
+ assert.deepEqual(previews[1], original, 'Capture loss restores the previous preview');
+ assert.deepEqual(t.touch.getSettings(), original);
+ pointer(window, 'pointermove', 11, 200, 200);
+ pointer(duplicate === 'lostpointercapture' ? node : window, duplicate, 11);
+ assert.equal(previews.length, 2, 'Duplicate ends do not preview again');
+ assert.equal(commits.length, 0, 'Capture loss never commits a drag');
+
+ pointer(node, 'pointerdown', 33);
+ pointer(window, 'pointermove', 33, 110, 95);
+ const saved = t.touch.getSettings();
+ pointer(node, 'lostpointercapture', 11);
+ assert.equal(t.touch.drag.pointerId, 33, 'A late end cannot cancel the new owner');
+ pointer(window, 'pointerup', 33);
+ pointer(node, 'lostpointercapture', 33);
+ assert.deepEqual(commits, [saved], 'A normal release commits once');
+ assert.deepEqual(t.touch.getSettings(), saved);
+ assert.equal(previews.length, 3);
+ t.input.destroy();
+ dragCases++;
 }
 for(const group of['stick','buttons'])for(const reset of['blur','hide','exit-edit']){
  const t=setup(),node=group==='stick'?t.dpad:t.fight;let commits=0;t.touch.setEditMode(true,()=>{},()=>commits++);pointer(node,'pointerdown',11);pointer(window,'pointermove',11,120,90);if(reset==='blur')window.dispatchEvent(new Event('blur'));if(reset==='hide')t.touch.setVisible(false);if(reset==='exit-edit')t.touch.setEditMode(false);pointer(node,'lostpointercapture',11);assert.equal(commits,0,'Cancelled drag must not commit after reset');assert.equal(t.touch.drag,null);t.input.destroy();resetControls++;
@@ -45,7 +78,7 @@ if(!layoutOnly)for(const c of[...CHARACTERS,...BOSS_CHARACTERS])for(const face o
  const punch=['lp','mp','hp'].includes(a),next=punch?(a==='lp'?'mp':'lp'):'lp';if(punch){const forward=face===1?'right':'left';t.input.setTouchDirections(['down']);t.input.setTouchDirections(['down',forward]);t.input.setTouchDirections([forward]);}
  pointer(t.nodes.get(next),'pointerdown',33);pointer(t.nodes.get(next),'pointerup',33);t.input.prepareTick();f.captureInput(t.input,100);f.updatePlayer(t.input,w.rules);assert.equal(f.currentMove?.id,punch?specialMovesFor(c.id).primary.id:'5LP','Lost pointer cannot supply ghost EX or throw chord');assert.equal(f.superGauge,100);t.input.destroy();gameplayCases++;
 }
-console.log(JSON.stringify({passed:true,buttonCases,dragCases,dpadControls,resetControls,gameplayCases,lastFingerOwnsRelease:true,duplicateEndIgnored:true,commitOnce:true,freshPointerWorks:true,noGhostChord:true}));
+console.log(JSON.stringify({passed:true,buttonCases,dragCases,dpadControls,resetControls,gameplayCases,lastFingerOwnsRelease:true,duplicateEndIgnored:true,commitOnce:true,interruptedDragRestored:true,freshPointerWorks:true,noGhostChord:true}));
 
 // An aborted owned dpad gesture must not complete a command after a fresh touch.
 // Normal pointerup and its later lost-capture notification retain legal motions.
@@ -68,6 +101,38 @@ for(const endType of['pointercancel','lostpointercapture']){
  t.input.destroy();physicalOwnershipControls++;
 }
 console.log(JSON.stringify({canceledMotionCases,physicalOwnershipControls,normalPointerupRetainsMotion:true,ownedCancelDiscardsPartialMotion:true}));
+
+let directionEdgeCases = 0;
+for (const endType of ['pointercancel', 'lostpointercapture', 'pointerup']) {
+  for (const prior of ['none', 'keyboard', 'touch']) {
+    const t = setup();
+    const character = CHARACTERS[0];
+    const world = new CombatWorld(character, character, 'duel');
+    document.hit = t.nodes.get('up');
+    if (prior === 'keyboard') {
+      key('keydown', 'ArrowUp');
+      key('keyup', 'ArrowUp');
+    }
+    if (prior === 'touch') {
+      pointer(t.dpad, 'pointerdown', 11);
+      pointer(t.dpad, 'pointerup', 11);
+    }
+    pointer(t.dpad, 'pointerdown', 22);
+    document.hit = t.nodes.get('right');
+    pointer(t.dpad, 'pointermove', 22);
+    pointer(t.dpad, endType, 22);
+
+    const completed = endType === 'pointerup';
+    const shouldJump = completed || prior !== 'none';
+    assert.equal(t.input.pressed('right'), completed, endType + ' pending direction');
+    assert.equal(t.input.touchPressed('up'), completed || prior === 'touch', endType + ' pending touch source');
+    world.update(t.input, 1);
+    assert.equal(world.player.airborne, shouldJump, endType + '/' + prior + ' duel jump');
+    t.input.destroy();
+    directionEdgeCases++;
+  }
+}
+console.log(JSON.stringify({ directionEdgeCases, abortedDirectionsCannotJump: true }));
 
 let canceledButtonPressCases=0,canceledButtonMoveCases=0;
 for(const action of buttons)for(const endType of['pointercancel','pointerleave','lostpointercapture'])for(const source of['none','keyboardTap','gamepadTap','heldKeyboard','heldGamepad','priorTouchTap','twoAllCancelled','normalThenCancel']){

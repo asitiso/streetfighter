@@ -1,7 +1,7 @@
 import type { Scene, RenderContext } from '../core/Scene.js';
 import type { InputManager } from '../input/InputManager.js';
 import type { AudioManager } from '../core/AudioManager.js';
-import { artImage, preloadArtAssets, PLAYABLE_PORTRAIT_KEYS } from '../render/ImageAssets.js';
+import { artImage, preloadArtAssets } from '../render/ImageAssets.js';
 import { characterTextureManager } from '../render/CharacterTextureManager.js';
 
 const TITLE_ACTION_RETRY = 'OPEN FAILED • ENTER / START / ATTACK TO RETRY';
@@ -15,6 +15,7 @@ export interface TitleMenuOption {
 }
 
 export class TitleScene implements Scene {
+  readonly frontendTheme = 'title';
   private time = 0;
   private entryId = 0;
   private confirmed = false;
@@ -45,13 +46,17 @@ export class TitleScene implements Scene {
       this.actionError = index >= 0 ? TITLE_ACTION_RETRY : 'OPEN FAILED • CHOOSE ANOTHER OPTION';
     }
     characterTextureManager.clearFocus();
-    preloadArtAssets(['title-keyart', 'roster-mural', ...PLAYABLE_PORTRAIT_KEYS]);
+    preloadArtAssets(['title-keyart']);
     const entryId = ++this.entryId;
     void this.audio.unlock().then(() => {
       if (entryId === this.entryId) this.audio.startFrontendTheme?.('title');
     }).catch(() => undefined);
   }
-  exit(): void { this.onTitleModeChange?.(false); this.entryId += 1; this.audio.stopFrontendTheme?.(); }
+  exit(next?: Scene): void {
+    this.onTitleModeChange?.(false);
+    this.entryId += 1;
+    if (next?.frontendTheme !== this.frontendTheme) this.audio.stopFrontendTheme?.();
+  }
 
   fixedUpdate(dt: number): void {
     this.time += dt;
@@ -97,15 +102,15 @@ export class TitleScene implements Scene {
     }
   }
 
-  render({ ctx, width, height }: RenderContext): void {
+  render({ ctx, width, height, compactTouchControls = false }: RenderContext): void {
     const sx = width / 1280;
     const sy = height / 720;
     ctx.save();
     ctx.scale(sx, sy);
     this.drawBackdrop(ctx);
     this.drawFighterSilhouettes(ctx);
-    this.drawLogo(ctx);
-    this.drawMenu(ctx);
+    this.drawLogo(ctx, compactTouchControls);
+    this.drawMenu(ctx, compactTouchControls);
     ctx.restore();
   }
 
@@ -166,21 +171,21 @@ export class TitleScene implements Scene {
     }
   }
 
-  private drawLogo(ctx: CanvasRenderingContext2D): void {
+  private drawLogo(ctx: CanvasRenderingContext2D, compact: boolean): void {
     const crowded = this.options.length >= 11;
-    const y1 = crowded ? 188 : 235;
-    const y2 = crowded ? 260 : 308;
-    const y3 = crowded ? 306 : 355;
+    const y1 = compact ? 116 : crowded ? 188 : 235;
+    const y2 = compact ? 184 : crowded ? 260 : 308;
+    const y3 = compact ? 212 : crowded ? 306 : 355;
     ctx.textAlign = 'center'; ctx.lineJoin = 'round';
     ctx.font = '900 80px Impact, Arial Black, sans-serif'; ctx.strokeStyle = '#0b0f19'; ctx.lineWidth = 15; ctx.strokeText('SIDE-SCROLL', 640, y1); ctx.fillStyle = '#f3eadf'; ctx.fillText('SIDE-SCROLL', 640, y1);
     ctx.font = '900 68px Impact, Arial Black, sans-serif'; ctx.strokeText('CHRONICLES', 640, y2); ctx.fillStyle = '#c52f46'; ctx.fillText('CHRONICLES', 640, y2);
     ctx.font = '700 17px Arial, sans-serif'; ctx.letterSpacing = '6px'; ctx.fillStyle = '#f0ba45'; ctx.fillText('BELT ACTION × 1 VS 1 DUEL', 640, y3); ctx.letterSpacing = '0px';
   }
 
-  private drawMenu(ctx: CanvasRenderingContext2D): void {
-    const twoColumn = this.options.length >= 12;
-    const startY = twoColumn ? 350 : this.options.length >= 11 ? 350 : this.options.length >= 10 ? 342 : this.options.length >= 8 ? 348 : 366;
-    const spacing = twoColumn ? 48 : this.options.length >= 11 ? 27 : this.options.length >= 10 ? 31 : this.options.length >= 8 ? 38 : this.options.length > 5 ? 43 : 50;
+  private drawMenu(ctx: CanvasRenderingContext2D, compact: boolean): void {
+    const twoColumn = this.options.length >= (compact ? 8 : 12);
+    const startY = compact ? 258 : twoColumn ? 350 : this.options.length >= 11 ? 350 : this.options.length >= 10 ? 342 : this.options.length >= 8 ? 348 : 366;
+    const spacing = compact ? 44 : twoColumn ? 48 : this.options.length >= 11 ? 27 : this.options.length >= 10 ? 31 : this.options.length >= 8 ? 38 : this.options.length > 5 ? 43 : 50;
     const rowsPerColumn = twoColumn ? Math.ceil(this.options.length / 2) : this.options.length;
     for (let i = 0; i < this.options.length; i += 1) {
       const option = this.options[i]!;
@@ -196,7 +201,7 @@ export class TitleScene implements Scene {
       ctx.textAlign = 'left'; ctx.font = '900 17px Arial Black, sans-serif'; ctx.fillStyle = option.enabled ? (selected ? '#fff3c6' : '#eee9df') : 'rgba(255,255,255,.24)'; ctx.fillText(option.label, x + 18, y);
       ctx.textAlign = 'right'; ctx.font = '700 8px Arial, sans-serif'; ctx.fillStyle = option.enabled ? 'rgba(220,226,236,.58)' : 'rgba(255,255,255,.16)'; ctx.fillText(option.detail.slice(0, 42), x + width - 16, y);
     }
-    ctx.textAlign = 'center'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillStyle = this.actionError ? '#ff9b9b' : 'rgba(190,199,216,.66)'; ctx.fillText(this.actionError || '↑ ↓ SELECT  •  ENTER / START CONFIRM', 640, 674);
-    ctx.font = '600 10px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = 'rgba(190,199,216,.45)'; ctx.fillText('V0.0.63-RC38 • HQ NEW ORIGINALS + RELEASE SEAL', 640, 697);
+    ctx.textAlign = 'center'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillStyle = this.actionError ? '#ff9b9b' : 'rgba(190,199,216,.66)'; ctx.fillText(this.actionError || (compact ? '← → SELECT  •  CONFIRM' : '↑ ↓ SELECT  •  ENTER / START CONFIRM'), 640, compact ? 552 : 674);
+    ctx.font = '600 10px ui-monospace, SFMono-Regular, Menlo, monospace'; ctx.fillStyle = 'rgba(190,199,216,.45)'; ctx.fillText('V0.0.63-RC38 • HQ NEW ORIGINALS + RELEASE SEAL', 640, compact ? 574 : 697);
   }
 }

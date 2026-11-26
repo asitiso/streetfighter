@@ -13,6 +13,7 @@ export interface TouchControlSettings {
 
 type DragGroup = 'stick' | 'buttons';
 const MIN_CONTROL_SCALE = .7;
+const DPAD_ACTIONS = ['up', 'down', 'left', 'right'] as const;
 
 const DEFAULTS: TouchControlSettings = {
   stickScale: 1,
@@ -159,6 +160,7 @@ export class TouchControls {
         <button data-action="lk">LK</button><button data-action="mk">MK</button><button data-action="hk">HK</button>
       </div>
       <button class="jump-button" data-action="jump">JUMP</button>
+      <button class="layout-cancel" data-action="back">CANCEL</button>
       <button class="start-button" data-action="start">START</button>`;
 
     for (const node of this.element.querySelectorAll<HTMLButtonElement>('[data-action]')) {
@@ -170,7 +172,9 @@ export class TouchControls {
       }
       const down = (e: PointerEvent) => {
         e.preventDefault();
-        if ((this.editing || this.paused || this.postCombatMode) && action !== 'start') return;
+        if (action === 'back' && !this.editing) return;
+        if ((this.paused || this.postCombatMode) && action !== 'start') return;
+        if (this.editing && action !== 'start' && action !== 'back') return;
         if (this.utilityMode && !(action === 'lp' || action === 'mp' || action === 'start'
           || (action === 'hp' && this.utilityMode === 'update'))) return;
         if (this.active) {
@@ -185,15 +189,7 @@ export class TouchControls {
       };
       const up = (e: PointerEvent) => {
         e.preventDefault();
-        const pointers = this.buttonPointers.get(action);
-        if (!pointers?.delete(e.pointerId)) return;
-        if (e.type === 'pointerup') this.input.completeTouchPress(action);
-        this.pointerPoints.delete(e.pointerId);
-        if (pointers.size > 0) return;
-        this.buttonPointers.delete(action);
-        node.classList.toggle('pressed', false);
-        if (e.type === 'pointerup') this.input.setTouch(action, false);
-        else this.input.cancelTouch(action);
+        this.finishButtonPointer(node, action, e.pointerId, e.type === 'pointerup');
       };
       node.addEventListener('pointerdown', down);
       node.addEventListener('pointermove', e => {
@@ -238,12 +234,14 @@ export class TouchControls {
     this.directionPressed = null;
     this.buttonPointers.clear();
     this.pointerPoints.clear();
-    this.drag = null;
+    this.cancelLayoutDrag();
     this.dpadPointerId = null;
-    this.input.setTouchDirections([]);
     this.dpadActions = [];
-    for (const action of ['jump','lp','mp','hp','lk','mk','hk','start'] as Action[]) this.input.setTouch(action, false);
+    this.input.discardTouchInput();
   }
+
+  get visible(): boolean { return this.active; }
+  get endingReturnVisible(): boolean { return this.active && this.endingMode; }
 
   setEndingMode(endingMode: boolean): void {
     if (this.endingMode === endingMode) return;
@@ -251,6 +249,8 @@ export class TouchControls {
     this.releaseAll();
     this.input.endTick();
     this.element.classList.toggle('ending-mode', endingMode);
+    const start = this.element.querySelector<HTMLButtonElement>('.start-button');
+    if (start) start.textContent = endingMode ? 'BACK TO TITLE' : 'START';
     this.applySettings();
   }
 
@@ -323,6 +323,8 @@ export class TouchControls {
     this.paused = paused;
     this.releaseAll();
     this.element.classList.toggle('paused', paused);
+    const start = this.element.querySelector<HTMLButtonElement>('.start-button');
+    if (start) start.textContent = paused ? 'RESUME' : 'START';
   }
 
   setVisible(visible: boolean): void {
@@ -356,13 +358,14 @@ export class TouchControls {
     return this.getSettings();
   }
 
-  cancelLayoutDrag(): void {
+  cancelLayoutDrag(): boolean {
     const drag = this.drag;
     this.drag = null;
-    if (!drag?.prepared) return;
+    if (!drag?.prepared) return false;
     this.settings = { ...drag.before };
     this.applySettings();
     this.previewCallback?.(this.getSettings());
+    return true;
   }
 
   setEditMode(
@@ -370,11 +373,16 @@ export class TouchControls {
     onPreview?: (settings: TouchControlSettings) => void,
     onCommit?: (settings: TouchControlSettings) => void,
   ): void {
+    const changed = this.editing !== editing;
+    this.releaseAll();
     this.editing = editing;
     this.previewCallback = onPreview ?? null;
     this.commitCallback = onCommit ?? null;
     this.element.classList.toggle('editing', editing);
-    this.releaseAll();
+    if (changed) {
+      const start = this.element.querySelector<HTMLButtonElement>('.start-button');
+      if (start) start.textContent = editing ? 'DONE' : this.selectionMode ? 'CONFIRM' : 'START';
+    }
   }
 
   private onDpadPointerDown = (event: PointerEvent): void => {
@@ -391,19 +399,44 @@ export class TouchControls {
     event.preventDefault();
     const point = this.pointerPoints.get(event.pointerId);
     if (point) { point.x = event.clientX; point.y = event.clientY; }
-    this.setDpadActions(this.dpadActionsAt(event.clientX, event.clientY));
+    this.setDpadActions(this.dpadActionsAt(event.clientX, event.clientY), event.getCoalescedEvents?.());
   };
 
   private onDpadPointerEnd = (event: PointerEvent): void => {
     if (event.pointerId !== this.dpadPointerId) return;
     event.preventDefault();
-    this.setDpadActions([]);
-    // An aborted owned gesture cannot finish a motion on the next touch.
-    // Keep normal release history and unrelated pending physical inputs.
-    if (event.type !== 'pointerup') this.input.resetCommandHistory();
-    this.pointerPoints.delete(event.pointerId);
-    this.dpadPointerId = null;
+    const completed = event.type === 'pointerup';
+    const point = this.pointerPoints.get(event.pointerId);
+    const releaseSample = completed && event.pointerType === 'touch' && !this.selectionMode && !this.recordsMode
+      && point && (point.x !== event.clientX || point.y !== event.clientY) ? event : undefined;
+    this.finishDpadPointer(event.pointerId, completed, releaseSample);
   };
+
+  private finishButtonPointer(node: HTMLElement, action: Action, pointerId: number, completed: boolean): void {
+    const pointers = this.buttonPointers.get(action);
+    if (!pointers?.delete(pointerId)) return;
+    if (completed) this.input.completeTouchPress(action);
+    this.pointerPoints.delete(pointerId);
+    if (pointers.size > 0) return;
+    this.buttonPointers.delete(action);
+    node.classList.toggle('pressed', false);
+    if (completed) this.input.setTouch(action, false);
+    else this.input.cancelTouch(action);
+  }
+
+  private finishDpadPointer(pointerId: number, completed: boolean, releaseSample?: PointerEvent): void {
+    // The release can supply the last direction without leaving that direction held.
+    this.setDpadActions([], releaseSample ? [releaseSample] : undefined);
+    if (completed) {
+      for (const action of DPAD_ACTIONS) this.input.completeTouchPress(action);
+    } else {
+      // Discard pending presses from directions visited anywhere in the canceled drag.
+      for (const action of DPAD_ACTIONS) this.input.cancelTouch(action);
+      this.input.resetCommandHistory();
+    }
+    this.pointerPoints.delete(pointerId);
+    this.dpadPointerId = null;
+  }
 
   private dpadActionsAt(clientX: number, clientY: number): readonly Action[] {
     const hit = document.elementFromPoint(clientX, clientY)?.closest<HTMLElement>('.dpad [data-action], .dpad [data-directions]');
@@ -424,12 +457,18 @@ export class TouchControls {
     return actions;
   }
 
-  private setDpadActions(next: readonly Action[]): void {
-    if (next.length === this.dpadActions.length && next.every(action => this.dpadActions.includes(action))) return;
-    this.input.setTouchDirections(next);
+  private setDpadActions(next: readonly Action[], samples?: readonly PointerEvent[]): void {
+    // A fast swipe may cross a diagonal between dispatched pointermove events.
+    // Feed the samples only to input history; show and vibrate for the final direction.
+    for (const sample of samples ?? []) {
+      this.input.setTouchDirections(this.dpadActionsAt(sample.clientX, sample.clientY));
+    }
+    const unchanged = next.length === this.dpadActions.length && next.every(action => this.dpadActions.includes(action));
+    if (samples?.length || !unchanged) this.input.setTouchDirections(next);
+    if (unchanged) return;
     this.dpadActions = next;
     this.directionPressed?.classList.toggle('pressed', false);
-    const key = ['up', 'down', 'left', 'right'].filter(action => next.includes(action as Action)).join(' ');
+    const key = DPAD_ACTIONS.filter(action => next.includes(action)).join(' ');
     this.directionPressed = this.directionButtons.get(key) ?? null;
     this.directionPressed?.classList.toggle('pressed', true);
     if (next.length > 0) this.vibrate(3);
@@ -483,28 +522,25 @@ export class TouchControls {
   private endDrag = (event: PointerEvent): void => {
     if (!this.drag || event.pointerId !== this.drag.pointerId) return;
     event.preventDefault();
-    if (event.type === 'pointercancel') { this.cancelLayoutDrag(); return; }
+    if (event.type !== 'pointerup') { this.cancelLayoutDrag(); return; }
     this.drag = null;
     this.commitCallback?.(this.getSettings());
   };
 
   private onViewportResize = (): void => {
-    this.drag = null;
     this.readInsets();
-    this.applySettings();
+    if (!this.cancelLayoutDrag()) this.applySettings();
     // Keep captured gestures that still address the same control after relayout.
     for (const [id, point] of this.pointerPoints) {
       const bounds = point.node?.getBoundingClientRect?.();
       if (!bounds || bounds.width <= 0 || bounds.height <= 0) continue;
       const outside = point.x < bounds.left || point.x >= bounds.right || point.y < bounds.top || point.y >= bounds.bottom;
-      const next = id === this.dpadPointerId && !outside ? this.dpadActionsAt(point.x, point.y) : null;
+      const isDpad = id === this.dpadPointerId;
+      const next = isDpad && !outside ? this.dpadActionsAt(point.x, point.y) : null;
       const changedDirection = next && (next.length !== this.dpadActions.length || next.some(action => !this.dpadActions.includes(action)));
-      if (outside || changedDirection) {
-        this.releaseAll();
-        this.input.resetCommandHistory();
-        this.input.endTick();
-        break;
-      }
+      if (!outside && !changedDirection) continue;
+      if (isDpad) this.finishDpadPointer(id, false);
+      else if (point.node.dataset.action) this.finishButtonPointer(point.node, point.node.dataset.action as Action, id, false);
     }
   };
 

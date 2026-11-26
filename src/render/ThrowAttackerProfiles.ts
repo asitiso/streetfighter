@@ -2,14 +2,18 @@ import type { Fighter } from '../combat/Fighter.js';
 import { animationSequenceFor } from './AnimationSequenceLibrary.js';
 import { animationSequenceSample, type AnimationSequenceSample } from './AnimationTimingMapper.js';
 export interface ThrowAttackerSample extends AnimationSequenceSample { throwAttacker: boolean }
+export function usesGroundedSuperGrabPose(characterId: string, moveId: string | undefined): boolean {
+  return (characterId === 'ALEX' && moveId === 'ALEX_SA1')
+    || (characterId === 'IBUKI' && moveId === 'IBUKI_SA2');
+}
+
 // Normal throws use the move clock until contact; a successful grab owns its
 // independent combat clock. Misses recover without showing lift/release poses.
 export function throwAttackerSample(fighter: Fighter): ThrowAttackerSample | null {
   // These successful grounded pairs reuse their owner's authored grab poses.
   // Pre-contact, misses and other supers retain their existing presentation;
   // gameplay still owns the 24-tick clock.
-  const superGrab = ((fighter.character.id === 'ALEX' && fighter.currentMove?.id === 'ALEX_SA1')
-    || (fighter.character.id === 'IBUKI' && fighter.currentMove?.id === 'IBUKI_SA2'))
+  const superGrab = usesGroundedSuperGrabPose(fighter.character.id, fighter.currentMove?.id)
     && fighter.throwSyncFrames > 0 && fighter.throwSyncRole === 'attacker'
     && fighter.throwSyncStyle === fighter.character.id;
   if (fighter.superVictimFrames > 0 || fighter.wallBounceFrames > 0 || fighter.groundBounceFrames > 0

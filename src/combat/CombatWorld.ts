@@ -3,9 +3,10 @@ import type { CharacterDef, SuperArtDef } from '../game/characters.js';
 import type { CombatEvent, EnvironmentProp, ModeRules, MoveData } from './CombatTypes.js';
 import type { EnemyArchetypeId } from './EnemyArchetypes.js';
 import { EnemyDirector } from './EnemyDirector.js';
-import { Fighter } from './Fighter.js';
+import { Fighter, TECH_ROLL_SPEED } from './Fighter.js';
 import { BeltSystems } from './BeltSystems.js';
 import { gruntById } from './GruntLibrary.js';
+import { normalFor } from './MoveLibrary.js';
 
 export interface ProjectileInstance {
   owner: Fighter;
@@ -28,6 +29,7 @@ export interface BeltEnemySpawn {
   y: number;
   hp?: number;
   archetype?: EnemyArchetypeId;
+  lateElite?: boolean;
 }
 
 interface DuelTradeIntent {
@@ -41,11 +43,15 @@ interface DuelTradeIntent {
 }
 
 const PLAYER_ENEMY_BODY_GAP = 58;
+const PROP_BODY_MARGIN_X = 28;
+const PROP_BODY_MARGIN_Y = 16;
+const STANDING_KICK_REACH = normalFor('hk').hitbox.forward;
+const PROJECTILE_BODY_MARGIN = 34;
 // Kept outside the instance so serialised world fixtures are unchanged.
 const beltSystems = new WeakMap<CombatWorld, BeltSystems>();
 const PLAYER_COMBO_LINK_FRAMES = 82;
 
-function meleeForwardReach(attacker: Fighter, move: MoveData): number {
+export function meleeForwardReach(attacker: Fighter, move: MoveData): number {
   const authored = move.hitbox.forward * attacker.character.reach;
   // Short grounded jabs must reach the closest position body separation permits.
   // Keep a tiny tolerance for floating-point separation; all other ranges stay authored.
@@ -57,6 +63,11 @@ function meleeForwardReach(attacker: Fighter, move: MoveData): number {
 
 function meleeImpactY(attacker: Fighter, defender: Fighter): number {
   return Math.min(attacker.y, defender.y) - 92 - defender.jumpHeight;
+}
+
+function withinProjectileLane(projectile: ProjectileInstance, fighter: Fighter, shotY = projectile.y): boolean {
+  const centerY = fighter.y - 88 - fighter.jumpHeight * .9;
+  return Math.abs(centerY - shotY) <= Math.max(55, projectile.move.hitbox.lane);
 }
 
 export class CombatWorld {
@@ -101,10 +112,19 @@ export class CombatWorld {
     this.player = new Fighter(playerDef, 'player', 360, mode === 'belt' ? 495 : 500, 1, playerSuperArt);
     // Mob pressure in belt sections would chain-stun the hero; the stun gauge is a 1 VS 1 duel mechanic for the player.
     this.player.setStunEnabled(mode === 'duel');
+    if (mode === 'belt') this.player.enableCrowdRecovery();
     this.enemies.push(new Fighter(enemyDef, 'enemy', 880, mode === 'belt' ? 490 : 500, -1, enemySuperArt));
   }
 
   /** Beat 'em up layer (grabs, thrown bodies, pickups, weapons, score); belt mode only. */
+  get latestSuperFlash(): CombatEvent | undefined {
+    for (let i = this.events.length - 1; i >= 0; i -= 1) {
+      const event = this.events[i]!;
+      if (event.type === 'super-flash') return event;
+    }
+    return undefined;
+  }
+
   get belt(): BeltSystems {
     let systems = beltSystems.get(this);
     if (!systems) { systems = new BeltSystems(); beltSystems.set(this, systems); }
@@ -128,6 +148,29 @@ export class CombatWorld {
     return this.enemies.filter((enemy) => enemy.hp > 0);
   }
 
+  /** Check the current position through the supplied future tick, inclusive. */
+  projectileThreatDuring(fighter: Fighter, ticks: number): ProjectileInstance | undefined {
+    return this.projectiles.find(shot => this.projectileCanReach(fighter, shot, ticks));
+  }
+
+  /** Predict contact along the shot's remaining path at the fighter's current position. */
+  projectileCanReach(fighter: Fighter, shot: ProjectileInstance, horizon = shot.life): boolean {
+    return this.projectileContactTick(fighter, shot, horizon) !== undefined;
+  }
+
+  projectileContactTick(fighter: Fighter, shot: ProjectileInstance, horizon = shot.life): number | undefined {
+    if (shot.owner.side === fighter.side || shot.hitVictims.has(fighter.uid)) return undefined;
+    const contactRange = shot.radius + PROJECTILE_BODY_MARGIN;
+    const frames = Math.min(shot.life, horizon);
+    const endX = shot.x + shot.vx * frames;
+    if (fighter.x < Math.min(shot.x, endX) - contactRange || fighter.x > Math.max(shot.x, endX) + contactRange) return undefined;
+    for (let frame = 1; frame <= frames; frame += 1) {
+      if (Math.abs(fighter.x - (shot.x + shot.vx * frame)) <= contactRange
+        && withinProjectileLane(shot, fighter, shot.y + shot.vy * frame)) return frame;
+    }
+    return undefined;
+  }
+
   replaceEnemies(spawns: readonly BeltEnemySpawn[]): void {
     this.enemies.length = 0;
     this.lastPlayerTargetUid = null;
@@ -137,6 +180,7 @@ export class CombatWorld {
       const fighter = new Fighter(spawn.character, 'enemy', spawn.x, spawn.y, facing, undefined, spawn.archetype ?? 'brawler');
       fighter.hp = spawn.hp ?? 420;
       fighter.maxHp = fighter.hp;
+      fighter.lateElite = spawn.lateElite ?? false;
       fighter.aiCooldown = 12 + (fighter.uid * 11) % 35;
       this.enemies.push(fighter);
     }
@@ -146,26 +190,47 @@ export class CombatWorld {
     this.props.push({ ...prop, maxHp: prop.maxHp ?? prop.hp, broken: prop.broken ?? false });
   }
 
-  update(input: InputManager, tick: number): void {
+  /** Reposition during a wave announcement while the enemy and combat clocks wait. */
+  updateWaveArrival(input: InputManager, tick: number, reserveCombat: boolean): void {
+    const wasAttacking = this.player.state === 'attack';
+    if (!wasAttacking) this.facePlayerToward(this.closestEnemyToPlayer());
+    this.player.setProximityGuard(0);
+    this.player.updatePlayer(input, this.rules, true);
+    for (const enemy of this.livingEnemies) this.separatePair(this.player, enemy, PLAYER_ENEMY_BODY_GAP, 38, true);
+    this.resolvePropCollisions(this.player);
+    if (wasAttacking && !this.player.currentMove) this.facePlayerToward(this.closestEnemyToPlayer());
+    // Keep motion history through the card; reserve combat only once the wave is close.
+    this.capturePausedInput(input, tick, reserveCombat, true);
+  }
+
+  capturePausedInput(input: InputManager, tick: number, reserveCombat: boolean, movementLive = false): void {
+    this.player.captureInput(input, tick, reserveCombat, this.rules, movementLive);
+    if (this.enemyInput) this.enemies[0]?.captureInput(this.enemyInput, tick, reserveCombat, this.rules);
+  }
+
+  update(input: InputManager, tick: number, preservePickupLife = false): void {
     if (this.superFreezeFrames > 0) {
-      this.player.captureInput(input, tick, true, this.rules);
-      if (this.enemyInput) this.enemies[0]?.captureInput(this.enemyInput, tick, true, this.rules);
+      this.capturePausedInput(input, tick, true);
       this.superFreezeFrames -= 1;
       this.ageEvents();
       return;
     }
     this.time += 1 / 60;
     this.tickComboFeedback();
-    const target = this.closestEnemyToPlayer();
-    if (target) this.player.facing = target.x >= this.player.x ? 1 : -1;
+    // Keep both the swing direction and lane assistance on the committed side.
+    const committedSide = this.rules.mode === 'belt' && this.player.state === 'attack' ? this.player.facing : undefined;
+    const target = this.closestEnemyToPlayer(committedSide);
+    if (committedSide === undefined) this.facePlayerToward(target);
     for (const enemy of this.livingEnemies) enemy.facing = this.player.x >= enemy.x ? 1 : -1;
 
-    this.player.captureInput(input, tick);
     const playerWasInHitStop = this.player.hitStop > 0;
     const belt = this.rules.mode === 'belt' && !this.dummyController ? this.belt : null;
-    const playerInput = belt ? belt.collectPickups(this, input) : input;
+    // During travel and loot, a buffered basic attack can claim a nearby reward.
+    const bufferedPickup = !!belt && preservePickupLife && this.player.hasBufferedBasicAttack(input, tick);
+    const playerInput = belt ? belt.collectPickups(this, input, bufferedPickup) : input;
+    this.player.captureInput(playerInput, tick);
     if (!belt?.tickPlayerSide(this, playerInput)) {
-      this.player.setProximityGuard(this.proximityThreat(this.player));
+      this.player.setProximityGuard(this.proximityGuardDirection(this.player, playerInput));
       this.player.updatePlayer(playerInput, this.rules);
       if (!playerWasInHitStop) this.applySoftLaneAlignment(target);
       belt?.detectPlayerGrab(this, playerInput);
@@ -188,11 +253,18 @@ export class CombatWorld {
         if (enemy.state === 'ko') enemy.updateAi(this.player, this.rules);
         continue;
       }
-      if (this.enemyInput && enemy === this.enemies[0]) { enemy.captureInput(this.enemyInput, tick); enemy.setProximityGuard(this.proximityThreat(enemy)); enemy.updatePlayer(this.enemyInput, this.rules); continue; }
+      if (this.enemyInput && enemy === this.enemies[0]) { enemy.captureInput(this.enemyInput, tick); enemy.setProximityGuard(this.proximityGuardDirection(enemy, this.enemyInput)); enemy.updatePlayer(this.enemyInput, this.rules); continue; }
       if (this.dummyController) { this.dummyController(enemy, this.player, this.rules); continue; }
       const directive = directives.get(enemy.uid);
       if (belt?.tickEnemySide(this, enemy, directive)) continue;
-      if (directive) enemy.updateAiDirected(this.player, this.rules, directive);
+      if (directive) {
+        // Check after hold processing: a grab can start or end during this tick.
+        const playerHeld = belt?.hold?.victim === this.player;
+        const next = playerHeld && (directive.attackAllowed || directive.rangedAllowed)
+          ? { ...directive, attackAllowed: false, rangedAllowed: false }
+          : directive;
+        enemy.updateAiDirected(this.player, this.rules, next);
+      }
       else enemy.updateAi(this.player, this.rules);
     }
 
@@ -215,24 +287,48 @@ export class CombatWorld {
     for (const enemy of this.livingEnemies) this.resolveEnvironmentAttack(enemy);
     this.updateProjectiles(input);
     this.resolveBodyCollisions();
-    belt?.afterUpdate(this);
+    belt?.afterUpdate(this, preservePickupLife);
 
     this.ageEvents();
   }
 
   /** An opponent's attack (or a projectile) is coming at this fighter, so holding back guards in place. */
-  private proximityThreat(fighter: Fighter): boolean {
+  private proximityGuardDirection(fighter: Fighter, input: InputManager): -1 | 0 | 1 {
+    const back: -1 | 1 = fighter.facing === 1 ? -1 : 1;
+    for (const projectile of this.projectiles) {
+      if (projectile.owner.side === fighter.side) continue;
+      if (projectile.move.guardBreak || projectile.hitVictims.has(fighter.uid)) continue;
+      const distance = (fighter.x - projectile.x) * Math.sign(projectile.vx);
+      if (distance <= 0 || distance >= 220) continue;
+      const remainingReach = projectile.radius + PROJECTILE_BODY_MARGIN + Math.abs(projectile.vx) * projectile.life;
+      if (distance > remainingReach) continue;
+      if (this.rules.mode !== 'belt') {
+        if (Math.abs(projectile.y - (fighter.y - 92)) < 80) return back;
+        continue;
+      }
+      const away = projectile.vx > 0 ? 1 : -1;
+      if (withinProjectileLane(projectile, fighter, projectile.y + projectile.vy) && this.holdingGuard(input, away)) return away;
+    }
     const opponents = fighter.side === 'player' ? this.livingEnemies : [this.player];
+    const inBelt = this.rules.mode === 'belt';
     for (const other of opponents) {
       const move = other.currentMove;
       if (other.hp <= 0 || other.state !== 'attack' || !move || move.kind === 'projectile' || other.moveFrame >= move.startup + move.active) continue;
-      if (Math.abs(other.x - fighter.x) <= move.hitbox.forward * other.character.reach + 70 && Math.abs(other.y - fighter.y) <= Math.max(this.rules.laneTolerance, move.hitbox.lane) + 12) return true;
+      // Throws cannot be guarded. Holding away must still let the fighter retreat.
+      if (move.kind === 'throw' || move.level === 'throw') continue;
+      const laneGap = Math.abs(other.y - fighter.y);
+      const laneReach = Math.max(this.rules.laneTolerance, move.hitbox.lane);
+      if (inBelt) {
+        if (move.guardBreak || laneGap > laneReach) continue;
+        const forward = (fighter.x - other.x) * other.facing;
+        if (forward < -move.hitbox.back || forward > meleeForwardReach(other, move) + 70) continue;
+        const away = this.meleeGuardDirection(fighter, other);
+        if (this.holdingGuard(input, away)) return away;
+      } else if (Math.abs(other.x - fighter.x) <= move.hitbox.forward * other.character.reach + 70 && laneGap <= laneReach + 12) {
+        return back;
+      }
     }
-    for (const projectile of this.projectiles) {
-      if (projectile.owner.side === fighter.side || projectile.vx === 0 || Math.sign(projectile.vx) !== Math.sign(fighter.x - projectile.x)) continue;
-      if (Math.abs(projectile.x - fighter.x) < 220 && Math.abs(projectile.y - (fighter.y - 92)) < 80) return true;
-    }
-    return false;
+    return 0;
   }
 
   private tickComboFeedback(): void {
@@ -303,12 +399,33 @@ export class CombatWorld {
     return 'hit';
   }
 
-  private closestEnemyToPlayer(): Fighter | null {
+  private facePlayerToward(target: Fighter | null): void {
+    if (target) this.player.facing = target.x >= this.player.x ? 1 : -1;
+  }
+
+  closestEnemyToPlayer(side?: 1 | -1): Fighter | null {
     let best: Fighter | null = null;
     let bestScore = Number.POSITIVE_INFINITY;
+    let bestInMeleeRange = false;
+    const preferMeleeRange = this.rules.mode === 'belt' && !this.player.airborne;
+    const move = this.player.currentMove;
+    const meleeReach = move?.kind === 'melee' ? meleeForwardReach(this.player, move)
+      : STANDING_KICK_REACH * this.player.combatProfile.normalReach * this.player.character.reach;
+    const laneReach = Math.max(this.rules.laneTolerance, move?.kind === 'melee' ? move.hitbox.lane : 0);
     for (const enemy of this.livingEnemies) {
-      const score = Math.abs(enemy.x - this.player.x) + Math.abs(enemy.y - this.player.y) * 1.4;
-      if (score < bestScore) { best = enemy; bestScore = score; }
+      const dx = enemy.x - this.player.x;
+      if (side !== undefined && dx * side < 0) continue;
+      const distance = Math.abs(dx);
+      const laneGap = Math.abs(enemy.y - this.player.y);
+      const inMeleeRange = preferMeleeRange && distance <= meleeReach && laneGap <= laneReach
+        && !enemy.airborne && !enemy.isInvulnerable();
+      if (bestInMeleeRange && !inMeleeRange) continue;
+      const score = distance + laneGap * 1.4;
+      if (inMeleeRange !== bestInMeleeRange || score < bestScore) {
+        best = enemy;
+        bestScore = score;
+        bestInMeleeRange = inMeleeRange;
+      }
     }
     return best;
   }
@@ -331,6 +448,12 @@ export class CombatWorld {
     fighter.moveEffectTriggered = true;
     const count = Math.max(1, move.projectile.count ?? 1);
     const spread = move.projectile.verticalSpread ?? 0;
+    const bossBurst = move.projectile.bossBurst;
+    if (bossBurst) {
+      this.spawnProjectileBurst(fighter, move, count, spread, bossBurst.speedScale);
+      this.events.push({ type: 'boss-burst', x: fighter.x, y: fighter.y - 100, power: move.damage, ttl: 34, label: bossBurst.label });
+      return;
+    }
     for (let index = 0; index < count; index += 1) {
       const offset = index - (count - 1) * .5;
       this.spawnScriptedProjectile(fighter, move, offset * spread, offset * .16, 1, index + 1, count);
@@ -431,8 +554,9 @@ export class CombatWorld {
       hitTotal: move.multiHit?.hits ?? 1,
       attackerSide: attacker.side,
       moveId: move.id,
+      superContact: outcome === 'hit' && move.superCost ? true : undefined,
     });
-    if (outcome === 'hit' && defender.airborne) this.events.push({ type: 'juggle', x: impactX, y: impactY - Math.min(60, defender.jumpHeight * .35), power: defender.juggleHits, ttl: 20, label: `${defender.juggleHits} JUGGLE` });
+    if (outcome === 'hit' && defender.airborne) this.events.push({ type: 'juggle', x: impactX, y: impactY - Math.min(60, defender.jumpHeight * .35), power: defender.juggleHits, ttl: 20, label: `${defender.juggleHits} JUGGLE`, superContact: move.superCost ? true : undefined });
     if (outcome === 'hit' && move.superCost) this.events.push({ type: 'super-impact', x: impactX, y: impactY, power: hitMove.damage, ttl: 34, label: move.label, color: hitMove.color, style: move.superPresentation?.motif, accent: move.superPresentation?.accent, hitIndex: hitNumber, hitTotal: move.multiHit?.hits ?? 1, attackerSide: attacker.side, moveId: move.id });
     if (outcome === 'hit') this.resolveWallImpact(defender, hitMove);
     if (defender.hp <= 0) this.events.push({ type: 'ko', x: defender.x, y: defender.y - 130, power: 999, ttl: 90 });
@@ -471,13 +595,17 @@ export class CombatWorld {
       return;
     }
 
-    const guarding = defender.canDefend() && (this.humanInputFor(defender, input) ? this.holdingGuard(defender, this.humanInputFor(defender, input)!) : this.enemyDefenseDecision(defender, attacker, move));
+    const humanInput = this.humanInputFor(defender, input);
+    const guardDirection = this.rules.mode === 'belt' ? this.meleeGuardDirection(defender, attacker) : -defender.facing;
+    const guarding = defender.canDefend() && (humanInput ? this.holdingGuard(humanInput, guardDirection) : this.enemyDefenseDecision(defender, attacker, move));
+    // Away from a rear attack may also be forward relative to the current target.
+    const rearGuard = !!humanInput && guarding && !move.guardBreak && guardDirection === defender.facing;
     const counter = defender.state === 'attack' && !!defender.currentMove && defender.moveFrame < defender.currentMove.startup;
     const hpBefore = defender.hp;
     // Capture the victim's contact height before launching/bouncing can change it.
     const midY = meleeImpactY(attacker, defender);
     const armor = this.rules.mode === 'belt' ? gruntById(defender.character.id)?.armor ?? 0 : 0;
-    if (armor > 0 && !guarding && defender.state === 'attack' && !hitMove.knockdown && !hitMove.launch && hitMove.level !== 'throw' && hitMove.damage < 50) {
+    if (armor > 0 && !guarding && defender.state === 'attack' && !defender.eliteRecoveryOpen && !hitMove.knockdown && !hitMove.launch && hitMove.level !== 'throw' && hitMove.damage < 50) {
       // Armored grunts (bruiser, riot soldier) shrug off light hits mid-swing: chip damage, no flinch.
       const damage = Math.max(1, Math.round(hitMove.damage * (1 - armor)));
       if (defender.hp > damage) {
@@ -491,11 +619,11 @@ export class CombatWorld {
         return;
       }
     }
-    const outcome = defender.receiveHit(hitMove, attacker, guarding, counter);
+    const outcome = defender.receiveHit(hitMove, attacker, guarding, counter, direction, !rearGuard);
     attacker.markHitTarget(defender);
     if (this.rules.mode === 'belt' && !this.dummyController) {
       if (outcome === 'hit' || outcome === 'block') this.belt.onAttackerContact(this, attacker, move);
-      if (defender === this.player && outcome === 'hit') this.belt.onPlayerHit(this, hitMove);
+      if (defender === this.player && outcome === 'hit') this.belt.onPlayerHit(this, hitMove, attacker);
     }
     // A blocked melee contact freezes both bodies on the same impact tick.
     if (outcome === 'block') attacker.hitStop = Math.max(attacker.hitStop, Math.round(hitMove.hitStop * .55));
@@ -517,8 +645,8 @@ export class CombatWorld {
     if (outcome === 'parry' || outcome === 'red-parry') attacker.hitStop = Math.max(attacker.hitStop, outcome === 'red-parry' ? 8 : 6);
     const midX = (attacker.x + defender.x) * .5;
     const type = outcome === 'hit' && counter ? 'counter' : outcome === 'hit' ? this.impactType(move) : outcome;
-    this.events.push({ type, x: midX, y: midY, power: hitMove.damage, ttl: type.includes('parry') ? 24 : type === 'target-hit' ? 22 : 16, label: move.multiHit ? `${move.label} ${hitNumber}/${move.multiHit.hits}` : move.technique ? move.label : undefined, color: hitMove.color, hitIndex: hitNumber, hitTotal: move.multiHit?.hits ?? 1, attackerSide: attacker.side, moveId: move.id });
-    if (outcome === 'hit' && defender.airborne) this.events.push({ type: 'juggle', x: midX, y: midY - Math.min(60, defender.jumpHeight * .35), power: defender.juggleHits, ttl: 20, label: `${defender.juggleHits} JUGGLE` });
+    this.events.push({ type, x: midX, y: midY, power: hitMove.damage, ttl: type.includes('parry') ? 24 : type === 'target-hit' ? 22 : 16, label: move.multiHit ? `${move.label} ${hitNumber}/${move.multiHit.hits}` : move.technique ? move.label : undefined, color: hitMove.color, hitIndex: hitNumber, hitTotal: move.multiHit?.hits ?? 1, attackerSide: attacker.side, moveId: move.id, superContact: outcome === 'hit' && move.superCost ? true : undefined });
+    if (outcome === 'hit' && defender.airborne) this.events.push({ type: 'juggle', x: midX, y: midY - Math.min(60, defender.jumpHeight * .35), power: defender.juggleHits, ttl: 20, label: `${defender.juggleHits} JUGGLE`, superContact: move.superCost ? true : undefined });
     if (outcome === 'hit' && move.superCost) this.events.push({ type: 'super-impact', x: midX, y: midY, power: hitMove.damage, ttl: 34, label: move.label, color: hitMove.color, style: move.superPresentation?.motif, accent: move.superPresentation?.accent, hitIndex: hitNumber, hitTotal: move.multiHit?.hits ?? 1, attackerSide: attacker.side, moveId: move.id });
 
     if (outcome === 'hit' && hitMove.level === 'throw' && this.rules.mode === 'belt') this.resolveThrownEnemyCollision(attacker, defender, hitMove);
@@ -561,15 +689,17 @@ export class CombatWorld {
       for (const defender of defenders) {
         if (defender.hp <= 0 || projectile.hitVictims.has(defender.uid) || defender.isInvulnerable()) continue;
         const dx = Math.abs(defender.x - projectile.x);
-        const defenderCenterY = defender.y - 88 - defender.jumpHeight * .9;
-        const dy = Math.abs(defenderCenterY - projectile.y);
-        if (dx > projectile.radius + 34 || dy > Math.max(55, projectile.move.hitbox.lane)) continue;
-        const guarding = defender.canDefend() && (this.humanInputFor(defender, input) ? this.holdingGuard(defender, this.humanInputFor(defender, input)!) : this.enemyDefenseDecision(defender, projectile.owner, projectile.move, projectile.x));
+        if (dx > projectile.radius + PROJECTILE_BODY_MARGIN || !withinProjectileLane(projectile, defender)) continue;
+        const impactDirection: 1 | -1 = projectile.vx < 0 ? -1 : projectile.vx > 0 ? 1 : projectile.owner.facing;
+        const humanInput = this.humanInputFor(defender, input);
+        const guardDirection = this.rules.mode === 'belt' && projectile.vx !== 0 ? impactDirection : -defender.facing;
+        const guarding = defender.canDefend() && (humanInput ? this.holdingGuard(humanInput, guardDirection) : this.enemyDefenseDecision(defender, projectile.owner, projectile.move, projectile.x));
+        // The rear guard direction is also forward relative to the defender's current target.
+        const rearGuard = !!humanInput && guarding && guardDirection === defender.facing;
         const counter = defender.state === 'attack' && !!defender.currentMove && defender.moveFrame < defender.currentMove.startup;
         const hpBefore = defender.hp;
-        const impactDirection: 1 | -1 = projectile.vx < 0 ? -1 : projectile.vx > 0 ? 1 : projectile.owner.facing;
-        const outcome = defender.receiveHit(projectile.move, projectile.owner, guarding, counter, impactDirection);
-        if (this.rules.mode === 'belt' && defender === this.player && outcome === 'hit' && !this.dummyController) this.belt.onPlayerHit(this, projectile.move);
+        const outcome = defender.receiveHit(projectile.move, projectile.owner, guarding, counter, impactDirection, !rearGuard);
+        if (this.rules.mode === 'belt' && defender === this.player && outcome === 'hit' && !this.dummyController) this.belt.onPlayerHit(this, projectile.move, projectile.owner);
         if (outcome === 'hit') {
           defender.syncVisualHitSequence(projectile.burstIndex, projectile.burstTotal);
           projectile.owner.addAttackReward(projectile.move);
@@ -581,7 +711,7 @@ export class CombatWorld {
           if (outcome === 'red-parry') this.playerRedParries += 1;
         }
         const type = outcome === 'hit' && counter ? 'counter' : outcome === 'hit' ? this.impactType(projectile.move) : outcome;
-        this.events.push({ type, x: projectile.x, y: projectile.y, power: projectile.move.damage, ttl: type.includes('parry') ? 24 : 16, color: projectile.move.color, hitIndex: projectile.burstIndex || 1, hitTotal: projectile.burstTotal || 1, attackerSide: projectile.owner.side, moveId: projectile.move.id });
+        this.events.push({ type, x: projectile.x, y: projectile.y, power: projectile.move.damage, ttl: type.includes('parry') ? 24 : 16, color: projectile.move.color, hitIndex: projectile.burstIndex || 1, hitTotal: projectile.burstTotal || 1, attackerSide: projectile.owner.side, moveId: projectile.move.id, superContact: outcome === 'hit' && projectile.move.superCost ? true : undefined });
         if (outcome === 'hit' && projectile.move.superCost) this.events.push({ type: 'super-impact', x: projectile.x, y: projectile.y, power: projectile.move.damage, ttl: 34, label: projectile.move.label, color: projectile.move.color, style: projectile.move.superPresentation?.motif, accent: projectile.move.superPresentation?.accent, hitIndex: projectile.burstIndex || 1, hitTotal: projectile.burstTotal || 1, attackerSide: projectile.owner.side, moveId: projectile.move.id });
         if (outcome === 'hit') this.resolveWallImpact(defender, projectile.move);
         if (defender.hp <= 0) this.events.push({ type: 'ko', x: defender.x, y: defender.y - 130, power: 999, ttl: 90 });
@@ -661,9 +791,14 @@ export class CombatWorld {
     return this.isHumanEnemy(defender) ? this.enemyInput : null;
   }
 
-  private holdingGuard(defender: Fighter, input: InputManager): boolean {
-    const back = defender.facing === 1 ? 'left' : 'right';
-    return input.held(back) && !input.held(defender.facing === 1 ? 'right' : 'left');
+  meleeGuardDirection(defender: Fighter, attacker: Fighter): -1 | 1 {
+    if (defender.x === attacker.x) return attacker.facing;
+    return defender.x < attacker.x ? -1 : 1;
+  }
+
+  private holdingGuard(input: InputManager, direction: number): boolean {
+    const back = direction < 0 ? 'left' : 'right';
+    return input.held(back) && !input.held(back === 'left' ? 'right' : 'left');
   }
 
   private throwEscape(defender: Fighter): boolean {
@@ -694,43 +829,81 @@ export class CombatWorld {
         fighter.x = Math.max(this.rules.arenaLeft, Math.min(this.rules.arenaRight, fighter.x));
       }
     }
-    for (const enemy of this.livingEnemies) this.separatePair(this.player, enemy, PLAYER_ENEMY_BODY_GAP, 38);
-    for (let i = 0; i < this.livingEnemies.length; i += 1) {
-      for (let j = i + 1; j < this.livingEnemies.length; j += 1) this.separatePair(this.livingEnemies[i]!, this.livingEnemies[j]!, 46, 32);
+    const livingEnemies = this.livingEnemies;
+    for (const enemy of livingEnemies) this.separatePair(this.player, enemy, PLAYER_ENEMY_BODY_GAP, 38);
+    for (let i = 0; i < livingEnemies.length; i += 1) {
+      for (let j = i + 1; j < livingEnemies.length; j += 1) this.separatePair(livingEnemies[i]!, livingEnemies[j]!, 46, 32);
     }
-    for (const fighter of [this.player, ...this.livingEnemies]) {
-      for (const prop of this.props) {
-        if (!prop.solid || prop.broken) continue;
-        if (fighter.airborne && fighter.jumpHeight > 52) continue;
-        const dx = fighter.x - prop.x;
-        const dy = fighter.y - prop.y;
-        const minX = prop.width * .5 + 28;
-        const minY = prop.depth * .5 + 16;
-        if (Math.abs(dx) < minX && Math.abs(dy) < minY) {
-          const horizontal = Math.abs(dx) / minX > Math.abs(dy) / minY;
-          const nextX = horizontal ? prop.x + Math.sign(dx || 1) * minX : fighter.x;
-          const nextY = horizontal ? fighter.y : prop.y + Math.sign(dy || 1) * minY;
-          if (nextX >= this.rules.arenaLeft && nextX <= this.rules.arenaRight
-            && nextY >= this.rules.arenaTop && nextY <= this.rules.arenaBottom) {
-            fighter.x = nextX;
-            fighter.y = nextY;
-          } else {
-            // A boundary can block the preferred face. Exit along the other axis.
-            const alternatives = horizontal
-              ? [1, -1].map(sign => ({ x: fighter.x, y: prop.y + Math.sign(dy || 1) * sign * minY }))
-              : [1, -1].map(sign => ({ x: prop.x + Math.sign(dx || 1) * sign * minX, y: fighter.y }));
-            const exit = alternatives.filter(point => point.x >= this.rules.arenaLeft && point.x <= this.rules.arenaRight
-              && point.y >= this.rules.arenaTop && point.y <= this.rules.arenaBottom)
-              .sort((a, b) => Math.hypot(a.x - fighter.x, a.y - fighter.y) - Math.hypot(b.x - fighter.x, b.y - fighter.y))[0];
-            fighter.x = exit?.x ?? Math.max(this.rules.arenaLeft, Math.min(this.rules.arenaRight, nextX));
-            fighter.y = exit?.y ?? Math.max(this.rules.arenaTop, Math.min(this.rules.arenaBottom, nextY));
-          }
+    for (const fighter of [this.player, ...livingEnemies]) this.resolvePropCollisions(fighter);
+  }
+
+  hasPlayerRollRoom(direction: 1 | -1): boolean {
+    const { x, y } = this.player;
+    const nextX = x + direction * TECH_ROLL_SPEED;
+    if (nextX < this.rules.arenaLeft || nextX > this.rules.arenaRight) return false;
+    // A solid prop can immediately undo the first roll step.
+    return !this.props.some(prop => prop.solid && !prop.broken
+      && Math.abs(nextX - prop.x) < prop.width * .5 + PROP_BODY_MARGIN_X
+      && Math.abs(y - prop.y) < prop.depth * .5 + PROP_BODY_MARGIN_Y);
+  }
+
+  private resolvePropCollisions(fighter: Fighter): void {
+    for (const prop of this.props) {
+      if (!prop.solid || prop.broken) continue;
+      if (fighter.airborne && fighter.jumpHeight > 52) continue;
+      const dx = fighter.x - prop.x;
+      const dy = fighter.y - prop.y;
+      const minX = prop.width * .5 + PROP_BODY_MARGIN_X;
+      const minY = prop.depth * .5 + PROP_BODY_MARGIN_Y;
+      if (Math.abs(dx) < minX && Math.abs(dy) < minY) {
+        const horizontal = Math.abs(dx) / minX > Math.abs(dy) / minY;
+        const nextX = horizontal ? prop.x + Math.sign(dx || 1) * minX : fighter.x;
+        const nextY = horizontal ? fighter.y : prop.y + Math.sign(dy || 1) * minY;
+        if (horizontal && this.rules.mode === 'belt' && fighter !== this.player
+          && fighter.state === 'walk' && !fighter.airborne && fighter.hitStop === 0
+          && fighter.walkDirection === -Math.sign(dx) && this.stepAroundProp(fighter, prop, minX, minY)) continue;
+        if (nextX >= this.rules.arenaLeft && nextX <= this.rules.arenaRight
+          && nextY >= this.rules.arenaTop && nextY <= this.rules.arenaBottom) {
+          fighter.x = nextX;
+          fighter.y = nextY;
+        } else {
+          // A boundary can block the preferred face. Exit along the other axis.
+          const alternatives = horizontal
+            ? [1, -1].map(sign => ({ x: fighter.x, y: prop.y + Math.sign(dy || 1) * sign * minY }))
+            : [1, -1].map(sign => ({ x: prop.x + Math.sign(dx || 1) * sign * minX, y: fighter.y }));
+          const exit = alternatives.filter(point => point.x >= this.rules.arenaLeft && point.x <= this.rules.arenaRight
+            && point.y >= this.rules.arenaTop && point.y <= this.rules.arenaBottom)
+            .sort((a, b) => Math.hypot(a.x - fighter.x, a.y - fighter.y) - Math.hypot(b.x - fighter.x, b.y - fighter.y))[0];
+          fighter.x = exit?.x ?? Math.max(this.rules.arenaLeft, Math.min(this.rules.arenaRight, nextX));
+          fighter.y = exit?.y ?? Math.max(this.rules.arenaTop, Math.min(this.rules.arenaBottom, nextY));
         }
       }
     }
   }
 
-  private separatePair(a: Fighter, b: Fighter, minX: number, minY: number): void {
+  private stepAroundProp(fighter: Fighter, prop: EnvironmentProp, minX: number, minY: number): boolean {
+    const edge = prop.x + Math.sign(fighter.x - prop.x) * minX;
+    if (edge < this.rules.arenaLeft || edge > this.rules.arenaRight) return false;
+    const upper = prop.y - minY;
+    const lower = prop.y + minY;
+    const canGoAbove = upper >= this.rules.arenaTop;
+    const canGoBelow = lower <= this.rules.arenaBottom;
+    if (!canGoAbove && !canGoBelow) return false;
+    // Keep the cleared lane while taking the first step past the side of the prop.
+    if (fighter.previousY <= upper || fighter.previousY >= lower) {
+      fighter.y = Math.max(this.rules.arenaTop, Math.min(this.rules.arenaBottom, fighter.previousY));
+      return true;
+    }
+    // Convert the blocked forward step into a depth step. Start from the previous
+    // lane so steering back toward the player cannot undo the detour each tick.
+    const goAbove = canGoAbove && (!canGoBelow || fighter.previousY < prop.y);
+    const travel = Math.min(3, Math.abs(fighter.x - fighter.previousX));
+    fighter.x = edge;
+    fighter.y = goAbove ? Math.max(upper, fighter.previousY - travel) : Math.min(lower, fighter.previousY + travel);
+    return true;
+  }
+
+  private separatePair(a: Fighter, b: Fighter, minX: number, minY: number, fixedB = false): void {
     if ((a.airborne || b.airborne) && Math.max(a.jumpHeight, b.jumpHeight) > 42) return;
     const dx = b.x - a.x;
     const dy = Math.abs(b.y - a.y);
@@ -739,7 +912,7 @@ export class CombatWorld {
     const overlap = minX - Math.abs(dx);
     const sign: 1 | -1 = dx >= 0 ? 1 : -1;
     const availableA = sign === 1 ? a.x - this.rules.arenaLeft : this.rules.arenaRight - a.x;
-    const availableB = sign === 1 ? this.rules.arenaRight - b.x : b.x - this.rules.arenaLeft;
+    const availableB = fixedB ? 0 : sign === 1 ? this.rules.arenaRight - b.x : b.x - this.rules.arenaLeft;
     let shiftA = Math.min(overlap * .5, Math.max(0, availableA));
     let shiftB = Math.min(overlap * .5, Math.max(0, availableB));
     let remaining = Math.max(0, overlap - shiftA - shiftB);
@@ -755,8 +928,7 @@ export class CombatWorld {
     }
 
     a.x -= sign * shiftA;
-    b.x += sign * shiftB;
     a.x = Math.max(this.rules.arenaLeft, Math.min(this.rules.arenaRight, a.x));
-    b.x = Math.max(this.rules.arenaLeft, Math.min(this.rules.arenaRight, b.x));
+    if (!fixedB) b.x = Math.max(this.rules.arenaLeft, Math.min(this.rules.arenaRight, b.x + sign * shiftB));
   }
 }

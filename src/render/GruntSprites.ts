@@ -2,6 +2,7 @@ import type { Fighter } from '../combat/Fighter.js';
 import type { ProjectileInstance } from '../combat/CombatWorld.js';
 import { gruntById, type GruntKind } from '../combat/GruntLibrary.js';
 import { heldWeaponOf, isHeldByGrab, PICKUP_ORDER, type Pickup, type PickupKind } from '../combat/BeltSystems.js';
+import { defenseCrouchBlend } from './CombatSpriteProfiles.js';
 import { artImage, type ArtAssetKey } from './ImageAssets.js';
 
 /** grunts-v1 atlases: 7 cells of 384x448, feet on y=423, drawn at half size like the playable HD sprites. */
@@ -21,13 +22,57 @@ export function gruntPoseFor(fighter: Fighter): GruntPose {
   if (fighter.throwSyncFrames > 0 && fighter.throwSyncRole === 'attacker') return 'strike';
   const move = fighter.currentMove;
   if (fighter.state === 'attack' && move) {
-    if (fighter.moveFrame < move.startup) return 'windup';
+    if (fighter.moveFrame < move.startup || fighter.eliteRecoveryOpen) return 'windup';
     if (fighter.moveFrame < move.startup + move.active + Math.ceil(move.recovery * .45)) return 'strike';
     return 'windup';
   }
   if (fighter.state === 'block') return 'windup';
   if (fighter.state === 'walk' || fighter.state === 'jump') return Math.floor(fighter.animationFrame / 9) % 2 ? 'walk' : 'idle';
   return 'idle';
+}
+
+/** Mark committed attacks during the same startup window as the windup sprite. */
+export function drawGruntAttackWarning(ctx: CanvasRenderingContext2D, fighter: Fighter, alpha: number): boolean {
+  const move = fighter.currentMove;
+  if (fighter.side !== 'enemy' || fighter.hp <= 0 || !gruntById(fighter.character.id)
+    || fighter.state !== 'attack' || !move || fighter.throwSyncFrames > 0
+    || move.startup < 9 || fighter.moveFrame >= move.startup
+    || !(move.guardBreak || move.knockdown || move.projectile || (fighter.lateElite && move.eliteRecoveryBonus))) return false;
+
+  const x = fighter.previousX + (fighter.x - fighter.previousX) * alpha;
+  const y = fighter.previousY + (fighter.y - fighter.previousY) * alpha;
+  ctx.save();
+  ctx.translate(x, y - fighter.jumpHeight - 178 * fighter.character.heightScale);
+  ctx.beginPath();
+  ctx.moveTo(-12, -7);
+  ctx.lineTo(12, -7);
+  ctx.lineTo(0, 7);
+  ctx.closePath();
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#211206';
+  ctx.fillStyle = '#ffd173';
+  ctx.stroke();
+  ctx.fill();
+  ctx.restore();
+  return true;
+}
+
+export function drawGruntRecoveryOpening(ctx: CanvasRenderingContext2D, fighter: Fighter, alpha: number): boolean {
+  if (!fighter.eliteRecoveryOpen) return false;
+  const x = fighter.previousX + (fighter.x - fighter.previousX) * alpha;
+  const y = fighter.previousY + (fighter.y - fighter.previousY) * alpha;
+  ctx.save();
+  ctx.translate(x, y - fighter.jumpHeight - 178 * fighter.character.heightScale);
+  ctx.fillStyle = 'rgba(8,19,21,.92)';
+  ctx.beginPath(); ctx.roundRect(-36, -13, 72, 26, 6); ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '900 16px Arial, sans-serif';
+  ctx.fillStyle = '#a3f3dc';
+  ctx.fillText('OPEN', 0, 1);
+  ctx.restore();
+  return true;
 }
 
 export function drawGruntSprite(ctx: CanvasRenderingContext2D, fighter: Fighter, x: number, y: number): boolean {
@@ -108,7 +153,11 @@ export function drawHeldWeapon(ctx: CanvasRenderingContext2D, fighter: Fighter, 
   if (!weapon || !atlas || fighter.state === 'knockdown' || fighter.state === 'ko') return false;
   const move = fighter.currentMove;
   let angle = -1.05, reach = 30, height = 118;
-  if (fighter.state === 'attack' && move?.id.startsWith('WEAPON_')) {
+  if (fighter.state === 'block' && fighter.character.id === 'KEN' && weapon.kind === 'pipe' && defenseCrouchBlend(fighter) === 0) {
+    // Ken tucks his lead hand closer to the body in the standing guard pose.
+    reach = 22;
+    height = 102;
+  } else if (fighter.state === 'attack' && move?.id.startsWith('WEAPON_')) {
     const total = move.startup + move.active;
     const t = Math.min(1, fighter.moveFrame / Math.max(1, total));
     angle = fighter.moveFrame < move.startup ? -1.05 - t * .9 : -1.9 + Math.min(1, (fighter.moveFrame - move.startup + 1) / Math.max(1, move.active)) * 2.25;

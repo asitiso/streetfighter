@@ -1,3 +1,4 @@
+import { advanceThroughBeltLoot } from './duel-round-helpers.mjs';
 // V083: smarter duel AI — fireball answers, anti-air, whiff punish, footsies, per-stage difficulty, determinism.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -161,6 +162,7 @@ function reachDuel(stageId) {
     scene.fixedUpdate(1 / 60, tick++);
     if (wave < 2) { scene.world.player.x = scene.areaStarts[wave + 1] + 160; scene.fixedUpdate(1 / 60, tick++); for (let t = 0; t < 60; t += 1) scene.fixedUpdate(1 / 60, tick++); }
   }
+  tick = advanceThroughBeltLoot(scene, tick);
   for (let t = 0; t < 400 && scene.phase !== 'duel'; t += 1) scene.fixedUpdate(1 / 60, tick++);
   assert.equal(scene.phase, 'duel');
   return scene;

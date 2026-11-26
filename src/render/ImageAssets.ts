@@ -74,8 +74,8 @@ export type ArtAssetKey =
 export const ART_ASSET_PATHS: Record<ArtAssetKey, string> = {
   'hit-impact-atlas': '/art/fx/hit-impact-v2.webp',
   'combat-impact-atlas': '/art/fx/combat-impact-v1.webp',
-  'title-keyart': '/art/title-keyart.png',
-  'roster-mural': '/art/roster-mural.png',
+  'title-keyart': '/art/title-keyart.webp',
+  'roster-mural': '/art/roster-mural.webp',
   'prop-impact-v1': '/art/prop-impact-v1/atlas.webp',
   'stage-ambient-v1': '/art/stage-ambient-v1/atlas.webp',
   'stage-props-v1': '/art/stage-props-v1/atlas.webp',
@@ -91,7 +91,7 @@ export const ART_ASSET_PATHS: Record<ArtAssetKey, string> = {
   'stage-3': '/art/stage-backgrounds-v2/japan.webp',
   'stage-4': '/art/stage-backgrounds-v2/london.webp',
   'stage-5': '/art/stage-backgrounds-v2/society.webp',
-  'ending-keyart': '/art/ending-keyart.png',
+  'ending-keyart': '/art/ending-keyart.webp',
   'foreground-1': '/art/foregrounds/stage1-foreground.webp',
   'foreground-2': '/art/foregrounds/stage2-foreground.webp',
   'foreground-3': '/art/foregrounds/stage3-foreground.webp',
@@ -149,11 +149,18 @@ interface ArtAssetEntry {
   image: HTMLImageElement;
   loaded: boolean;
   failed: boolean;
+  objectUrl?: string;
 }
 
 const cache = new Map<ArtAssetKey, ArtAssetEntry>();
 
-function ensureEntry(key: ArtAssetKey): ArtAssetEntry | null {
+function releaseObjectUrl(entry: ArtAssetEntry): void {
+  if (!entry.objectUrl) return;
+  URL.revokeObjectURL(entry.objectUrl);
+  entry.objectUrl = undefined;
+}
+
+function ensureEntry(key: ArtAssetKey, response?: Response): ArtAssetEntry | null {
   if (typeof Image === 'undefined') return null;
   const existing = cache.get(key);
   if (existing) return existing;
@@ -161,11 +168,49 @@ function ensureEntry(key: ArtAssetKey): ArtAssetEntry | null {
   image.decoding = 'async';
   image.loading = 'eager';
   const entry: ArtAssetEntry = { image, loaded: false, failed: false };
-  image.onload = () => { entry.loaded = true; entry.failed = false; };
-  image.onerror = () => { entry.failed = true; entry.loaded = false; };
-  image.src = ART_ASSET_PATHS[key];
+  const fromOriginalUrl = () => {
+    if (cache.get(key) === entry) image.src = ART_ASSET_PATHS[key];
+  };
+  image.onload = () => {
+    releaseObjectUrl(entry);
+    entry.loaded = true;
+    entry.failed = false;
+  };
+  image.onerror = () => {
+    if (entry.objectUrl) {
+      releaseObjectUrl(entry);
+      fromOriginalUrl();
+      return;
+    }
+    entry.failed = true;
+    entry.loaded = false;
+  };
   cache.set(key, entry);
+  if (response && typeof URL.createObjectURL === 'function' && typeof URL.revokeObjectURL === 'function') {
+    void Promise.resolve().then(() => response.blob()).then(blob => {
+      if (cache.get(key) !== entry) return;
+      entry.objectUrl = URL.createObjectURL(blob);
+      image.src = entry.objectUrl;
+    }).catch(() => {
+      releaseObjectUrl(entry);
+      fromOriginalUrl();
+    });
+  } else fromOriginalUrl();
   return entry;
+}
+
+const SCENE_ART_KEYS: readonly ArtAssetKey[] = [
+  'stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5',
+  'foreground-1', 'foreground-2', 'foreground-3', 'foreground-4', 'foreground-5',
+  'ending-keyart',
+];
+const sceneArtByUrl = new Map(SCENE_ART_KEYS.map(key => [ART_ASSET_PATHS[key], key]));
+
+export function preloadSceneArtResponse(url: string, response: Response): void {
+  const key = sceneArtByUrl.get(url);
+  if (!key || typeof Image === 'undefined' || typeof response.blob !== 'function') return;
+  if (cache.get(key)?.failed) unloadArtAsset(key);
+  ensureEntry(key, response);
 }
 
 export function preloadArtAssets(keys: readonly ArtAssetKey[]): void {
@@ -197,6 +242,7 @@ export function unloadArtAsset(key: ArtAssetKey): void {
     entry.image.onload = null;
     entry.image.onerror = null;
     entry.image.src = '';
+    releaseObjectUrl(entry);
   }
   cache.delete(key);
 }

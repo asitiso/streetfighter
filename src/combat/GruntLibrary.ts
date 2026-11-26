@@ -43,6 +43,8 @@ interface MoveOptions {
   startup: number;
   active: number;
   recovery: number;
+  eliteStartupBonus?: number;
+  eliteRecoveryBonus?: number;
   damage: number;
   reach: number;
   level?: AttackLevel;
@@ -61,6 +63,8 @@ function gm(id: string, label: string, o: MoveOptions): MoveData {
   return {
     id, label, button: o.button, kind: o.projectile ? 'projectile' : 'melee',
     startup: o.startup, active: o.active, recovery: o.recovery, damage: o.damage,
+    ...(o.eliteStartupBonus ? { eliteStartupBonus: o.eliteStartupBonus } : {}),
+    ...(o.eliteRecoveryBonus ? { eliteRecoveryBonus: o.eliteRecoveryBonus } : {}),
     hitStop: o.damage >= 60 ? 9 : o.damage >= 38 ? 7 : 5,
     hitStun: 12 + Math.round(o.damage / 7), blockStun: 8 + Math.round(o.damage / 10),
     pushback: o.pushback ?? 10 + o.damage * .3, level,
@@ -108,14 +112,14 @@ export const GRUNTS: Readonly<Record<GruntKind, GruntDef>> = {
   knife: grunt('knife', 'KNIFE THUG', 'agile', { hp: 220, speed: 1.12, power: 1.05, reach: 1, colors: ['#e3b52d', '#7a7f86', '#3d9a52'] }, { carries: 'knife', score: 400 },
     gm(`${K}_POKE`, 'KNIFE POKE', { button: 'lp', startup: 6, active: 3, recovery: 10, damage: 30, reach: 92, color: '#e8f1ff' }),
     gm(`${K}_SLASH`, 'KNIFE SLASH', { button: 'hp', startup: 9, active: 4, recovery: 15, damage: 48, reach: 106, level: 'high', color: '#dfe9ff' }),
-    gm(`${K}_FLURRY`, 'SLASH FLURRY', { startup: 7, active: 9, recovery: 18, damage: 60, reach: 90, multiHit: { hits: 3, interval: 3, perHitScale: .42 }, color: '#f3f7ff' }),
+    gm(`${K}_FLURRY`, 'SLASH FLURRY', { startup: 7, active: 9, recovery: 18, eliteStartupBonus: 6, eliteRecoveryBonus: 10, damage: 60, reach: 90, multiHit: { hits: 3, interval: 3, perHitScale: .42 }, color: '#f3f7ff' }),
     gm(`${K}_MOBILITY`, 'LUNGE STAB', { startup: 12, active: 9, recovery: 22, damage: 56, reach: 88, knockdown: true, color: '#ffffff' }),
     gm(`${K}_ANTI_AIR`, 'RISING SLASH', { startup: 6, active: 4, recovery: 20, damage: 42, reach: 70, launch: 56, knockdown: true, color: '#e8f1ff' })),
   bruiser: grunt('bruiser', 'BIG BRUISER', 'grappler', { hp: 430, speed: .82, power: 1.12, reach: 1.05, widthScale: 1.04, colors: ['#e8dcc2', '#4b4a2a', '#8b5a2b'] }, { grabsPlayer: true, armor: .25, score: 600 },
     gm(`${B}_SLAP`, 'BELLY SLAP', { button: 'lp', startup: 8, active: 3, recovery: 14, damage: 34, reach: 82, color: '#ffd0a0' }),
-    gm(`${B}_BUMP`, 'BELLY BUMP', { button: 'hp', startup: 13, active: 6, recovery: 22, damage: 62, reach: 98, knockdown: true, pushback: 44, color: '#ffbf80' }),
-    gm(`${B}_PRESS`, 'BODY PRESS', { startup: 15, active: 6, recovery: 26, damage: 76, reach: 102, knockdown: true, guardBreak: true, color: '#ffa860' }),
-    gm(`${B}_MOBILITY`, 'BULL CHARGE', { startup: 14, active: 14, recovery: 24, damage: 60, reach: 80, knockdown: true, pushback: 50, color: '#ff9a4a' }),
+    gm(`${B}_BUMP`, 'BELLY BUMP', { eliteRecoveryBonus: 12, button: 'hp', startup: 13, active: 6, recovery: 22, damage: 62, reach: 98, knockdown: true, pushback: 44, color: '#ffbf80' }),
+    gm(`${B}_PRESS`, 'BODY PRESS', { eliteRecoveryBonus: 14, startup: 15, active: 6, recovery: 26, damage: 76, reach: 102, knockdown: true, guardBreak: true, color: '#ffa860' }),
+    gm(`${B}_MOBILITY`, 'BULL CHARGE', { eliteRecoveryBonus: 14, startup: 14, active: 14, recovery: 24, damage: 60, reach: 80, knockdown: true, pushback: 50, color: '#ff9a4a' }),
     gm(`${B}_ANTI_AIR`, 'HEADBUTT', { startup: 7, active: 4, recovery: 22, damage: 50, reach: 64, launch: 50, knockdown: true, color: '#ffd56c' })),
   kicker: grunt('kicker', 'STREET KICKER', 'kick', { hp: 230, speed: 1.1, power: .98, reach: 1.04, colors: ['#1b1b22', '#f1f1f1', '#8a3fc4'] }, { score: 400 },
     gm(`${KI}_SNAP`, 'SNAP KICK', { button: 'lk', startup: 5, active: 2, recovery: 9, damage: 26, reach: 94, color: '#e7c7ff' }),
@@ -125,17 +129,22 @@ export const GRUNTS: Readonly<Record<GruntKind, GruntDef>> = {
     gm(`${KI}_ANTI_AIR`, 'HIGH KICK', { startup: 5, active: 4, recovery: 18, damage: 44, reach: 76, launch: 64, knockdown: true, color: '#f0d2ff' })),
   soldier: grunt('soldier', 'RIOT SOLDIER', 'heavy', { hp: 380, speed: .92, power: 1.08, reach: 1.02, colors: ['#26324a', '#141a26', '#9fb3c8'] }, { armor: .3, carries: 'pipe', score: 500 },
     gm(`${S}_JAB`, 'BATON JAB', { button: 'lp', startup: 7, active: 3, recovery: 12, damage: 36, reach: 98, color: '#c9d6e6' }),
-    gm(`${S}_SMASH`, 'BATON SMASH', { button: 'hp', startup: 13, active: 4, recovery: 22, damage: 70, reach: 114, level: 'high', color: '#e3edf7' }),
-    gm(`${S}_COMBO`, 'BATON COMBO', { startup: 9, active: 9, recovery: 22, damage: 66, reach: 100, multiHit: { hits: 2, interval: 4, perHitScale: .58 }, color: '#d2deeb' }),
-    gm(`${S}_MOBILITY`, 'SHIELD CHARGE', { startup: 14, active: 12, recovery: 24, damage: 58, reach: 78, knockdown: true, guardBreak: true, color: '#9fb3c8' }),
+    gm(`${S}_SMASH`, 'BATON SMASH', { eliteRecoveryBonus: 12, button: 'hp', startup: 13, active: 4, recovery: 22, damage: 70, reach: 114, level: 'high', color: '#e3edf7' }),
+    gm(`${S}_COMBO`, 'BATON COMBO', { eliteRecoveryBonus: 12, startup: 9, active: 9, recovery: 22, damage: 66, reach: 100, multiHit: { hits: 2, interval: 4, perHitScale: .58 }, color: '#d2deeb' }),
+    gm(`${S}_MOBILITY`, 'SHIELD CHARGE', { eliteRecoveryBonus: 14, startup: 14, active: 12, recovery: 24, damage: 58, reach: 78, knockdown: true, guardBreak: true, color: '#9fb3c8' }),
     gm(`${S}_ANTI_AIR`, 'BATON RISE', { startup: 7, active: 4, recovery: 22, damage: 50, reach: 74, launch: 58, knockdown: true, color: '#e3edf7' })),
   thrower: grunt('thrower', 'BOTTLE THROWER', 'ranged', { hp: 210, speed: 1, power: .95, reach: 1, colors: ['#e0651f', '#1b1b22', '#e8e8e8'] }, { score: 350 },
     gm(`${T}_SHOVE`, 'SHOVE', { button: 'lp', startup: 6, active: 2, recovery: 10, damage: 24, reach: 78, color: '#ffd0a0' }),
-    gm(`${T}_SWING`, 'BOTTLE SWING', { button: 'hp', startup: 9, active: 3, recovery: 16, damage: 46, reach: 92, color: '#7fd26a' }),
-    gm(`${T}_BOTTLE`, 'BOTTLE TOSS', { startup: 14, active: 2, recovery: 22, damage: 44, reach: 44, projectile: { speed: 6.8, life: 92, radius: 16 }, color: '#7fd26a' }),
+    gm(`${T}_SWING`, 'BOTTLE SWING', { eliteRecoveryBonus: 10, button: 'hp', startup: 9, active: 3, recovery: 16, damage: 46, reach: 92, color: '#7fd26a' }),
+    gm(`${T}_BOTTLE`, 'BOTTLE TOSS', { eliteRecoveryBonus: 12, startup: 14, active: 2, recovery: 22, damage: 44, reach: 44, projectile: { speed: 6.8, life: 92, radius: 16 }, color: '#7fd26a' }),
     gm(`${T}_MOBILITY`, 'DUCK RUSH', { startup: 10, active: 8, recovery: 20, damage: 36, reach: 66, knockdown: true, color: '#ffb36b' }),
     gm(`${T}_ANTI_AIR`, 'BOTTLE UP', { startup: 6, active: 4, recovery: 20, damage: 40, reach: 62, launch: 50, knockdown: true, color: '#7fd26a' })),
 };
+
+export function canFireGruntProjectile(projectile: ProjectileDef | undefined, distance: number, laneGap: number, preferredDistance: number): boolean {
+  return projectile !== undefined && laneGap < 48
+    && distance > preferredDistance * 1.25 && distance <= 54 + projectile.speed * (projectile.life - 1);
+}
 
 export const GRUNT_KINDS = Object.keys(GRUNTS) as GruntKind[];
 const BY_ID = new Map(GRUNT_KINDS.map(kind => [GRUNTS[kind].id, GRUNTS[kind]] as const));

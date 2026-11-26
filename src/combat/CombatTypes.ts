@@ -19,6 +19,7 @@ export interface ProjectileDef {
   piercing?: boolean;
   count?: number;
   verticalSpread?: number;
+  bossBurst?: { label: string; speedScale: number };
 }
 
 export interface MoveData {
@@ -30,6 +31,8 @@ export interface MoveData {
   startup: number;
   active: number;
   recovery: number;
+  eliteStartupBonus?: number;
+  eliteRecoveryBonus?: number;
   damage: number;
   hitStop: number;
   hitStun: number;
@@ -76,6 +79,7 @@ export interface CombatEvent {
   hitTotal?: number;
   attackerSide?: 'player' | 'enemy';
   moveId?: string;
+  superContact?: true;
   audioPlayed?: boolean;
 }
 
@@ -83,6 +87,8 @@ export interface ModeRules {
   mode: 'belt' | 'duel';
   depthMovement: boolean;
   laneTolerance: number;
+  beltSingleMelee?: boolean;
+  quickRiseLandingAssist?: boolean;
   arenaLeft: number;
   arenaRight: number;
   arenaTop: number;

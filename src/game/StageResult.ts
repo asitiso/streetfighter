@@ -1,5 +1,7 @@
 export interface StageResult {
   stageId: 1 | 2 | 3 | 4 | 5;
+  /** Omitted by records created before campaign scoring was archived. */
+  beltScore?: number;
   clearSeconds: number;
   defeatedEnemies: number;
   damageDealt: number;
@@ -10,6 +12,11 @@ export interface StageResult {
   redParries: number;
   supersUsed: number;
   throwsLanded: number;
+}
+
+export interface StageScoreRecord {
+  latest: number;
+  best: number;
 }
 
 export interface CampaignTotals {

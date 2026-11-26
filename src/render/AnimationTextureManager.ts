@@ -188,8 +188,15 @@ class LiteAnimationTextureManager {
       entry.controller = new AbortController();
       const controller = entry.controller;
       timeout = setTimeout(() => controller.abort(), 5000);
-      const response = await fetch(sequence.asset, { cache: 'force-cache', signal: entry.controller.signal });
-      if (!response.ok) throw new Error('Lite strip unavailable');
+      const options = { cache: 'force-cache', signal: controller.signal } as const;
+      let response = await fetch(sequence.liteAsset ?? sequence.asset, options).catch(error => {
+        if (!sequence.liteAsset || controller.signal.aborted) throw error;
+        return null;
+      });
+      if (!response?.ok && sequence.liteAsset && !controller.signal.aborted) {
+        response = await fetch(sequence.asset, options);
+      }
+      if (!response?.ok) throw new Error('Lite strip unavailable');
       const blob = await response.blob();
       if (this.entries.get(sequence.id) !== entry) return;
       image = await createImageBitmap(blob, { resizeWidth: width, resizeHeight: height, resizeQuality: 'low' });

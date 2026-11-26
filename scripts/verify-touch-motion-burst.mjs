@@ -32,4 +32,121 @@ function held(s,expected){for(const a of allDirections)assert.equal(s.input.touc
 let singleDiagonalControls=0;
 for(const side of ['left','right'])for(const finish of ['pointerup','pointercancel','lostpointercapture','release','hide','edit']){const s=setup(),f=new Fighter(CHARACTERS[0],'player',600,500,1);down(s,side==='right'?'DR':'DL');if(finish==='release')s.touch.releaseAll();else if(finish==='hide'){s.touch.setVisible(false);s.touch.setVisible(true);}else if(finish==='edit'){s.touch.setEditMode(true);s.touch.setEditMode(false);}else end(s,finish);pointer(s.nodes.get('lp'),'pointerdown',40);f.captureInput(s.input,1000);f.updatePlayer(s.input,new CombatWorld(CHARACTERS[0],CHARACTERS[0],'duel').rules);assert.equal(f.currentMove?.id,'5LP','Single diagonal '+side+'/'+finish+' must not manufacture QCF/QCB');singleDiagonalControls++;s.touch.releaseAll();s.input.destroy();}
 {const s=setup();s.input.setTouch('down',true);s.input.setTouch('right',true);s.input.endTick();s.touch.releaseAll();held(s,[]);assert.equal(s.input.directionChanges().length,2,'Known pre-release baseline plus one atomic neutral state');assert.equal(s.input.directionChanges()[0].size,2);assert.equal(s.input.directionChanges()[1].size,0);s.input.destroy();singleDiagonalControls++;}
-if(recording)console.log(JSON.stringify(records));else console.log('TOUCH_MOTION_BURST_PASS',JSON.stringify({cases,slowControls,sharedCases,negativeControls,mixedControls,singleDiagonalControls,characters:10,facings:2,modes:2,commands:5}));
+let coalescedCases = 0;
+if (!recording) {
+  for (const face of [-1, 1]) {
+    for (const kind of ['quarter-circle', 'straight', 'cancel', 'return-to-down']) {
+      const s = setup();
+      const world = new CombatWorld(CHARACTERS[0], CHARACTERS[1], 'duel');
+      const fighter = world.player;
+      fighter.facing = face;
+      const x = face === 1 ? 250 : 50;
+      const forward = face === 1 ? 'right' : 'left';
+      Object.defineProperty(navigator, 'vibrate', { value: () => { vibrations++; } });
+      let vibrations = 0;
+      down(s, 'D');
+      vibrations = 0;
+      document.hit = null;
+      const event = new Event('pointermove', { cancelable: true });
+      const clientX = kind === 'return-to-down' ? 150 : x;
+      const clientY = kind === 'return-to-down' ? 250 : 150;
+      const samples = kind === 'straight' ? [] : [{ clientX: x, clientY: 250 }, { clientX: x, clientY: 150 }];
+      Object.defineProperties(event, {
+        pointerId: { value: 11 },
+        clientX: { value: clientX },
+        clientY: { value: clientY },
+        getCoalescedEvents: { value: () => samples },
+      });
+      s.dpad.dispatchEvent(event);
+      held(s, [kind === 'return-to-down' ? 'down' : forward]);
+      assert.equal(vibrations, kind === 'return-to-down' ? 0 : 1, 'Only the final direction may vibrate');
+      if (kind === 'cancel') end(s, 'pointercancel');
+      else end(s);
+      held(s, []);
+      pointer(s.nodes.get('lp'), 'pointerdown', 40);
+      step(s.input, [fighter], world.rules);
+      assert.equal(fighter.currentMove?.id, kind === 'quarter-circle' || kind === 'return-to-down' ? 'RYU_PRIMARY' : '5LP', kind + ' face ' + face);
+      s.touch.releaseAll();
+      s.input.destroy();
+      coalescedCases++;
+    }
+  }
+}
+let rapidChordCases = 0;
+if (!recording) {
+  const character = CHARACTERS.find(c => c.id === 'KEN');
+  for (const mode of ['duel', 'belt']) for (const face of [-1, 1]) {
+    for (const scenario of ['forward', 'down-forward', 'attack-first', 'cancel-attack', 'cancel-pad', 'completed-before-cancel', 'physical']) {
+      const s = setup();
+      const world = new CombatWorld(character, character, mode);
+      const fighter = world.player;
+      fighter.facing = face;
+      const forward = face === 1 ? 'R' : 'L';
+      const dip = face === 1 ? 'DR' : 'DL';
+      const mk = s.nodes.get('mk');
+      if (scenario === 'attack-first') pointer(mk, 'pointerdown', 40);
+      down(s, scenario === 'down-forward' ? dip : forward);
+      if (scenario !== 'attack-first' && scenario !== 'physical') pointer(mk, 'pointerdown', 40);
+      if (scenario === 'physical') { domKey('keydown', 'KeyI'); domKey('keyup', 'KeyI'); }
+      if (scenario === 'cancel-pad') end(s, 'pointercancel');
+      else end(s);
+      pointer(mk, scenario === 'cancel-attack' ? 'pointercancel' : 'pointerup', 40);
+      if (scenario === 'completed-before-cancel') {
+        pointer(mk, 'pointerdown', 41);
+        pointer(mk, 'pointercancel', 41);
+      }
+      held(s, []);
+      assert.equal(s.input.touchHeld('mk'), false);
+      step(s.input, [fighter], world.rules);
+      const expected = scenario === 'cancel-attack' ? undefined
+        : scenario === 'down-forward' && mode === 'duel' ? '2MK'
+        : ['forward', 'down-forward', 'completed-before-cancel'].includes(scenario) ? 'KEN_CMD_MK' : '5MK';
+      assert.equal(fighter.currentMove?.id, expected, mode + '/' + face + '/' + scenario);
+      s.touch.releaseAll();
+      s.input.destroy();
+      rapidChordCases++;
+    }
+  }
+}
+let releasePointCases = 0;
+if (!recording) {
+  for (const face of [-1, 1]) {
+    for (const scenario of ['forward', 'outside', 'cancel', 'lost', 'unowned', 'mouse', 'menu', 'neutral-entry']) {
+      const s = setup();
+      const world = new CombatWorld(CHARACTERS[0], CHARACTERS[1], 'duel');
+      const fighter = world.player;
+      fighter.facing = face;
+      if (scenario === 'menu') s.touch.setSelectionMode(true);
+      down(s, 'D');
+      move(s, face === 1 ? 'DR' : 'DL');
+      document.hit = null;
+      if (scenario === 'menu') document.hit = s.nodes.get(face === 1 ? 'R' : 'L');
+      if (scenario === 'neutral-entry') move(s, 'neutral');
+      let releaseVibrations = 0;
+      Object.defineProperty(navigator, 'vibrate', { value: () => { releaseVibrations++; } });
+      const type = scenario === 'cancel' ? 'pointercancel' : scenario === 'lost' ? 'lostpointercapture' : 'pointerup';
+      const event = new Event(type, { cancelable: true });
+      Object.defineProperties(event, {
+        pointerId: { value: scenario === 'unowned' ? 99 : 11 },
+        pointerType: { value: scenario === 'mouse' ? 'mouse' : 'touch' },
+        clientX: { value: scenario === 'outside' ? -20 : face === 1 ? 250 : 50 },
+        clientY: { value: 150 },
+      });
+      s.dpad.dispatchEvent(event);
+      if (scenario === 'unowned') {
+        held(s, [face === 1 ? 'right' : 'left', 'down']);
+        end(s);
+      }
+      end(s, 'lostpointercapture');
+      held(s, []);
+      assert.equal(releaseVibrations, 0, 'Release coordinates must only update input history');
+      pointer(s.nodes.get('lp'), 'pointerdown', 40);
+      step(s.input, [fighter], world.rules);
+      assert.equal(fighter.currentMove?.id, ['forward', 'neutral-entry'].includes(scenario) ? 'RYU_PRIMARY' : '5LP', scenario + ' face ' + face);
+      s.touch.releaseAll();
+      s.input.destroy();
+      releasePointCases++;
+    }
+  }
+}
+if(recording)console.log(JSON.stringify(records));else console.log('TOUCH_MOTION_BURST_PASS',JSON.stringify({cases,slowControls,sharedCases,negativeControls,mixedControls,singleDiagonalControls,coalescedCases,rapidChordCases,releasePointCases,characters:10,facings:2,modes:2,commands:5}));

@@ -13,4 +13,38 @@ for(const cleanupFailure of['none','exit','destroy']){
  manager.fixedUpdate(1/60,1);manager.render({},1,1/60);assert(!events.includes('bad update'));assert(!events.includes('bad render'));
  await manager.setScene(ordinary('good'));assert.equal(events.filter(x=>x==='bad destroy').length,1);manager.fixedUpdate(1/60,2);manager.render({},1,1/60);assert(events.includes('good enter'));assert(events.includes('good update'));assert(events.includes('good render'));cases++;
 }
-console.log(JSON.stringify({passed:true,cases}));
+let readinessCases = 0;
+for (const outcome of ['entered', 'failed']) {
+  const manager = new SceneManager();
+  let startEntry, completeEntry, failEntry;
+  const started = new Promise(resolve => { startEntry = resolve; });
+  const gate = new Promise((resolve, reject) => { completeEntry = resolve; failEntry = reject; });
+  const updates = [];
+  const sizes = [];
+  const scene = {
+    enter() { startEntry(); return gate; },
+    resize(width, height) { sizes.push([width, height]); },
+    fixedUpdate(_dt, tick) { updates.push(tick); },
+    exit() {}, destroy() {}, render() {},
+  };
+  const entering = manager.setScene(scene);
+  await started;
+  manager.fixedUpdate(1 / 60, 1);
+  manager.resize(1440, 810);
+  manager.fixedUpdate(1 / 60, 2);
+  assert.deepEqual(updates, [], 'Simulation must wait for scene entry');
+  assert.deepEqual(sizes, [[1280, 720], [1440, 810]], 'Entry still receives viewport changes');
+
+  if (outcome === 'entered') {
+    completeEntry();
+    await entering;
+  } else {
+    failEntry(new Error('Entry failed'));
+    await assert.rejects(entering, /Entry failed/);
+    await manager.setScene({ ...scene, enter() {} });
+  }
+  manager.fixedUpdate(1 / 60, 3);
+  assert.deepEqual(updates, [3], 'The next scene starts on the first available tick');
+  readinessCases++;
+}
+console.log(JSON.stringify({passed:true,cases,readinessCases}));

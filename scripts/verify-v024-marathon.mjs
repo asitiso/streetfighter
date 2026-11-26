@@ -4,6 +4,7 @@ import { getCharacter } from '../dist/assets/game/characters.js';
 
 class MarathonInput {
   tick = 0;
+  loot = false;
   held(action) {
     if (action === 'right') return (this.tick % 300) < 190;
     if (action === 'left') return (this.tick % 900) > 820;
@@ -11,6 +12,7 @@ class MarathonInput {
     return false;
   }
   pressed(action) {
+    if (action === 'confirm' && this.loot) return true;
     if (action === 'hp') return this.tick % 47 === 0;
     if (action === 'hk') return this.tick % 73 === 0;
     if (action === 'lp') return this.tick % 31 === 0;
@@ -37,6 +39,7 @@ for (let stageId = 1; stageId <= 5; stageId += 1) {
   const ticks = 36_000; // 10 virtual minutes per stage = 50 minutes total.
   for (let tick = 1; tick <= ticks; tick += 1) {
     input.tick = tick;
+    input.loot = scene.phase === 'belt' && scene.beltState === 'loot';
     scene.fixedUpdate(1/60, tick);
     const world = scene.world;
     if (tick % 180 === 0) {

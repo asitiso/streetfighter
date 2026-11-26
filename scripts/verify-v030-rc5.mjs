@@ -48,7 +48,7 @@ assert.ok(sw.includes('/assets/scenes/DiagnosticsScene.js'));
 
 const title = await readFile(new URL('../src/scenes/TitleScene.ts', import.meta.url), 'utf8');
 assert.ok(title.includes("'diagnostics'"));
-assert.ok(title.includes('const twoColumn = this.options.length >= 12'));
+assert.ok(title.includes('const twoColumn = this.options.length >= (compact ? 8 : 12)'));
 assert.match(title, /V0\.0\.\d+-RC\d+/);
 
 const deviceScene = await readFile(new URL('../src/scenes/DeviceCertificationScene.ts', import.meta.url), 'utf8');
@@ -56,6 +56,6 @@ assert.ok(deviceScene.includes('IMPORT CERTIFICATION'));
 const updates = await readFile(new URL('../src/core/PwaUpdateManager.ts', import.meta.url), 'utf8');
 assert.ok(updates.includes("this.history.record('update-auto-recovery'"));
 
-const result = { candidate: RELEASE_CANDIDATE, cache: GAME_CACHE_NAME, deviceCertImport: 'same-candidate verified', candidateMismatch: 'rejected', recoveryHistory: 'summarized', diagnostics: '3-page crash/recovery/summary', titleLayout: '12-item two-column', releaseSummary: summary.status };
+const result = { candidate: RELEASE_CANDIDATE, cache: GAME_CACHE_NAME, deviceCertImport: 'same-candidate verified', candidateMismatch: 'rejected', recoveryHistory: 'summarized', diagnostics: '3-page crash/recovery/summary', titleLayout: '8-item compact and 12-item desktop two-column', releaseSummary: summary.status };
 await writeFile(new URL('../RC5_AUTOMATED_ACCEPTANCE.json', import.meta.url), JSON.stringify(result, null, 2));
 console.log('V030_RC5_PASS', result);

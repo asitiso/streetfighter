@@ -1,3 +1,5 @@
+import type { GameSave } from '../save/SaveManager.js';
+
 export const SESSION_RECOVERY_KEY = 'ssc-session-recovery-v1';
 
 export type RecoverableRoute = 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
@@ -5,7 +7,7 @@ export type RecoverableRoute = 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | '
 export interface SessionCheckpoint {
   candidate: string;
   sessionId: string;
-  status: 'active' | 'clean';
+  status: 'active' | 'clean' | 'pending-ending';
   route: 'title' | RecoverableRoute;
   stage: 1 | 2 | 3 | 4 | 5 | null;
   character: string | null;
@@ -31,10 +33,12 @@ function sanitize(raw: unknown): SessionCheckpoint | null {
   if (typeof source.sessionId !== 'string' || typeof source.candidate !== 'string') return null;
   const route = source.route;
   if (route !== 'title' && route !== 'stage-1' && route !== 'stage-2' && route !== 'stage-3' && route !== 'stage-4' && route !== 'stage-5' && route !== 'ending') return null;
+  if (source.status === 'pending-ending' && route !== 'ending') return null;
+  const status = source.status === 'clean' || source.status === 'pending-ending' ? source.status : 'active';
   return {
     candidate: source.candidate,
     sessionId: source.sessionId,
-    status: source.status === 'clean' ? 'clean' : 'active',
+    status,
     route,
     stage: validStage(source.stage),
     character: typeof source.character === 'string' ? source.character : null,
@@ -53,7 +57,9 @@ export class SessionRecoveryStore {
 
   begin(): SessionRecoverySnapshot {
     const previous = this.read();
-    if (previous?.status === 'active' && previous.route !== 'title' && previous.candidate === this.candidate) this.recoverable = previous;
+    if (previous && previous.status !== 'clean' && previous.route !== 'title' && previous.candidate === this.candidate) {
+      this.recoverable = previous;
+    }
     const now = new Date().toISOString();
     this.current = {
       candidate: this.candidate,
@@ -69,6 +75,27 @@ export class SessionRecoveryStore {
     };
     this.persist();
     return this.snapshot();
+  }
+
+  reconcileCampaign(save: GameSave): void {
+    const checkpoint = this.recoverable;
+    const cleared = checkpoint?.stage;
+    if (!checkpoint || !cleared || checkpoint.route !== `stage-${cleared}`
+      || checkpoint.character !== save.selectedCharacter || checkpoint.superArt !== save.selectedSuperArt
+      || !save.completedStages.includes(cleared) || !save.stageResults.some(result => result.stageId === cleared)) return;
+
+    // The save can commit just before the next scene writes its recovery checkpoint.
+    if (cleared === 5) {
+      if (save.currentStage === 5 && !save.hasCampaignStarted && save.stageSelectUnlocked) {
+        this.recoverable = { ...checkpoint, route: 'ending', status: 'pending-ending' };
+        this.persist();
+      }
+      return;
+    }
+    const next = validStage(cleared + 1);
+    if (next && save.hasCampaignStarted && save.currentStage === next) {
+      this.recoverable = { ...checkpoint, route: `stage-${next}`, stage: next };
+    }
   }
 
   checkpoint(route: SessionCheckpoint['route'], stage: SessionCheckpoint['stage'], character: string | null, superArt: 1 | 2 | 3 | null): void {
@@ -87,15 +114,24 @@ export class SessionRecoveryStore {
   consumeRecovery(): SessionCheckpoint | null {
     const value = this.recoverable ? { ...this.recoverable } : null;
     this.recoverable = null;
+    if (value?.status === 'pending-ending') this.persist();
     return value;
   }
 
   restoreRecovery(checkpoint: SessionCheckpoint): void {
-    if (!this.recoverable) this.recoverable = { ...checkpoint };
+    if (this.recoverable) return;
+    this.recoverable = { ...checkpoint };
+    if (checkpoint.status === 'pending-ending') this.persist();
   }
 
   restoreActiveRecovery(): void {
     if (this.current && this.current.route !== 'title') this.restoreRecovery(this.current);
+  }
+
+  deferEnding(): void {
+    if (this.current?.route !== 'ending') return;
+    this.recoverable = { ...this.current, status: 'pending-ending' };
+    this.persist();
   }
 
   activeRoute(): string { return this.current?.route ?? 'title'; }
@@ -113,6 +149,9 @@ export class SessionRecoveryStore {
 
   private persist(): void {
     if (!this.current || typeof localStorage === 'undefined') return;
-    try { localStorage.setItem(SESSION_RECOVERY_KEY, JSON.stringify(this.current)); } catch { /* recovery markers are best effort */ }
+    // Keep a deferred ending through a normal quit or reload from the title.
+    const pending = this.recoverable?.status === 'pending-ending' && (this.current.route === 'title' || this.current.route === 'ending');
+    try { localStorage.setItem(SESSION_RECOVERY_KEY, JSON.stringify(pending ? this.recoverable : this.current)); }
+    catch { /* recovery markers are best effort */ }
   }
 }

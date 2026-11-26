@@ -3,6 +3,7 @@ import { runtimeQuality } from '../core/RuntimeQuality.js';
 import { CHARACTERS, BOSS_CHARACTERS } from '../game/characters.js';
 import { APPROVED_HQ_CHARACTER_IDS, hqMasterApproved } from './HqCharacterMasterRegistry.js';
 import { animationTextureManager, liteAnimationTextureManager } from './AnimationTextureManager.js';
+import { animationSequenceFor } from './AnimationSequenceLibrary.js';
 import { preloadSpecialKeyPoses, releaseSpecialKeyPoses } from './SpecialKeyPoseLibrary.js';
 import {
   artImage,
@@ -124,8 +125,15 @@ class CharacterTextureManager {
     preloadArtAssets(keys);
   }
 
+  prepareLiteVictory(characterId: string): void {
+    if (this.wantsHd()) return;
+    const sequence = animationSequenceFor(characterId, 'victory', true);
+    if (sequence?.liteAsset) liteAnimationTextureManager.selection(sequence);
+  }
+
   focusEnding(characterId: string): void {
     this.preloadCharacter(characterId, 'ending');
+    this.prepareLiteVictory(characterId);
     this.recent = [characterId, ...this.recent.filter(id => id !== characterId)].slice(0, 3);
     this.refreshQuality();
   }

@@ -8,10 +8,18 @@ type ActionState = {
   touchHeld: boolean;
   touchPressed: boolean;
   touchReleased: boolean;
+  touchAttackDirections?: readonly Action[];
+  touchAttackOrder?: number;
+  touchAttackDirectionSample?: number;
+  completedTouchAttackDirections?: readonly Action[];
   gamepadHeld: boolean;
 };
 
 const ACTIONS: Action[] = ['left', 'right', 'up', 'down', 'jump', 'lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'confirm', 'back', 'start'];
+const DIRECTIONS = ['left', 'right', 'up', 'down'] as const;
+const ATTACK_BUTTONS: readonly Action[] = ['lp', 'mp', 'hp', 'lk', 'mk', 'hk'];
+type AttackChord = readonly [Action, Action];
+const ATTACK_CHORDS: readonly AttackChord[] = [['lp', 'lk'], ['lp', 'mp'], ['lp', 'hp'], ['mp', 'hp']];
 
 export type KeyBinding = readonly [code: string, action: Action];
 
@@ -60,6 +68,12 @@ export function keysForAction(bindings: readonly KeyBinding[], action: Action): 
   return bindings.filter(([, a]) => a === action).map(([code]) => keyLabel(code));
 }
 
+/** The light punch and kick chord has the same ownership in every combat mode. */
+export function throwChordPressed(input: InputManager): boolean {
+  const lightChord = (input.pressed('lp') && (input.held('lk') || input.pressed('lk'))) || (input.pressed('lk') && input.held('lp'));
+  return lightChord && input.allowsAttackChord?.('lp', 'lk') !== false;
+}
+
 export class InputManager {
   private states = new Map<Action, ActionState>(ACTIONS.map((a) => [a, {
     held: false, pressed: false, released: false, keyboardHeld: false, touchHeld: false, touchPressed: false, touchReleased: false, gamepadHeld: false,
@@ -69,11 +83,15 @@ export class InputManager {
   private readonly physicalPresses = new Set<Action>();
   private readonly completedTouchPresses = new Set<Action>();
   private readonly completedTouchEdges = new Set<Action>();
+  private readonly touchChordOverlaps = new Map<AttackChord, Set<Action>>();
+  private touchAttackSequence = 0;
 
   private historyVersion = 0;
 
   private readonly keyboardKeys = new Set<string>();
   private readonly directionHistory: Set<Action>[] = [];
+  // Count samples even when the bounded history drops its oldest snapshot.
+  private directionSampleCount = 0;
 
   private keyMap = new Map<string, Action>(DEFAULT_KEY_BINDINGS);
   /** Which connected gamepad (in index order) this input owns: 0 = first pad (P1), 1 = second pad (P2). */
@@ -109,15 +127,22 @@ export class InputManager {
   }
 
   endTick(): void {
+    this.touchChordOverlaps.clear();
+    this.touchAttackSequence = 0;
     this.physicalPresses.clear();
     this.completedTouchPresses.clear();
     this.completedTouchEdges.clear();
     this.directionHistory.length = 0;
+    this.directionSampleCount = 0;
     for (const state of this.states.values()) {
       state.pressed = false;
       state.released = false;
       state.touchPressed = false;
       state.touchReleased = false;
+      state.touchAttackDirections = undefined;
+      state.touchAttackOrder = undefined;
+      state.touchAttackDirectionSample = undefined;
+      state.completedTouchAttackDirections = undefined;
     }
   }
 
@@ -127,17 +152,39 @@ export class InputManager {
     const wasHeld = state.held;
     if (!held) this.completeTouchPress(action);
     state.touchHeld = held;
-    if (held) state.touchPressed = true;
-    else state.touchReleased = true;
+    if (held) {
+      state.touchPressed = true;
+      if (ATTACK_BUTTONS.includes(action)) {
+        for (const pair of ATTACK_CHORDS) {
+          if (pair.includes(action) && pair.every(button => this.touchHeld(button)) && !this.touchChordOverlaps.has(pair)) {
+            this.touchChordOverlaps.set(pair, new Set());
+          }
+        }
+        if (!wasHeld && !state.pressed) {
+          state.touchAttackOrder = this.touchAttackSequence++;
+          state.touchAttackDirectionSample = this.directionSampleCount;
+          state.touchAttackDirections = DIRECTIONS.filter(direction => this.held(direction));
+        }
+      }
+    } else state.touchReleased = true;
     this.reconcile(state);
     if (state.held !== wasHeld) this.recordDirection(action);
   }
 
   completeTouchPress(action: Action): void {
     const state = this.states.get(action);
+    // A released finger still counts for a chord it overlapped before release.
+    if (state?.touchHeld) {
+      for (const [pair, completed] of this.touchChordOverlaps) {
+        if (pair.includes(action)) completed.add(action);
+      }
+    }
     if (state?.touchPressed) {
       this.completedTouchPresses.add(action);
-      if (state.pressed) this.completedTouchEdges.add(action);
+      if (state.pressed) {
+        this.completedTouchEdges.add(action);
+        state.completedTouchAttackDirections = state.touchAttackDirections;
+      }
     }
   }
 
@@ -146,20 +193,43 @@ export class InputManager {
     if (!state) return;
     const wasHeld = state.held;
     const pendingTouch = state.touchPressed;
-    if (state.touchHeld) state.touchReleased = true;
+    if (state.touchHeld) {
+      state.touchReleased = true;
+      for (const [pair, completed] of this.touchChordOverlaps) {
+        if (pair.includes(action) && !completed.has(action)) this.touchChordOverlaps.delete(pair);
+      }
+    }
     state.touchHeld = false;
     state.touchPressed = this.completedTouchPresses.has(action);
+    if (!this.completedTouchEdges.has(action)) {
+      state.touchAttackOrder = undefined;
+      state.touchAttackDirectionSample = undefined;
+    }
+    state.touchAttackDirections = state.completedTouchAttackDirections;
     this.reconcile(state);
     if (pendingTouch) state.pressed &&= this.completedTouchEdges.has(action) || this.physicalPresses.has(action);
     if (state.held !== wasHeld) this.recordDirection(action);
   }
 
+  discardTouchInput(): void {
+    this.touchChordOverlaps.clear();
+    const pendingDirection = DIRECTIONS.some(action => this.touchPressed(action));
+    this.completedTouchPresses.clear();
+    this.completedTouchEdges.clear();
+    this.setTouchDirections([]);
+    for (const action of ACTIONS) {
+      this.states.get(action)!.completedTouchAttackDirections = undefined;
+      this.cancelTouch(action);
+    }
+    if (pendingDirection) this.resetCommandHistory();
+  }
+
   // A pad drag changes one direction set atomically, without intermediate keys.
   setTouchDirections(directions: readonly Action[]): void {
     const previousDirections = this.directionHistory.length === 0
-      ? new Set<Action>((['left','right','up','down'] as const).filter(action => this.held(action))) : undefined;
+      ? new Set<Action>(DIRECTIONS.filter(action => this.held(action))) : undefined;
     let changed = false;
-    for (const action of ['left', 'right', 'up', 'down'] as const) {
+    for (const action of DIRECTIONS) {
       const state = this.states.get(action)!;
       const held = directions.includes(action);
       if (state.touchHeld === held) continue;
@@ -177,6 +247,10 @@ export class InputManager {
   resetCommandHistory(): void {
     this.historyVersion += 1;
     this.directionHistory.length = 0;
+    for (const state of this.states.values()) {
+      state.touchAttackDirections = undefined;
+      state.completedTouchAttackDirections = undefined;
+    }
   }
 
   get historyEpoch(): number { return this.historyVersion; }
@@ -193,6 +267,47 @@ export class InputManager {
   touchPressed(action: Action): boolean { return this.states.get(action)?.touchPressed ?? false; }
   touchReleased(action: Action): boolean { return this.states.get(action)?.touchReleased ?? false; }
 
+  firstTouchAttack<T extends Action>(buttons: readonly T[]): T | undefined {
+    let first: T | undefined;
+    let earliest = Infinity;
+    for (const button of buttons) {
+      if (this.physicalPresses.has(button)) return undefined;
+      const state = this.states.get(button)!;
+      if (state.pressed && state.touchAttackOrder !== undefined && state.touchAttackOrder < earliest) {
+        first = button;
+        earliest = state.touchAttackOrder;
+      }
+    }
+    return first;
+  }
+
+  directionSamplesAfterAttack(buttons: readonly Action[]): number | undefined {
+    let latestSample = -1;
+    for (const button of buttons) {
+      if (!this.pressed(button)) continue;
+      const sample = this.states.get(button)?.touchAttackDirectionSample;
+      if (this.physicalPresses.has(button) || sample === undefined) return undefined;
+      latestSample = Math.max(latestSample, sample);
+    }
+    return latestSample < 0 ? undefined : this.directionSampleCount - latestSample;
+  }
+
+  allowsAttackChord(first: Action, second: Action): boolean {
+    // Keyboard and gamepad retain their existing per-tick chord behavior.
+    if ([first, second].some(action => {
+      const state = this.states.get(action)!;
+      return state.keyboardHeld || state.gamepadHeld || this.physicalPresses.has(action);
+    })) return true;
+    for (const pair of this.touchChordOverlaps.keys()) {
+      if (pair.includes(first) && pair.includes(second)) return true;
+    }
+    return false;
+  }
+
+  touchDirectionsAtAttack(action: Action): readonly Action[] | undefined {
+    return this.physicalPresses.has(action) ? undefined : this.states.get(action)?.touchAttackDirections;
+  }
+
   destroy(): void {
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
@@ -206,6 +321,7 @@ export class InputManager {
   };
 
   private onBlur = (): void => {
+    this.touchChordOverlaps.clear();
     this.resetCommandHistory();
     this.keyboardKeys.clear();
     this.physicalPresses.clear();
@@ -216,6 +332,8 @@ export class InputManager {
       this.reconcile(state);
       state.pressed = false;
       state.touchPressed = false;
+      state.touchAttackOrder = undefined;
+      state.touchAttackDirectionSample = undefined;
     }
   };
 
@@ -263,8 +381,10 @@ export class InputManager {
         else before.add(action);
       }
       this.directionHistory.push(before);
+      this.directionSampleCount += 1;
     }
     this.directionHistory.push(held);
+    this.directionSampleCount += 1;
     if (this.directionHistory.length > 32) this.directionHistory.shift();
   }
 

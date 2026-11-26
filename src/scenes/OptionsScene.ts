@@ -7,11 +7,14 @@ import { TouchControls, type TouchControlSettings } from '../ui/TouchControls.js
 import { characterTextureManager } from '../render/CharacterTextureManager.js';
 
 type RowId = 'audio' | 'vibration' | 'character-quality' | 'stick-size' | 'button-size' | 'opacity' | 'edit-layout' | 'reset-layout' | 'difficulty' | 'back';
-const OPTION_ROW = { left: 360, top: 114, width: 560, height: 46, step: 51 } as const;
+const OPTION_ROW = { left: 360, top: 114, width: 560, height: 46, step: 51 };
+const COMPACT_OPTION_ROW = { ...OPTION_ROW, height: 42, step: 46 };
 const ROWS: readonly RowId[] = ['audio', 'vibration', 'character-quality', 'stick-size', 'button-size', 'opacity', 'edit-layout', 'reset-layout', 'difficulty', 'back'];
 
 export class OptionsScene implements Scene {
+  readonly frontendTheme = 'title';
   private index = 0;
+  private rowLayout = OPTION_ROW;
   private leaving = false;
   private saveError = '';
   private entryId = 0;
@@ -19,6 +22,7 @@ export class OptionsScene implements Scene {
   private audioRequest = 0;
   private time = 0;
   private editingLayout = false;
+  private finishingLayout = false;
   private editCheckpoint: TouchControlSettings | null = null;
   private audioEnabled: boolean;
   private aiDifficulty: AiDifficultySetting;
@@ -49,8 +53,24 @@ export class OptionsScene implements Scene {
     this.touch.setSettings(this.settings);
   }
 
-  enter(): void { this.entryId += 1; this.leaving = false; this.editingLayout = false; this.editCheckpoint = null; this.saveError = ''; this.touch.setVisible(true); this.touch.setOptionsMode(true); }
-  exit(): void { this.entryId += 1; this.touch.setEditMode(false); this.touch.setOptionsMode(false); }
+  enter(): void {
+    this.entryId += 1;
+    this.leaving = false;
+    this.editingLayout = false;
+    this.finishingLayout = false;
+    this.editCheckpoint = null;
+    this.saveError = '';
+    this.touch.setVisible(true);
+    this.touch.setOptionsMode(true);
+    if (this.audioEnabled) this.startMenuAudio(false);
+  }
+
+  exit(next?: Scene): void {
+    this.entryId += 1;
+    this.touch.setEditMode(false);
+    this.touch.setOptionsMode(false);
+    if (next?.frontendTheme !== this.frontendTheme) this.audio.stopFrontendTheme?.();
+  }
   resize(_width: number, _height: number): void {}
   destroy(): void { this.entryId += 1; this.touch.setEditMode(false); this.touch.setOptionsMode(false); }
 
@@ -59,21 +79,16 @@ export class OptionsScene implements Scene {
     if (this.leaving) return;
 
     if (this.editingLayout) {
-      const cancelled = this.input.pressed('back');
-      if (cancelled || this.input.pressed('confirm') || this.input.touchPressed('start')) {
-        if (cancelled) {
-          this.touch.cancelLayoutDrag();
-          if (this.editCheckpoint) {
-            this.settings = { ...this.editCheckpoint };
-            this.touch.setSettings(this.settings);
-          }
+      if (this.finishingLayout) return;
+      if (this.input.pressed('back')) {
+        this.touch.cancelLayoutDrag();
+        if (this.editCheckpoint) {
+          this.settings = { ...this.editCheckpoint };
+          this.touch.setSettings(this.settings);
         }
-        this.editCheckpoint = null;
-        this.editingLayout = false;
-        this.touch.setEditMode(false);
-        this.touch.setOptionsMode(true);
-        if (!cancelled) void this.commitTouch().catch(() => undefined);
-        this.audio.playUiConfirm();
+        this.closeLayoutEditor();
+      } else if (this.input.pressed('confirm') || this.input.touchPressed('start')) {
+        this.finishLayoutEditor();
       }
       return;
     }
@@ -90,27 +105,51 @@ export class OptionsScene implements Scene {
     if (this.input.pressed('confirm') || this.input.touchPressed('start') || this.input.pressed('lp') || this.input.pressed('mp') || this.input.pressed('hp')) this.activate();
   }
 
+  private closeLayoutEditor(): void {
+    this.editCheckpoint = null;
+    this.editingLayout = false;
+    this.touch.setEditMode(false);
+    this.touch.setOptionsMode(true);
+    this.audio.playUiConfirm();
+  }
+
+  private finishLayoutEditor(): void {
+    this.touch.cancelLayoutDrag();
+    this.finishingLayout = true;
+    const entry = this.entryId, settings = this.settings;
+    void this.commitTouch().then(() => {
+      if (entry === this.entryId && settings === this.settings) this.closeLayoutEditor();
+    }).catch(() => undefined).finally(() => {
+      if (entry === this.entryId) this.finishingLayout = false;
+    });
+  }
+
   pointerTap(x: number, y: number): void {
-    if (this.leaving || this.editingLayout || !(x >= OPTION_ROW.left && x < OPTION_ROW.left + OPTION_ROW.width)) return;
+    const row = this.rowLayout;
+    if (this.leaving || this.editingLayout || !(x >= row.left && x < row.left + row.width)) return;
     for (let i = 0; i < ROWS.length; i += 1) {
-      const top = OPTION_ROW.top + i * OPTION_ROW.step;
-      if (y >= top && y < top + OPTION_ROW.height) {
+      const top = row.top + i * row.step;
+      if (y >= top && y < top + row.height) {
         if (this.index !== i) { this.index = i; this.audio.playMenuMove(); }
         return;
       }
     }
   }
 
-  render({ ctx, width, height }: RenderContext): void {
+  render({ ctx, width, height, compactTouchControls = false }: RenderContext): void {
+    this.rowLayout = compactTouchControls ? COMPACT_OPTION_ROW : OPTION_ROW;
     ctx.save();
     ctx.scale(width / 1280, height / 720);
     this.drawBackground(ctx);
-    this.drawPanel(ctx);
-    if (this.saveError) {
-      ctx.textAlign = 'center'; ctx.fillStyle = '#ff9b9b'; ctx.font = '800 12px Arial, sans-serif';
-      ctx.fillText(this.saveError, 640, 638);
+    if (this.editingLayout) {
+      this.drawEditOverlay(ctx, compactTouchControls);
+    } else {
+      this.drawPanel(ctx, compactTouchControls);
+      if (this.saveError && !compactTouchControls) {
+        ctx.textAlign = 'center'; ctx.fillStyle = '#ff9b9b'; ctx.font = '800 12px Arial, sans-serif';
+        ctx.fillText(this.saveError, 640, 638);
+      }
     }
-    if (this.editingLayout) this.drawEditOverlay(ctx);
     ctx.restore();
   }
 
@@ -158,18 +197,22 @@ export class OptionsScene implements Scene {
 
   private toggle(row: 'audio' | 'vibration'): void {
     if (row === 'audio') {
-      const request = ++this.audioRequest;
+      this.audioRequest += 1;
       this.audioEnabled = !this.audioEnabled;
       this.audio.setEnabled(this.audioEnabled);
-      if (this.audioEnabled) {
-        const entry = this.entryId;
-        void this.audio.unlock().then(() => {
-          if (entry === this.entryId && request === this.audioRequest && this.audioEnabled && this.audio.isRunning()) this.audio.playUiConfirm();
-        }).catch(() => undefined);
-      }
+      if (this.audioEnabled) this.startMenuAudio(true);
     } else this.settings.vibrationEnabled = !this.settings.vibrationEnabled;
     void this.commitTouch().catch(() => undefined);
     if (row !== 'audio' || !this.audioEnabled) this.audio.playUiConfirm();
+  }
+
+  private startMenuAudio(confirm: boolean): void {
+    const entry = this.entryId, request = this.audioRequest;
+    void this.audio.unlock().then(() => {
+      if (entry !== this.entryId || request !== this.audioRequest || !this.audioEnabled) return;
+      this.audio.startFrontendTheme?.(this.frontendTheme);
+      if (confirm && this.audio.isRunning()) this.audio.playUiConfirm();
+    }).catch(() => undefined);
   }
 
   private writePatch(patch: Partial<GameSave>): Promise<void> {
@@ -227,30 +270,47 @@ export class OptionsScene implements Scene {
     ctx.globalAlpha = 1;
   }
 
-  private drawPanel(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = 'rgba(4,7,12,.72)'; ctx.beginPath(); ctx.roundRect(318, 42, 644, 612, 24); ctx.fill();
+  private drawPanel(ctx: CanvasRenderingContext2D, compactTouchControls: boolean): void {
+    const layout = this.rowLayout;
+    const panelHeight = compactTouchControls ? layout.top + (ROWS.length - 1) * layout.step + layout.height + 12 - 42 : 612;
+    ctx.fillStyle = 'rgba(4,7,12,.72)'; ctx.beginPath(); ctx.roundRect(318, 42, 644, panelHeight, 24); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.09)'; ctx.lineWidth = 2; ctx.stroke();
     ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '900 38px Impact, Arial Black, sans-serif'; ctx.fillText('OPTIONS', 370, 78);
-    ctx.fillStyle = '#f0bd4f'; ctx.font = '800 12px Arial Black, sans-serif'; ctx.fillText('VISUAL QUALITY + MOBILE CONTROL + CPU', 372, 104);
+    if (compactTouchControls && this.saveError) {
+      ctx.fillStyle = '#ff9b9b'; ctx.font = '800 17px Arial, sans-serif';
+      ctx.fillText(this.saveError, 372, 104, 548);
+    } else {
+      ctx.fillStyle = '#f0bd4f'; ctx.font = '800 12px Arial Black, sans-serif'; ctx.fillText('VISUAL QUALITY + MOBILE CONTROL + CPU', 372, 104);
+    }
 
 
     for (let i = 0; i < ROWS.length; i += 1) {
       const row = ROWS[i]!;
-      const top = OPTION_ROW.top + i * OPTION_ROW.step;
+      const top = layout.top + i * layout.step;
       const y = top + 31;
       const active = i === this.index;
       ctx.fillStyle = active ? 'rgba(240,189,79,.15)' : 'rgba(255,255,255,.025)';
       ctx.strokeStyle = active ? '#efbd52' : 'rgba(255,255,255,.07)'; ctx.lineWidth = active ? 2 : 1;
-      ctx.beginPath(); ctx.roundRect(OPTION_ROW.left, top, OPTION_ROW.width, OPTION_ROW.height, 9); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(layout.left, top, layout.width, layout.height, 9); ctx.fill(); ctx.stroke();
       ctx.textAlign = 'left'; ctx.font = '900 15px Arial Black, sans-serif'; ctx.fillStyle = active ? '#fff4cc' : '#e7e9ed'; ctx.fillText(this.rowLabel(row), 382, y - 2);
       ctx.textAlign = 'right'; ctx.fillStyle = active ? '#f4ca70' : 'rgba(255,255,255,.56)'; ctx.font = '800 13px Arial, sans-serif'; ctx.fillText(this.rowValue(row), 895, y - 2);
     }
 
     ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.56)'; ctx.font = '700 11px Arial, sans-serif';
-    if (!this.saveError) ctx.fillText('TAP ROW / ↑ ↓ SELECT  •  ← → ADJUST  •  ENTER / START CONFIRM  •  ESC / LK BACK', 640, 638);
+    if (!compactTouchControls && !this.saveError) ctx.fillText('TAP ROW / ↑ ↓ SELECT  •  ← → ADJUST  •  ENTER / START CONFIRM  •  ESC / LK BACK', 640, 638);
   }
 
-  private drawEditOverlay(ctx: CanvasRenderingContext2D): void {
+  private drawEditOverlay(ctx: CanvasRenderingContext2D, compactTouchControls: boolean): void {
+    const error = !this.finishingLayout && this.saveError ? 'SAVE FAILED • DONE TO RETRY' : '';
+    const status = this.finishingLayout ? 'SAVING…' : error;
+    if (compactTouchControls) {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+      ctx.font = '900 27px Impact, sans-serif'; ctx.fillText('EDIT TOUCH LAYOUT', 640, 69, 560);
+      ctx.fillStyle = error ? '#ff9b9b' : '#f4cf6f';
+      ctx.font = '800 19px Arial, sans-serif';
+      ctx.fillText(status || 'DRAG A GROUP • RELEASE TO SAVE', 640, 104, 560);
+      return;
+    }
     ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0, 0, 1280, 720);
     ctx.fillStyle = 'rgba(14,18,26,.94)'; ctx.beginPath(); ctx.roundRect(362, 190, 556, 245, 22); ctx.fill();
     ctx.strokeStyle = '#f1c85c'; ctx.lineWidth = 3; ctx.stroke();
@@ -258,8 +318,9 @@ export class OptionsScene implements Scene {
     ctx.fillStyle = '#f4cf6f'; ctx.font = '800 15px Arial Black, sans-serif'; ctx.fillText('DRAG THE D-PAD AND 6-BUTTON GROUPS', 640, 290);
     ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '600 13px Arial, sans-serif';
     ctx.fillText('손에 가장 편한 위치로 직접 옮기세요.', 640, 326);
-    ctx.fillText('완료: ENTER / START • 돌아가기: ESC', 640, 352);
-    ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.font = '700 11px Arial, sans-serif'; ctx.fillText('RELEASE TO SAVE • ESC CANCELS THE UNFINISHED DRAG', 640, 400);
+    ctx.fillText('DONE / ENTER  •  CANCEL / ESC', 640, 352);
+    ctx.fillStyle = error ? '#ff9b9b' : 'rgba(255,255,255,.6)'; ctx.font = '700 12px Arial, sans-serif';
+    ctx.fillText(status || 'RELEASE TO SAVE EACH MOVE • CANCEL DISCARDS THE CURRENT DRAG', 640, 400, 510);
   }
 
   private rowLabel(row: RowId): string {

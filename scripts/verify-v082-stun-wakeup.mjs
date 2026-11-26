@@ -1,13 +1,13 @@
 // V082: SF3-style stun gauge / dizzy and wake-up options (quick rise, tech roll, wake invulnerability, reversals).
 import assert from 'node:assert/strict';
 import {
-  Fighter, stunGainFor, STUN_MAX_BASE, STUN_DECAY_DELAY, DIZZY_FRAMES, WAKE_INVULN_FRAMES, QUICK_RISE_REMAINING, TECH_ROLL_FRAMES, TECH_ROLL_SPEED,
+  Fighter, stunGainFor, STUN_MAX_BASE, STUN_DECAY_DELAY, DIZZY_FRAMES, WAKE_INVULN_FRAMES, QUICK_RISE_INPUT_WINDOW, QUICK_RISE_REMAINING, TECH_ROLL_FRAMES, TECH_ROLL_SPEED,
 } from '../dist/assets/combat/Fighter.js';
 import { CombatWorld } from '../dist/assets/combat/CombatWorld.js';
 import { getCharacter, BOSS_CHARACTERS } from '../dist/assets/game/characters.js';
 import { normalFor, specialMovesFor } from '../dist/assets/combat/MoveLibrary.js';
 import { Stage1Scene } from '../dist/assets/scenes/Stage1Scene.js';
-import { advanceThroughRoundBreak } from './duel-round-helpers.mjs';
+import { advanceThroughBeltLoot, advanceThroughRoundBreak } from './duel-round-helpers.mjs';
 
 const quiet = { held: () => false, pressed: () => false, released: () => false };
 const press = (...keys) => ({ ...quiet, pressed: (k) => keys.includes(k), held: (k) => keys.includes(k) });
@@ -142,6 +142,85 @@ function framesToStand(firstFrameInput) {
   checks++;
 }
 
+{
+  for (const ticks of [QUICK_RISE_INPUT_WINDOW - 1, QUICK_RISE_INPUT_WINDOW]) {
+    const { attacker, victim } = pair();
+    knockDown(victim, attacker);
+    victim.stateFrame = -60; // Isolate the input-window cutoff from normal standing recovery.
+    for (let i = 0; i < ticks; i += 1) victim.updatePlayer(quiet, duelRules);
+    const allowed = ticks < QUICK_RISE_INPUT_WINDOW;
+    assert.equal(victim.canQuickRiseOnNextTick, allowed);
+    victim.updatePlayer(press('down'), duelRules);
+    assert.equal(victim.quickRiseCount, Number(allowed), 'The displayed cutoff agrees with actual input');
+    checks++;
+  }
+}
+
+{
+  for (const [name, height, first, reset, expectedRoll] of [
+    ['early down near landing', 14, press('down'), false, false],
+    ['early diagonal near landing', 14, press('down', 'right'), false, true],
+    ['far from landing', 90, press('down'), false, null],
+    ['input epoch changed before landing', 14, press('down'), true, null],
+  ]) {
+    const { attacker, victim } = pair();
+    knockDown(victim, attacker);
+    victim.airborne = true; victim.jumpHeight = height; victim.jumpVelocity = -5;
+    victim.updatePlayer({ ...first, historyEpoch: 1 }, duelRules);
+    assert.equal(victim.quickRiseCount, 0, name + ' waits for ground contact');
+    while (victim.airborne) victim.updatePlayer({ ...quiet, historyEpoch: reset ? 2 : 1 }, duelRules);
+    assert.equal(victim.quickRiseCount, Number(expectedRoll !== null), name);
+    assert.equal(victim.techRolling, expectedRoll === true, name);
+    checks++;
+  }
+}
+
+{
+  for (const [name, stop, buttons, restartEpoch, expected] of [
+    ['grounded down during final hit stop', 4, ['down'], false, 'rise'],
+    ['grounded diagonal during final tick', 1, ['down', 'right'], false, 'roll'],
+    ['outside the hit-stop buffer', 5, ['down'], false, null],
+    ['epoch reset while frozen', 2, ['down', 'right'], true, null],
+  ]) {
+    const { attacker, victim } = pair();
+    knockDown(victim, attacker);
+    victim.hitStop = stop;
+    const before = victim.stateFrame;
+    victim.updatePlayer({ ...press(...buttons), historyEpoch: 1 }, duelRules);
+    while (victim.hitStop > 0) victim.updatePlayer({ ...quiet, historyEpoch: restartEpoch ? 2 : 1 }, duelRules);
+    assert.equal(victim.quickRiseCount, 0, name + ' cannot interrupt hit stop');
+    assert.equal(victim.stateFrame, before, name + ' cannot tick down the frozen pose');
+    victim.updatePlayer({ ...quiet, historyEpoch: restartEpoch ? 2 : 1 }, duelRules);
+    assert.equal(victim.quickRiseCount, Number(expected !== null), name);
+    assert.equal(victim.techRolling, expected === 'roll', name);
+    checks++;
+  }
+}
+
+for (const [stage, wave, reset, rehit, expected] of [
+  [2, 0, false, false, true], [2, 1, false, false, true], [2, 2, false, false, false],
+  [3, 0, false, false, false], [2, 0, true, false, false], [2, 1, false, true, false],
+]) {
+  const hero = getCharacter('RYU');
+  const scene = new Stage1Scene(quiet, {}, hero, hero.superArts[0], stage);
+  scene.spawnBeltWave(wave);
+  const { player: victim, enemy: attacker, rules } = scene.world;
+  knockDown(victim, attacker);
+  victim.airborne = true;
+  victim.jumpHeight = 48;
+  victim.jumpVelocity = -3;
+  assert(victim.canPrepareQuickRise);
+  victim.updatePlayer({ ...press('down'), historyEpoch: 1 }, rules);
+  assert.equal(victim.quickRiseCount, 0);
+  if (rehit) victim.receiveHit(sweep, attacker, false);
+  let ticks = 0;
+  while (victim.airborne && ticks++ < 60) victim.updatePlayer({ ...quiet, historyEpoch: reset ? 2 : 1 }, rules);
+  assert(!victim.airborne && ticks > 4 && ticks < 60);
+  assert.equal(victim.quickRiseCount, Number(expected), `Early landing input in stage ${stage}, wave ${wave + 1}, reset ${reset}, new hit ${rehit}`);
+  if (expected) assert.equal(victim.stateFrame, -(QUICK_RISE_REMAINING - 1));
+  checks++;
+}
+
 // 9) Wake-up reversal: a special entered in the last knockdown frames comes out on the first standing frame.
 {
   const { attacker, victim } = pair('RYU'); knockDown(victim, attacker);
@@ -169,6 +248,7 @@ function framesToStand(firstFrameInput) {
     scene.fixedUpdate(1 / 60, tick++);
     if (wave < 2) { scene.world.player.x = scene.areaStarts[wave + 1] + 160; scene.fixedUpdate(1 / 60, tick++); for (let t = 0; t < 60; t += 1) scene.fixedUpdate(1 / 60, tick++); }
   }
+  tick = advanceThroughBeltLoot(scene, tick);
   for (let t = 0; t < 400 && scene.phase !== 'duel'; t += 1) scene.fixedUpdate(1 / 60, tick++);
   assert.equal(scene.phase, 'duel');
   scene.world.enemy.receiveHit(heavy, scene.world.player, false); scene.world.player.receiveHit(heavy, scene.world.enemy, false);

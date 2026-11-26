@@ -259,7 +259,7 @@ export class TrainingSession {
 
   /* ------------------------------------------------------------ drawing */
 
-  render(ctx: CanvasRenderingContext2D): void {
+  render(ctx: CanvasRenderingContext2D, compactTouchControls = false): void {
     if (!this.world) return;
     ctx.save();
     // Training badge over the round timer.
@@ -268,9 +268,11 @@ export class TrainingSession {
     ctx.fillText(`TRAINING • ${this.settings.action.toUpperCase()}`, 640, 163);
     if (this.settings.inputDisplay) this.drawInputHistory(ctx);
     this.drawCombo(ctx);
-    if (this.settings.frameData) this.drawFrameData(ctx);
-    ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '800 11px Arial, sans-serif'; ctx.textAlign = 'center';
-    if (!this.menuOpen) ctx.fillText('START / P : TRAINING MENU  •  ESC : RESET POSITION', 640, 668);
+    if (this.settings.frameData) this.drawFrameData(ctx, compactTouchControls);
+    if (!this.menuOpen && !compactTouchControls) {
+      ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '800 11px Arial, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('START / P : TRAINING MENU  •  ESC : RESET POSITION', 640, 668);
+    }
     if (this.menuOpen) this.moveListOpen ? this.drawMoveList(ctx) : this.drawMenu(ctx);
     ctx.restore();
   }
@@ -303,15 +305,19 @@ export class TrainingSession {
     ctx.fillText(`DUMMY STUN ${stun.stunEnabled ? `${Math.round(stun.stunRatio * 100)}%` : 'OFF'}`, x - 4, y + 82);
   }
 
-  private drawFrameData(ctx: CanvasRenderingContext2D): void {
+  private drawFrameData(ctx: CanvasRenderingContext2D, compact: boolean): void {
     const move = this.lastMove; if (!move) return;
     const f = frameDataFor(move), fmt = (n: number | 'KD') => n === 'KD' ? 'KD' : n > 0 ? `+${n}` : `${n}`;
-    const x = 640, y = 596;
-    ctx.fillStyle = 'rgba(6,9,15,.72)'; ctx.beginPath(); ctx.roundRect(x - 330, y - 22, 660, 52, 10); ctx.fill();
-    ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff'; ctx.font = '900 13px Arial Black, sans-serif';
-    ctx.fillText(move.label, x, y - 3);
-    ctx.font = '800 12px Arial, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.82)';
-    ctx.fillText(`STARTUP ${f.startup}  •  ACTIVE ${f.active}  •  RECOVERY ${f.recovery}  •  ON BLOCK ${fmt(f.onBlock)}  •  ON HIT ${fmt(f.onHit)}  •  DMG ${f.damage}`, x, y + 18);
+    // The lower corners are reserved for the direction pad and attack buttons.
+    const x = 640, y = compact ? 202 : 596;
+    ctx.fillStyle = compact ? 'rgba(6,9,15,.9)' : 'rgba(6,9,15,.72)';
+    ctx.beginPath(); ctx.roundRect(x - 330, y - 22, 660, 52, 10); ctx.fill();
+    ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff';
+    ctx.font = compact ? '900 17px Arial, sans-serif' : '900 13px Arial Black, sans-serif';
+    ctx.fillText(move.label, x, y - 3, 628);
+    ctx.font = compact ? '800 15px Arial, sans-serif' : '800 12px Arial, sans-serif';
+    ctx.fillStyle = '#e8e1d5';
+    ctx.fillText(`STARTUP ${f.startup}  •  ACTIVE ${f.active}  •  RECOVERY ${f.recovery}  •  ON BLOCK ${fmt(f.onBlock)}  •  ON HIT ${fmt(f.onHit)}  •  DMG ${f.damage}`, x, y + 18, 628);
   }
 
   private menuValue(row: MenuRow): string {

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'game-cache-v688';
+const CACHE_VERSION = 'game-cache-v821';
 const GAME_CACHE_PREFIX = 'game-cache-v';
 const UPDATE_META_CACHE = 'ssc-update-meta';
 const ROLLBACK_MARKER = '/__ssc_rollback_target__';
@@ -20,7 +20,7 @@ const APP_SHELL = [
   '/assets/render/ThrowVictimProfiles.js', '/assets/render/FinalSequenceProfiles.js',
   '/assets/combat/CombatTypes.js', '/assets/combat/CharacterCombatProfiles.js', '/assets/combat/TechniqueLibrary.js', '/assets/combat/EnemyArchetypes.js', '/assets/combat/GruntLibrary.js', '/assets/combat/BeltSystems.js', '/assets/render/GruntSprites.js', '/assets/combat/EnemyDirector.js', '/assets/combat/AiDifficulty.js', '/assets/training/TrainingSession.js', '/assets/scenes/TrainingSelectScene.js', '/assets/scenes/VersusSelectScene.js', '/assets/versus/VersusSession.js', '/assets/combat/InputBuffer.js', '/assets/combat/MoveLibrary.js', '/assets/combat/Fighter.js', '/assets/combat/CombatWorld.js',
   '/assets/scenes/TitleScene.js', '/assets/scenes/CharacterSelectScene.js', '/assets/scenes/SuperArtSelectScene.js', '/assets/scenes/Stage1Scene.js', '/assets/scenes/StageSelectScene.js', '/assets/scenes/ResultsScene.js', '/assets/scenes/OptionsScene.js', '/assets/scenes/ReleaseCheckScene.js', '/assets/scenes/SaveToolsScene.js', '/assets/scenes/InstallScene.js', '/assets/scenes/DeviceCertificationScene.js', '/assets/scenes/PwaUpdateScene.js', '/assets/scenes/DiagnosticsScene.js',
-  '/art/title-keyart.png', '/art/roster-mural.png', '/audio/score-v2/title-theme.ogg', '/audio/score-v2/select-theme.ogg',
+  '/art/title-keyart.webp', '/art/roster-mural.webp', '/audio/score-v2/title-theme.ogg', '/audio/score-v2/select-theme.ogg',
   '/art/portraits/ryu.webp', '/art/portraits/ken.webp', '/art/portraits/chunli.webp', '/art/portraits/alex.webp', '/art/portraits/dudley.webp', '/art/portraits/makoto.webp', '/art/portraits/ibuki.webp', '/art/portraits/yun.webp',
   '/art/combat-sprites/ryu-authored-v1.png', '/art/combat-sprites/ken-authored-v1.png', '/art/combat-sprites/chunli-authored-v1.png', '/art/combat-sprites/alex-authored-v1.png', '/art/combat-sprites/dudley-authored-v1.png', '/art/combat-sprites/makoto-authored-v1.png', '/art/combat-sprites/ibuki-authored-v1.png', '/art/combat-sprites/yun-authored-v1.png',
   '/art/attack-atlases/ryu-authored-v1.webp', '/art/attack-atlases/ken-authored-v1.webp', '/art/attack-atlases/chunli-authored-v1.webp', '/art/attack-atlases/alex-authored-v1.webp', '/art/attack-atlases/dudley-authored-v1.webp', '/art/attack-atlases/makoto-authored-v1.webp', '/art/attack-atlases/ibuki-authored-v1.webp', '/art/attack-atlases/yun-authored-v1.webp',
@@ -93,9 +93,17 @@ self.addEventListener('message', (event) => {
     return;
   }
   if (type !== 'CACHE_URLS' || !Array.isArray(event.data.urls)) return;
-  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => Promise.all(event.data.urls.map(async (url) => {
-    try { const response = await fetch(url); if (response.ok) await cache.put(url, response); } catch { /* next online pass retries */ }
-  }))));
+  event.waitUntil((async () => {
+    const cache = await openCacheIfAvailable(CACHE_VERSION);
+    if (!cache) return;
+    await Promise.all([...new Set(event.data.urls)].map(async (url) => {
+      if (await matchCacheIfAvailable(cache, url)) return;
+      try {
+        const response = await fetch(url);
+        if (response.ok) await cache.put(url, response);
+      } catch { /* next online pass retries */ }
+    }));
+  })());
 });
 
 async function openCacheIfAvailable(name) {

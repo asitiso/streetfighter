@@ -1,20 +1,25 @@
 import type { CharacterDef, SuperArtDef } from '../game/characters.js';
 import { aiTuning, type AiLevelTuning } from './AiDifficulty.js';
-import type { InputManager } from '../input/InputManager.js';
+import { throwChordPressed, type Action, type InputManager } from '../input/InputManager.js';
 import type { EnemyDirective, FighterState, HitZone, ModeRules, MoveButton, MoveData } from './CombatTypes.js';
 import { enemyAiProfile, type EnemyAiProfile, type EnemyArchetypeId } from './EnemyArchetypes.js';
 import { InputBuffer } from './InputBuffer.js';
 import { normalFor, specialMovesFor, superArtMoveFor, throwMoveFor } from './MoveLibrary.js';
 import { airNormalFor, commandNormalFor, targetComboFollowUp } from './TechniqueLibrary.js';
 import { combatProfileFor, type CharacterCombatProfile } from './CharacterCombatProfiles.js';
-import { gruntAiAttack, gruntStrikeRange, isGruntId } from './GruntLibrary.js';
+import { canFireGruntProjectile, gruntAiAttack, gruntStrikeRange, isGruntId } from './GruntLibrary.js';
 import { weaponMoveFor } from './BeltSystems.js';
 
 let nextFighterUid = 1;
 const HITSTOP_CANCEL_BUFFER_TICKS = 6;
 const FROZEN_ACTION_BUFFER_TICKS = 6;
+const RECOVERY_ACTION_BUFFER_TICKS = 4;
+const PUNCH_BUTTONS = ['lp', 'mp', 'hp'] as const;
+const KICK_BUTTONS = ['lk', 'mk', 'hk'] as const;
+const NORMAL_BUTTONS: readonly MoveButton[] = [...PUNCH_BUTTONS, ...KICK_BUTTONS];
 type PendingFrozenAction = { airborne: boolean; epoch: number | undefined; tick: number } & (
   { kind: 'attack'; move: MoveData } | { kind: 'jump'; button: MoveButton | null } | { kind: 'dash'; direction: 1 | -1 }
+  | { kind: 'step'; directions: ReadonlySet<Action> }
 );
 const pendingFrozenActions = new WeakMap<Fighter, PendingFrozenAction>();
 
@@ -25,10 +30,13 @@ export const STUN_DECAY_PER_FRAME = .4;
 export const DIZZY_FRAMES = 150;
 export const DIZZY_MASH_FRAMES = 5;
 export const WAKE_INVULN_FRAMES = 8;
+const CROWD_CONTACT_LIMIT = 4;
 export const QUICK_RISE_REMAINING = 10;
 export const QUICK_RISE_INPUT_WINDOW = 20;
+const QUICK_RISE_BUFFER_TICKS = 4;
 export const TECH_ROLL_FRAMES = 12;
 export const TECH_ROLL_SPEED = 5;
+export const PARRY_WINDOW_TICKS = 6;
 export const WAKE_REVERSAL_BUFFER = 8;
 
 /** Stun added by a clean hit: normals/specials build it fastest, throws less, supers very little (SF3 feel). */
@@ -54,6 +62,7 @@ interface StunWakeState {
   stun: number; stunDecayDelay: number; stunEnabled: boolean; stunLocked: boolean; pendingDizzy: boolean;
   dizzy: boolean; dizzyCount: number; wakeInvulnFrames: number; quickRiseUsed: boolean; quickRiseCount: number;
   knockdownGroundFrames: number; techRollFrames: number; techRollDirection: 1 | -1; wakeReversal: MoveData | null;
+  pendingQuickRise?: { ticksLeft: number; epoch: number; back: 'left' | 'right' | null };
 }
 const stunWakeStates = new WeakMap<object, StunWakeState>();
 function sw(fighter: object): StunWakeState {
@@ -93,7 +102,7 @@ function brain(fighter: object): AiBrain {
 }
 
 /** Proximity guard (SF rule): holding back near an incoming attack stands and guards instead of walking away. */
-const proximityGuard = new WeakMap<object, boolean>();
+const proximityGuard = new WeakMap<object, -1 | 0 | 1>();
 
 export class Fighter {
   readonly uid = nextFighterUid++;
@@ -150,6 +159,20 @@ export class Fighter {
   redParryWindow = 0;
   hitFlash = 0;
   aiCooldown = 0;
+  lateElite = false;
+
+  get guardAttackBufferDelay(): number {
+    const remaining = -this.stateFrame;
+    return this.state === 'block' && !this.airborne && this.hitStop === 0
+      && remaining > 0 && remaining <= RECOVERY_ACTION_BUFFER_TICKS ? remaining : 0;
+  }
+
+  get eliteRecoveryOpen(): boolean {
+    const move = this.currentMove;
+    return this.lateElite && this.hp > 0 && this.state === 'attack' && !!move?.eliteRecoveryBonus
+      && this.moveFrame >= move.startup + move.active
+      && this.moveFrame < move.startup + move.active + move.recovery;
+  }
   aiTempoScale = 1;
   aiSuperBias = 0;
   aiCornerPressureCount = 0;
@@ -162,6 +185,8 @@ export class Fighter {
   // ES private fields stay out of serialized fighter snapshots used by determinism fixtures.
   #comboHitsTaken = 0;
   #lastComboHitKey = '';
+  #crowdRecoveryEnabled = false;
+  #crowdContacts = 0;
   /** Hits taken in the current uninterrupted hit/juggle chain (drives SF-style damage scaling). */
   get comboHitsTaken(): number { return this.#comboHitsTaken; }
   // Stun / dizzy / wake-up state lives in a module WeakMap (excluded from serialized determinism snapshots).
@@ -170,11 +195,25 @@ export class Fighter {
   get stunRatio(): number { return Math.max(0, Math.min(1, sw(this).stun / Math.max(1, this.stunMax))); }
   get stunEnabled(): boolean { return sw(this).stunEnabled; }
   get dizzy(): boolean { return sw(this).dizzy && this.state === 'hit'; }
+  get dizzyPending(): boolean { return sw(this).pendingDizzy; }
   get dizzyFramesRemaining(): number { return this.dizzy ? Math.max(0, -this.stateFrame) : 0; }
   get dizzyCount(): number { return sw(this).dizzyCount; }
   get quickRiseCount(): number { return sw(this).quickRiseCount; }
+  get canQuickRiseOnNextTick(): boolean {
+    // Grounded time increments before the player reads the recovery input.
+    return this.hitStop === 0 && this.canQuickRiseAt(sw(this).knockdownGroundFrames + 1);
+  }
+  get canPrepareQuickRise(): boolean {
+    if (!this.airborne || this.jumpVelocity >= 0 || !this.canQuickRiseAt(1, true)) return false;
+    const ticks = -this.stateFrame - QUICK_RISE_REMAINING;
+    // Match updateAir: advance by the current velocity, then apply gravity.
+    const height = this.jumpHeight + ticks * this.jumpVelocity
+      - this.combatProfile.gravity * ticks * (ticks - 1) / 2;
+    return ticks > 0 && height <= 0;
+  }
   get wakeInvulnerableFrames(): number { return sw(this).wakeInvulnFrames; }
   get techRolling(): boolean { return sw(this).techRollFrames > 0; }
+  enableCrowdRecovery(): void { this.#crowdRecoveryEnabled = true; }
   setStunEnabled(enabled: boolean): void { sw(this).stunEnabled = enabled; if (!enabled) { sw(this).stun = 0; sw(this).pendingDizzy = false; } }
   /** Duel AI difficulty level (0 = legacy AI, 1 easiest .. 6 hardest). */
   setAiLevel(level: number): void { const b = brain(this); b.tuning = aiTuning(level); b.level = b.tuning.level; }
@@ -185,12 +224,14 @@ export class Fighter {
   /** True while the duel brain has decided to hold guard (e.g. against a fireball). */
   get aiHoldingGuard(): boolean { return brain(this).guardFrames > 0; }
   get aiGuardBonus(): number { return brain(this).tuning.guardBonus; }
-  /** Downed fighters and the first frames after rising cannot be hit (SF wake-up rule); juggled bodies still can. */
+  /** Grounded knockdowns and wake-up frames are invulnerable. Belt players also have a crowd combo limit. */
   isInvulnerable(): boolean {
     if (this.hp <= 0) return false;
     // Paired throw / super-victim cinematics stay hittable so scripted follow-ups still connect.
     const downed = this.state === 'knockdown' && !this.airborne && this.throwSyncFrames <= 0 && this.superVictimFrames <= 0;
-    return downed || sw(this).wakeInvulnFrames > 0;
+    const recoveringFromCrowd = this.#crowdContacts >= CROWD_CONTACT_LIMIT
+      && (this.state === 'hit' || this.state === 'knockdown');
+    return downed || recoveringFromCrowd || sw(this).wakeInvulnFrames > 0;
   }
   wallBounceFrames = 0;
   groundBounceFrames = 0;
@@ -256,13 +297,13 @@ export class Fighter {
   get superGaugeMax(): number { return this.selectedSuperArt ? this.selectedSuperArt.gauge * this.selectedSuperArt.stocks : 100; }
   get superStocksReady(): number { return Math.floor(this.superGauge / this.superStockCost); }
 
-  private selectedSuperMove(): MoveData {
+  selectedSuperMove(): MoveData {
     return this.selectedSuperArt
       ? superArtMoveFor(this.character.id, this.selectedSuperArt.id, this.selectedSuperArt.gauge)
       : specialMovesFor(this.character.id).super;
   }
 
-  captureInput(input: InputManager, tick: number, superFrozen = false, rules?: ModeRules): void {
+  captureInput(input: InputManager, tick: number, superFrozen = false, rules?: ModeRules, movementLive = false): void {
     const latest = this.buffer.latest();
     const pending = this.pendingHitStopCancel;
     // A contiguous super-freeze capture pauses combat, not input ownership.
@@ -275,41 +316,57 @@ export class Fighter {
     this.buffer.capture(input, tick);
     if (superFrozen) {
       this.bufferFrozenCancel(input, rules);
-      if (rules) this.bufferFrozenAction(input, rules);
+      if (rules) this.bufferFrozenAction(input, rules, movementLive);
     }
   }
 
-  updatePlayer(input: InputManager, rules: ModeRules): void {
+  updatePlayer(input: InputManager, rules: ModeRules, movementOnly = false): void {
     const movementEntry = !this.airborne && (this.dashFrames > 0 || Math.abs(this.x - this.previousX) > 4.6);
     this.previousX = this.x;
     this.previousY = this.y;
     if (this.hitStop > 0) {
-      this.bufferFrozenCancel(input, rules);
-      this.bufferFrozenAction(input, rules);
+      if (!movementOnly) {
+        this.bufferFrozenCancel(input, rules);
+        this.bufferFrozenAction(input, rules);
+        if (this.hitStop <= QUICK_RISE_BUFFER_TICKS && this.state === 'knockdown'
+          && this.canQuickRiseAt(sw(this).knockdownGroundFrames + 1)) this.bufferQuickRise(input);
+      }
       this.hitStop -= 1;
       return;
     }
     this.animationFrame += 1;
     const wasAirborne = this.airborne;
     this.updateAir();
+    // Check after air physics so a fighter landing on this tick can still guard.
+    if (rules.mode === 'belt' && this.airborne) this.setProximityGuard(0);
     this.tickCrouchAnimation(!rules.depthMovement && input.held('down'));
-    this.tickWindows(false, wasAirborne && !this.airborne);
-    const bufferedAction = this.takeFrozenAction(input);
+    this.tickWindows(movementOnly, wasAirborne && !this.airborne);
 
-    const forwardAction = this.facing === 1 ? 'right' : 'left';
-    if (input.pressed(forwardAction) && !input.held(this.facing === 1 ? 'left' : 'right') && this.canDefend()) {
-      if (this.state === 'block') this.redParryWindow = 3;
-      else this.parryWindow = 6;
+    if (!movementOnly) {
+      const forwardAction = this.facing === 1 ? 'right' : 'left';
+      if (input.pressed(forwardAction) && !input.held(this.facing === 1 ? 'left' : 'right') && this.canDefend()) {
+        if (this.state === 'block') this.redParryWindow = 3;
+        else this.parryWindow = PARRY_WINDOW_TICKS;
+      }
+      if (input.pressed('down') && this.canDefend()) this.lowParryWindow = 6;
     }
-    if (input.pressed('down') && this.canDefend()) this.lowParryWindow = 6;
 
     this.tickStunAndWake(rules);
     if (this.state === 'hit' || this.state === 'block' || this.state === 'parry' || this.state === 'knockdown' || this.state === 'victory' || this.state === 'ko') {
       const retainLowDefense = !rules.depthMovement && input.held('down') && (this.state === 'block' || this.state === 'parry');
-      this.readLockedStateInput(input);
+      if (!movementOnly) {
+        const standingUp = this.state === 'knockdown' && !this.techRolling
+          && this.throwSyncFrames <= 0 && this.superVictimFrames <= 0;
+        const canReserveInput = rules.mode === 'belt' && (this.state === 'hit' || this.state === 'block' || standingUp)
+          && !this.airborne && !this.dizzy
+          && this.stateFrame >= -RECOVERY_ACTION_BUFFER_TICKS;
+        if (canReserveInput) this.bufferRecoveryInput(input, this.guardAttackBufferDelay ? rules : undefined);
+        else this.discardBufferedAction();
+        this.readLockedStateInput(input, rules);
+      }
       const wasKnockdown = this.state === 'knockdown';
       this.advanceLockedState();
-      if (wasKnockdown && this.state !== 'knockdown' && this.state !== 'hit' && sw(this).wakeReversal) {
+      if (!movementOnly && wasKnockdown && this.state !== 'knockdown' && this.state !== 'hit' && sw(this).wakeReversal) {
         // Wake-up reversal: a special entered during the last frames of the knockdown comes out on the first frame up.
         const reversal = sw(this).wakeReversal as MoveData;
         sw(this).wakeReversal = null;
@@ -324,7 +381,7 @@ export class Fighter {
     }
 
     if (this.state === 'attack') {
-      if (this.attackConnected && this.currentMove && this.moveFrame >= this.currentMove.startup) {
+      if (!movementOnly && this.attackConnected && this.currentMove && this.moveFrame >= this.currentMove.startup) {
         // A completed command owns its button before a target-combo shortcut.
         const bufferedCancel = this.takeHitStopCancel(input);
         const cancel = this.currentMove.cancelIntoSpecial ? this.readSpecialMove(input) ?? (bufferedCancel?.kind === 'special' ? bufferedCancel.move : null) : null;
@@ -337,6 +394,7 @@ export class Fighter {
         }
         if (bufferedCancel?.kind === 'normal') { this.startMove(bufferedCancel.move); return; }
       }
+      if (!movementOnly && rules.mode === 'belt') this.bufferRecoveryAction(input, rules);
       const retainCrouch = !rules.depthMovement && input.held('down') && this.currentMove?.id.startsWith('2');
       this.applyMoveKinematics(rules);
       this.advanceMove();
@@ -348,9 +406,13 @@ export class Fighter {
       return;
     }
 
-    const freshJump = input.pressed('jump') || (!rules.depthMovement && input.pressed('up'));
-    const freshAttack = !this.airborne && freshJump ? null : this.readMove(input, rules);
-    const freshDash = !this.airborne && this.dashFrames === 0 && !freshJump && !freshAttack ? this.readDash(input) : 0;
+    const bufferedAction = movementOnly ? null : this.takeFrozenAction(input);
+    const freshJump = !movementOnly && (input.pressed('jump') || (!rules.depthMovement && input.pressed('up')));
+    const freshAttack = movementOnly || (!this.airborne && freshJump) ? null : this.readMove(input, rules);
+    const dashInput = !movementOnly && !this.airborne && this.dashFrames === 0 && !freshJump && !freshAttack ? this.readDash(input) : 0;
+    // Reapplying a belt guard must not turn into a dash in the same direction.
+    const guardDirection = rules.mode === 'belt' ? this.proximityGuardDirection : 0;
+    const freshDash = dashInput === guardDirection ? 0 : dashInput;
     const queuedJump = bufferedAction?.kind === 'jump' && !freshAttack && !freshDash;
     const jumpPressed = freshJump || queuedJump;
     if (!this.airborne && jumpPressed) {
@@ -359,6 +421,7 @@ export class Fighter {
       this.visualRecoveryMoveId = null;
       this.dashFrames = 0;
       this.airborne = true;
+      if (rules.mode === 'belt') this.setProximityGuard(0);
       this.jumpVelocity = this.combatProfile.jumpVelocity;
       this.state = 'jump';
       this.stateFrame = 0;
@@ -371,6 +434,7 @@ export class Fighter {
     const attack = freshAttack ?? (!freshDash && bufferedAction?.kind === 'attack' ? bufferedAction.move : null);
     if (attack) { this.dashFrames = 0; this.startMove(attack, movementEntry); return; }
 
+    if (this.dashFrames > 0 && guardDirection === -this.dashDirection) this.dashFrames = 0;
     if (!this.airborne && this.dashFrames > 0) {
       const dashSpeed = 8.2 * this.character.speed * this.combatProfile.walkScale;
       this.walkDirection = this.dashDirection;
@@ -386,7 +450,7 @@ export class Fighter {
       const queuedDash = bufferedAction?.kind === 'dash' && !input.pressed('left') && !input.pressed('right')
         && !input.held(bufferedAction.direction === 1 ? 'left' : 'right') ? bufferedAction.direction : 0;
       const dash = freshDash || queuedDash;
-      if (dash) { this.startDash(dash); this.clamp(rules); return; }
+      if (dash && dash !== guardDirection) { this.startDash(dash); this.clamp(rules); return; }
     }
 
     if (!rules.depthMovement && input.held('down') && !this.airborne) {
@@ -400,13 +464,21 @@ export class Fighter {
     }
 
     const moveSpeed = 4.3 * this.character.speed * this.combatProfile.walkScale * this.installMoveScale;
-    let horizontalDirection = Number(input.held('right')) - Number(input.held('left'));
-    if (horizontalDirection === -this.facing && proximityGuard.get(this)) horizontalDirection = 0;
+    const left = input.held('left'), right = input.held('right');
+    const up = rules.depthMovement && input.held('up'), down = rules.depthMovement && input.held('down');
+    const horizontalHeld = left || right, verticalHeld = up || down;
+    const queuedStep = bufferedAction?.kind === 'step' ? bufferedAction.directions : undefined;
+    const releasedStep = rules.mode === 'belt' && (!horizontalHeld || !verticalHeld)
+      ? this.releasedMovementStep(input, !horizontalHeld, !verticalHeld) ?? queuedStep : undefined;
+    let horizontalDirection = releasedStep && !horizontalHeld ? Number(releasedStep.has('right')) - Number(releasedStep.has('left'))
+      : Number(right) - Number(left);
+    if (horizontalDirection === proximityGuard.get(this)) horizontalDirection = 0;
     let moved = horizontalDirection !== 0;
     if (horizontalDirection !== 0) this.x += horizontalDirection * moveSpeed;
     this.walkDirection = horizontalDirection as -1 | 0 | 1;
     if (rules.depthMovement) {
-      const verticalDirection = Number(input.held('down')) - Number(input.held('up'));
+      const verticalDirection = releasedStep && !verticalHeld ? Number(releasedStep.has('down')) - Number(releasedStep.has('up'))
+        : Number(down) - Number(up);
       if (verticalDirection !== 0) {
         this.y += verticalDirection * (moveSpeed * .68 * this.combatProfile.depthScale);
         moved = true;
@@ -418,6 +490,21 @@ export class Fighter {
     else this.state = moved ? 'walk' : 'idle';
     this.stateFrame += 1;
     this.tickWalkAnimation();
+  }
+
+  private releasedMovementStep(input: InputManager, includeHorizontal: boolean, includeVertical: boolean) {
+    const directions = input.directionChanges?.();
+    if (!directions) return undefined;
+    for (let i = directions.length - 1; i > 0; i -= 1) {
+      const sample = directions[i]!;
+      const previous = directions[i - 1]!;
+      // Use the press, so staggered releases cannot split a diagonal.
+      for (const action of sample) {
+        const included = action === 'left' || action === 'right' ? includeHorizontal : includeVertical;
+        if (included && !previous.has(action) && input.pressed(action)) return sample;
+      }
+    }
+    return undefined;
   }
 
   updateAi(target: Fighter, rules: ModeRules): void {
@@ -462,7 +549,8 @@ export class Fighter {
     const movement = 2.15 * this.character.speed * profile.moveSpeed;
     const cornerDistance = Math.min(target.x - rules.arenaLeft, rules.arenaRight - target.x);
     const targetCornered = !rules.depthMovement && cornerDistance < 118;
-    const sameLane = Math.abs(target.y - this.y) < 48;
+    const laneGap = Math.abs(target.y - this.y);
+    const sameLane = laneGap < 48;
     const chaseCapable = ['KEN', 'CHUNLI', 'DUDLEY', 'IBUKI', 'YUN', 'GILL'].includes(this.character.id) || profile.moveSpeed >= 1.08;
     if (rules.mode === 'duel' && brain(this).level > 0 && directive.attackAllowed && this.smartDuelStep(target, movementEntry, playerDistance, movement, chaseCapable)) {
       this.clamp(rules);
@@ -499,20 +587,27 @@ export class Fighter {
       if (movingDepth) this.y += Math.sign(dy) * Math.min(Math.abs(dy), movement * .92);
       const gruntRange = gruntStrikeRange(this.character.id);
       const gruntEngaging = gruntRange !== null && !this.airborne && directive.attackAllowed && this.aiCooldown === 0 && playerDistance < 260;
-      if (!gruntEngaging && Math.abs(dx) > Math.max(22, profile.preferredDistance * .22)) {
+      const walkToSlot = !gruntEngaging && Math.abs(dx) > Math.max(22, profile.preferredDistance * .22);
+      const projectile = rangedMove.projectile;
+      const rangedGrunt = rules.mode === 'belt' && isGruntId(this.character.id);
+      // The director's approach point is not a firing position requirement for a belt grunt.
+      const canFireFromHere = rangedGrunt
+        ? canFireGruntProjectile(projectile, playerDistance, laneGap, profile.preferredDistance)
+        : !walkToSlot && playerDistance > profile.preferredDistance * 1.25;
+      if (!this.airborne && directive.rangedAllowed && profile.rangedBias > 0 && this.aiCooldown === 0 && canFireFromHere && projectile) {
+        this.startMove(rangedMove, movementEntry);
+        this.aiCooldown = Math.max(24, Math.round(profile.attackCooldown * (1.18 - Math.min(1, profile.rangedBias) * .22) / this.aiTempoScale));
+      } else if (walkToSlot) {
         this.walkDirection = Math.sign(dx) as -1 | 1;
         this.x += this.walkDirection * movement;
         this.state = 'walk';
-      } else if (!this.airborne && directive.rangedAllowed && profile.rangedBias > 0 && !!rangedMove.projectile && this.aiCooldown === 0 && playerDistance > profile.preferredDistance * 1.25) {
-        this.startMove(rangedMove, movementEntry);
-        this.aiCooldown = Math.max(24, Math.round(profile.attackCooldown * (1.18 - Math.min(1, profile.rangedBias) * .22) / this.aiTempoScale));
       } else if (gruntEngaging && (playerDistance > gruntRange! || !sameLane)) {
         // Grunts step in to their own strike range instead of swinging from the director's stand-off slot.
         this.walkDirection = playerDistance > gruntRange! ? Math.sign(dxToPlayer) as -1 | 1 : 0;
         this.x += this.walkDirection * movement;
         if (rules.depthMovement && Math.abs(target.y - this.y) > 6) this.y += Math.sign(target.y - this.y) * Math.min(Math.abs(target.y - this.y), movement * .7);
         this.state = 'walk';
-} else if (!this.airborne && directive.attackAllowed && this.aiCooldown === 0 && playerDistance < Math.max(92, profile.preferredDistance + 58) && sameLane) {
+      } else if (!this.airborne && directive.attackAllowed && this.aiCooldown === 0 && playerDistance < Math.max(92, profile.preferredDistance + 58) && sameLane) {
         const deterministic = ((this.uid * 17 + this.stateFrame * 11 + Math.round(playerDistance)) % 100) / 100;
         const useSuper = !isGruntId(this.character.id) && this.superGauge >= this.superStockCost && deterministic < this.aiSuperBias;
         // Grunts never use the duel throw; grappler grunts grab through the belt hold system instead.
@@ -535,6 +630,9 @@ export class Fighter {
     move = weaponMoveFor(this, move);
     if (move.exCost && this.superGauge < move.exCost) return;
     if (move.superCost && this.superGauge < move.superCost) return;
+    if (this.lateElite && (move.eliteStartupBonus || move.eliteRecoveryBonus)) {
+      move = { ...move, startup: move.startup + (move.eliteStartupBonus ?? 0), recovery: move.recovery + (move.eliteRecoveryBonus ?? 0) };
+    }
     this.clearThrowSync();
     // An accepted action replaces old victim poses without changing its flight.
     this.clearSuperVictimReaction();
@@ -599,6 +697,17 @@ export class Fighter {
 
   hitNumberFor(target: Fighter): number { return (this.attackVictimHits.get(target.uid) ?? 0) + 1; }
 
+  hasRemainingHitsFor(target: Fighter): boolean {
+    const move = this.currentMove;
+    if (!move) return false;
+    const activeEnd = move.startup + move.active;
+    if (this.moveFrame >= activeEnd) return false;
+    const lastContact = this.attackVictimFrames.get(target.uid);
+    if (lastContact === undefined) return true;
+    const repeat = move.multiHit;
+    return !!repeat && this.hitNumberFor(target) <= repeat.hits && lastContact + repeat.interval < activeEnd;
+  }
+
   markHitTarget(target: Fighter): void {
     this.attackVictims.add(target.uid);
     this.attackVictimFrames.set(target.uid, this.moveFrame);
@@ -612,8 +721,9 @@ export class Fighter {
     this.y += Math.sign(delta) * Math.min(Math.abs(delta), maxDistance);
   }
 
-  setProximityGuard(active: boolean): void { proximityGuard.set(this, active); }
-  get proximityGuarding(): boolean { return proximityGuard.get(this) === true; }
+  setProximityGuard(direction: -1 | 0 | 1): void { proximityGuard.set(this, direction); }
+  get proximityGuardDirection(): -1 | 0 | 1 { return proximityGuard.get(this) ?? 0; }
+  get proximityGuarding(): boolean { return this.proximityGuardDirection !== 0; }
 
   /** Belt grab: pin this fighter in a held reaction beside its holder. */
   setHeld(x: number, y: number, facing: 1 | -1): void {
@@ -659,13 +769,17 @@ export class Fighter {
     return this.state !== 'hit' && this.state !== 'knockdown' && this.state !== 'parry' && this.state !== 'ko' && this.state !== 'victory';
   }
 
-  receiveHit(move: MoveData, attacker: Fighter, guarding: boolean, counter = false, impactDirection: 1 | -1 = attacker.facing): 'hit' | 'block' | 'parry' | 'red-parry' {
+  receiveHit(move: MoveData, attacker: Fighter, guarding: boolean, counter = false, impactDirection: 1 | -1 = attacker.facing, allowParry = true): 'hit' | 'block' | 'parry' | 'red-parry' {
     // A combo only continues while the victim is still reeling (hitstun, juggle, bounce or OTG).
     const wasDizzy = this.dizzy;
     const stillReeling = !wasDizzy && (this.state === 'hit' || this.state === 'knockdown' || (this.airborne && this.juggleHits > 0));
-    if (!stillReeling) { this.#comboHitsTaken = 0; this.#lastComboHitKey = ''; }
+    if (!stillReeling) {
+      this.#comboHitsTaken = 0;
+      this.#lastComboHitKey = '';
+      this.#crowdContacts = 0;
+    }
     const low = move.level === 'low';
-    const canParry = move.level !== 'throw' && move.kind !== 'throw';
+    const canParry = allowParry && move.level !== 'throw' && move.kind !== 'throw';
     this.lastHitDirection = impactDirection;
     this.lastHitReaction = move.level === 'throw' ? 'throw' : move.launch ? 'launch' : move.level === 'low' ? 'low' : move.level === 'high' ? 'high' : 'mid';
     this.lastHitZone = this.resolveHitZone(move);
@@ -711,6 +825,8 @@ export class Fighter {
     const comboKey = `${attacker.uid}:${move.id}`;
     if (!(move.multiHit && comboKey === this.#lastComboHitKey && stillReeling)) this.#comboHitsTaken += 1;
     this.#lastComboHitKey = comboKey;
+    // Damage scales by move, but every contact can extend a crowd's hitstun.
+    if (this.#crowdRecoveryEnabled) this.#crowdContacts += 1;
     const damage = Math.round(move.damage * (counter ? 1.12 : 1) * Math.min(juggleScale, comboDamageScale(this.#comboHitsTaken, move)));
     this.hp = Math.max(0, this.hp - damage);
     if (wasDizzy) { sw(this).dizzy = false; sw(this).stunLocked = true; }
@@ -887,37 +1003,44 @@ export class Fighter {
   }
 
   private readMove(input: InputManager, rules: ModeRules): MoveData | null {
-    const throwPressed = (input.pressed('lp') && (input.held('lk') || input.pressed('lk'))) || (input.pressed('lk') && input.held('lp'));
-    if (throwPressed && !this.airborne) return throwMoveFor(this.character.id);
-    const buttons: MoveButton[] = ['lp', 'mp', 'hp', 'lk', 'mk', 'hk'];
+    if (!this.airborne && throwChordPressed(input)) return throwMoveFor(this.character.id);
+    const firstTouch = input.firstTouchAttack?.(NORMAL_BUTTONS);
+    const buttons = firstTouch ? [firstTouch] : NORMAL_BUTTONS;
     if (this.airborne) {
       for (const button of buttons) if (input.pressed(button)) return airNormalFor(this.character.id, button);
       return null;
     }
     const special = this.readSpecialMove(input);
     if (special) return special;
-    const crouching = !rules.depthMovement && input.held('down');
     const forwardAction = this.facing === 1 ? 'right' : 'left';
+    const backAction = this.facing === 1 ? 'left' : 'right';
+    let normalButton: MoveButton | undefined;
+    let normalCrouching = false;
     for (const button of buttons) {
       if (!input.pressed(button)) continue;
-      // Forward command normals are standing attacks; down-forward stays crouched.
-      const command = crouching ? null : commandNormalFor(this.character.id, button, input.held(forwardAction) && !input.held(this.facing === 1 ? 'left' : 'right'));
-      if (command) return command;
+      // A short touch can end before this tick. Use the direction at the attack edge.
+      const directions = input.touchDirectionsAtAttack?.(button);
+      const crouching = !rules.depthMovement && (directions?.includes('down') ?? input.held('down'));
+      if (!crouching) {
+        const forward = directions?.includes(forwardAction) ?? input.held(forwardAction);
+        const back = directions?.includes(backAction) ?? input.held(backAction);
+        const command = commandNormalFor(this.character.id, button, forward && !back);
+        if (command) return command;
+      }
+      if (!normalButton) {
+        normalButton = button;
+        normalCrouching = crouching;
+      }
     }
-    for (const button of buttons) if (input.pressed(button)) return normalFor(button, crouching, this.character.id);
-    return null;
+    return normalButton ? normalFor(normalButton, normalCrouching, this.character.id) : null;
   }
 
-  private bufferFrozenAction(input: InputManager, rules: ModeRules): void {
+  private bufferFrozenAction(input: InputManager, rules: ModeRules, movementLive = false): void {
     if (this.currentMove || !['idle', 'walk', 'crouch', 'jump'].includes(this.state)) return;
     const latest = this.buffer.latest();
     if (!latest) return;
     if (!this.airborne && (input.pressed('jump') || (!rules.depthMovement && input.pressed('up')))) {
-      const buttons: MoveButton[] = ['lp', 'mp', 'hp', 'lk', 'mk', 'hk'];
-      pendingFrozenActions.set(this, {
-        kind: 'jump', button: buttons.find(button => input.pressed(button)) ?? null,
-        airborne: false, epoch: input.historyEpoch, tick: latest.tick,
-      });
+      this.bufferJump(input);
       return;
     }
     const move = this.readMove(input, rules);
@@ -927,7 +1050,7 @@ export class Fighter {
       });
       return;
     }
-    if (!this.airborne && this.dashFrames === 0) {
+    if (!movementLive && !this.airborne && this.dashFrames === 0) {
       const direction = this.readDash(input);
       if (direction) pendingFrozenActions.set(this, {
         kind: 'dash', direction, airborne: false, epoch: input.historyEpoch, tick: latest.tick,
@@ -938,13 +1061,73 @@ export class Fighter {
     }
   }
 
-  private takeFrozenAction(input: InputManager): PendingFrozenAction | null {
-    const pending = pendingFrozenActions.get(this);
+  discardBufferedAction(): void {
     pendingFrozenActions.delete(this);
+  }
+
+  hasBufferedBasicAttack(input: InputManager, tick: number): boolean {
+    const pending = this.readyBufferedAction(input, tick);
+    return pending?.kind === 'attack' && pending.move.kind === 'melee' && pending.move.id.startsWith('5');
+  }
+
+  private bufferRecoveryAction(input: InputManager, rules: ModeRules): void {
+    const move = this.currentMove;
+    if (!move || this.airborne || move.identityTag === 'GRAB') return;
+    const activeEnd = move.startup + move.active;
+    const remaining = activeEnd + move.recovery - this.moveFrame;
+    if (this.moveFrame < activeEnd || remaining > RECOVERY_ACTION_BUFFER_TICKS) return;
+    this.bufferRecoveryInput(input, rules);
+  }
+
+  private bufferRecoveryInput(input: InputManager, attackRules?: ModeRules): void {
+    if (input.pressed('jump')) {
+      this.bufferJump(input);
+      return;
+    }
+    const pending = pendingFrozenActions.get(this);
     const latest = this.buffer.latest();
-    if (!pending || !latest || this.currentMove || !['idle', 'walk', 'crouch', 'jump'].includes(this.state)
+    if (!latest) return;
+    if (pending?.kind === 'jump' && pending.epoch === input.historyEpoch) return;
+    const attack = attackRules && this.readMove(input, attackRules);
+    if (attack?.kind === 'melee' && attack.id.startsWith('5')) {
+      pendingFrozenActions.set(this, {
+        kind: 'attack', move: attack, airborne: false, epoch: input.historyEpoch, tick: latest.tick,
+      });
+      return;
+    }
+    this.bufferStep(input);
+  }
+
+  private bufferStep(input: InputManager): void {
+    const pending = pendingFrozenActions.get(this);
+    if ((pending?.kind === 'jump' || pending?.kind === 'attack') && pending.epoch === input.historyEpoch) return;
+    const latest = this.buffer.latest();
+    const directions = this.releasedMovementStep(input, true, true);
+    if (latest && directions) pendingFrozenActions.set(this, {
+      kind: 'step', directions, airborne: false, epoch: input.historyEpoch, tick: latest.tick,
+    });
+  }
+
+  private bufferJump(input: InputManager): void {
+    const latest = this.buffer.latest();
+    if (!latest) return;
+    const button = input.firstTouchAttack?.(NORMAL_BUTTONS) ?? NORMAL_BUTTONS.find(button => input.pressed(button));
+    pendingFrozenActions.set(this, {
+      kind: 'jump', button: button ?? null, airborne: false, epoch: input.historyEpoch, tick: latest.tick,
+    });
+  }
+
+  private takeFrozenAction(input: InputManager): PendingFrozenAction | null {
+    const pending = this.readyBufferedAction(input, this.buffer.latest()?.tick);
+    this.discardBufferedAction();
+    return pending;
+  }
+
+  private readyBufferedAction(input: InputManager, tick: number | undefined): PendingFrozenAction | null {
+    const pending = pendingFrozenActions.get(this);
+    if (!pending || tick === undefined || this.currentMove || !['idle', 'walk', 'crouch', 'jump'].includes(this.state)
       || pending.airborne !== this.airborne || pending.epoch !== input.historyEpoch
-      || latest.tick < pending.tick || latest.tick - pending.tick > FROZEN_ACTION_BUFFER_TICKS) return null;
+      || tick < pending.tick || tick - pending.tick > FROZEN_ACTION_BUFFER_TICKS) return null;
     if (pending.kind === 'attack' && ((pending.move.exCost ?? 0) > this.superGauge || (pending.move.superCost ?? 0) > this.superGauge)) return null;
     return pending;
   }
@@ -979,18 +1162,34 @@ export class Fighter {
     return pending;
   }
 
+  hasBufferedPunchCommand(input: InputManager): boolean {
+    return this.buffer.matchesHistory(input.historyEpoch) && this.readPunchMotion() !== null;
+  }
+
+  private readPunchMotion(samplesAfterAttack?: number): 'super' | 'antiAir' | 'primary' | null {
+    if (this.superGauge >= this.superStockCost
+      && this.buffer.motion(['D', 'DF', 'F', 'D', 'DF', 'F'], this.facing, 24, samplesAfterAttack)) return 'super';
+    if (this.buffer.motion(['F', 'D', 'DF'], this.facing, 14, samplesAfterAttack)) return 'antiAir';
+    if (this.buffer.motion(['D', 'DF', 'F'], this.facing, 14, samplesAfterAttack)) return 'primary';
+    return null;
+  }
+
   private readSpecialMove(input: InputManager): MoveData | null {
-    const punchPressed = input.pressed('lp') || input.pressed('mp') || input.pressed('hp');
-    const kickPressed = input.pressed('lk') || input.pressed('mk') || input.pressed('hk');
+    const punchPressed = PUNCH_BUTTONS.some(button => input.pressed(button));
+    const kickPressed = KICK_BUTTONS.some(button => input.pressed(button));
+    if (!punchPressed && !kickPressed) return null;
     const specials = specialMovesFor(this.character.id);
-    if (punchPressed && this.buffer.motion(['D', 'DF', 'F', 'D', 'DF', 'F'], this.facing, 24) && this.superGauge >= this.superStockCost) return this.selectedSuperMove();
-    if (punchPressed && this.buffer.motion(['F', 'D', 'DF'], this.facing, 14)) return specials.antiAir;
-    if (punchPressed && this.buffer.motion(['D', 'DF', 'F'], this.facing, 14)) {
-      const doublePunch = ['lp', 'mp', 'hp'].filter((button) => input.held(button as MoveButton) || input.pressed(button as MoveButton)).length >= 2;
+    const punchMotion = punchPressed ? this.readPunchMotion(input.directionSamplesAfterAttack?.(PUNCH_BUTTONS)) : null;
+    if (punchMotion === 'super') return this.selectedSuperMove();
+    if (punchMotion === 'antiAir') return specials.antiAir;
+    if (punchMotion === 'primary') {
+      const punches = PUNCH_BUTTONS.filter(button => input.held(button) || input.pressed(button));
+      const doublePunch = punches.some((first, index) => punches.slice(index + 1).some(second =>
+        input.allowsAttackChord?.(first, second) !== false));
       if (doublePunch && this.superGauge >= 25) return specials.exPrimary;
       return specials.primary;
     }
-    if (kickPressed && this.buffer.motion(['D', 'DB', 'B'], this.facing, 14)) return specials.mobility;
+    if (kickPressed && this.buffer.motion(['D', 'DB', 'B'], this.facing, 14, input.directionSamplesAfterAttack?.(KICK_BUTTONS))) return specials.mobility;
     return null;
   }
 
@@ -1011,11 +1210,11 @@ export class Fighter {
     if (!currentButton) return null;
     const allowed = this.combatProfile.chainRoutes[currentButton];
     if (!allowed?.length) return null;
-    const crouching = !rules.depthMovement && input.held('down') && !this.airborne;
-    for (const button of allowed) {
-      if (input.pressed(button)) return normalFor(button, crouching, this.character.id);
-    }
-    return null;
+    const button = input.firstTouchAttack?.(allowed) ?? allowed.find(action => input.pressed(action));
+    if (!button) return null;
+    const down = input.touchDirectionsAtAttack?.(button)?.includes('down') ?? input.held('down');
+    const crouching = !rules.depthMovement && down && !this.airborne;
+    return normalFor(button, crouching, this.character.id);
   }
 
 
@@ -1171,6 +1370,7 @@ export class Fighter {
     this.attackMovementEntry = false;
     this.attackCrouchEntry = false;
     this.pendingHitStopCancel = null;
+    sw(this).pendingQuickRise = undefined;
     pendingFrozenActions.delete(this);
     this.attackHasLanded = false;
     this.parryFollowupAnimationFrame = -1;
@@ -1388,8 +1588,8 @@ export class Fighter {
 
   /** Quick rise (tap down while grounded) and tech roll (down + back): stand up sooner, optionally rolling away. */
   quickRise(roll = false): boolean {
-    if (this.state !== 'knockdown' || this.airborne || sw(this).quickRiseUsed || this.hp <= 0 || this.throwSyncFrames > 0) return false;
-    if (sw(this).knockdownGroundFrames > QUICK_RISE_INPUT_WINDOW || this.stateFrame >= -QUICK_RISE_REMAINING) return false;
+    if (!this.canQuickRiseAt(sw(this).knockdownGroundFrames)) return false;
+    sw(this).pendingQuickRise = undefined;
     sw(this).quickRiseUsed = true;
     sw(this).quickRiseCount += 1;
     this.stateFrame = -QUICK_RISE_REMAINING;
@@ -1397,18 +1597,71 @@ export class Fighter {
     return true;
   }
 
-  private readLockedStateInput(input: InputManager): void {
+  private canQuickRiseAt(groundedFrames: number, afterLanding = false): boolean {
+    return this.state === 'knockdown' && (!this.airborne || afterLanding) && !sw(this).quickRiseUsed && this.hp > 0 && this.throwSyncFrames <= 0
+      && groundedFrames <= QUICK_RISE_INPUT_WINDOW && this.stateFrame < -QUICK_RISE_REMAINING;
+  }
+
+  private readLockedStateInput(input: InputManager, rules: ModeRules): void {
+    const wake = sw(this);
+    const pending = wake.pendingQuickRise;
+    if (pending && (this.state !== 'knockdown' || pending.epoch !== input.historyEpoch || --pending.ticksLeft < 0)) {
+      wake.pendingQuickRise = undefined;
+    }
     if (this.dizzy) {
       const mash = (['lp', 'mp', 'hp', 'lk', 'mk', 'hk', 'left', 'right', 'up', 'down', 'jump'] as const).filter((action) => input.pressed(action)).length;
       if (mash > 0) this.stateFrame = Math.min(0, this.stateFrame + mash * DIZZY_MASH_FRAMES);
       return;
     }
-    if (this.state !== 'knockdown' || this.airborne) return;
-    if (input.pressed('down')) this.quickRise(input.held(this.facing === 1 ? 'left' : 'right'));
+    if (this.state !== 'knockdown') return;
+    const back = this.facing === 1 ? 'left' : 'right';
+    if (this.airborne) {
+      if (this.jumpVelocity < 0 && this.throwSyncFrames <= 0) {
+        this.bufferQuickRise(input, this.side === 'player' && rules.quickRiseLandingAssist);
+      }
+      return;
+    }
+    const queued = wake.pendingQuickRise;
+    wake.pendingQuickRise = undefined;
+    if (input.pressed('down')) this.quickRise(this.quickRiseBackPressed(input, back));
+    else if (queued) this.quickRise(queued.back === back);
     if (this.stateFrame >= -WAKE_REVERSAL_BUFFER) {
       const special = this.readSpecialMove(input);
       if (special) sw(this).wakeReversal = special;
     }
+  }
+
+  private bufferQuickRise(input: InputManager, landingAssist = false): void {
+    if (!input.pressed('down')) return;
+    // Honor a tap during the landing cue through the last eligible recovery tick.
+    const ticksLeft = landingAssist && this.canPrepareQuickRise
+      ? Math.max(QUICK_RISE_BUFFER_TICKS, -this.stateFrame - QUICK_RISE_REMAINING)
+      : QUICK_RISE_BUFFER_TICKS;
+    const back = this.facing === 1 ? 'left' : 'right';
+    sw(this).pendingQuickRise = {
+      ticksLeft, epoch: input.historyEpoch,
+      back: this.quickRiseBackPressed(input, back) ? back : null,
+    };
+  }
+
+  private quickRiseBackPressed(input: InputManager, back: 'left' | 'right'): boolean {
+    const directions = input.directionChanges?.();
+    if (!directions?.length || (input.held('down') && input.held(back))) return input.held(back);
+
+    // Inspect only the latest down press. Back pressed after releasing down
+    // cannot turn a quick rise into a roll.
+    const forward = back === 'left' ? 'right' : 'left';
+    let foundDown = false;
+    for (let i = directions.length - 1; i >= 0; i -= 1) {
+      const sample = directions[i]!;
+      if (!sample.has('down')) {
+        if (foundDown) break;
+        continue;
+      }
+      foundDown = true;
+      if (sample.has(back) && !sample.has(forward)) return true;
+    }
+    return false;
   }
 
   private advanceLockedState(): void {
@@ -1419,7 +1672,18 @@ export class Fighter {
       const leavingDizzy = sw(this).dizzy;
       sw(this).dizzy = false;
       if (!leavingDizzy) sw(this).stunLocked = false;
-      if (leaving === 'knockdown' && !sw(this).pendingDizzy) sw(this).wakeInvulnFrames = WAKE_INVULN_FRAMES;
+      const crowdRecovery = this.#crowdContacts >= CROWD_CONTACT_LIMIT
+        && (leaving === 'hit' || leaving === 'knockdown');
+      if (crowdRecovery) {
+        this.#crowdContacts = 0;
+        this.#comboHitsTaken = 0;
+        this.#lastComboHitKey = '';
+      }
+      if ((leaving === 'knockdown' || crowdRecovery) && !sw(this).pendingDizzy) sw(this).wakeInvulnFrames = WAKE_INVULN_FRAMES;
+      else if (this.#crowdRecoveryEnabled && (leaving === 'hit' || leaving === 'block')) {
+        // World collision resolution still runs after this locked update returns.
+        sw(this).wakeInvulnFrames = Math.max(sw(this).wakeInvulnFrames, 1);
+      }
       if (this.state === 'parry') this.parryFollowupAnimationFrame = this.animationFrame + 1;
       this.state = this.airborne ? 'jump' : 'idle';
       this.stateFrame = 0;

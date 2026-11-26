@@ -1,14 +1,35 @@
 import { combatDuckAmount, combatDuckDuration, stageAudioMixProfile, type CombatAudioCue } from './AudioMixProfiles.js';
 import { SampledSfxBank, type ProducedSfx } from './SampledSfxBank.js';
+
+const DUCK_ATTACK_SECONDS = .012;
+const FRONTEND_MIX = { music: .82, ambience: .72, sfx: 1 };
+interface DuckRange { from: number; target: number }
+interface ActiveCombatDuck {
+  start: number;
+  end: number;
+  music: DuckRange;
+  ambience: DuckRange;
+}
+
+function duckLevelAt(duck: ActiveCombatDuck | null, bus: 'music' | 'ambience', time: number): number {
+  if (!duck || time >= duck.end) return 1;
+  const { from, target } = duck[bus];
+  const attackEnd = duck.start + DUCK_ATTACK_SECONDS;
+  if (time < attackEnd) return from + (target - from) * ((time - duck.start) / DUCK_ATTACK_SECONDS);
+  return target + (1 - target) * ((time - attackEnd) / (duck.end - attackEnd));
+}
+
 export class AudioManager {
+  private gestureResumePending = false;
   private sampledSfx: SampledSfxBank | null = null;
   private context: AudioContext | null = null;
   private master: GainNode | null = null;
   private musicBus: GainNode | null = null;
   private ambienceBus: GainNode | null = null;
   private sfxBus: GainNode | null = null;
-  private musicBase = .82;
-  private ambienceBase = .72;
+  private musicDuckBus: GainNode | null = null;
+  private ambienceDuckBus: GainNode | null = null;
+  private combatDuck: ActiveCombatDuck | null = null;
   private enabled = true;
   private backgrounded = false;
   private paused = false;
@@ -38,11 +59,17 @@ export class AudioManager {
       this.musicBus = this.context.createGain();
       this.ambienceBus = this.context.createGain();
       this.sfxBus = this.context.createGain();
-      this.musicBus.gain.value = .82;
-      this.ambienceBus.gain.value = .72;
-      this.sfxBus.gain.value = 1;
-      this.musicBus.connect(this.master);
-      this.ambienceBus.connect(this.master);
+      this.musicBus.gain.value = FRONTEND_MIX.music;
+      this.ambienceBus.gain.value = FRONTEND_MIX.ambience;
+      this.sfxBus.gain.value = FRONTEND_MIX.sfx;
+      this.musicDuckBus = this.context.createGain();
+      this.ambienceDuckBus = this.context.createGain();
+      this.musicDuckBus.gain.value = 1;
+      this.ambienceDuckBus.gain.value = 1;
+      this.musicBus.connect(this.musicDuckBus);
+      this.ambienceBus.connect(this.ambienceDuckBus);
+      this.musicDuckBus.connect(this.master);
+      this.ambienceDuckBus.connect(this.master);
       this.sfxBus.connect(this.master);
       // Post-compressor trim preserves transient headroom under overlapping hits.
       const output = this.context.createGain(); output.gain.value = .65;
@@ -61,10 +88,25 @@ export class AudioManager {
   }
 
 
+  async resumeFromGesture(): Promise<void> {
+    const context = this.context;
+    if (context?.state !== 'suspended' || !this.enabled || this.backgrounded || this.paused || this.gestureResumePending) return;
+    this.gestureResumePending = true;
+    try {
+      // A resume made before user activation can stay pending until a resume inside the gesture.
+      if (this.audioStateChange) await context.resume();
+      await this.syncSuspension();
+    } finally {
+      this.gestureResumePending = false;
+    }
+  }
+
   startFrontendTheme(mode: 'title' | 'select' | 'ending'): void {
     if (!this.context || !this.master || !this.enabled) return;
-    this.stopSoundscape(); this.stopFrontendTheme();
     const key = mode === 'title' ? 'title-theme' : mode === 'select' ? 'select-theme' : 'ending-theme';
+    this.stopSoundscape();
+    if (this.desiredMusicLoopKey !== key) this.stopFrontendTheme();
+    this.applyBaseMix(FRONTEND_MIX);
     void this.playMusicAssetLoop(key, '/audio/score-v2/' + key + '.ogg', .8);
   }
 
@@ -138,15 +180,21 @@ export class AudioManager {
   startStageSoundscape(stageId: number): void {
     if (!this.context || !this.master || !this.enabled) return;
     this.stopFrontendTheme(); this.stopSoundscape(); this.currentStageId = stageId;
-    const mix = stageAudioMixProfile(stageId);
-    this.musicBase = mix.music; this.ambienceBase = mix.ambience;
-    this.musicBus?.gain.setValueAtTime(this.musicBase, this.context.currentTime);
-    this.ambienceBus?.gain.setValueAtTime(this.ambienceBase, this.context.currentTime);
-    this.sfxBus?.gain.setValueAtTime(mix.sfx, this.context.currentTime);
+    this.applyBaseMix(stageAudioMixProfile(stageId));
     // Keep the existing intensity/fade lifecycle, without a continuous synth drone.
     this.ambienceGain = this.context.createGain(); this.ambienceGain.gain.value = 0;
     this.ambienceGain.connect(this.ambienceBus ?? this.master);
     void this.playMusicAssetLoop('stage' + stageId + '-theme', '/audio/score-v2/stage' + stageId + '-theme.ogg', .8);
+  }
+
+  private applyBaseMix(mix: typeof FRONTEND_MIX): void {
+    if (!this.context) return;
+    const now = this.context.currentTime;
+    for (const [bus, level] of [[this.musicBus, mix.music], [this.ambienceBus, mix.ambience], [this.sfxBus, mix.sfx]] as const) {
+      if (!bus) continue;
+      bus.gain.cancelScheduledValues(now);
+      bus.gain.setValueAtTime(level, now);
+    }
   }
 
   playStageBeat(_stageId: number, _beat: number, _level: 'belt' | 'duel' | 'final' = 'belt'): void {
@@ -163,7 +211,6 @@ export class AudioManager {
     const sfxTarget = mix.sfx * (level === 'final' ? 1.08 : level === 'duel' ? 1.03 : 1);
     const bossLayerTarget = level === 'final' ? (this.currentStageId === 5 ? .034 : .022) : level === 'duel' ? .012 : .0001;
     const t = this.context.currentTime;
-    this.musicBase = musicTarget; this.ambienceBase = mix.ambience;
     this.ambienceGain.gain.cancelScheduledValues(t);
     this.ambienceGain.gain.linearRampToValueAtTime(ambienceTarget, t + (level === 'belt' ? .45 : .32));
     if (this.musicBus) { this.musicBus.gain.cancelScheduledValues(t); this.musicBus.gain.linearRampToValueAtTime(musicTarget, t + .42); }
@@ -172,6 +219,7 @@ export class AudioManager {
   }
 
   stopSoundscape(): void {
+    this.resetCombatDuck();
     this.stopMusicAssetLoop(.5, key => key.startsWith('stage') || key === 'final-boss-theme');
     if (this.bossLayerSource) { try { this.bossLayerSource.stop(); } catch {} try { this.bossLayerSource.disconnect(); } catch {} this.bossLayerSource = null; }
     if (this.bossAirSource) { try { this.bossAirSource.stop(); } catch {} try { this.bossAirSource.disconnect(); } catch {} this.bossAirSource = null; }
@@ -195,7 +243,16 @@ export class AudioManager {
   playCommandHit(power: number): void { this.playHit(power + 14); }
   playTargetHit(power: number): void { this.playHit(power); }
   playSuperStart(): void { this.duckCombat('super'); this.effect('super-start', .85); }
-  playSuperImpact(_power: number): void { this.effect('super-impact', .86); }
+  playSuperImpact(_power: number, hitIndex = 1, hitTotal = 1): void {
+    if (hitIndex < hitTotal) {
+      const progress = (hitIndex - 1) / (hitTotal - 1);
+      this.duckCombat('heavy-hit');
+      this.effect('hit-heavy', .54 + progress * .18, 1.04 + progress * .1);
+      return;
+    }
+    this.duckCombat('super');
+    this.effect('super-impact', .89, .94);
+  }
   playBossCue(burst: boolean): void { this.duckCombat('boss'); this.effect(burst ? 'super-impact' : 'super-start', .68, .88); }
   playDizzy(): void { this.effect('whoosh', .62, .58); this.effect('ui', .42, 1.7); }
   playQuickRise(): void { this.effect('whoosh', .42, 1.28); }
@@ -206,20 +263,37 @@ export class AudioManager {
   }
 
   private duckCombat(cue: CombatAudioCue): void {
-    if (!this.context || !this.musicBus || !this.ambienceBus || !this.isRunning()) return;
+    if (!this.context || !this.musicDuckBus || !this.ambienceDuckBus || !this.isRunning()) return;
     const t = this.context.currentTime;
     const amount = combatDuckAmount(cue);
-    const duration = combatDuckDuration(cue);
-    const musicBase = this.musicBase;
-    const ambienceBase = this.ambienceBase;
-    this.musicBus.gain.cancelScheduledValues(t);
-    this.ambienceBus.gain.cancelScheduledValues(t);
-    this.musicBus.gain.setValueAtTime(musicBase, t);
-    this.ambienceBus.gain.setValueAtTime(ambienceBase, t);
-    this.musicBus.gain.linearRampToValueAtTime(musicBase * amount, t + .012);
-    this.ambienceBus.gain.linearRampToValueAtTime(ambienceBase * Math.min(.78, amount + .12), t + .012);
-    this.musicBus.gain.linearRampToValueAtTime(musicBase, t + duration);
-    this.ambienceBus.gain.linearRampToValueAtTime(ambienceBase, t + duration);
+    const previous = this.combatDuck;
+    // Keep a stronger cue's release, and combine duplicate cues from the same moment.
+    if (previous && t < previous.end && (amount > previous.music.target
+      || (amount === previous.music.target && t === previous.start))) return;
+
+    const next: ActiveCombatDuck = {
+      start: t,
+      end: t + combatDuckDuration(cue),
+      music: { from: duckLevelAt(previous, 'music', t), target: amount },
+      ambience: { from: duckLevelAt(previous, 'ambience', t), target: Math.min(.78, amount + .12) },
+    };
+    this.combatDuck = next;
+    for (const [gain, range] of [[this.musicDuckBus.gain, next.music], [this.ambienceDuckBus.gain, next.ambience]] as const) {
+      gain.cancelScheduledValues(t);
+      gain.setValueAtTime(range.from, t);
+      gain.linearRampToValueAtTime(range.target, t + DUCK_ATTACK_SECONDS);
+      gain.linearRampToValueAtTime(1, next.end);
+    }
+  }
+
+  private resetCombatDuck(): void {
+    if (!this.context || !this.combatDuck) return;
+    this.combatDuck = null;
+    const t = this.context.currentTime;
+    for (const bus of [this.musicDuckBus, this.ambienceDuckBus]) {
+      bus?.gain.cancelScheduledValues(t);
+      bus?.gain.setValueAtTime(1, t);
+    }
   }
 
   private async playMusicAssetLoop(key: string, url: string, volume: number): Promise<void> {
@@ -230,8 +304,10 @@ export class AudioManager {
       if (this.musicLoopGain) this.musicLoopGain.gain.setTargetAtTime(volume, this.context.currentTime, .18);
       return;
     }
-    const buffer = await this.musicBufferFor(key, url);
-    if (!buffer || !this.context || !this.enabled || request !== this.musicRequest || this.desiredMusicLoopKey !== key) return;
+    const stillWanted = () => this.enabled && request === this.musicRequest && this.desiredMusicLoopKey === key;
+    let buffer = await this.musicBufferFor(key, url);
+    if (!buffer && stillWanted()) buffer = await this.musicBufferFor(key, url);
+    if (!buffer || !this.context || !stillWanted()) return;
     const t = this.context.currentTime;
     const oldSource = this.musicLoopSource;
     const oldGain = this.musicLoopGain;

@@ -38,3 +38,33 @@ for(const c of roster)for(const stage of [1,2,3,4,5]){
 textures.setMode('lite');const lite=enterClear(CHARACTERS[0],1,()=>{}),clock=lite.world.player.animationFrame;
 for(let tick=0;tick<60;tick++)lite.fixedUpdate(1/60,tick);assert.equal(lite.world.player.stateFrame,60);assert.equal(lite.world.player.animationFrame-clock,60);
 console.log('STAGE_CLEAR_VICTORY_CLOCK_PASS',{cases,characters:10,stages:5,authoredFrames,repeatChecks,liteClock:true,physicsFrozen:true,dispatchTimingUnchanged:true,oneShotCallback:true,finalPoseHeld:true});
+
+function clearLabels(scene, compact) {
+  const labels = new Map();
+  const ctx = new Proxy({}, {
+    get: (_, key) => key === 'fillText' ? (text, x, y) => labels.set(text, y)
+      : key === 'createLinearGradient' ? () => ({addColorStop() {}}) : () => {},
+  });
+  scene.drawStageClear(ctx, compact);
+  return labels;
+}
+for (const [stage, replay, action] of [
+  [1, false, 'TAP START FOR NEXT STAGE'],
+  [5, false, 'TAP START FOR ENDING'],
+  [5, true, 'TAP START FOR STAGE SELECT'],
+]) {
+  const scene = enterClear(CHARACTERS[0], stage, () => {});
+  scene.replay = replay;
+  scene.phaseFrames = 78;
+  let labels = clearLabels(scene, true);
+  assert.equal(labels.get(action), 235, 'Touch instruction sits above the score panel');
+  assert(![...labels].some(([label]) => /TRANSFERRING TO ENDING|RETURNING TO STAGE SELECT/.test(label)));
+  scene.clearAdvanceQueued = true;
+  labels = clearLabels(scene, true);
+  assert(labels.has('CONTINUE QUEUED') && !labels.has(action));
+  scene.routeError = 'SAVE FAILED';
+  assert(!clearLabels(scene, true).has('CONTINUE QUEUED'));
+  assert(!clearLabels(scene, false).has(action));
+  scene.destroy();
+}
+console.log('TOUCH_CLEAR_ACTION_PASS');

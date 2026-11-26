@@ -46,3 +46,19 @@ for(const kind of ['intro','wave','duel','final']){
  const move=t.f.currentMove; t.step();assert.equal(t.f.currentMove,move,'Buffered action fires once');
 }
 console.log('TRANSITION_READY_COMMAND_PASS',{commands:4,once:4});
+
+{
+ const t=setup('wave',1);
+ t.f.hp=500;
+ const apple=t.world.belt.spawnPickup('apple',t.f.x,t.f.y);
+ apple.z=apple.vz=0;
+ t.step(['hp']);
+ assert.equal(t.f.currentMove,null);
+ t.step(['lp']);
+ assert.equal(t.f.hp,660,'A fresh punch on the first combat tick must still collect food');
+ assert.equal(t.f.currentMove,null,'A consumed pickup input must take priority over a buffered punch');
+ t.step();
+ assert.equal(t.f.currentMove,null,'The old punch must not fire on a later tick');
+ t.step(['lp']);
+ assert.equal(t.f.currentMove?.button,'lp','A fresh attack after pickup must still work');
+}

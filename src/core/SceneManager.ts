@@ -3,6 +3,7 @@ import type { RenderContext, Scene } from './Scene.js';
 
 export class SceneManager {
   private current: Scene | null = null;
+  private entering = false;
   get activeScene(): Scene | null { return this.current; }
   private width = 1280;
   private height = 720;
@@ -14,7 +15,7 @@ export class SceneManager {
       this.current = null;
       releasePoseBlendCanvas();
       if (previous) {
-        try { await previous.exit(); }
+        try { await previous.exit(scene); }
         catch (error) {
           try { previous.destroy(); } catch { /* preserve original exit error */ }
           throw error;
@@ -23,6 +24,7 @@ export class SceneManager {
       }
 
       this.current = scene;
+      this.entering = true;
       try {
         scene.resize(this.width, this.height);
         await scene.enter();
@@ -34,6 +36,8 @@ export class SceneManager {
         try { await scene.exit(); } catch { /* preserve original enter error */ }
         try { scene.destroy(); } catch { /* preserve original enter error */ }
         throw error;
+      } finally {
+        this.entering = false;
       }
     };
 
@@ -52,7 +56,7 @@ export class SceneManager {
   }
 
   fixedUpdate(dt: number, tick: number): void {
-    this.current?.fixedUpdate(dt, tick);
+    if (!this.entering) this.current?.fixedUpdate(dt, tick);
   }
 
   render(render: RenderContext, alpha: number, frameDt: number): void {

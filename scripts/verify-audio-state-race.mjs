@@ -13,4 +13,36 @@ for(const kind of ['background','pause','both'])for(const reverse of [false,true
 {const{a,c}=fixture('suspended');a.setBackgrounded(false);c.calls[0].reject(Error('control rejected'));await flush();a.setBackgrounded(false);assert.equal(c.calls.length,2,'Rejection unlocks future explicit retry');await finish(c,1);assert(a.isRunning());cases++;}
 {const a=new AudioManager();a.setEnabled(false);await a.unlock();assert.equal(a.context,null,'Muted boot does not create context');a.setBackgrounded(true);a.setPaused(true);await flush();assert.equal(a.context,null);cases++;}
 {const{a,c}=fixture('running');a.setBackgrounded(true);a.setEnabled(false);a.setBackgrounded(false);await finish(c,0);assert.equal(c.state,'suspended');assert.equal(c.calls.length,1,'Disabled audio must not be resumed by reconciliation');cases++;}
-console.log(JSON.stringify({ok:true,cases,checks:['late resume remains blocked','late suspend resumes visible audio','manual pause independent','one control operation in flight','unlock latest-state fence','failure retry','muted boot unchanged']}));
+{
+ const {a,c}=fixture('suspended');
+ const boot=a.unlock();
+ a.resumeFromGesture();
+ a.resumeFromGesture();
+ assert.deepEqual(c.calls.map(call=>call.method),['resume','resume'],'One gesture can retry a pending boot resume');
+ await finish(c,1);
+ await finish(c,0);
+ await boot;
+ assert(a.isRunning());
+ cases++;
+}
+for(const blocked of ['background','pause','muted']){
+ const {a,c}=fixture('suspended');
+ if(blocked==='muted')a.setEnabled(false);else block(a,blocked,true);
+ a.resumeFromGesture();
+ assert.equal(c.calls.length,0,'Gestures must respect '+blocked);
+ cases++;
+}
+{
+ const {a,c}=fixture('suspended');
+ const boot=a.unlock(),gesture=a.resumeFromGesture();
+ a.setBackgrounded(true);
+ await finish(c,1);
+ await finish(c,0);
+ assert.equal(c.calls[2]?.method,'suspend','A background transition must still suspend a late gesture resume');
+ await finish(c,2);
+ await Promise.all([boot,gesture]);
+ assert.equal(c.state,'suspended');
+ assert(!a.isRunning());
+ cases++;
+}
+console.log(JSON.stringify({ok:true,cases,checks:['late resume remains blocked','late suspend resumes visible audio','manual pause independent','one control operation in flight','unlock latest-state fence','failure retry','muted boot unchanged','trusted activation retries boot resume']}));

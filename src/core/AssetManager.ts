@@ -2,10 +2,22 @@ import { PRODUCED_SFX_ASSETS } from './SampledSfxBank.js';
 import { runtimeQuality } from './RuntimeQuality.js';
 import { CHARACTERS, BOSS_CHARACTERS } from '../game/characters.js';
 import { animationSequencesFor } from '../render/AnimationSequenceLibrary.js';
+import { preloadSceneArtResponse } from '../render/ImageAssets.js';
 
 export type AssetGroupName = 'app-shell' | 'character-hd' | 'character-hq' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4' | 'stage-5' | 'ending';
 
-export const GAME_CACHE_NAME = 'game-cache-v688';
+export const GAME_CACHE_NAME = 'game-cache-v821';
+type AssetLoadQuality = 'full' | 'lite';
+type AssetGroupKey = AssetGroupName | `${AssetGroupName}:lite`;
+
+const compactAnimationByOriginal = new Map(
+  [...CHARACTERS, ...BOSS_CHARACTERS].flatMap(character => animationSequencesFor(character.id, true)
+    .flatMap(sequence => sequence.liteAsset ? [[sequence.asset, sequence.liteAsset] as const] : [])),
+);
+
+function groupLoadKey(name: AssetGroupName, quality: AssetLoadQuality): AssetGroupKey {
+  return quality === 'lite' && name.startsWith('stage-') ? `${name}:lite` : name;
+}
 
 const THROW_ATTACKER_ASSETS = ['/art/throw-attacker-v1/ken.webp', '/art/throw-attacker-v1/ryu.webp', '/art/throw-attacker-v1/chunli.webp', '/art/throw-attacker-v1/alex.webp', '/art/throw-attacker-v1/dudley.webp', '/art/throw-attacker-v1/makoto.webp', '/art/throw-attacker-v1/ibuki.webp', '/art/throw-attacker-v1/yun.webp', '/art/throw-attacker-v1/urien.webp', '/art/throw-attacker-v1/gill.webp'];
 const THROW_VICTIM_ASSETS = ['/art/throw-victim-v1/ken.webp', '/art/throw-victim-v1/ryu.webp', '/art/throw-victim-v1/chunli.webp', '/art/throw-victim-v1/alex.webp', '/art/throw-victim-v1/dudley.webp', '/art/throw-victim-v1/makoto.webp', '/art/throw-victim-v1/ibuki.webp', '/art/throw-victim-v1/yun.webp', '/art/throw-victim-v1/urien.webp', '/art/throw-victim-v1/gill.webp'];
@@ -26,7 +38,7 @@ export const THROW_ESCAPE_ASSETS = ['ryu','ken','chunli','alex','dudley','makoto
 export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
   'app-shell': [
     ...PRODUCED_SFX_ASSETS,
-    '/art/title-keyart.png', '/art/roster-mural.png', '/audio/score-v2/title-theme.ogg', '/audio/score-v2/select-theme.ogg',
+    '/art/title-keyart.webp', '/art/roster-mural.webp', '/audio/score-v2/title-theme.ogg', '/audio/score-v2/select-theme.ogg',
     '/art/portraits/ryu.webp', '/art/portraits/ken.webp', '/art/portraits/chunli.webp', '/art/portraits/alex.webp',
     '/art/portraits/dudley.webp', '/art/portraits/makoto.webp', '/art/portraits/ibuki.webp', '/art/portraits/yun.webp',
     '/art/combat-sprites/ryu-authored-v1.png', '/art/combat-sprites/ken-authored-v1.png', '/art/combat-sprites/chunli-authored-v1.png', '/art/combat-sprites/alex-authored-v1.png',
@@ -42,6 +54,8 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     '/art/attack-atlases-hd/dudley-authored-v1.webp', '/art/attack-atlases-hd/makoto-authored-v1.webp', '/art/attack-atlases-hd/ibuki-authored-v1.webp', '/art/attack-atlases-hd/yun-authored-v1.webp',
   ],
   'character-hq': [
+    ...[...CHARACTERS, ...BOSS_CHARACTERS].flatMap(character =>
+      animationSequencesFor(character.id, true).flatMap(sequence => sequence.liteAsset ? [sequence.liteAsset] : [])),
     ...KNOCKDOWN_ASSETS,
     ...AIR_FALL_ASSETS,
     ...SUPER_HIT_ASSETS,
@@ -307,8 +321,24 @@ export const ASSET_GROUPS: Record<AssetGroupName, readonly string[]> = {
     ...THROW_ATTACKER_ASSETS,
     ...THROW_VICTIM_ASSETS,
     '/art/fx/hit-impact-v2.webp', '/art/fx/combat-impact-v1.webp', '/assets/render/CombatImpactAssets.js', '/assets/scenes/Stage1Scene.js', '/assets/scenes/Stage5Scene.js', '/art/stage-backgrounds-v2/society.webp', '/art/foregrounds/stage5-foreground.webp', '/art/portraits/urien.webp', '/art/portraits/gill.webp', '/audio/score-v2/stage5-theme.ogg', '/audio/score-v2/final-boss-theme.ogg'],
-  'ending': ['/assets/scenes/EndingScene.js', '/assets/game/EndingProfiles.js', '/art/ending-keyart.png', '/audio/score-v2/ending-theme.ogg'],
+  'ending': ['/assets/scenes/EndingScene.js', '/assets/game/EndingProfiles.js', '/art/ending-keyart.webp', '/audio/score-v2/ending-theme.ogg'],
 };
+
+const FINAL_BOSS_REACTION_ART = /^\/art\/(?:throw-attacker|throw-victim|air-fall|knockdown-motion|super-hit)-v1\/(?:urien|gill)\.webp$/;
+
+export function assetGroupLoadUrls(name: AssetGroupName): readonly string[] {
+  const urls = ASSET_GROUPS[name];
+  // Stage and ending music starts asynchronously through the scene's audio manager.
+  // Keep the full soundtrack in the offline catalog, outside the scene entry wait.
+  if (!name.startsWith('stage-') && name !== 'ending') return urls;
+  const earlyStage = name.startsWith('stage-') && name !== 'stage-5';
+  return urls.filter(url => {
+    if (url.startsWith('/audio/score-v2/')) return false;
+    // Urien and Gill first appear in the final stage. Their full and Lite
+    // reaction art remain available for offline campaigns and training.
+    return !earlyStage || !FINAL_BOSS_REACTION_ART.test(url);
+  });
+}
 
 // Explicit offline preparation includes all enabled character poses and their
 // support textures. These remain outside the normal startup/stage preload lists.
@@ -380,37 +410,73 @@ export const OFFLINE_TRANSITIONS: readonly { id: OfflineTransitionDetail['id']; 
   { id: '5-ending', label: 'STAGE 5 → ENDING', urls: ASSET_GROUPS.ending },
 ];
 
-export class AssetManager {
-  private loadedGroups = new Set<string>();
-  private loading = new Map<string, Promise<void>>();
+type AssetProgress = (done: number, total: number) => void;
 
-  async loadGroup(name: AssetGroupName, onProgress?: (done: number, total: number) => void): Promise<void> {
-    if (this.loadedGroups.has(name)) { onProgress?.(1, 1); return; }
-    const existing = this.loading.get(name);
-    if (existing) { await existing; onProgress?.(1, 1); return; }
-    const urls = ASSET_GROUPS[name] ?? [];
-    const task = (async () => {
-      if (urls.length === 0) { this.loadedGroups.add(name); onProgress?.(1, 1); return; }
-      let done = 0;
-      onProgress?.(0, urls.length);
-      await Promise.all(urls.map(async (url) => {
+interface AssetGroupLoad {
+  task: Promise<void>;
+  progress: { done: number; total: number; listeners: Set<AssetProgress> };
+}
+
+interface AssetFileLoad {
+  task: Promise<void>;
+  groups: Set<AssetGroupKey>;
+}
+
+export class AssetManager {
+  private loadedGroups = new Set<AssetGroupKey>();
+  private loading = new Map<AssetGroupKey, AssetGroupLoad>();
+  private loadingFiles = new Map<string, AssetFileLoad>();
+  private readonly checkedCode = new Set<string>();
+  private readonly retryGroups = new Set<AssetGroupKey>();
+
+  async loadGroup(name: AssetGroupName, onProgress?: AssetProgress, quality: AssetLoadQuality = 'full'): Promise<void> {
+    const key = groupLoadKey(name, quality);
+    if (this.loadedGroups.has(key)) { onProgress?.(1, 1); return; }
+    let load = this.loading.get(key);
+    if (!load) {
+      const urls = assetGroupLoadUrls(name);
+      const recheckCode = this.retryGroups.has(key);
+      const progress = { done: urls.length ? 0 : 1, total: urls.length || 1, listeners: new Set<AssetProgress>() };
+      const task = Promise.all(urls.map(async (url) => {
         this.modulePreload(url);
         const preferFreshCode = typeof navigator !== 'undefined' && navigator.onLine !== false && url.startsWith('/assets/') && url.endsWith('.js');
-        const response = await this.fetchWithCacheFallback(url, preferFreshCode);
-        if (!response.ok) throw new Error(`Asset preload failed: ${url} (${response.status})`);
-        done += 1;
-        onProgress?.(done, urls.length);
-      }));
-      this.loadedGroups.add(name);
-      this.notifyServiceWorker(urls);
-    })();
-    this.loading.set(name, task);
-    try { await task; } finally { this.loading.delete(name); }
+        const compact = key !== name ? compactAnimationByOriginal.get(url) : undefined;
+        let loadedUrl = url;
+        if (compact) {
+          try {
+            await this.loadGroupFile(key, compact, false);
+            loadedUrl = compact;
+          } catch {
+            await this.loadGroupFile(key, url, false);
+          }
+        } else if (!preferFreshCode || recheckCode || !this.checkedCode.has(url)) {
+          await this.loadGroupFile(key, url, preferFreshCode);
+        }
+        progress.done += 1;
+        for (const listener of progress.listeners) listener(progress.done, progress.total);
+        return loadedUrl;
+      })).then(loadedUrls => {
+        this.loadedGroups.add(key);
+        this.retryGroups.delete(key);
+        if (loadedUrls.length) this.notifyServiceWorker(loadedUrls);
+      }).finally(() => this.loading.delete(key));
+      load = { task, progress };
+      this.loading.set(key, load);
+    }
+    if (!onProgress) return load.task;
+    load.progress.listeners.add(onProgress);
+    try {
+      onProgress(load.progress.done, load.progress.total);
+      await load.task;
+    } finally {
+      load.progress.listeners.delete(onProgress);
+    }
   }
 
-  prefetchGroup(name: AssetGroupName): void {
-    if (this.loadedGroups.has(name) || this.loading.has(name)) return;
-    const run = () => { void this.loadGroup(name).catch(() => undefined); };
+  prefetchGroup(name: AssetGroupName, quality: AssetLoadQuality = 'full'): void {
+    const key = groupLoadKey(name, quality);
+    if (this.loadedGroups.has(key) || this.loading.has(key)) return;
+    const run = () => { void this.loadGroup(name, undefined, quality).catch(() => undefined); };
     const delay = runtimeQuality.releaseProfile.idlePrefetchDelayMs;
     const idle = (globalThis as typeof globalThis & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number }).requestIdleCallback;
     if (idle) idle(run, { timeout: Math.max(900, delay * 3) });
@@ -522,10 +588,36 @@ const now = () => typeof performance !== 'undefined' ? performance.now() : Date.
     return { ready: missing.length === 0, cached: urls.length - missing.length, total: urls.length, missing };
   }
 
-  invalidateGroup(name: AssetGroupName): void { this.loadedGroups.delete(name); }
-  hasGroup(name: string): boolean { return this.loadedGroups.has(name); }
+  invalidateGroup(name: AssetGroupName, quality: AssetLoadQuality = 'full'): void {
+    const key = groupLoadKey(name, quality);
+    this.loadedGroups.delete(key);
+    this.retryGroups.add(key);
+  }
+  hasGroup(name: AssetGroupName, quality: AssetLoadQuality = 'full'): boolean {
+    return this.loadedGroups.has(groupLoadKey(name, quality));
+  }
 
-  private async fetchWithCacheFallback(url: string, preferNetwork: boolean): Promise<Response> {
+  private loadGroupFile(group: AssetGroupKey, url: string, preferNetwork: boolean): Promise<void> {
+    const key = (preferNetwork ? 'network:' : 'cache:') + url;
+    const pending = this.loadingFiles.get(key);
+    if (pending && !pending.groups.has(group)) {
+      pending.groups.add(group);
+      return pending.task;
+    }
+    // A retry of the same group must be independent of its retired attempt.
+    // Only a successful fetch establishes reuse; a direct cache fallback must be checked online later.
+    const rememberCode = preferNetwork ? () => { this.checkedCode.add(url); } : undefined;
+    const task = this.fetchWithCacheFallback(url, preferNetwork, rememberCode).then(response => {
+      if (!response.ok) throw new Error(`Asset preload failed: ${url} (${response.status})`);
+      preloadSceneArtResponse(url, response);
+    }).finally(() => {
+      if (this.loadingFiles.get(key)?.task === task) this.loadingFiles.delete(key);
+    });
+    this.loadingFiles.set(key, { task, groups: new Set([group]) });
+    return task;
+  }
+
+  private async fetchWithCacheFallback(url: string, preferNetwork: boolean, onFetchSuccess?: () => void): Promise<Response> {
     const cached = async (): Promise<Response | undefined> => {
       if (typeof caches === 'undefined') return undefined;
       try {
@@ -541,7 +633,10 @@ const now = () => typeof performance !== 'undefined' ? performance.now() : Date.
 
     try {
       const response = await fetch(url, { cache: preferNetwork ? 'reload' : 'force-cache' });
-      if (response.ok) await this.cacheResponse(url, response.clone());
+      if (response.ok) {
+        await this.cacheResponse(url, response.clone());
+        onFetchSuccess?.();
+      }
       return response;
     } catch (error) {
       const hit = await cached();

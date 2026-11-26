@@ -99,7 +99,7 @@ export class VersusSession {
         ctx.fillText(OPTION_LABEL[option], 640, y + 29);
       });
       ctx.font = '700 12px Arial, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.55)';
-      ctx.fillText('P1 OR P2: ↑ ↓ SELECT  •  CONFIRM / LP', 640, 552);
+      ctx.fillText('P1 OR P2: ← → SELECT  •  START / CONFIRM / LP', 640, 552);
     }
     ctx.globalAlpha = 1;
   }
